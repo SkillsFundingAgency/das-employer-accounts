@@ -18,11 +18,11 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
     private readonly IConfiguration _configuration;
     private readonly EmployerAccountsConfiguration _employerAccountsConfiguration;
 
-    public EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService userAccountService, IConfiguration configuration, IOptions<EmployerAccountsConfiguration> forecastingConfiguration)
+    public EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService userAccountService, IConfiguration configuration, IOptions<EmployerAccountsConfiguration> employerAccountsConfiguration)
     {
         _userAccountService = userAccountService;
         _configuration = configuration;
-        _employerAccountsConfiguration = forecastingConfiguration.Value;
+        _employerAccountsConfiguration = employerAccountsConfiguration.Value;
     }
     public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext tokenValidatedContext)
     {
