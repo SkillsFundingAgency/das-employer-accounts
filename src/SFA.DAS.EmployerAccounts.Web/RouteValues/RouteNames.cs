@@ -26,6 +26,9 @@
         public const string EmployerAccountPaye = "paye-index";
         public const string PayeDetails = "paye-details";
         public const string PayePostRemove = "paye-post-remove";
+        public const string EmployerAccountPayeGateway = "account-paye-gateway";
+        public const string EmployerAccountPayeGatewayInform = "account-paye-gateway-inform";
+        public const string PayePostNextSteps = "paye-post-next-steps";
 
         public const string PostConfirmRemoveOrganisation = "post-confirm-remove-organisation";
         public const string EmployerAgreementSignYourAgreement = "sign-your-agreement";
