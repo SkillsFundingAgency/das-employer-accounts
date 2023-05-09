@@ -58,7 +58,7 @@ public class Startup
         services.AddAutoConfiguration();
         services.AddDatabaseRegistration();
         services.AddDataRepositories();
-        services.AddApplicationServices(employerAccountsConfiguration);
+        services.AddApplicationServices();
         services.AddHmrcServices();
 
         if (employerAccountsConfiguration.UseGovSignIn)
@@ -95,8 +95,8 @@ public class Startup
 
         services.AddAuthenticationServices();
 
-        services.AddMediatorCommandValidators();
-        services.AddMediatorQueryValidators();
+
+        services.AddMediatorValidators();
         services.AddMediatR(typeof(GetEmployerAccountByIdQuery));
 
         if (_configuration.UseGovUkSignIn())

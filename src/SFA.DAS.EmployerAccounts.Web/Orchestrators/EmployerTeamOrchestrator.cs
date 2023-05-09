@@ -21,7 +21,6 @@ using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUser;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
 using SFA.DAS.Encoding;
-using ResourceNotFoundException = SFA.DAS.EmployerAccounts.Web.Exceptions.ResourceNotFoundException;
 
 namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
@@ -147,7 +146,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
         try
         {
-            var apiGetAccountTask = _accountApiClient.GetAccount(hashedAccountId);
+            var accountDetailViewModel = await _accountApiClient.GetAccount(hashedAccountId);
 
             var accountResponse = await _mediator.Send(new GetEmployerAccountByIdQuery
             {
@@ -179,8 +178,6 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             {
                 UserRef = externalUserId
             });
-
-            var accountDetailViewModel = apiGetAccountTask.Result;
 
             var apprenticeshipEmployerType = (ApprenticeshipEmployerType)Enum.Parse(typeof(ApprenticeshipEmployerType), accountDetailViewModel.ApprenticeshipEmployerType, true);
 
@@ -295,7 +292,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
     public virtual Task<OrchestratorResponse<TeamMember>> GetTeamMemberWhetherActiveOrNot(string hashedAccountId, string email, string externalUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-     
+
         return GetTeamMemberWhetherActiveOrNot(accountId, email, externalUserId);
     }
 
