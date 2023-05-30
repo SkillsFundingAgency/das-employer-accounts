@@ -2,7 +2,6 @@
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.NServiceBus.Configuration;
-using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Hosting;
@@ -17,10 +16,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddNServiceBus(this IServiceCollection services)
     {
         return services
-            .AddSingleton(p =>
+            .AddSingleton(provider =>
             {
-                var hostingEnvironment = p.GetService<IHostEnvironment>();
-                var configuration = p.GetService<EmployerAccountsConfiguration>();
+                var hostingEnvironment = provider.GetService<IHostEnvironment>();
+                var configuration = provider.GetService<EmployerAccountsConfiguration>();
                 var isDevelopment = hostingEnvironment.IsDevelopment();
 
                 var endpointConfiguration = new EndpointConfiguration(EndpointName)

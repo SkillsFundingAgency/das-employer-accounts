@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +19,13 @@ public class AccountPayeSchemesController : ControllerBase
         _orchestrator = orchestrator;
     }
 
-    [Route("{payeschemeref}", Name = "GetPayeScheme")]
+    [Route("{payeSchemeRef}", Name = "GetPayeScheme")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
-    public async Task<IActionResult> GetPayeScheme(string hashedAccountId, string payeSchemeRef)
+    public async Task<IActionResult> GetPayeScheme([FromRoute]string hashedAccountId, [FromRoute]string payeSchemeRef)
     {
-        var result = await _orchestrator.GetPayeScheme(hashedAccountId, WebUtility.UrlDecode(payeSchemeRef));
+        var decodedPayeSchemeRef = Uri.UnescapeDataString(payeSchemeRef);
+        var result = await _orchestrator.GetPayeScheme(hashedAccountId, decodedPayeSchemeRef);
 
         if (result == null)
         {
@@ -37,7 +38,7 @@ public class AccountPayeSchemesController : ControllerBase
     [Route("", Name = "GetPayeSchemes")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
-    public async Task<IActionResult> GetPayeSchemes(string hashedAccountId)
+    public async Task<IActionResult> GetPayeSchemes([FromRoute]string hashedAccountId)
     {
         var result = await _orchestrator.GetPayeSchemesForAccount(hashedAccountId);
 
@@ -49,7 +50,7 @@ public class AccountPayeSchemesController : ControllerBase
         return Ok(new ResourceList(result.Select(pv => new Resource
         {
             Id = pv.Ref,
-            Href = Url.RouteUrl("GetPayeScheme", new { hashedAccountId, payeSchemeRef = WebUtility.UrlEncode(pv.Ref) })
+            Href = Url.RouteUrl("GetPayeScheme", new { hashedAccountId, payeSchemeRef = Uri.EscapeDataString(pv.Ref) })
         })));
     }
 }
