@@ -44,6 +44,7 @@
 
             <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")" id="can-remove-organisation">
                 <fieldset class="govuk-fieldset" aria-describedby="can-remove-organisation">
+                    <legend class="govuk-visually-hidden">Confirm if you would like to remove the organisation</legend>
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <span class="govuk-error-message" aria-hidden="false" id="can-remove-organisation-error">
