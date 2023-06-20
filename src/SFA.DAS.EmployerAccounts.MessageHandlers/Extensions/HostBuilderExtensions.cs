@@ -3,14 +3,12 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
 using SFA.DAS.EmployerAccounts.Configuration;
-using SFA.DAS.EmployerAccounts.Data;
-using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.MessageHandlers.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.MessageHandlers.Startup;
 using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
 using SFA.DAS.EmployerAccounts.ReadStore.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
-using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
+using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.Extensions;
 
@@ -33,16 +31,17 @@ public static class HostBuilderExtensions
             services.AddReadStoreServices();
             services.AddMessageHandlerDataRepositories();
             services.AddMediatorValidators();
-            services.AddUnitOfWork();
-            services.AddNServiceBus();
+            services.AddNServiceBusUnitOfWork();
             services.AddMemoryCache();
             services.AddCachesRegistrations();
             services.AddDatabaseRegistration();
             services.AddEventsApi();
             services.AddAuditServices();
             services.AddHttpContextAccessor();
-            services.AddMediatR(typeof(CreateAccountUserCommandHandler).Assembly,
+            services.AddMediatR(
+                typeof(CreateAccountUserCommandHandler).Assembly,
                 typeof(AccountLevyStatusCommandHandler).Assembly);
+            services.AddNServiceBus();
         });
 
         return hostBuilder;

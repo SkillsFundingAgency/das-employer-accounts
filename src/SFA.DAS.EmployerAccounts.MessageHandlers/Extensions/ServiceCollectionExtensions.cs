@@ -1,4 +1,5 @@
-﻿using NServiceBus.ObjectBuilder.MSDependencyInjection;
+﻿using System.Net;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.NServiceBus.Configuration;
@@ -6,6 +7,7 @@ using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
+using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.Extensions;
 
@@ -23,18 +25,19 @@ public static class ServiceCollectionExtensions
                 var isDevelopment = hostingEnvironment.IsDevelopment();
 
                 var endpointConfiguration = new EndpointConfiguration(EndpointName)
+                    .ConfigureServiceBusTransport(() => configuration.ServiceBusConnectionString, isDevelopment)
                     .UseErrorQueue($"{EndpointName}-errors")
                     .UseInstallers()
-                    .UseOutbox()
-                    .UseMessageConventions()
-                    .UseNewtonsoftJsonSerializer()
                     .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
-                    .UseAzureServiceBusTransport(() => configuration.ServiceBusConnectionString, isDevelopment)
+                    .UseNewtonsoftJsonSerializer()
+                    .UseOutbox()
+                    .UseUnitOfWork()
                     .UseServicesBuilder(new UpdateableServiceProvider(services));
 
                 if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
                 {
-                    endpointConfiguration.UseLicense(configuration.NServiceBusLicense);
+                    var decodedLicence = WebUtility.HtmlDecode(configuration.NServiceBusLicense);
+                    endpointConfiguration.UseLicense(decodedLicence);
                 }
 
                 var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
