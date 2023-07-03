@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.Authentication;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.TasksApi;
+using SFA.DAS.ReferenceData.Api.Client;
 using SFA.DAS.TokenService.Api.Client;
 
 namespace SFA.DAS.EmployerAccounts.Configuration;
@@ -51,6 +52,7 @@ public class EmployerAccountsConfiguration
     public CommitmentsApiV2ClientConfiguration CommitmentsApi { get; set; }
     public AuditApiClientConfiguration AuditApi { get; set; }
     public RecruitClientApiConfiguration RecruitApi { get; set; }
+    
     public long DefaultServiceTimeoutMilliseconds { get; set; }
     public ContentClientApiConfiguration ContentApi { get; set; }
     public string ApplicationId { get; set; }
@@ -60,4 +62,6 @@ public class EmployerAccountsConfiguration
     public TaskApiConfiguration TasksApi { get; set; }
     public bool UseGovSignIn { get; set; }
     public string DataProtectionKeysDatabase { get; set; }
+    public IReferenceDataApiConfiguration ReferenceDataApi { get; set; }
+    
 }
