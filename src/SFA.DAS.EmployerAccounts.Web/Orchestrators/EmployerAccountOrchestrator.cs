@@ -249,51 +249,6 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         }
     }
 
-    public virtual async Task<OrchestratorResponse<EmployerAccountViewModel>> CreateMinimalUserAccountForSkipJourney(CreateUserAccountViewModel viewModel, HttpContext context)
-    {
-        try
-        {
-            var existingUserAccounts =
-                await Mediator.Send(new GetUserAccountsQuery { UserRef = viewModel.UserId });
-
-            if (existingUserAccounts?.Accounts?.AccountList?.Any() == true)
-                return new OrchestratorResponse<EmployerAccountViewModel>
-                {
-                    Data = new EmployerAccountViewModel
-                    {
-                        HashedId = existingUserAccounts.Accounts.AccountList.First().HashedId
-                    },
-                    Status = HttpStatusCode.OK
-                };
-
-            var result = await Mediator.Send(new CreateUserAccountCommand
-            {
-                ExternalUserId = viewModel.UserId,
-                OrganisationName = viewModel.OrganisationName
-            });
-
-            return new OrchestratorResponse<EmployerAccountViewModel>
-            {
-                Data = new EmployerAccountViewModel
-                {
-                    HashedId = result.HashedAccountId
-                },
-                Status = HttpStatusCode.OK
-            };
-        }
-        catch (InvalidRequestException ex)
-        {
-            _logger.LogError(ex, "Create User Account Validation Error: {Message}", ex.Message);
-            return new OrchestratorResponse<EmployerAccountViewModel>
-            {
-                Data = new EmployerAccountViewModel(),
-                Status = HttpStatusCode.BadRequest,
-                Exception = ex,
-                FlashMessage = new FlashMessageViewModel()
-            };
-        }
-    }
-
     public virtual OrchestratorResponse<SummaryViewModel> GetSummaryViewModel(HttpContext context)
     {
         var enteredData = GetCookieData();
