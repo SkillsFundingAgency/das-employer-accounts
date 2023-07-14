@@ -1,18 +1,23 @@
-﻿using SFA.DAS.EmployerAccounts.Messages.Events;
-using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
+﻿using SFA.DAS.EmployerAccounts.Events.Messages;
+using SFA.DAS.EmployerAccounts.Interfaces;
+using SFA.DAS.EmployerAccounts.Messages.Events;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
 public class UserJoinedEventHandler : IHandleMessages<UserJoinedEvent>
 {
-    private readonly IMediator _mediator;
+    private readonly ILegacyTopicMessagePublisher _messagePublisher;
 
-    public UserJoinedEventHandler(IMediator mediator)
+    public UserJoinedEventHandler(ILegacyTopicMessagePublisher messagePublisher)
     {
-        _mediator = mediator;
+        _messagePublisher = messagePublisher;
     }
     public async Task Handle(UserJoinedEvent message, IMessageHandlerContext context)
     {
-        await _mediator.Send(new CreateAccountUserCommand(message.AccountId, message.UserRef, message.Role, context.MessageId, message.Created));
+        await _messagePublisher.PublishAsync(
+            new UserJoinedMessage(
+                message.AccountId,
+                message.UserName,
+                message.UserRef.ToString()));
     }
 }

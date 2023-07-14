@@ -2,7 +2,7 @@
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 
-namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers;
+namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
 public class AddedLegalEntityEventHandler : IHandleMessages<AddedLegalEntityEvent>
 {

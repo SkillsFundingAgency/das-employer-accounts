@@ -3,7 +3,7 @@ using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.NServiceBus.Services;
 
-namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers;
+namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
 public class SignedAgreementEventHandler : IHandleMessages<SignedAgreementEvent>
 {
@@ -19,7 +19,7 @@ public class SignedAgreementEventHandler : IHandleMessages<SignedAgreementEvent>
     public async Task Handle(SignedAgreementEvent message, IMessageHandlerContext context)
     {
         _logger.LogInformation($"Starting {nameof(SignedAgreementEventHandler)} handler.");
-        
+
         await _messagePublisher.PublishAsync(new AgreementSignedMessage(
             message.AccountId,
             message.AgreementId,
@@ -28,7 +28,7 @@ public class SignedAgreementEventHandler : IHandleMessages<SignedAgreementEvent>
             message.CohortCreated,
             message.UserName,
             message.UserRef.ToString()));
-        
+
         _logger.LogInformation($"Completed {nameof(SignedAgreementEventHandler)} handler.");
     }
 }

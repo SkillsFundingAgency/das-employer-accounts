@@ -3,20 +3,22 @@ using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.NServiceBus.Services;
 
-namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers;
+namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
-public class UserJoinedEventHandler : IHandleMessages<UserJoinedEvent>
+public class InvitedUserEventHandler : IHandleMessages<InvitedUserEvent>
 {
     private readonly ILegacyTopicMessagePublisher _messagePublisher;
 
-    public UserJoinedEventHandler(ILegacyTopicMessagePublisher messagePublisher)
+    public InvitedUserEventHandler(ILegacyTopicMessagePublisher messagePublisher)
     {
         _messagePublisher = messagePublisher;
     }
-    public async Task Handle(UserJoinedEvent message, IMessageHandlerContext context)
+
+    public async Task Handle(InvitedUserEvent message, IMessageHandlerContext context)
     {
         await _messagePublisher.PublishAsync(
-            new UserJoinedMessage(
+            new UserInvitedMessage(
+                message.PersonInvited,
                 message.AccountId,
                 message.UserName,
                 message.UserRef.ToString()));

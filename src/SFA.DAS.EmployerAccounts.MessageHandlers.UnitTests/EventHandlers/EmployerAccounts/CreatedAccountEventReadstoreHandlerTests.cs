@@ -1,35 +1,36 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture.NUnit3;
+using MediatR;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Events.Messages;
-using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 using SFA.DAS.EmployerAccounts.Messages.Events;
+using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.EmployerAccounts
 {
     [TestFixture]
     [Parallelizable]
-    public class UserJoinedEventHandlerTests
+    public class CreatedAccountEventReadstoreHandlerTests
     {
         [Test, MoqAutoData]
         public async Task Handle_WhenHandlingEvent_ThenShouldSendCreateAccountUserCommand(
-            UserJoinedEvent userJoinedEvent,
+            CreatedAccountEvent createdAccountEvent,
             [Frozen] Mock<IMessageHandlerContext> messageHandlerContext,
-            [Frozen] Mock<ILegacyTopicMessagePublisher> legacyTopicMessagePublisherMock,
-            UserJoinedEventHandler eventHandler
+            [Frozen] Mock<IMediator> mediatorMock,
+            CreatedAccountEventReadstoreHandler eventHandler
             )
         {
             // Arrange 
 
             // Act
-            await eventHandler.Handle(userJoinedEvent, messageHandlerContext.Object);
+            await eventHandler.Handle(createdAccountEvent, messageHandlerContext.Object);
 
             // Assert
-            legacyTopicMessagePublisherMock.Verify(m => m.PublishAsync(It.Is<UserJoinedMessage>(x => x.CreatorUserRef == userJoinedEvent.UserRef.ToString())), Times.Once);
+            mediatorMock.Verify(m => m.Send(It.Is<CreateAccountUserCommand>(x => x.AccountId == createdAccountEvent.AccountId && x.UserRef == createdAccountEvent.UserRef), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
