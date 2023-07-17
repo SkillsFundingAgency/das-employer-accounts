@@ -16,7 +16,7 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
     public class CreatedAccountEventLegacyPublishHandlerTests
     {
         [Test, MoqAutoData]
-        public async Task Handle_WhenHandlingEvent_ThenShouldSendCreateAccountUserCommand(
+        public async Task Handle_WhenHandlingEvent_ThenShouldSendAccountCreatedMessage(
             CreatedAccountEvent createdAccountEvent,
             [Frozen] Mock<IMessageHandlerContext> messageHandlerContext,
             [Frozen] Mock<ILegacyTopicMessagePublisher> legacyTopicMessagePublisherMock,
