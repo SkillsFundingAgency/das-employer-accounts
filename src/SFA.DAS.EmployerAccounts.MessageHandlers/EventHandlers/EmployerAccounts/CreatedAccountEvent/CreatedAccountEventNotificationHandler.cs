@@ -7,13 +7,13 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccount
 
 public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAccountEvent>
 {
-    private readonly ILogger<CreatedAccountEventLegacyPublishHandler> _logger;
+    private readonly ILogger<CreatedAccountEventNotificationHandler> _logger;
     private readonly IUserAccountRepository _userRepository;
     private readonly IMediator _mediator;
     private const string EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
 
     public CreatedAccountEventNotificationHandler(
-        ILogger<CreatedAccountEventLegacyPublishHandler> logger,
+        ILogger<CreatedAccountEventNotificationHandler> logger,
         IUserAccountRepository userRepository,
         IMediator mediator)
     {
