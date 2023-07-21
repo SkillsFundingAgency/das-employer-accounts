@@ -288,6 +288,35 @@ public class EmployerAccountController : BaseController
         return View(result);
     }
 
+    [HttpPost]
+    [Route("summary", Name = RouteNames.SummaryPost)]
+    public IActionResult Summary(SummaryViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var response = new OrchestratorResponse<SummaryViewModel>
+            {
+                Data = model
+            };
+
+            return View(response);
+        }
+
+        if(!model.IsOrganisationWithCorrectAddress.Value)
+        {
+            return RedirectToRoute(RouteNames.OrganisationWrongAddress);
+        }
+
+        return RedirectToRoute(RouteNames.EmployerAccountCreate);
+    }
+
+    [HttpGet]
+    [Route("organisation-wrong-address", Name = RouteNames.OrganisationWrongAddress)]
+    public IActionResult OrganisationWrongAddress()
+    {
+        return View();
+    }
+
     [HttpGet]
     [Route("create")]
     public IActionResult Create()

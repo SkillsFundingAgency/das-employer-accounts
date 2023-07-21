@@ -8,6 +8,8 @@
         public const string AddPayeShutter = "add-paye-shutter";
         public const string NewAccountSaveProgress = "new-account-save-progress";
         public const string PartialAccountSaveProgress = "partial-account-save-progess";
+        public const string OrganisationWrongAddress = "organisation-wrong-address";
+        public const string SummaryPost = "summary-post";
 
         public const string EmployerAccountGetApprenticeshipFundingInAccount = "employer-account-get-apprentice-funding-in-account";
         public const string EmployerAccountPostApprenticeshipFundingInAccount = "post-employer-account-get-apprentice-funding-in-account";
