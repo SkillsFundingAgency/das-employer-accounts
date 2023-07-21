@@ -16,6 +16,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.13" />
 
         <PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.33" />
+
+        <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.24" />
         <PackageReference Include="NLog" Version="5.1.1" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
@@ -29,7 +31,7 @@
         <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
         <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
-        <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.47-prerelease-3" />
+        <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.50" />
         <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.49" />
         <PackageReference Include="SFA.DAS.Http" Version="3.2.28" />
         <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
@@ -43,6 +45,7 @@
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
         <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="6.0.18" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SFA.DAS.EmployerAccounts.Api.Client\SFA.DAS.EmployerAccounts.Api.Client.csproj" />
@@ -58,5 +61,10 @@
         <Content Update="appsettings.Development.json">
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </Content>
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="robots.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 </Project>
