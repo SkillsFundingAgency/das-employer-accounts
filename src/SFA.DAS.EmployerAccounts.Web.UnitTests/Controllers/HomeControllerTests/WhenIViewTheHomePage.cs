@@ -64,7 +64,6 @@ public class WhenIViewTheHomePage : ControllerTestBase
             _homeOrchestrator.Object,
             _configuration,
             _flashMessage.Object,
-            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
             Mock.Of<ILogger<HomeController>>(), configurationMock.Object, null,
             _urlActionHelper)
         {

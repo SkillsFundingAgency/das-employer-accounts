@@ -27,7 +27,6 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
             _homeOrchestrator.Object,              
             _configuration, 
             _flashMessage.Object,
-            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
             Mock.Of<ILogger<HomeController>>(), null, null,
             _urlActionHelper.Object)
         {
@@ -94,7 +93,6 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
             _homeOrchestrator.Object,              
             _configuration, 
             _flashMessage.Object,
-            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
             Mock.Of<ILogger<HomeController>>(), null, null,
             _urlActionHelper.Object)
         {
