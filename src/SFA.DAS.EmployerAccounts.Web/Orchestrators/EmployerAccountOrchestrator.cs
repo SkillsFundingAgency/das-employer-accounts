@@ -332,14 +332,14 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
     public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(string hashedAccountId, string userRef)
     {
+        var response = new OrchestratorResponse<AccountTaskListViewModel>();
+
         if (string.IsNullOrEmpty(hashedAccountId))
         {
             var existingTaskListViewModel = await GetFirstUserAccount(userRef);
 
-            return new OrchestratorResponse<AccountTaskListViewModel>
-            {
-                Data = existingTaskListViewModel
-            };
+            response.Data = existingTaskListViewModel;
+            return response;
         }
 
         var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
@@ -349,17 +349,17 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
         if (accountResponse == null || accountResponse.Account == null)
         {
-            return new OrchestratorResponse<AccountTaskListViewModel> { Status = HttpStatusCode.NotFound };
+            response.Status = HttpStatusCode.NotFound;
+            return response;
         }
 
-        return new OrchestratorResponse<AccountTaskListViewModel>
+        response.Data = new AccountTaskListViewModel
         {
-            Data = new AccountTaskListViewModel
-            {
-                HashedAccountId = hashedAccountId,
-                HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false
-            }
+            HashedAccountId = hashedAccountId,
+            HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false
         };
+
+        return response;
     }
 
     private async Task<AccountTaskListViewModel> GetFirstUserAccount(string userRef)
