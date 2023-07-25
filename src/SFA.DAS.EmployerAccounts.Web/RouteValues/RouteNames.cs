@@ -21,7 +21,7 @@
 
         public const string SignOut = "SignOut";
         public const string EmployerAgreementIndex = "employer-agreement-index";
-        public const string EmployerAccountCreate = "employer-account-create";
+        public const string OrganisationWrongAddressPost = "employer-account-create";
         public const string GetSignedPdfAgreement = "get-signed-pdf-agreement";
         public const string GetPdfAgreement = "get-pdf-agreement";
         public const string OrganisationConfirm = "organisation-confirm";

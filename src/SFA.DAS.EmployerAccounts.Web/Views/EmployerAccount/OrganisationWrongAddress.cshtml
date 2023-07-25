@@ -14,7 +14,7 @@
         </h1>
         <p class="govuk-body">If the address for your organisation is wrong, you will need to contact the relevant authority (Companies House, HMRC or the Charities Commission) to update.</p>
         <p class="govuk-body">You can continue to create your account and update your address later. We do not send any correspondence to your postal address.</p>
-        <form method="POST" asp-route="@RouteNames.EmployerAccountCreate">
+        <form method="POST" asp-route="@RouteNames.OrganisationWrongAddressPost">
             <div class="govuk-button-group">
                 <button type="submit" class="govuk-button" id="submit-add-a-paye-scheme-button">Continue</button>
                 <a asp-route="@RouteNames.NewEmpoyerAccountTaskList" class="govuk-link">Cancel</a>

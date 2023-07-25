@@ -302,12 +302,12 @@ public class EmployerAccountController : BaseController
             return View(response);
         }
 
-        if(!model.IsOrganisationWithCorrectAddress.Value)
+        if (!model.IsOrganisationWithCorrectAddress.Value)
         {
             return RedirectToRoute(RouteNames.OrganisationWrongAddress);
         }
 
-        return await CreateAccount();
+        return await CreateAccountFromCookieData();
     }
 
     [HttpGet]
@@ -315,6 +315,13 @@ public class EmployerAccountController : BaseController
     public IActionResult OrganisationWrongAddress()
     {
         return View();
+    }
+
+    [HttpPost]
+    [Route("organisation-wrong-address", Name = RouteNames.OrganisationWrongAddressPost)]
+    public async Task<IActionResult> OrganisationWrongAddressPost()
+    {
+        return await CreateAccountFromCookieData();
     }
 
     [HttpGet]
@@ -508,7 +515,7 @@ public class EmployerAccountController : BaseController
             ViewBag.UserId = externalUserId;
     }
 
-    private async Task<IActionResult> CreateAccount()
+    private async Task<IActionResult> CreateAccountFromCookieData()
     {
         var enteredData = _employerAccountOrchestrator.GetCookieData();
 
