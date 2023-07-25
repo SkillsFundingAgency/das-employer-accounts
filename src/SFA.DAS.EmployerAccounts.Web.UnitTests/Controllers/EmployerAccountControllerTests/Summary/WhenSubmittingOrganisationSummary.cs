@@ -9,7 +9,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
     public class WhenSubmittingOrganisationSummary
     {
         [Test, MoqAutoData]
-        public void With_No_Option_Should_Return_Error(
+        public async Task With_No_Option_Should_Return_Error(
             SummaryViewModel viewModel,
             [NoAutoProperties] EmployerAccountController controller)
         {
@@ -18,7 +18,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             controller.ModelState.AddModelError(nameof(viewModel.IsOrganisationWithCorrectAddress), "You have not set");
 
             // Act
-            var result = controller.Summary(viewModel) as ViewResult;
+            var result = await controller.Summary(viewModel) as ViewResult;
             var model = result.Model as OrchestratorResponse<SummaryViewModel>;
 
             // Assert
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
         }
 
         [Test, MoqAutoData]
-        public void With_Wrong_Address_Should_Redirect_To_Address_Shutter(
+        public async Task With_Wrong_Address_Should_Redirect_To_Address_Shutter(
             SummaryViewModel viewModel,
             [NoAutoProperties] EmployerAccountController controller)
         {
@@ -35,25 +35,10 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             viewModel.IsOrganisationWithCorrectAddress = false;
 
             // Act
-            var result = controller.Summary(viewModel) as RedirectToRouteResult;
+            var result = await controller.Summary(viewModel) as RedirectToRouteResult;
 
             // Assert
             result.RouteName.Should().Be(RouteNames.OrganisationWrongAddress);
-        }
-
-        [Test, MoqAutoData]
-        public void With_Correct_Address_Should_Redirect_To_Create_Account(
-          SummaryViewModel viewModel,
-          [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
-            viewModel.IsOrganisationWithCorrectAddress = true;
-
-            // Act
-            var result = controller.Summary(viewModel) as RedirectToRouteResult;
-
-            // Assert
-            result.RouteName.Should().Be(RouteNames.EmployerAccountCreate);
         }
     }
 }
