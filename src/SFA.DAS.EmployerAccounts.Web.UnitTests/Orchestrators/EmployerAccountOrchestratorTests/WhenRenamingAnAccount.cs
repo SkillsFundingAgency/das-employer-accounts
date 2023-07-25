@@ -47,7 +47,13 @@ public class WhenRenamingAnAccount
         _mediator.Setup(x => x.Send(It.IsAny<GetUserAccountRoleQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetUserAccountRoleResponse { UserRole = Role.Owner });
 
-        _orchestrator = new EmployerAccountOrchestrator(_mediator.Object, Mock.Of<ILogger<EmployerAccountOrchestrator>>(), _cookieService.Object, _configuration, Mock.Of<IEncodingService>());
+        _orchestrator = new EmployerAccountOrchestrator(
+            _mediator.Object, 
+            Mock.Of<ILogger<EmployerAccountOrchestrator>>(), 
+            _cookieService.Object, 
+            _configuration, 
+            Mock.Of<IEncodingService>(),
+            Mock.Of<IUrlActionHelper>());
     }
 
     [Test]

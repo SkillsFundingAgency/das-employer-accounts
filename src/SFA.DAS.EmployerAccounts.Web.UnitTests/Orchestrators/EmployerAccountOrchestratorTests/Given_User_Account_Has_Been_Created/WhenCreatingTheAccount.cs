@@ -32,7 +32,13 @@ public class WhenCreatingTheAccount
         _configuration = new EmployerAccountsConfiguration();
         _encodingService = new Mock<IEncodingService>();
 
-        _employerAccountOrchestrator = new EmployerAccountOrchestrator(_mediator.Object, _logger.Object, _cookieService.Object, _configuration, _encodingService.Object);
+        _employerAccountOrchestrator = new EmployerAccountOrchestrator(
+            _mediator.Object, 
+            _logger.Object, 
+            _cookieService.Object, 
+            _configuration, 
+            _encodingService.Object,
+            Mock.Of<IUrlActionHelper>());
 
         _encodingService.Setup(mock => mock.Encode(AgreementId, EncodingType.AccountId)).Returns(HashedAgreementId);
 

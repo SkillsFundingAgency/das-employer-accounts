@@ -15,6 +15,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 {
     private readonly ILogger<EmployerAccountOrchestrator> _logger;
     private readonly IEncodingService _encodingService;
+    private readonly IUrlActionHelper _urlHelper;
     private const string CookieName = "sfa-das-employerapprenticeshipsservice-employeraccount";
 
     //Needed for tests
@@ -25,11 +26,13 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         ILogger<EmployerAccountOrchestrator> logger,
         ICookieStorageService<EmployerAccountData> cookieService,
         EmployerAccountsConfiguration configuration,
-        IEncodingService encodingService)
+        IEncodingService encodingService,
+        IUrlActionHelper urlHelper)
         : base(mediator, cookieService, configuration)
     {
         _logger = logger;
         _encodingService = encodingService;
+        _urlHelper = urlHelper;
     }
 
     public async Task<OrchestratorResponse<EmployerAccountViewModel>> GetEmployerAccount(long accountId)
@@ -360,6 +363,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             };
         }
 
+        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details");
 
         return response;
     }

@@ -3,6 +3,7 @@ using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 using SFA.DAS.EmployerAccounts.TestCommon.AutoFixture;
@@ -96,6 +97,30 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
 
             // Assert
             model.Data.AddPayeRouteName.Should().Be(RouteNames.EmployerAccountPayBillTriage);
+        }
+
+        [Test]
+        [DomainAutoData]
+        public async Task Then_SetEditUserDetailsUrl(
+            string userId,
+            Uri editUserDetailsUri,
+            GetUserAccountsQueryResponse queryResponse,
+            [Frozen] Mock<IUrlActionHelper> urlHelperMock,
+            [Frozen] Mock<IMediator> mediatorMock,
+            [NoAutoProperties] EmployerAccountController controller)
+        {
+            // Arrange
+            queryResponse.Accounts.AccountList.Clear();
+            SetControllerContextUserIdClaim(userId, controller);
+            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
+            urlHelperMock.Setup(m => m.EmployerProfileAddUserDetails(It.IsAny<string>())).Returns(editUserDetailsUri.AbsoluteUri);
+
+            // Act
+            var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
+            var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+
+            // Assert
+            model.Data.EditUserDetailsUrl.Should().Be(editUserDetailsUri.AbsoluteUri);
         }
 
         [Test]

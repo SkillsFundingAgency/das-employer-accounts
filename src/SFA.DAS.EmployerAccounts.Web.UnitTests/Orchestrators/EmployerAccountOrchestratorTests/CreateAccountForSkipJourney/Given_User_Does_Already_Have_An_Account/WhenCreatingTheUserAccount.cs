@@ -30,7 +30,8 @@ public class WhenCreatingTheUserAccount
             _logger.Object,
             _cookieService.Object, 
             _configuration,
-            Mock.Of<IEncodingService>());
+            Mock.Of<IEncodingService>(),
+            Mock.Of<IUrlActionHelper>());
 
 
         _mediator.Setup(x => x.Send(It.IsAny<GetUserAccountsQuery>(), It.IsAny<CancellationToken>()))
