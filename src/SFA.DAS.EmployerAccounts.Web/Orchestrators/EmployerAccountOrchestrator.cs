@@ -339,25 +339,27 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             var existingTaskListViewModel = await GetFirstUserAccount(userRef);
 
             response.Data = existingTaskListViewModel;
-            return response;
+        }
+        else
+        {
+            var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
+            {
+                HashedAccountId = hashedAccountId
+            });
+
+            if (accountResponse == null || accountResponse.Account == null)
+            {
+                response.Status = HttpStatusCode.NotFound;
+                return response;
+            }
+
+            response.Data = new AccountTaskListViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false
+            };
         }
 
-        var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
-        {
-            HashedAccountId = hashedAccountId
-        });
-
-        if (accountResponse == null || accountResponse.Account == null)
-        {
-            response.Status = HttpStatusCode.NotFound;
-            return response;
-        }
-
-        response.Data = new AccountTaskListViewModel
-        {
-            HashedAccountId = hashedAccountId,
-            HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false
-        };
 
         return response;
     }
