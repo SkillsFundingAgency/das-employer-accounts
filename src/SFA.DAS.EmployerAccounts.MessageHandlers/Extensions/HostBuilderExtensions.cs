@@ -8,6 +8,8 @@ using SFA.DAS.EmployerAccounts.MessageHandlers.Startup;
 using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
 using SFA.DAS.EmployerAccounts.ReadStore.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
+using SFA.DAS.EmployerAccounts.Startup;
+using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.Extensions;
@@ -26,7 +28,16 @@ public static class HostBuilderExtensions
     {
         hostBuilder.ConfigureServices((context, services) =>
         {
+            var employerAccountsConfiguration = context.Configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
+
             services.AddConfigurationSections(context.Configuration);
+
+            services
+            .AddUnitOfWork()
+            .AddEntityFramework(employerAccountsConfiguration);
+
+            services.AddNotifications(context.Configuration);
+
             services.AddApplicationServices();
             services.AddReadStoreServices();
             services.AddMessageHandlerDataRepositories();
@@ -73,7 +84,7 @@ public static class HostBuilderExtensions
             builder.AddAzureTableStorage(options =>
                     {
                         options.ConfigurationKeys = new[]
-                            { ConfigurationKeys.EmployerAccounts, ConfigurationKeys.EmployerAccountsReadStore, ConfigurationKeys.EncodingConfig };
+                            { ConfigurationKeys.EmployerAccounts, ConfigurationKeys.EmployerAccountsReadStore, ConfigurationKeys.EncodingConfig, ConfigurationKeys.NotificationsApiClient };
                         options.PreFixConfigurationKeys = true;
                         options.ConfigurationKeysRawJsonResult = new[] { ConfigurationKeys.EncodingConfig };
                     }
