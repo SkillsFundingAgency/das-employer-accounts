@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentAssertions;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -6,10 +7,11 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
+using SFA.DAS.EmployerAccounts.Web.RouteValues;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccount.Given_New_Journey_Is_Enabled.Given_Return_Url_Cookie_Is_Present;
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.Summary.CreateAccount.Given_Account_Data_Is_Not_Null;
 
-public class WhenICreateAnAccount : ControllerTestBase
+class WhenICreateAnAccount : ControllerTestBase
 {
     private EmployerAccountController _employerAccountController;
     private Mock<EmployerAccountOrchestrator> _orchestrator;
@@ -17,20 +19,21 @@ public class WhenICreateAnAccount : ControllerTestBase
     private EmployerAccountData _accountData;
     private OrchestratorResponse<EmployerAgreementViewModel> _response;
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
-    private Mock<ICookieStorageService<ReturnUrlModel>> _returnUrlCookieStorage;
     private const string HashedAccountId = "ABC123";
-    private const string ExpectedReturnUrl = "test.com";
+    private SummaryViewModel _summaryViewModel;
 
     [SetUp]
     public void Arrange()
     {
         base.Arrange(ExpectedRedirectUrl);
 
+        _summaryViewModel = new SummaryViewModel { IsOrganisationWithCorrectAddress = true };
+
         _orchestrator = new Mock<EmployerAccountOrchestrator>();
 
         var logger = new Mock<ILogger<EmployerAccountController>>();
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
-        _returnUrlCookieStorage = new Mock<ICookieStorageService<ReturnUrlModel>>();
+
 
         _accountData = new EmployerAccountData
         {
@@ -74,15 +77,12 @@ public class WhenICreateAnAccount : ControllerTestBase
         _orchestrator.Setup(x => x.CreateOrUpdateAccount(It.IsAny<CreateAccountModel>(), It.IsAny<HttpContext>()))
             .ReturnsAsync(_response);
 
-        _returnUrlCookieStorage.Setup(x => x.Get("SFA.DAS.EmployerAccounts.Web.Controllers.ReturnUrlCookie"))
-            .Returns(new ReturnUrlModel { Value = ExpectedReturnUrl });
-
         _employerAccountController = new EmployerAccountController(
             _orchestrator.Object,
             logger.Object,
             _flashMessage.Object,
             Mock.Of<IMediator>(),
-            _returnUrlCookieStorage.Object,
+            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
             Mock.Of<ICookieStorageService<HashedAccountIdModel>>(),
             Mock.Of<LinkGenerator>())
         {
@@ -92,12 +92,45 @@ public class WhenICreateAnAccount : ControllerTestBase
     }
 
     [Test]
-    public async Task ThenIShouldGoToTheReturnUrl()
+    public async Task ThenIShouldGoToWhenDoYouWantToView()
     {
         //Act
-        var result = await _employerAccountController.CreateAccount() as RedirectResult;
+        var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectToRouteResult;
 
         //Assert
-        Assert.AreEqual(ExpectedReturnUrl, result.Url);
+        result.RouteName.Should().Be(RouteNames.OrganisationAndPayeAddedSuccess);
+    }
+
+    [Test]
+    public async Task ThenIShouldGetBackTheAccountId()
+    {
+        //Act
+        var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectToRouteResult;
+
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HashedAccountId, result.RouteValues["HashedAccountId"]);
+    }
+
+    [Test]
+    public async Task ThenTheParamtersArePassedFromTheCookieWhenCreatingTheAccount()
+    {
+        //Act
+        await _employerAccountController.Summary(_summaryViewModel);
+
+        //Assert
+        _orchestrator.Verify(x => x.CreateOrUpdateAccount(It.Is<CreateAccountModel>(
+            c =>
+                c.OrganisationStatus.Equals(_accountData.EmployerAccountOrganisationData.OrganisationStatus) &&
+                c.OrganisationName.Equals(_accountData.EmployerAccountOrganisationData.OrganisationName) &&
+                c.RefreshToken.Equals(_accountData.EmployerAccountPayeRefData.RefreshToken) &&
+                c.OrganisationDateOfInception.Equals(_accountData.EmployerAccountOrganisationData.OrganisationDateOfInception) &&
+                c.OrganisationAddress.Equals(_accountData.EmployerAccountOrganisationData.OrganisationRegisteredAddress) &&
+                c.AccessToken.Equals(_accountData.EmployerAccountPayeRefData.AccessToken) &&
+                c.PayeReference.Equals(_accountData.EmployerAccountPayeRefData.PayeReference) &&
+                c.EmployerRefName.Equals(_accountData.EmployerAccountPayeRefData.EmployerRefName) &&
+                c.Sector.Equals(_accountData.EmployerAccountOrganisationData.Sector) &&
+                c.OrganisationReferenceNumber.Equals(_accountData.EmployerAccountOrganisationData.OrganisationReferenceNumber)
+        ), It.IsAny<HttpContext>()));
     }
 }
