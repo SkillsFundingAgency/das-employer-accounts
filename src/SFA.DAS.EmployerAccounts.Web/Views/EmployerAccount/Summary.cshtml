@@ -140,10 +140,15 @@
                 <input type="hidden" name="PublicSectorDataSource" asp-for="Data.PublicSectorDataSource" />
                 <input type="hidden" name="OrganisationName" asp-for="Data.OrganisationName" />
                 <input type="hidden" name="OrganisationReferenceNumber" asp-for="Data.OrganisationReferenceNumber" />
-                <input type="hidden" name="RegisteredAddress" asp-for="Data.RegisteredAddress" />
                 <input type="hidden" name="PayeReference" asp-for="Data.PayeReference" />
                 <input type="hidden" name="EmployerRefName" asp-for="Data.EmployerRefName" />
                 <input type="hidden" name="AORN" asp-for="Data.AORN" />
+
+                <!-- Inside the form -->
+                @for (int i = 0; i < Model.Data.RegisteredAddress.Length; i++)
+                {
+                    <input type="hidden" name="RegisteredAddress[@i]" value="@Model.Data.RegisteredAddress[i]" />
+                }
             </div>
 
             <div class="govuk-button-group">
