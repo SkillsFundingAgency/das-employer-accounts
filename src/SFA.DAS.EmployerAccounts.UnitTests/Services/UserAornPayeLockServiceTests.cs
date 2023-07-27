@@ -23,7 +23,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services
     [TestFixture]
     public class UserAornPayeLockServiceTests
     {
-        private static readonly DateTime SeedDateTime = DateTime.Now;
+        private static readonly DateTime SeedDateTime = DateTime.UtcNow;
 
         private static readonly TestData[] TestData = 
         {
