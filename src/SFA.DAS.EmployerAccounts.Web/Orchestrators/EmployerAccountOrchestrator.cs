@@ -337,6 +337,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
     {
         var response = new OrchestratorResponse<AccountTaskListViewModel>();
 
+        var userResponse = await Mediator.Send(new GetUserByRefQuery { UserRef = userRef });
+
         if (string.IsNullOrEmpty(hashedAccountId))
         {
             var existingTaskListViewModel = await GetFirstUserAccount(userRef);
@@ -363,7 +365,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             };
         }
 
-        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details");
+        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
 
         return response;
     }
