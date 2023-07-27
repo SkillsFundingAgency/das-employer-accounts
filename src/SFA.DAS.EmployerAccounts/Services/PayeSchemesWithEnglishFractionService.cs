@@ -35,15 +35,31 @@ public class PayeSchemesWithEnglishFractionService : IPayeSchemesWithEnglishFrac
         return payeSchemes;
     }
 
-    private async Task AddEnglishFractionToPayeSchemes(long accountId, IEnumerable<PayeView> payeSchemes)
+    private async Task AddEnglishFractionToPayeSchemes(long accountId, IList<PayeView> payeSchemes)
     {
         var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
 
         // TODO: Outer API should use long accountId
-        var response = await _outerApiClient.Get<GetEnglishFractionCurrentResponse>(new GetEnglishFractionCurrentRequest(hashedAccountId, payeSchemes.Select(x => x.Ref).Where(x => !string.IsNullOrEmpty(x)).ToArray()));
+        var payeSchemeRefs = payeSchemes.Select(x => x.Ref).Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
-        var englishFractions = _mapper.Map<List<DasEnglishFraction>>(response.Fractions);
+        // CON-5023 - Batching up API calls due to some employers having large amounts of PAYE schemes.
+        var tasks = new List<Task<GetEnglishFractionCurrentResponse>>();
+        
+        const int batchSize = 50;
+        
+        var numberOfBatches = (int)Math.Ceiling((double)payeSchemeRefs.Length / batchSize);
+        
+        for (var batchIndex = 0; batchIndex < numberOfBatches; batchIndex++)
+        {
+            var currentPayeRefs = payeSchemeRefs.Skip(batchIndex * batchSize).Take(batchSize);
+            var request = new GetEnglishFractionCurrentRequest(hashedAccountId, currentPayeRefs);
+            tasks.Add(_outerApiClient.Get<GetEnglishFractionCurrentResponse>(request));
+        }
 
+        var responses = await Task.WhenAll(tasks);
+
+        var englishFractions = _mapper.Map<List<DasEnglishFraction>>(responses.SelectMany(x => x.Fractions));
+        
         foreach (var scheme in payeSchemes)
         {
             scheme.EnglishFraction = englishFractions.FirstOrDefault(x => x.EmpRef == scheme.Ref);
