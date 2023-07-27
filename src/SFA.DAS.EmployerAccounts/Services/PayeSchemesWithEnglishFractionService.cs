@@ -45,7 +45,7 @@ public class PayeSchemesWithEnglishFractionService : IPayeSchemesWithEnglishFrac
         // CON-5023 - Batching up API calls due to some employers having large amounts of PAYE schemes.
         var tasks = new List<Task<GetEnglishFractionCurrentResponse>>();
         
-        const int batchSize = 50;
+        const int batchSize = 100;
         
         var numberOfBatches = (int)Math.Ceiling((double)payeSchemeRefs.Length / batchSize);
         
