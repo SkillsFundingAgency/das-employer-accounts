@@ -1,0 +1,28 @@
+﻿@using SFA.DAS.EmployerAccounts.Web.Helpers
+@{
+    ViewBag.PageID = "organisation-wrong-address";
+    ViewBag.Title = "My organisation address is wrong";
+    ViewBag.ShowNav = false;
+
+    ViewBag.GaData.Vpv = "/service/accounts/organisation-wrong-address";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">
+            @ViewBag.Title
+        </h1>
+        <p class="govuk-body">If the address for your organisation is wrong, you will need to contact the relevant authority (Companies House, HMRC or the Charities Commission) to update.</p>
+        <p class="govuk-body">You can continue to create your account and update your address later. We do not send any correspondence to your postal address.</p>
+        <form method="POST" asp-route="@RouteNames.OrganisationWrongAddressPost">
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button" id="submit-add-a-paye-scheme-button">Continue</button>
+                <a asp-route="@RouteNames.NewEmpoyerAccountTaskList" class="govuk-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section breadcrumb {
+    <div class="das-js-back-link"></div>
+}
