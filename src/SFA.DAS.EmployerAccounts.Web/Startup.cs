@@ -180,6 +180,10 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
         }
+        else
+        {
+            app.UseExceptionHandler("/error");
+        }
 
         app.UseSupportConsoleAuthentication();
 

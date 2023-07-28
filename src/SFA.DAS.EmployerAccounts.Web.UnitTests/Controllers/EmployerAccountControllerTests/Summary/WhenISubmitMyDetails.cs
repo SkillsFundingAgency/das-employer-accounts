@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests;
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.Summary;
 
 public class WhenISubmitMyDetails : ControllerTestBase
 {
@@ -26,7 +26,7 @@ public class WhenISubmitMyDetails : ControllerTestBase
         _orchestrator = new Mock<EmployerAccountOrchestrator>();
 
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
-            
+
         _employerAccountController = new EmployerAccountController(
             _orchestrator.Object,
             Mock.Of<ILogger<EmployerAccountController>>(),
@@ -43,7 +43,7 @@ public class WhenISubmitMyDetails : ControllerTestBase
         _accountData = new EmployerAccountData
         {
             EmployerAccountOrganisationData = new EmployerAccountOrganisationData
-            { 
+            {
                 OrganisationName = "Test Corp",
                 OrganisationReferenceNumber = "1244454",
                 OrganisationRegisteredAddress = "1, Test Street",
@@ -81,7 +81,7 @@ public class WhenISubmitMyDetails : ControllerTestBase
         var actual = _employerAccountController.Summary();
 
         //Assert
-        _orchestrator.Verify(x=> x.GetSummaryViewModel(It.IsAny<HttpContext>()), Times.Once);
+        _orchestrator.Verify(x => x.GetSummaryViewModel(It.IsAny<HttpContext>()), Times.Once);
         Assert.IsNotNull(actual);
         var model = actual.Model as OrchestratorResponse<SummaryViewModel>;
         Assert.IsNotNull(model);

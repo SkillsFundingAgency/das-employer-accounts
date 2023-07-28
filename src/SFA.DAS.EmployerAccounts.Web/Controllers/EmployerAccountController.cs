@@ -288,66 +288,40 @@ public class EmployerAccountController : BaseController
         return View(result);
     }
 
-    [HttpGet]
-    [Route("create")]
-    public IActionResult Create()
+    [HttpPost]
+    [Route("summary", Name = RouteNames.SummaryPost)]
+    public async Task<IActionResult> Summary(SummaryViewModel model)
     {
-        return RedirectToAction(ControllerConstants.SummaryActionName);
+        if (!ModelState.IsValid)
+        {
+            var response = new OrchestratorResponse<SummaryViewModel>
+            {
+                Data = model
+            };
+
+            return View(response);
+        }
+
+        if (!model.IsOrganisationWithCorrectAddress.Value)
+        {
+            return RedirectToRoute(RouteNames.OrganisationWrongAddress);
+        }
+
+        return await CreateAccountFromCookieData();
+    }
+
+    [HttpGet]
+    [Route("organisation-wrong-address", Name = RouteNames.OrganisationWrongAddress)]
+    public IActionResult OrganisationWrongAddress()
+    {
+        return View();
     }
 
     [HttpPost]
-    [Route("create", Name = RouteNames.EmployerAccountCreate)]
-    public async Task<IActionResult> CreateAccount()
+    [Route("organisation-wrong-address", Name = RouteNames.OrganisationWrongAddressPost)]
+    public async Task<IActionResult> OrganisationWrongAddressPost()
     {
-        var enteredData = _employerAccountOrchestrator.GetCookieData();
-
-        if (enteredData == null)
-        {
-            // N.B CHANGED THIS FROM SelectEmployer which went nowhere.
-            _employerAccountOrchestrator.DeleteCookieData();
-
-            return RedirectToAction(ControllerConstants.SearchForOrganisationActionName, ControllerConstants.SearchOrganisationControllerName);
-        }
-
-        var request = new CreateAccountModel
-        {
-            UserId = GetUserId(),
-            OrganisationType = enteredData.EmployerAccountOrganisationData.OrganisationType,
-            OrganisationReferenceNumber = enteredData.EmployerAccountOrganisationData.OrganisationReferenceNumber,
-            OrganisationName = enteredData.EmployerAccountOrganisationData.OrganisationName,
-            OrganisationAddress = enteredData.EmployerAccountOrganisationData.OrganisationRegisteredAddress,
-            OrganisationDateOfInception = enteredData.EmployerAccountOrganisationData.OrganisationDateOfInception,
-            PayeReference = enteredData.EmployerAccountPayeRefData.PayeReference,
-            AccessToken = enteredData.EmployerAccountPayeRefData.AccessToken,
-            RefreshToken = enteredData.EmployerAccountPayeRefData.RefreshToken,
-            OrganisationStatus = string.IsNullOrWhiteSpace(enteredData.EmployerAccountOrganisationData.OrganisationStatus) ? null : enteredData.EmployerAccountOrganisationData.OrganisationStatus,
-            EmployerRefName = enteredData.EmployerAccountPayeRefData.EmployerRefName,
-            PublicSectorDataSource = enteredData.EmployerAccountOrganisationData.PublicSectorDataSource,
-            Sector = enteredData.EmployerAccountOrganisationData.Sector,
-            HashedAccountId = _accountCookieStorage.Get(_hashedAccountIdCookieName),
-            Aorn = enteredData.EmployerAccountPayeRefData.AORN
-        };
-
-        var response = await _employerAccountOrchestrator.CreateOrUpdateAccount(request, HttpContext);
-
-        if (response.Status == HttpStatusCode.BadRequest)
-        {
-            response.Status = HttpStatusCode.OK;
-            response.FlashMessage = new FlashMessageViewModel { Headline = "There was a problem creating your account" };
-            return RedirectToAction(ControllerConstants.SummaryActionName);
-        }
-
-        _employerAccountOrchestrator.DeleteCookieData();
-
-        var returnUrlCookie = _returnUrlCookieStorageService.Get(ReturnUrlCookieName);
-        _accountCookieStorage.Delete(_hashedAccountIdCookieName);
-
-        _returnUrlCookieStorageService.Delete(ReturnUrlCookieName);
-
-        if (returnUrlCookie != null && !string.IsNullOrWhiteSpace(returnUrlCookie.Value))
-            return Redirect(returnUrlCookie.Value);
-
-        return RedirectToRoute(RouteNames.OrganisationAndPayeAddedSuccess, new { hashedAccountId = response.Data.EmployerAgreement.HashedAccountId });
+        return await CreateAccountFromCookieData();
     }
 
     [HttpGet]
@@ -539,5 +513,58 @@ public class EmployerAccountController : BaseController
         var externalUserId = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
         if (externalUserId != null)
             ViewBag.UserId = externalUserId;
+    }
+
+    private async Task<IActionResult> CreateAccountFromCookieData()
+    {
+        var enteredData = _employerAccountOrchestrator.GetCookieData();
+
+        if (enteredData == null)
+        {
+            // N.B CHANGED THIS FROM SelectEmployer which went nowhere.
+            _employerAccountOrchestrator.DeleteCookieData();
+
+            return RedirectToAction(ControllerConstants.SearchForOrganisationActionName, ControllerConstants.SearchOrganisationControllerName);
+        }
+
+        var request = new CreateAccountModel
+        {
+            UserId = GetUserId(),
+            OrganisationType = enteredData.EmployerAccountOrganisationData.OrganisationType,
+            OrganisationReferenceNumber = enteredData.EmployerAccountOrganisationData.OrganisationReferenceNumber,
+            OrganisationName = enteredData.EmployerAccountOrganisationData.OrganisationName,
+            OrganisationAddress = enteredData.EmployerAccountOrganisationData.OrganisationRegisteredAddress,
+            OrganisationDateOfInception = enteredData.EmployerAccountOrganisationData.OrganisationDateOfInception,
+            PayeReference = enteredData.EmployerAccountPayeRefData.PayeReference,
+            AccessToken = enteredData.EmployerAccountPayeRefData.AccessToken,
+            RefreshToken = enteredData.EmployerAccountPayeRefData.RefreshToken,
+            OrganisationStatus = string.IsNullOrWhiteSpace(enteredData.EmployerAccountOrganisationData.OrganisationStatus) ? null : enteredData.EmployerAccountOrganisationData.OrganisationStatus,
+            EmployerRefName = enteredData.EmployerAccountPayeRefData.EmployerRefName,
+            PublicSectorDataSource = enteredData.EmployerAccountOrganisationData.PublicSectorDataSource,
+            Sector = enteredData.EmployerAccountOrganisationData.Sector,
+            HashedAccountId = _accountCookieStorage.Get(_hashedAccountIdCookieName),
+            Aorn = enteredData.EmployerAccountPayeRefData.AORN
+        };
+
+        var response = await _employerAccountOrchestrator.CreateOrUpdateAccount(request, HttpContext);
+
+        if (response.Status == HttpStatusCode.BadRequest)
+        {
+            response.Status = HttpStatusCode.OK;
+            response.FlashMessage = new FlashMessageViewModel { Headline = "There was a problem creating your account" };
+            return RedirectToAction(ControllerConstants.SummaryActionName);
+        }
+
+        _employerAccountOrchestrator.DeleteCookieData();
+
+        var returnUrlCookie = _returnUrlCookieStorageService.Get(ReturnUrlCookieName);
+        _accountCookieStorage.Delete(_hashedAccountIdCookieName);
+
+        _returnUrlCookieStorageService.Delete(ReturnUrlCookieName);
+
+        if (returnUrlCookie != null && !string.IsNullOrWhiteSpace(returnUrlCookie.Value))
+            return Redirect(returnUrlCookie.Value);
+
+        return RedirectToRoute(RouteNames.OrganisationAndPayeAddedSuccess, new { hashedAccountId = response.Data.EmployerAgreement.HashedAccountId });
     }
 }
