@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
+using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.Notifications.Api.Types;
 
@@ -10,16 +11,19 @@ public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAcc
     private readonly ILogger<CreatedAccountEventNotificationHandler> _logger;
     private readonly IUserAccountRepository _userRepository;
     private readonly IMediator _mediator;
+    private readonly IUrlActionHelper _urlActionHelper;
     private const string EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
 
     public CreatedAccountEventNotificationHandler(
         ILogger<CreatedAccountEventNotificationHandler> logger,
         IUserAccountRepository userRepository,
-        IMediator mediator)
+        IMediator mediator,
+        IUrlActionHelper urlActionHelper)
     {
         _logger = logger;
         _userRepository = userRepository;
         _mediator = mediator;
+        _urlActionHelper = urlActionHelper;
     }
 
     public async Task Handle(CreatedAccountEvent message, IMessageHandlerContext context)
@@ -36,7 +40,8 @@ public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAcc
                 TemplateId = EmployerAccountCreatedTemplateId,
                 Tokens = new Dictionary<string, string> {
                     { "user_first_name", existingUser.FirstName },
-                    { "employer_name", message.Name }
+                    { "employer_name", message.Name },
+                    { "unsubscribe_url", _urlActionHelper.EmployerAccountsAction("/settings/notifications") }
                 }
             }
         });
