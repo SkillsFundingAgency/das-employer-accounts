@@ -12,7 +12,7 @@ public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAcc
     private readonly IUserAccountRepository _userRepository;
     private readonly IMediator _mediator;
     private readonly IUrlActionHelper _urlActionHelper;
-    private const string EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
+    private const string EmployerAccountCreatedTemplateId = "3d455ac3-876d-4bf8-8a77-07b67c06831d";
 
     public CreatedAccountEventNotificationHandler(
         ILogger<CreatedAccountEventNotificationHandler> logger,
