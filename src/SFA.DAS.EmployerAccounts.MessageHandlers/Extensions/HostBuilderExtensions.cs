@@ -1,4 +1,5 @@
-﻿using NLog.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging.ApplicationInsights;
+using NLog.Extensions.Logging;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
@@ -69,6 +70,8 @@ public static class HostBuilderExtensions
                     ? "nlog.development.config"
                     : "nlog.config");
                 loggingBuilder.AddApplicationInsightsWebJobs(o => o.ConnectionString = connectionString);
+                loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+                loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
             }
 
             loggingBuilder.AddConsole();
