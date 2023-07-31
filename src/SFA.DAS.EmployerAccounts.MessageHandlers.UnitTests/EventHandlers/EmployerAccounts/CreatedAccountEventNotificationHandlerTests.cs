@@ -8,6 +8,7 @@ using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.SendNotification;
+using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
@@ -53,10 +54,10 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
         public async Task Handle_WhenHandlingEvent_ThenShouldSendNotificationWithCorrectTokens(
             User user,
             CreatedAccountEvent createdAccountEvent,
-            [Frozen] Mock<IUrlActionHelper> urlActionHelperMock,
             [Frozen] Mock<IUserAccountRepository> userRepositoryMock,
             [Frozen] Mock<IMessageHandlerContext> messageHandlerContext,
             [Frozen] Mock<IMediator> mediatorMock,
+            [Frozen] EmployerAccountsConfiguration configuration,
             CreatedAccountEventNotificationHandler eventHandler
             )
         {
@@ -64,10 +65,9 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
             const string accountBase = "http://accounts.test.url";
             const string notificationPath = "/settings/notifications";
             userRepositoryMock.Setup(m => m.GetUserByRef(createdAccountEvent.UserRef)).ReturnsAsync(user);
+            configuration.EmployerAccountsBaseUrl = accountBase;
 
-            urlActionHelperMock.Setup(m => m.EmployerAccountsAction(notificationPath)).Returns(accountBase + notificationPath);
-
-            SendNotificationCommand resultCommand = new SendNotificationCommand();
+            var resultCommand = new SendNotificationCommand();
             mediatorMock.Setup(m => m.Send(It.IsAny<SendNotificationCommand>(), It.IsAny<CancellationToken>()))
                 .Callback((IRequest<Unit> request, CancellationToken cancelToken) =>
                 {

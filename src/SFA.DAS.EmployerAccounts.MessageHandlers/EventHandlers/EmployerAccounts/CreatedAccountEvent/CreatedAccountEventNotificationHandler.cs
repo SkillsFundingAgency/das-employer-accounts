@@ -45,7 +45,7 @@ public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAcc
                     { "employer_name", message.Name },
                     {
                         "unsubscribe_url",
-                        $"{_configuration.EmployerAccountsBaseUrl}/accounts/{message.PublicHashedId}/settings/notifications"
+                        $"{_configuration.EmployerAccountsBaseUrl}/settings/notifications"
                     }
                 }
             }
