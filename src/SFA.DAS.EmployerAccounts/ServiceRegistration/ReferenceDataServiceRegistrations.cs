@@ -8,10 +8,7 @@ public static class ReferenceDataServiceRegistrations
     public static IServiceCollection AddReferenceDataApi(this IServiceCollection services)
     {
         services.AddScoped<IReferenceDataService, ReferenceDataService>();
-        services.AddScoped<IReferenceDataApiClient>(sp =>
-        {
-            return new ReferenceDataApiClient(sp.GetService<IReferenceDataApiConfiguration>());
-        });
+        services.AddScoped<IReferenceDataApiClient>(sp => new ReferenceDataApiClient(sp.GetService<IReferenceDataApiConfiguration>()));
 
         return services;
     }
