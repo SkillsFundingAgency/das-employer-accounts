@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 
-public record CreateAccountCompleteCommand : IRequest<CreateAccountCompleteCommand>, IRequest<Unit>
+public record CreateAccountCompleteCommand : IRequest
 {
     public string HashedAccountId { get; init; }
     public string OrganisationName { get; init; }
