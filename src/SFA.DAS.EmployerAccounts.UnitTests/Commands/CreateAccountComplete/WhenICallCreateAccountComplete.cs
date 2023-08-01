@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
@@ -63,7 +64,8 @@ public class WhenICallCreateAccountComplete
             _mediator.Object,
             _mockMembershipRepository.Object,
             _encodingService.Object,
-            _validator.Object);
+            _validator.Object,
+            Mock.Of<ILogger<CreateAccountCompleteCommandHandler>>());
     }
 
     [Test]
