@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
+using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -13,6 +15,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
     class WhenISelectToNotChangeAccountName : ControllerTestBase
     {
         private EmployerAccountController _employerAccountController;
+        private Mock<IMediator> _mediator;
         private Mock<EmployerAccountOrchestrator> _orchestrator;
         private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
         private const string ExpectedRedirectUrl = "http://redirect.local.test";
@@ -23,34 +26,33 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             base.Arrange(ExpectedRedirectUrl);
 
             _orchestrator = new Mock<EmployerAccountOrchestrator>();
-
+            _mediator = new Mock<IMediator>();
             _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
 
             _orchestrator.Setup(x =>
-                    x.RenameEmployerAccount(It.IsAny<string>(), It.IsAny<RenameEmployerAccountViewModel>(), It.IsAny<string>()))
+                    x.RenameEmployerAccount(It.IsAny<string>(), It.IsAny<RenameEmployerAccountViewModel>(),
+                        It.IsAny<string>()))
                 .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
                 {
                     Status = HttpStatusCode.OK,
                     Data = new RenameEmployerAccountViewModel()
                 });
 
-
             AddUserToContext();
 
             _employerAccountController = new EmployerAccountController(
-               _orchestrator.Object,
-               Mock.Of<ILogger<EmployerAccountController>>(),
-               _flashMessage.Object,
-               Mock.Of<IMediator>(),
-               Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
-               Mock.Of<ICookieStorageService<HashedAccountIdModel>>(),
-               Mock.Of<LinkGenerator>())
+                _orchestrator.Object,
+                Mock.Of<ILogger<EmployerAccountController>>(),
+                _flashMessage.Object,
+                _mediator.Object,
+                Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
+                Mock.Of<ICookieStorageService<HashedAccountIdModel>>(),
+                Mock.Of<LinkGenerator>())
             {
                 ControllerContext = ControllerContext,
                 Url = new UrlHelper(new ActionContext(MockHttpContext.Object, Routes, new ActionDescriptor()))
             };
         }
-
 
         [Test, MoqAutoData]
         public async Task Then_Name_Is_Updated(string hashedAccountId, RenameEmployerAccountViewModel viewModel)
@@ -74,9 +76,9 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             _orchestrator
                 .Setup(m => m.RenameEmployerAccount(hashedAccountId, viewModel, UserId))
                 .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
-            {
+                {
                     Status = HttpStatusCode.BadRequest
-            });
+                });
 
             // Act
             var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as ViewResult;
@@ -87,7 +89,8 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Should_Redirect_To_Success(string hashedAccountId, RenameEmployerAccountViewModel viewModel)
+        public async Task Then_Should_Redirect_To_Success(string hashedAccountId,
+            RenameEmployerAccountViewModel viewModel)
         {
             // Arrange
             viewModel.ChangeAccountName = false;
@@ -100,10 +103,35 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
                 });
 
             // Act
-            var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as RedirectToRouteResult;
+            var result =
+                await _employerAccountController.AccountName(hashedAccountId, viewModel) as RedirectToRouteResult;
 
             // Assert
             result.RouteName.Should().Be(RouteNames.AccountNameSuccess);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Should_Send_CreateAccountCompleteCommand(string hashedAccountId,
+            RenameEmployerAccountViewModel viewModel)
+        {
+            // Arrange
+            viewModel.ChangeAccountName = false;
+
+            _orchestrator
+                .Setup(m => m.RenameEmployerAccount(hashedAccountId, viewModel, UserId))
+                .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
+                {
+                    Status = HttpStatusCode.OK
+                });
+
+            // Act
+            await _employerAccountController.AccountName(hashedAccountId, viewModel);
+
+            // Assert
+            _mediator.Verify(x => x.Send(It.Is<CreateAccountCompleteCommand>(c =>
+                c.HashedAccountId.Equals(hashedAccountId)
+                && c.ExternalUserId.Equals(UserId)
+                && c.OrganisationName.Equals(viewModel.NewName)), It.IsAny<CancellationToken>()), Times.Once());
         }
     }
 }

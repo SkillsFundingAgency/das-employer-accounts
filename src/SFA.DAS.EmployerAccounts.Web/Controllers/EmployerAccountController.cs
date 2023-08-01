@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
@@ -6,6 +7,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.PayeRefData;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
@@ -405,6 +407,15 @@ public class EmployerAccountController : BaseController
 
                     if (response.Status == HttpStatusCode.OK)
                     {
+                        var createdAccountCompletedCommand = new CreateAccountCompleteCommand
+                        {
+                            HashedAccountId = hashedAccountId,
+                            ExternalUserId = GetUserId(),
+                            OrganisationName = vm.NewName,
+                        };
+                        
+                        await _mediator.Send(createdAccountCompletedCommand);
+                        
                         return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
                     }
 
@@ -443,6 +454,15 @@ public class EmployerAccountController : BaseController
 
         if (response.Status == HttpStatusCode.OK)
         {
+            // Send create account notification
+            var createdAccountCompletedCommand = new CreateAccountCompleteCommand
+            {
+                HashedAccountId = hashedAccountId,
+                ExternalUserId = GetUserId(),
+                OrganisationName = vm.NewName,
+            };
+            await _mediator.Send(createdAccountCompletedCommand);
+            
             return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
         }
 
