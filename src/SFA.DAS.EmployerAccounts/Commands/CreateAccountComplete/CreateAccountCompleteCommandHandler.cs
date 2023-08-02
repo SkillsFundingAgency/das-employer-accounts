@@ -37,16 +37,23 @@ public class CreateAccountCompleteCommandHandler : IRequestHandler<CreateAccount
         
         ValidateRequest(request);
         
-        var externalUserId = Guid.Parse(request.ExternalUserId);
         var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = request.ExternalUserId }, cancellationToken);
         var publicHashedAccountId = _encodingService.Encode(userResponse.User.Id, EncodingType.PublicAccountId);
 
-        _logger.LogInformation("User Response: {UserResponse}.", userResponse);
+        if (userResponse.User == null)
+        {
+            _logger.LogInformation("UserResponse user was null.");
+        }
+        else
+        {
+            _logger.LogInformation("UserResponse userId: {UserId}.", userResponse.User.Id);    
+        }
+        
 
         var caller = await _membershipRepository.GetCaller(userResponse.User.Id, request.ExternalUserId);
-
         var createdByName = caller.FullName();
-
+        var externalUserId = Guid.Parse(request.ExternalUserId);
+        
         await PublishAccountCreatedMessage(userResponse.User.Id, request.HashedAccountId, publicHashedAccountId, request.OrganisationName, createdByName, externalUserId);
         
         _logger.LogInformation("Completed processing of {TypeName}.", nameof(CreateAccountCompleteCommandHandler));
