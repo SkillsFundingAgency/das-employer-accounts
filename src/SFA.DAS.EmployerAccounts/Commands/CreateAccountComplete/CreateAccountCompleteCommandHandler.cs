@@ -12,20 +12,17 @@ public class CreateAccountCompleteCommandHandler : IRequestHandler<CreateAccount
     private readonly IEventPublisher _eventPublisher;
     private readonly IMediator _mediator;
     private readonly IEncodingService _encodingService;
-    private readonly IMembershipRepository _membershipRepository;
     private readonly IValidator<CreateAccountCompleteCommand> _validator;
     private readonly ILogger<CreateAccountCompleteCommandHandler> _logger;
 
     public CreateAccountCompleteCommandHandler(IEventPublisher eventPublisher, 
         IMediator mediator,
-        IMembershipRepository membershipRepository,
         IEncodingService encodingService,
         IValidator<CreateAccountCompleteCommand> validator,
         ILogger<CreateAccountCompleteCommandHandler> logger)
     {
         _eventPublisher = eventPublisher;
         _mediator = mediator;
-        _membershipRepository = membershipRepository;
         _encodingService = encodingService;
         _validator = validator;
         _logger = logger;
@@ -40,21 +37,9 @@ public class CreateAccountCompleteCommandHandler : IRequestHandler<CreateAccount
         var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = request.ExternalUserId }, cancellationToken);
         var publicHashedAccountId = _encodingService.Encode(userResponse.User.Id, EncodingType.PublicAccountId);
 
-        if (userResponse.User == null)
-        {
-            _logger.LogInformation("UserResponse user was null.");
-        }
-        else
-        {
-            _logger.LogInformation("UserResponse userId: {UserId}.", userResponse.User.Id);    
-        }
-        
-
-        var caller = await _membershipRepository.GetCaller(userResponse.User.Id, request.ExternalUserId);
-        var createdByName = caller.FullName();
         var externalUserId = Guid.Parse(request.ExternalUserId);
         
-        await PublishAccountCreatedMessage(userResponse.User.Id, request.HashedAccountId, publicHashedAccountId, request.OrganisationName, createdByName, externalUserId);
+        await PublishAccountCreatedMessage(userResponse.User.Id, request.HashedAccountId, publicHashedAccountId, request.OrganisationName, userResponse.User.FullName, externalUserId);
         
         _logger.LogInformation("Completed processing of {TypeName}.", nameof(CreateAccountCompleteCommandHandler));
 

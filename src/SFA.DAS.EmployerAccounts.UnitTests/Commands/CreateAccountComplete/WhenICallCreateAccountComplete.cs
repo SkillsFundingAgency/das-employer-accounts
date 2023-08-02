@@ -26,7 +26,6 @@ public class WhenICallCreateAccountComplete
     private TestableEventPublisher _eventPublisher;
     private CreateAccountCompleteCommandHandler _handler;
     private Mock<IEncodingService> _encodingService;
-    private Mock<IMembershipRepository> _mockMembershipRepository;
 
     private const long ExpectedAccountId = 12343322;
     private const string ExpectedHashString = "123ADF23";
@@ -55,14 +54,9 @@ public class WhenICallCreateAccountComplete
         _encodingService.Setup(x => x.Encode(ExpectedAccountId, EncodingType.PublicAccountId))
             .Returns(ExpectedPublicHashString);
         
-        _mockMembershipRepository = new Mock<IMembershipRepository>();
-        _mockMembershipRepository.Setup(r => r.GetCaller(It.IsAny<long>(), It.IsAny<string>()))
-            .Returns(Task.FromResult(new MembershipView { FirstName = _user.FirstName, LastName = _user.LastName }));
-
         _handler = new CreateAccountCompleteCommandHandler(
             _eventPublisher,
             _mediator.Object,
-            _mockMembershipRepository.Object,
             _encodingService.Object,
             _validator.Object,
             Mock.Of<ILogger<CreateAccountCompleteCommandHandler>>());
