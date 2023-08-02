@@ -454,12 +454,11 @@ public class EmployerAccountController : BaseController
 
         if (response.Status == HttpStatusCode.OK)
         {
-            // Send create account notification
             var createdAccountCompletedCommand = new CreateAccountCompleteCommand
             {
                 HashedAccountId = hashedAccountId,
                 ExternalUserId = GetUserId(),
-                OrganisationName = vm.NewName,
+                OrganisationName = response.Data.CurrentName,
             };
             await _mediator.Send(createdAccountCompletedCommand);
             
