@@ -41,6 +41,8 @@ public class CreateAccountCompleteCommandHandler : IRequestHandler<CreateAccount
         var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = request.ExternalUserId }, cancellationToken);
         var publicHashedAccountId = _encodingService.Encode(userResponse.User.Id, EncodingType.PublicAccountId);
 
+        _logger.LogInformation("User Response: {UserResponse}.", userResponse);
+
         var caller = await _membershipRepository.GetCaller(userResponse.User.Id, request.ExternalUserId);
 
         var createdByName = caller.FullName();
