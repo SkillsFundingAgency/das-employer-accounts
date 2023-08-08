@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
@@ -11,6 +12,7 @@ using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Mappings;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
+using SFA.DAS.EmployerAccounts.Startup;
 using SFA.DAS.EmployerAccounts.Web.Extensions;
 using SFA.DAS.EmployerAccounts.Web.Filters;
 using SFA.DAS.EmployerAccounts.Web.Handlers;
@@ -21,7 +23,6 @@ using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
-using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.EmployerAccounts.Web;
@@ -46,6 +47,8 @@ public class Startup
 
         services.AddLogging();
 
+        services.AddHttpContextAccessor();
+
         services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
         services.AddConfigurationOptions(_configuration);
         var identityServerConfiguration = _configuration
@@ -64,7 +67,7 @@ public class Startup
 
         if (employerAccountsConfiguration.UseGovSignIn)
         {
-            services.AddMaMenuConfiguration(RouteNames.SignOut,  _configuration["ResourceEnvironmentName"]);
+            services.AddMaMenuConfiguration(RouteNames.SignOut, _configuration["ResourceEnvironmentName"]);
         }
         else
         {
@@ -97,6 +100,8 @@ public class Startup
         services.AddMediatorValidators();
         services.AddMediatR(typeof(GetEmployerAccountByIdQuery));
 
+        var authenticationBuilder = services.AddAuthentication();
+
         if (_configuration.UseGovUkSignIn())
         {
             var govConfig = _configuration.GetSection("SFA.DAS.Employer.GovSignIn");
@@ -112,8 +117,18 @@ public class Startup
             services.AddAndConfigureEmployerAuthentication(identityServerConfiguration);
         }
 
-        // TODO: Support sign in 
-        //services.AddAndConfigureSupportUserAuthentications(new SupportConsoleAuthenticationOptions());
+        var staffAuthConfig = new SupportConsoleAuthenticationOptions
+        {
+            AdfsOptions = new ADFSOptions
+            {
+                MetadataAddress = employerAccountsConfiguration.AdfsMetadata,
+                Wreply = employerAccountsConfiguration.EmployerAccountsBaseUrl,
+                Wtrealm = employerAccountsConfiguration.EmployerAccountsBaseUrl,
+                BaseUrl = employerAccountsConfiguration.Identity.BaseAddress,
+            }
+        };
+
+        authenticationBuilder.AddAndConfigureSupportConsoleAuthentication(staffAuthConfig);
 
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
@@ -165,13 +180,30 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
         }
+        else
+        {
+            app.UseExceptionHandler("/error");
+        }
+
+        app.UseSupportConsoleAuthentication();
 
         app.UseUnitOfWork();
 
         app.UseStaticFiles();
+
+        app.UseMiddleware<RobotsTextMiddleware>();
+
         app.UseAuthentication();
+        app.UseCookiePolicy(new CookiePolicyOptions
+        {
+            Secure = CookieSecurePolicy.Always,
+            MinimumSameSitePolicy = SameSiteMode.None,
+            HttpOnly = HttpOnlyPolicy.Always
+        });
+
         app.UseRouting();
         app.UseAuthorization();
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllerRoute(

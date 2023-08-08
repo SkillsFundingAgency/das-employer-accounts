@@ -1,22 +1,11 @@
-﻿using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Interfaces;
-using SFA.DAS.EmployerAccounts.Models.Account;
-using SFA.DAS.EmployerAccounts.Web.Controllers;
-using SFA.DAS.EmployerAccounts.Web.Helpers;
-using SFA.DAS.EmployerAccounts.Web.Models;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
-using SFA.DAS.EmployerAccounts.Web.ViewModels;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccount.Given_Cookie_Data_Is_Null;
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.Summary.CreateAccount.Given_Account_Data_Is_Null;
 
 class WhenICreateAnAccount : ControllerTestBase
 {
@@ -24,11 +13,14 @@ class WhenICreateAnAccount : ControllerTestBase
     private Mock<EmployerAccountOrchestrator> _orchestrator;
     private const string ExpectedRedirectUrl = "http://redirect.local.test";
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
+    private SummaryViewModel _summaryViewModel;
 
     [SetUp]
     public void Arrange()
     {
         base.Arrange(ExpectedRedirectUrl);
+
+        _summaryViewModel = new SummaryViewModel { IsOrganisationWithCorrectAddress = true };
 
         _orchestrator = new Mock<EmployerAccountOrchestrator>();
 
@@ -56,7 +48,7 @@ class WhenICreateAnAccount : ControllerTestBase
     public async Task Then_I_Should_Be_Redirected_To_Search_Organisatoin_Page()
     {
         //Act
-        var result = await _employerAccountController.CreateAccount() as RedirectToActionResult;
+        var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectToActionResult;
 
         //Assert
         Assert.AreEqual(ControllerConstants.SearchForOrganisationActionName, result.ActionName);
@@ -66,7 +58,7 @@ class WhenICreateAnAccount : ControllerTestBase
     [Test]
     public async Task Then_Orchestrator_Create_Account_Is_Not_Called()
     {
-        await _employerAccountController.CreateAccount();
+        await _employerAccountController.Summary(_summaryViewModel);
 
         _orchestrator
             .Verify(
