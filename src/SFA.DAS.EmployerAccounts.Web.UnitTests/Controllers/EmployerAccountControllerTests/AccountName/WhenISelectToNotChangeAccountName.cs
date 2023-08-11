@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
-using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -30,7 +28,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
 
             _orchestrator.Setup(x =>
-                    x.RenameEmployerAccount(It.IsAny<string>(), It.IsAny<RenameEmployerAccountViewModel>(),
+                    x.SetEmployerAccountName(It.IsAny<string>(), It.IsAny<RenameEmployerAccountViewModel>(),
                         It.IsAny<string>()))
                 .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
                 {
@@ -64,7 +62,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as ViewResult;
 
             // Assert
-            _orchestrator.Verify(m => m.RenameEmployerAccount(hashedAccountId, viewModel, UserId), Times.Once);
+            _orchestrator.Verify(m => m.SetEmployerAccountName(hashedAccountId, viewModel, UserId), Times.Once);
         }
 
         [Test, MoqAutoData]
@@ -74,7 +72,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             viewModel.ChangeAccountName = false;
 
             _orchestrator
-                .Setup(m => m.RenameEmployerAccount(hashedAccountId, viewModel, UserId))
+                .Setup(m => m.SetEmployerAccountName(hashedAccountId, viewModel, UserId))
                 .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
                 {
                     Status = HttpStatusCode.BadRequest
@@ -89,14 +87,13 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Should_Redirect_To_Success(string hashedAccountId,
-            RenameEmployerAccountViewModel viewModel)
+        public async Task Then_Should_Redirect_To_Success(string hashedAccountId, RenameEmployerAccountViewModel viewModel)
         {
             // Arrange
             viewModel.ChangeAccountName = false;
 
             _orchestrator
-                .Setup(m => m.RenameEmployerAccount(hashedAccountId, viewModel, UserId))
+                .Setup(m => m.SetEmployerAccountName(hashedAccountId, viewModel, UserId))
                 .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
                 {
                     Status = HttpStatusCode.OK
@@ -108,30 +105,6 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
 
             // Assert
             result.RouteName.Should().Be(RouteNames.AccountNameSuccess);
-        }
-
-        [Test, MoqAutoData]
-        public async Task Then_Should_Send_CreateAccountCompleteCommand(string hashedAccountId,
-            RenameEmployerAccountViewModel viewModel)
-        {
-            // Arrange
-            viewModel.ChangeAccountName = false;
-
-            _orchestrator
-                .Setup(m => m.RenameEmployerAccount(hashedAccountId, viewModel, UserId))
-                .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
-                {
-                    Status = HttpStatusCode.OK
-                });
-
-            // Act
-            await _employerAccountController.AccountName(hashedAccountId, viewModel);
-
-            // Assert
-            _mediator.Verify(x => x.Send(It.Is<CreateAccountCompleteCommand>(c =>
-                c.HashedAccountId.Equals(hashedAccountId)
-                && c.ExternalUserId.Equals(UserId)
-                && c.OrganisationName.Equals(viewModel.NewName)), It.IsAny<CancellationToken>()), Times.Once());
         }
     }
 }

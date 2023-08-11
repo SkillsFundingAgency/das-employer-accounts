@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
@@ -403,19 +402,10 @@ public class EmployerAccountController : BaseController
             case false:
                 {
                     var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-                    response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
+                    response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
                     if (response.Status == HttpStatusCode.OK)
-                    {
-                        var createdAccountCompletedCommand = new CreateAccountCompleteCommand
-                        {
-                            HashedAccountId = hashedAccountId,
-                            ExternalUserId = GetUserId(),
-                            OrganisationName = vm.NewName,
-                        };
-                        
-                        await _mediator.Send(createdAccountCompletedCommand);
-                        
+                    {                        
                         return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
                     }
 
@@ -450,7 +440,7 @@ public class EmployerAccountController : BaseController
     public async Task<IActionResult> AccountNameConfirm(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
         var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
+        var response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
         if (response.Status == HttpStatusCode.OK)
         {

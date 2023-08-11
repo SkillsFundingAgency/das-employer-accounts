@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
-using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
@@ -10,19 +9,16 @@ public class CreateAccountCompleteCommandHandler : IRequestHandler<CreateAccount
 {
     private readonly IEventPublisher _eventPublisher;
     private readonly IMediator _mediator;
-    private readonly IEncodingService _encodingService;
     private readonly IValidator<CreateAccountCompleteCommand> _validator;
     private readonly ILogger<CreateAccountCompleteCommandHandler> _logger;
 
     public CreateAccountCompleteCommandHandler(IEventPublisher eventPublisher, 
         IMediator mediator,
-        IEncodingService encodingService,
         IValidator<CreateAccountCompleteCommand> validator,
         ILogger<CreateAccountCompleteCommandHandler> logger)
     {
         _eventPublisher = eventPublisher;
         _mediator = mediator;
-        _encodingService = encodingService;
         _validator = validator;
         _logger = logger;
     }
@@ -34,11 +30,10 @@ public class CreateAccountCompleteCommandHandler : IRequestHandler<CreateAccount
         ValidateRequest(request);
         
         var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = request.ExternalUserId }, cancellationToken);
-        var publicHashedAccountId = _encodingService.Encode(userResponse.User.Id, EncodingType.PublicAccountId);
 
         var externalUserId = Guid.Parse(request.ExternalUserId);
         
-        await PublishAccountCreatedMessage(userResponse.User.Id, request.HashedAccountId, publicHashedAccountId, request.OrganisationName, userResponse.User.FullName, externalUserId);
+        await PublishAccountCreatedMessage(request.AccountId, request.HashedAccountId, request.PublicHashedAccountId, request.OrganisationName, userResponse.User.FullName, externalUserId);
         
         _logger.LogInformation("Completed processing of {TypeName}.", nameof(CreateAccountCompleteCommandHandler));
 

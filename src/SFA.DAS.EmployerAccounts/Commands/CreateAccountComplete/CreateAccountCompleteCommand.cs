@@ -2,7 +2,9 @@
 
 public record CreateAccountCompleteCommand : IRequest
 {
-    public string HashedAccountId { get; init; }
-    public string OrganisationName { get; init; }
-    public string ExternalUserId { get; init; }
+    public string HashedAccountId { get; set; }
+    public long AccountId { get; set; }
+    public string PublicHashedAccountId { get; set; }
+    public string OrganisationName { get; set; }
+    public string ExternalUserId { get; set; }
 }
