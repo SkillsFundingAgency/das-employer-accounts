@@ -75,7 +75,7 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
             Source = message.Source,
             Address = message.Address,
             Sector = message.Sector,
-            AgreementType = await UserIsWhitelistedForEOIOrThereIsAlreadyAnEOIAgreementForThisAccount(owner) ? AgreementType.NonLevyExpressionOfInterest : AgreementType.Combined
+            AgreementType = AgreementType.Combined
         };
 
         var agreementView = await _accountRepository.CreateLegalEntityWithAgreement(createParams);
@@ -185,13 +185,5 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
                 AffectedEntity = new AuditEntity { Type = "EmployerAgreement", Id = agreementView.Id.ToString() }
             }
         });
-    }
-
-    private async Task<bool> UserIsWhitelistedForEOIOrThereIsAlreadyAnEOIAgreementForThisAccount(MembershipView accountOwner)
-    {
-        var existingAgreements = await _employerAgreementRepository.GetAccountAgreements(accountOwner.AccountId);
-
-        return
-            existingAgreements.Any(a => a.Template.AgreementType.Equals(AgreementType.NonLevyExpressionOfInterest));
     }
 }

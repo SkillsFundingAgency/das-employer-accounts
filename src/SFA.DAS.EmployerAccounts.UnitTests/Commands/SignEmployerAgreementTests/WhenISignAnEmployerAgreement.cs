@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementTests
         private const string OrganisationName = "Foo";
         private const string HashedLegalEntityId = "2635JHG";
         private const long AccountLegalEntityId = 9568456;
-        private const AgreementType AgreementType = Common.Domain.Types.AgreementType.NonLevyExpressionOfInterest;
+        private const AgreementType AgreementType = Common.Domain.Types.AgreementType.Combined;
 
         [SetUp]
         public void Setup()

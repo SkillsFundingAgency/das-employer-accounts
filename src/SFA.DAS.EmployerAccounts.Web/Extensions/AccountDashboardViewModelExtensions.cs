@@ -6,11 +6,6 @@ public static class AccountDashboardViewModelExtensions
 {
     public static bool ShowYourFundingReservationsLink(this AccountDashboardViewModel model)
     {
-        if(model.ApprenticeshipEmployerType == ApprenticeshipEmployerType.NonLevy)
-        {
-            return true;
-        }
-
-        return false;
+        return model.ApprenticeshipEmployerType == ApprenticeshipEmployerType.NonLevy;
     }
 }
