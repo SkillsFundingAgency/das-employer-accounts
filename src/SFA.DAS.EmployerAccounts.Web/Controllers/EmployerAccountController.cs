@@ -443,15 +443,7 @@ public class EmployerAccountController : BaseController
         var response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
         if (response.Status == HttpStatusCode.OK)
-        {
-            var createdAccountCompletedCommand = new CreateAccountCompleteCommand
-            {
-                HashedAccountId = hashedAccountId,
-                ExternalUserId = GetUserId(),
-                OrganisationName = response.Data.CurrentName,
-            };
-            await _mediator.Send(createdAccountCompletedCommand);
-            
+        {            
             return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
         }
 
