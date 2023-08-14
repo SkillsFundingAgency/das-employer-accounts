@@ -4,14 +4,15 @@ using SFA.DAS.EmployerAccounts.Messages.Events;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
-public class UserJoinedEventHandler : IHandleMessages<UserJoinedEvent>
+public class UserJoinedEventLegacyPublishHandler : IHandleMessages<UserJoinedEvent>
 {
     private readonly ILegacyTopicMessagePublisher _messagePublisher;
 
-    public UserJoinedEventHandler(ILegacyTopicMessagePublisher messagePublisher)
+    public UserJoinedEventLegacyPublishHandler(ILegacyTopicMessagePublisher messagePublisher)
     {
         _messagePublisher = messagePublisher;
     }
+    
     public async Task Handle(UserJoinedEvent message, IMessageHandlerContext context)
     {
         await _messagePublisher.PublishAsync(
