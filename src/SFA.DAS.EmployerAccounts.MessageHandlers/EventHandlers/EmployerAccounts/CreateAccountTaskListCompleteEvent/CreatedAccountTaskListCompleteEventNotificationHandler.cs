@@ -6,16 +6,16 @@ using SFA.DAS.Notifications.Api.Types;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
-public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAccountEvent>
+public class CreatedAccountTaskListCompleteEventNotificationHandler : IHandleMessages<CreatedAccountTaskListCompleteEvent>
 {
-    private readonly ILogger<CreatedAccountEventNotificationHandler> _logger;
+    private readonly ILogger<CreatedAccountTaskListCompleteEventNotificationHandler> _logger;
     private readonly IUserAccountRepository _userRepository;
     private readonly IMediator _mediator;
     private readonly EmployerAccountsConfiguration _configuration;
     private const string EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
 
-    public CreatedAccountEventNotificationHandler(
-        ILogger<CreatedAccountEventNotificationHandler> logger,
+    public CreatedAccountTaskListCompleteEventNotificationHandler(
+        ILogger<CreatedAccountTaskListCompleteEventNotificationHandler> logger,
         IUserAccountRepository userRepository,
         IMediator mediator,
         EmployerAccountsConfiguration configuration)
@@ -26,10 +26,9 @@ public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAcc
         _configuration = configuration;
     }
 
-    public async Task Handle(CreatedAccountEvent message, IMessageHandlerContext context)
+    public async Task Handle(CreatedAccountTaskListCompleteEvent message, IMessageHandlerContext context)
     {
-        _logger.LogInformation(
-            $"Starting {nameof(CreatedAccountEventNotificationHandler)} handler for accountId: '{message.AccountId}'.");
+        _logger.LogInformation($"Starting {nameof(CreatedAccountTaskListCompleteEventNotificationHandler)} handler for accountId: '{message.AccountId}'.");
 
         var existingUser = await _userRepository.GetUserByRef(message.UserRef);
 
@@ -51,6 +50,6 @@ public class CreatedAccountEventNotificationHandler : IHandleMessages<CreatedAcc
             }
         });
 
-        _logger.LogInformation($"Completed {nameof(CreatedAccountEventNotificationHandler)} handler.");
+        _logger.LogInformation($"Completed {nameof(CreatedAccountTaskListCompleteEventNotificationHandler)} handler.");
     }
 }

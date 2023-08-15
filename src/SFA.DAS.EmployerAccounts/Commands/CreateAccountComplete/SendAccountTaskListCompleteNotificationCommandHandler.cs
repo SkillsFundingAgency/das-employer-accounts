@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
@@ -8,17 +7,14 @@ namespace SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 public class SendAccountTaskListCompleteNotificationCommandHandler : IRequestHandler<SendAccountTaskListCompleteNotificationCommand>
 {
     private readonly IEventPublisher _eventPublisher;
-    private readonly IMediator _mediator;
     private readonly IValidator<SendAccountTaskListCompleteNotificationCommand> _validator;
     private readonly ILogger<SendAccountTaskListCompleteNotificationCommandHandler> _logger;
 
     public SendAccountTaskListCompleteNotificationCommandHandler(IEventPublisher eventPublisher, 
-        IMediator mediator,
         IValidator<SendAccountTaskListCompleteNotificationCommand> validator,
         ILogger<SendAccountTaskListCompleteNotificationCommandHandler> logger)
     {
         _eventPublisher = eventPublisher;
-        _mediator = mediator;
         _validator = validator;
         _logger = logger;
     }
@@ -28,12 +24,15 @@ public class SendAccountTaskListCompleteNotificationCommandHandler : IRequestHan
         _logger.LogInformation("Starting processing of {TypeName}. Request: '{Request}'.", nameof(SendAccountTaskListCompleteNotificationCommandHandler), request);
         
         ValidateRequest(request);
-        
-        var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = request.ExternalUserId }, cancellationToken);
 
         var externalUserId = Guid.Parse(request.ExternalUserId);
-        
-        await PublishAccountCreatedMessage(request.AccountId, request.HashedAccountId, request.PublicHashedAccountId, request.OrganisationName, userResponse.User.FullName, externalUserId);
+
+        await _eventPublisher.Publish(new CreatedAccountTaskListCompleteEvent
+        {
+            AccountId = request.AccountId,
+            Name = request.OrganisationName,
+            UserRef = externalUserId
+        });
         
         _logger.LogInformation("Completed processing of {TypeName}.", nameof(SendAccountTaskListCompleteNotificationCommandHandler));
 
@@ -46,18 +45,5 @@ public class SendAccountTaskListCompleteNotificationCommandHandler : IRequestHan
 
         if (!validationResult.IsValid())
             throw new InvalidRequestException(validationResult.ValidationDictionary);
-    }
-
-    private Task PublishAccountCreatedMessage(long accountId, string hashedId, string publicHashedId, string name, string createdByName, Guid userRef)
-    {
-        return _eventPublisher.Publish(new CreatedAccountTaskListCompleteEvent
-        {
-            AccountId = accountId,
-            HashedId = hashedId,
-            PublicHashedId = publicHashedId,
-            Name = name,
-            UserName = createdByName,
-            UserRef = userRef
-        });
     }
 }
