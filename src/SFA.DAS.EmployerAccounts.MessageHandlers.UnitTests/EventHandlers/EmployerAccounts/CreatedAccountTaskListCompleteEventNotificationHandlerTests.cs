@@ -10,7 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
-using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts.NewFolder;
+using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.Testing.AutoFixture;
