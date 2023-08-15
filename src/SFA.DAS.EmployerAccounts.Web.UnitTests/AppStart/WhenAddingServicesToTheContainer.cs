@@ -121,7 +121,7 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<DismissMonthlyTaskReminderCommand, Unit>))]
     [TestCase(typeof(IRequestHandler<UpdateUserNotificationSettingsCommand, Unit>))]
     [TestCase(typeof(IRequestHandler<UnsubscribeNotificationCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<CreateAccountCompleteCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<SendAccountTaskListCompleteNotificationCommand, Unit>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Command_Handlers(Type toResolve)
     {
         var mockHostingEnvironment = new Mock<IHostingEnvironment>();

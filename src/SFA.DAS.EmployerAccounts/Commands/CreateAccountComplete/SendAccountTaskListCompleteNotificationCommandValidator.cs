@@ -1,8 +1,8 @@
 ﻿namespace SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 
-public class CreateAccountCompleteCommandValidator : IValidator<CreateAccountCompleteCommand>
+public class SendAccountTaskListCompleteNotificationCommandValidator : IValidator<SendAccountTaskListCompleteNotificationCommand>
 {
-    public ValidationResult Validate(CreateAccountCompleteCommand command)
+    public ValidationResult Validate(SendAccountTaskListCompleteNotificationCommand command)
     {
         var validationResult = new ValidationResult();
         
@@ -24,7 +24,7 @@ public class CreateAccountCompleteCommandValidator : IValidator<CreateAccountCom
         return validationResult;
     }
 
-    public Task<ValidationResult> ValidateAsync(CreateAccountCompleteCommand query)
+    public Task<ValidationResult> ValidateAsync(SendAccountTaskListCompleteNotificationCommand query)
     {
         throw new NotImplementedException();
     }

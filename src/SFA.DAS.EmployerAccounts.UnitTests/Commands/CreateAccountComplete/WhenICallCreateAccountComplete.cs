@@ -16,31 +16,31 @@ using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountComplete;
 
-public class WhenICallCreateAccountComplete
+public class WhenICallSendAccountTaskListCompleteNotification
 {
     [Test, MoqAutoData]
     public async Task ThenACreatedAccountEventIsPublished(
         User user,
-        CreateAccountCompleteCommand command,
+        SendAccountTaskListCompleteNotificationCommand command,
         [Frozen] Mock<IEventPublisher> eventPublisher,
         [Frozen] Mock<IMediator> mediatorMock,
-        [Frozen] Mock<IValidator<CreateAccountCompleteCommand>> validatorMock,
-        CreateAccountCompleteCommandHandler handler
+        [Frozen] Mock<IValidator<SendAccountTaskListCompleteNotificationCommand>> validatorMock,
+        SendAccountTaskListCompleteNotificationCommandHandler handler
         )
     {
         //Arrange
         command.ExternalUserId = user.Ref.ToString();
 
-        validatorMock.Setup(x => x.Validate(It.IsAny<CreateAccountCompleteCommand>()))
+        validatorMock.Setup(x => x.Validate(It.IsAny<SendAccountTaskListCompleteNotificationCommand>()))
             .Returns(new ValidationResult { ValidationDictionary = new Dictionary<string, string>() });
 
         mediatorMock.Setup(x => x.Send(It.IsAny<GetUserByRefQuery>(), It.IsAny<CancellationToken>()))
            .ReturnsAsync(new GetUserByRefResponse { User = user });
 
-        var events = new List<CreatedAccountEvent>();
+        var events = new List<CreatedAccountTaskListCompleteEvent>();
         eventPublisher
-            .Setup(x => x.Publish(It.IsAny<CreatedAccountEvent>()))
-            .Callback((CreatedAccountEvent ev) =>
+            .Setup(x => x.Publish(It.IsAny<CreatedAccountTaskListCompleteEvent>()))
+            .Callback((CreatedAccountTaskListCompleteEvent ev) =>
             {
                 events.Add(ev);
             });

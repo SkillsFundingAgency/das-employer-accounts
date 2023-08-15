@@ -79,7 +79,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         {
             try
             {
-                await Mediator.Send(new CreateAccountCompleteCommand
+                await Mediator.Send(new SendAccountTaskListCompleteNotificationCommand
                 {
                     AccountId = accountId,
                     PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),

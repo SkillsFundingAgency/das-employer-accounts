@@ -60,7 +60,7 @@ public class WhenSettingAccountName
         }, "ABC123");
 
         //Assert
-        mediatorMock.Verify(x => x.Send(It.Is<CreateAccountCompleteCommand>(c => c.HashedAccountId == account.HashedId), It.IsAny<CancellationToken>()), Times.Once);
+        mediatorMock.Verify(x => x.Send(It.Is<SendAccountTaskListCompleteNotificationCommand>(c => c.HashedAccountId == account.HashedId), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, DomainAutoData]
@@ -82,6 +82,6 @@ public class WhenSettingAccountName
         }, "ABC123");
 
         //Assert
-        mediatorMock.Verify(x => x.Send(It.IsAny<CreateAccountCompleteCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        mediatorMock.Verify(x => x.Send(It.IsAny<SendAccountTaskListCompleteNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

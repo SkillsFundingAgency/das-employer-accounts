@@ -5,20 +5,20 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountComplete;
 
 public class WhenIValidateTheCommand
 {
-    private CreateAccountCompleteCommandValidator _createCommandValidator;
-    private CreateAccountCompleteCommand _createAccountCommand;
+    private SendAccountTaskListCompleteNotificationCommandValidator _createCommandValidator;
+    private SendAccountTaskListCompleteNotificationCommand _createAccountCommand;
 
     [SetUp]
     public void Arrange()
     {
-        _createAccountCommand = new CreateAccountCompleteCommand
+        _createAccountCommand = new SendAccountTaskListCompleteNotificationCommand
         {
             HashedAccountId = "ABC123",
             OrganisationName = "ZZZAAA",
             ExternalUserId = "11122444"
         };
 
-        _createCommandValidator = new CreateAccountCompleteCommandValidator();
+        _createCommandValidator = new SendAccountTaskListCompleteNotificationCommandValidator();
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class WhenIValidateTheCommand
     public void ThenFalseIsReturnedIfThefieldsArentPopulated()
     {
         //Act
-        var actual = _createCommandValidator.Validate(new CreateAccountCompleteCommand());
+        var actual = _createCommandValidator.Validate(new SendAccountTaskListCompleteNotificationCommand());
 
         //Assert
         Assert.IsFalse(actual.IsValid());

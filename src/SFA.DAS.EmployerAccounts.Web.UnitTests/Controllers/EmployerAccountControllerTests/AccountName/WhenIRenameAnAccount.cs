@@ -112,6 +112,6 @@ public class WhenIRenameAnAccount : ControllerTestBase
         await _employerAccountController.AccountName(hashedAccountId, viewModel);
 
         // Assert
-        _mediator.Verify(x => x.Send(It.IsAny<CreateAccountCompleteCommand>(), It.IsAny<CancellationToken>()), Times.Never());
+        _mediator.Verify(x => x.Send(It.IsAny<SendAccountTaskListCompleteNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Never());
     }
 }
