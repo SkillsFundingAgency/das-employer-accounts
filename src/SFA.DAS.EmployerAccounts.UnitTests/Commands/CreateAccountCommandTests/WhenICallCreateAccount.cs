@@ -327,6 +327,28 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             payeAddedEvent.UserRef.Should().Be(_user.Ref);
         }
 
+        [Test]
+        public async Task ThenACreatedAccountEventIsPublished()
+        {
+            const string organisationName = "Org";
+
+            //Arrange
+            var createAccountCommand = new CreateAccountCommand { PayeReference = "123EDC", AccessToken = "123rd", RefreshToken = "45YT", OrganisationStatus = "active", OrganisationName = organisationName, ExternalUserId = _user.Ref.ToString() };
+
+            //Act
+            await _handler.Handle(createAccountCommand, CancellationToken.None);
+
+            //Assert
+            var createdAccountEvent = _eventPublisher.Events.OfType<CreatedAccountEvent>().Single();
+
+            createdAccountEvent.AccountId.Should().Be(ExpectedAccountId);
+            createdAccountEvent.HashedId.Should().Be(ExpectedHashString);
+            createdAccountEvent.PublicHashedId.Should().Be(ExpectedPublicHashString);
+            createdAccountEvent.Name.Should().Be(organisationName);
+            createdAccountEvent.UserName.Should().Be(_user.FullName);
+            createdAccountEvent.UserRef.Should().Be(_user.Ref);
+        }
+
         [TestCase(OrganisationType.Charities, Types.Models.OrganisationType.Charities)]
         [TestCase(OrganisationType.CompaniesHouse, Types.Models.OrganisationType.CompaniesHouse)]
         [TestCase(OrganisationType.PublicBodies, Types.Models.OrganisationType.PublicBodies)]

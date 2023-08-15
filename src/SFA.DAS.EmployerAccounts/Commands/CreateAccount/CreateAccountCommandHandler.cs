@@ -94,6 +94,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
 
         await Task.WhenAll(
             PublishAddPayeSchemeMessage(message.PayeReference, createAccountResult.AccountId, createdByName, userResponse.User.Ref, message.Aorn, message.EmployerRefName, userResponse.User.CorrelationId),
+            PublishAccountCreatedMessage(createAccountResult.AccountId, hashedAccountId, publicHashedAccountId, message.OrganisationName, createdByName, externalUserId),
             NotifyAccountCreated(hashedAccountId),
             CreateAuditEntries(message, createAccountResult, hashedAccountId, userResponse.User),
             PublishLegalEntityAddedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId,
@@ -179,6 +180,20 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
             Aorn = aorn,
             SchemeName = schemeName,
             CorrelationId = correlationId
+        });
+    }
+
+    private Task PublishAccountCreatedMessage(long accountId, string hashedId, string publicHashedId, string name, string createdByName, Guid userRef)
+    {
+        return _eventPublisher.Publish(new CreatedAccountEvent
+        {
+            AccountId = accountId,
+            HashedId = hashedId,
+            PublicHashedId = publicHashedId,
+            Name = name,
+            UserName = createdByName,
+            UserRef = userRef,
+            Created = DateTime.UtcNow
         });
     }
 
