@@ -4,12 +4,12 @@ using SFA.DAS.EmployerAccounts.Types.Models;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
-public class CreatedAccountEventHandler : IHandleMessages<CreatedAccountEvent>
+public class CreatedAccountEventReadstoreHandler : IHandleMessages<CreatedAccountEvent>
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<CreatedAccountEventHandler> _logger;
+    private readonly ILogger<CreatedAccountEventReadstoreHandler> _logger;
 
-    public CreatedAccountEventHandler(IMediator mediator, ILogger<CreatedAccountEventHandler> logger)
+    public CreatedAccountEventReadstoreHandler(IMediator mediator, ILogger<CreatedAccountEventReadstoreHandler> logger)
     {
         _mediator = mediator;
         _logger = logger;

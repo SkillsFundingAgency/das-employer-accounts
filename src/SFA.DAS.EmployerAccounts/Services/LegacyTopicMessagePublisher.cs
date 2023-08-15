@@ -33,11 +33,11 @@ public class LegacyTopicMessagePublisher : ILegacyTopicMessagePublisher
             var message = new Message(messageBody);
             await client.SendAsync(message);
 
-            _logger.LogInformation("Sent Message {TypeName} to Azure ServiceBus.", typeof(T).Name);
+            _logger.LogInformation("Sent Message {TypeName} to the Legacy Azure ServiceBus.", typeof(T).Name);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error sending Message {TypeName} to Azure ServiceBus.", typeof(T).Name);
+            _logger.LogError(e, "Error sending Message {TypeName} to Legacy Azure ServiceBus.", typeof(T).Name);
             throw;
         }
         finally

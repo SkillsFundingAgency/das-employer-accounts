@@ -3,7 +3,7 @@ using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.NServiceBus.Services;
 
-namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers;
+namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
 public class RemovedLegalEntityEventHandler : IHandleMessages<RemovedLegalEntityEvent>
 {

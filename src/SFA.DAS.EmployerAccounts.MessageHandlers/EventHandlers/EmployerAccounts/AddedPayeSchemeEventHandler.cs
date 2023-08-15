@@ -3,22 +3,22 @@ using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.NServiceBus.Services;
 
-namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers;
+namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
-public class InvitedUserEventHandler : IHandleMessages<InvitedUserEvent>
+public class AddedPayeSchemeEventHandler : IHandleMessages<AddedPayeSchemeEvent>
 {
     private readonly ILegacyTopicMessagePublisher _messagePublisher;
 
-    public InvitedUserEventHandler(ILegacyTopicMessagePublisher messagePublisher)
+    public AddedPayeSchemeEventHandler(ILegacyTopicMessagePublisher messagePublisher)
     {
         _messagePublisher = messagePublisher;
     }
 
-    public async Task Handle(InvitedUserEvent message, IMessageHandlerContext context)
+    public async Task Handle(AddedPayeSchemeEvent message, IMessageHandlerContext context)
     {
         await _messagePublisher.PublishAsync(
-            new UserInvitedMessage(
-                message.PersonInvited,
+            new PayeSchemeAddedMessage(
+                message.PayeRef,
                 message.AccountId,
                 message.UserName,
                 message.UserRef.ToString()));
