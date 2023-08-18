@@ -1,73 +1,53 @@
-﻿using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using AutoFixture.NUnit3;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
-using SFA.DAS.EmployerAccounts.Configuration;
-using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models;
-using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccountRole;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
-using SFA.DAS.EmployerAccounts.Web.ViewModels;
-using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
+using SFA.DAS.EmployerAccounts.TestCommon.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOrchestratorTests;
 
 public class WhenRenamingAnAccount
 {
-    private Mock<ICookieStorageService<EmployerAccountData>> _cookieService;
-    private Mock<IMediator> _mediator;
-    private EmployerAccountOrchestrator _orchestrator;
-    private EmployerAccountsConfiguration _configuration;
-    private Account _account;
-
-    [SetUp]
-    public void Arrange()
+    [Test, DomainAutoData]
+    public async Task ThenTheCorrectAccountDetailsShouldBeReturned(
+        Account account,
+        [Frozen] Mock<IMediator> mediatorMock,
+        EmployerAccountOrchestrator orchestrator)
     {
-        _cookieService = new Mock<ICookieStorageService<EmployerAccountData>>();
-        _mediator = new Mock<IMediator>();
-        _configuration = new EmployerAccountsConfiguration();
+        // Arrange
+        mediatorMock.Setup(x => x.Send(It.IsAny<GetEmployerAccountByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetEmployerAccountByIdResponse { Account = account });
 
-        _account = new Account
-        {
-            Id = 123,
-            HashedId = "ABC123",
-            Name = "Test Account"
-        };
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetEmployerAccountByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetEmployerAccountByIdResponse { Account = _account });
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetUserAccountRoleQuery>(), It.IsAny<CancellationToken>()))
+        mediatorMock.Setup(x => x.Send(It.IsAny<GetUserAccountRoleQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetUserAccountRoleResponse { UserRole = Role.Owner });
 
-        _orchestrator = new EmployerAccountOrchestrator(_mediator.Object, Mock.Of<ILogger<EmployerAccountOrchestrator>>(), _cookieService.Object, _configuration, Mock.Of<IEncodingService>());
-    }
-
-    [Test]
-    public async Task ThenTheCorrectAccountDetailsShouldBeReturned()
-    {
         //Act
-        var response = await _orchestrator.GetEmployerAccount(_account.Id);
+        var response = await orchestrator.GetEmployerAccount(account.Id);
 
         //Assert
-        _mediator.Verify(x => x.Send(It.Is<GetEmployerAccountByIdQuery>(q => q.AccountId.Equals(_account.Id)), It.IsAny<CancellationToken>()));
-        Assert.AreEqual(_account.HashedId, response.Data.HashedId);
-        Assert.AreEqual(_account.Name, response.Data.Name);
+        mediatorMock.Verify(x => x.Send(It.Is<GetEmployerAccountByIdQuery>(q => q.AccountId.Equals(account.Id)), It.IsAny<CancellationToken>()));
+        Assert.AreEqual(account.HashedId, response.Data.HashedId);
+        Assert.AreEqual(account.Name, response.Data.Name);
         Assert.AreEqual(HttpStatusCode.OK, response.Status);
     }
 
-    [Test, MoqAutoData]
-    public async Task ThenTheAccountNameShouldBeUpdated(string hashedAccountId)
+    [Test, DomainAutoData]
+    public async Task ThenTheAccountNameShouldBeUpdated(
+        Account account, 
+        [Frozen] Mock<IMediator> mediatorMock,
+        EmployerAccountOrchestrator orchestrator)
     {
+        // Arrange
+        mediatorMock.Setup(x => x.Send(It.IsAny<GetEmployerAccountByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetEmployerAccountByIdResponse { Account = account });
+
+        mediatorMock.Setup(x => x.Send(It.IsAny<GetUserAccountRoleQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetUserAccountRoleResponse { UserRole = Role.Owner });
+
         //Act
-        var response = await _orchestrator.RenameEmployerAccount(hashedAccountId, new RenameEmployerAccountViewModel
+        var response = await orchestrator.RenameEmployerAccount(account.HashedId, new RenameEmployerAccountViewModel
         {
             ChangeAccountName = true,
             NewName = "New Account Name"
@@ -76,8 +56,6 @@ public class WhenRenamingAnAccount
         //Assert
         Assert.IsInstanceOf<OrchestratorResponse<RenameEmployerAccountViewModel>>(response);
 
-        _mediator.Verify(x =>
-                x.Send(It.Is<RenameEmployerAccountCommand>(c => c.NewName == "New Account Name"), It.IsAny<CancellationToken>()),
-            Times.Once());
+        mediatorMock.Verify(x => x.Send(It.Is<RenameEmployerAccountCommand>(c => c.NewName == "New Account Name"), It.IsAny<CancellationToken>()), Times.Once());
     }
 }

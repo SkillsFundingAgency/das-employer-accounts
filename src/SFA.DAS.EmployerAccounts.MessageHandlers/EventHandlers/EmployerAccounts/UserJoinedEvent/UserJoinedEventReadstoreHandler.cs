@@ -3,11 +3,11 @@ using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
-public class UserJoinedEventHandler : IHandleMessages<UserJoinedEvent>
+public class UserJoinedEventReadstoreHandler : IHandleMessages<UserJoinedEvent>
 {
     private readonly IMediator _mediator;
 
-    public UserJoinedEventHandler(IMediator mediator)
+    public UserJoinedEventReadstoreHandler(IMediator mediator)
     {
         _mediator = mediator;
     }

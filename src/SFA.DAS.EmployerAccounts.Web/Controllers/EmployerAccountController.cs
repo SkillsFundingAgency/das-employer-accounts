@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.PayeRefData;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
@@ -401,10 +402,10 @@ public class EmployerAccountController : BaseController
             case false:
                 {
                     var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-                    response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
+                    response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
                     if (response.Status == HttpStatusCode.OK)
-                    {
+                    {                        
                         return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
                     }
 
@@ -439,10 +440,10 @@ public class EmployerAccountController : BaseController
     public async Task<IActionResult> AccountNameConfirm(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
         var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
+        var response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
         if (response.Status == HttpStatusCode.OK)
-        {
+        {            
             return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
         }
 
