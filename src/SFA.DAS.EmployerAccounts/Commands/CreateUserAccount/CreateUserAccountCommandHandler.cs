@@ -7,8 +7,6 @@ using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
-
 
 namespace SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
 
@@ -20,8 +18,6 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
     private readonly IEncodingService _encodingService;
     private readonly IGenericEventFactory _genericEventFactory;
     private readonly IAccountEventFactory _accountEventFactory;
-    private readonly IMembershipRepository _membershipRepository;
-    private readonly IEventPublisher _eventPublisher;
 
     public CreateUserAccountCommandHandler(
         IAccountRepository accountRepository,
@@ -29,9 +25,7 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
         IValidator<CreateUserAccountCommand> validator,
         IEncodingService encodingService,
         IGenericEventFactory genericEventFactory,
-        IAccountEventFactory accountEventFactory,
-        IMembershipRepository membershipRepository,
-        IEventPublisher eventPublisher)
+        IAccountEventFactory accountEventFactory)
     {
         _accountRepository = accountRepository;
         _mediator = mediator;
@@ -39,15 +33,11 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
         _encodingService = encodingService;
         _genericEventFactory = genericEventFactory;
         _accountEventFactory = accountEventFactory;
-        _membershipRepository = membershipRepository;
-        _eventPublisher = eventPublisher;
     }
 
     public async Task<CreateUserAccountCommandResponse> Handle(CreateUserAccountCommand message, CancellationToken cancellationToken)
     {
         ValidateMessage(message);
-
-        var externalUserId = Guid.Parse(message.ExternalUserId);
 
         var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = message.ExternalUserId }, cancellationToken);
 
@@ -57,13 +47,6 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
         var publicHashedAccountId = _encodingService.Encode(createAccountResult.AccountId, EncodingType.PublicAccountId);
 
         await _accountRepository.UpdateAccountHashedIds(createAccountResult.AccountId, hashedAccountId, publicHashedAccountId);
-
-        var caller = await _membershipRepository.GetCaller(createAccountResult.AccountId, message.ExternalUserId);
-
-        var createdByName = caller.FullName();
-
-        await PublishAccountCreatedMessage(createAccountResult.AccountId, hashedAccountId, publicHashedAccountId,
-            message.OrganisationName, createdByName, externalUserId);
 
         await NotifyAccountCreated(hashedAccountId);
 
@@ -83,22 +66,7 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
 
         return _mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
     }
-
-    private Task PublishAccountCreatedMessage(long accountId, string hashedId, string publicHashedId, string name,
-        string createdByName, Guid userRef)
-    {
-        return _eventPublisher.Publish(new CreatedAccountEvent
-        {
-            AccountId = accountId,
-            HashedId = hashedId,
-            PublicHashedId = publicHashedId,
-            Name = name,
-            UserName = createdByName,
-            UserRef = userRef,
-            Created = DateTime.UtcNow
-        });
-    }
-
+    
     private void ValidateMessage(CreateUserAccountCommand message)
     {
         var validationResult = _validator.Validate(message);

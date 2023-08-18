@@ -1,4 +1,5 @@
-﻿using NLog.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging.ApplicationInsights;
+using NLog.Extensions.Logging;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
@@ -8,6 +9,8 @@ using SFA.DAS.EmployerAccounts.MessageHandlers.Startup;
 using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
 using SFA.DAS.EmployerAccounts.ReadStore.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
+using SFA.DAS.EmployerAccounts.Startup;
+using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.Extensions;
@@ -26,7 +29,16 @@ public static class HostBuilderExtensions
     {
         hostBuilder.ConfigureServices((context, services) =>
         {
+            var employerAccountsConfiguration = context.Configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
+
             services.AddConfigurationSections(context.Configuration);
+
+            services
+            .AddUnitOfWork()
+            .AddEntityFramework(employerAccountsConfiguration);
+
+            services.AddNotifications(context.Configuration);
+
             services.AddApplicationServices();
             services.AddReadStoreServices();
             services.AddMessageHandlerDataRepositories();
@@ -58,6 +70,8 @@ public static class HostBuilderExtensions
                     ? "nlog.development.config"
                     : "nlog.config");
                 loggingBuilder.AddApplicationInsightsWebJobs(o => o.ConnectionString = connectionString);
+                loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+                loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
             }
 
             loggingBuilder.AddConsole();
@@ -73,7 +87,7 @@ public static class HostBuilderExtensions
             builder.AddAzureTableStorage(options =>
                     {
                         options.ConfigurationKeys = new[]
-                            { ConfigurationKeys.EmployerAccounts, ConfigurationKeys.EmployerAccountsReadStore, ConfigurationKeys.EncodingConfig };
+                            { ConfigurationKeys.EmployerAccounts, ConfigurationKeys.EmployerAccountsReadStore, ConfigurationKeys.EncodingConfig, ConfigurationKeys.NotificationsApiClient };
                         options.PreFixConfigurationKeys = true;
                         options.ConfigurationKeysRawJsonResult = new[] { ConfigurationKeys.EncodingConfig };
                     }
