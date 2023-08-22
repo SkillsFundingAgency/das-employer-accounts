@@ -373,8 +373,7 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/create/accountName", Name = RouteNames.AccountName)]
     public async Task<IActionResult> AccountName(string hashedAccountId)
     {
-        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, userIdClaim);
+        var vm = await GetRenameViewModel(hashedAccountId);
         return View(vm);
     }
 
@@ -460,11 +459,17 @@ public class EmployerAccountController : BaseController
     }
 
     [HttpGet]
+    [Route("{HashedAccountId}/create/accountName/confirm/success", Name = RouteNames.AccountNameConfirmSuccess)]
+    public IActionResult AccountNameConfirmSuccess(string hashedAccountId)
+    {
+        return View();
+    }
+
+    [HttpGet]
     [Route("{HashedAccountId}/create/accountName/success", Name = RouteNames.AccountNameSuccess)]
     public async Task<IActionResult> AccountNameSuccess(string hashedAccountId)
     {
-        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, userIdClaim);
+        var vm = await GetRenameViewModel(hashedAccountId);
         return View(vm);
     }
 
@@ -472,8 +477,7 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/create/success", Name = RouteNames.CreateAccountSuccess)]
     public async Task<IActionResult> CreateAccountSuccess(string hashedAccountId)
     {
-        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, userIdClaim);
+        var vm = await GetRenameViewModel(hashedAccountId);
         return View(vm);
     }
 
@@ -501,6 +505,12 @@ public class EmployerAccountController : BaseController
         }
 
         return RedirectToAction(ControllerConstants.SearchForOrganisationActionName, ControllerConstants.SearchOrganisationControllerName);
+    }
+
+    private async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> GetRenameViewModel(string hashedAccountId)
+    {
+        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, GetUserId());
+        return vm;
     }
 
     private string GetUserId()
