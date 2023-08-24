@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.Authentication;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests;
 
@@ -18,22 +17,18 @@ public class WhenIViewTheHomePage : ControllerTestBase
 {
     private UserAccountsViewModel _userAccountsViewModel;
     private HomeController _homeController;
-    private Mock<HomeOrchestrator> _homeOrchestrator;
+    private readonly Mock<HomeOrchestrator> _homeOrchestrator = new();
     private EmployerAccountsConfiguration _configuration;
     private const string ExpectedUserId = "123ABC";
-    private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
+    private readonly Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage = new();
     private UrlActionHelper _urlActionHelper;
     private GaQueryData _queryData;
-    private const string ProfileAddUserDetailsRoute = "https://test.com";
+    private readonly Mock<IConfiguration> _mockRootConfig = new();
 
     [SetUp]
     public void Arrange()
     {
         base.Arrange();
-
-        _homeOrchestrator = new Mock<HomeOrchestrator>();
-        _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
-        _homeOrchestrator = new Mock<HomeOrchestrator>();
 
         var fixture = new Fixture();
         _queryData = fixture.Create<GaQueryData>();
@@ -57,15 +52,15 @@ public class WhenIViewTheHomePage : ControllerTestBase
             },
             EmployerPortalBaseUrl = "https://localhost"
         };
-        var configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
-        _urlActionHelper = new UrlActionHelper(_configuration, Mock.Of<IHttpContextAccessor>(), configurationMock.Object);
+
+        _mockRootConfig.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+        _urlActionHelper = new UrlActionHelper(_configuration, Mock.Of<IHttpContextAccessor>(), _mockRootConfig.Object);
         _homeController = new HomeController(
             _homeOrchestrator.Object,
             _configuration,
             _flashMessage.Object,
             Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
-            Mock.Of<ILogger<HomeController>>(), configurationMock.Object, null,
+            Mock.Of<ILogger<HomeController>>(), _mockRootConfig.Object, null,
             _urlActionHelper)
         {
             ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object },
@@ -177,6 +172,24 @@ public class WhenIViewTheHomePage : ControllerTestBase
         var actualViewResult = actual as ViewResult;
         Assert.IsNotNull(actualViewResult);
         Assert.AreEqual("ServiceStartPage", actualViewResult.ViewName);
+    }
+
+    [Test]
+    public async Task ThenTheUnauthenticatedInProd_RedirectedToGovUk_WhenNoUserIsLoggedIn()
+    {
+        //Arrange
+        _mockRootConfig.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
+        _configuration.GovUkSignInToASAccountUrl = "http://gov.uk/account";
+        AddEmptyUserToContext();
+
+        //Act
+        var actual = await _homeController.Index(null);
+
+        //Assert
+        Assert.IsNotNull(actual);
+        var actualViewResult = actual as RedirectResult;
+        Assert.IsNotNull(actualViewResult);
+        Assert.AreEqual(_configuration.GovUkSignInToASAccountUrl, actualViewResult.Url);
     }
 
     [Test]
