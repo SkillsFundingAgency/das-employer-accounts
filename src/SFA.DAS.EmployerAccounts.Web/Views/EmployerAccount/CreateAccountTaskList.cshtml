@@ -77,19 +77,34 @@
                     </li>
                 </ul>
             </li>
-            @*<li>
-            <h2 class="das-task-list__section">
-            <span class="das-task-list__section-number">4. </span> Accept your employer agreement
-            </h2>
-            <ul class="das-task-list__items">
-            <li class="das-task-list__item">
-            <span class="das-task-list__task-name">
-            Read and accept your employer agreement
-            </span>
-            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-accept-agreement">Cannot start yet</strong>
+            <li>
+                <h2 class="das-task-list__section">
+                    <span class="das-task-list__section-number">4. </span> Accept your employer agreement
+                </h2>
+                <ul class="das-task-list__items">
+                    <li class="das-task-list__item">
+                        <span class="das-task-list__task-name">
+                            Your employer agreement
+                        </span>
+                        @if (!Model.Data.NameConfirmed)
+                        {
+                            <span class="das-task-list__task-name">
+                                Set your account name
+                            </span>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Cannot start yet</strong>
+                        }
+                        else
+                        {
+                            <span class="das-task-list__task-name">
+                                <a asp-route="@RouteNames.AccountName" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-add-paye" class="govuk-link">
+                                    Set your account name
+                                </a>
+                            </span>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>
+                        }
+                    </li>
+                </ul>
             </li>
-            </ul>
-            </li>*@
             @* <li>
             <h2 class="das-task-list__section">
             <span class="das-task-list__section-number">5. </span> Add a training provider
@@ -111,10 +126,9 @@
             </li>*@
         </ol>
         @*<div class="app-save-return">*@
-        <a 
-            asp-route="@Model.Data.SaveProgressRouteName"
-            asp-route-hashedAccountId="@Model.Data.HashedAccountId"
-            class="govuk-body govuk-button govuk-button--secondary app-save-return__link">Save and come back later</a>
+        <a asp-route="@Model.Data.SaveProgressRouteName"
+           asp-route-hashedAccountId="@Model.Data.HashedAccountId"
+           class="govuk-body govuk-button govuk-button--secondary app-save-return__link">Save and come back later</a>
         @*</div>*@
     </div>
 </div>
