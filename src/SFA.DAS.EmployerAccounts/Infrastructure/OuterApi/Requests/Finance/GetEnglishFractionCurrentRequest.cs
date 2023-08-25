@@ -9,7 +9,7 @@ public class GetEnglishFractionCurrentRequest : IGetApiRequest
 
     public string GetUrl => $"accounts/{_hashedAccountId}/levy/english-fraction-current{_baseUri.Uri.Query}";
 
-    public GetEnglishFractionCurrentRequest(string hashedAccountId, string[] empRefs)
+    public GetEnglishFractionCurrentRequest(string hashedAccountId, IEnumerable<string> empRefs)
     {
         _hashedAccountId = hashedAccountId;
         _baseUri = new UriBuilder();
