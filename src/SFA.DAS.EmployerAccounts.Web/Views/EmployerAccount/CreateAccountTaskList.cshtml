@@ -72,7 +72,14 @@
                                     Set your account name
                                 </a>
                             </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>
+                            if (!Model.Data.NameConfirmed)
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>
+                            }
+                            else
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag" id="status-set-account-name">Completed</strong>
+                            }
                         }
                     </li>
                 </ul>
