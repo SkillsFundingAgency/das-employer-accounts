@@ -20,7 +20,6 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string hashedAccountId,
             string userId,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
-            [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
         {
             // Arrange
