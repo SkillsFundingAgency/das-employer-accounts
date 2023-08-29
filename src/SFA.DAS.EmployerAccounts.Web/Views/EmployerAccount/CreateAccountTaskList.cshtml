@@ -83,21 +83,18 @@
                 </h2>
                 <ul class="das-task-list__items">
                     <li class="das-task-list__item">
-                        <span class="das-task-list__task-name">
-                            Your employer agreement
-                        </span>
                         @if (!Model.Data.NameConfirmed)
                         {
                             <span class="das-task-list__task-name">
-                                Set your account name
+                                Your employer agreement
                             </span>
                             <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Cannot start yet</strong>
                         }
                         else
                         {
                             <span class="das-task-list__task-name">
-                                <a asp-route="@RouteNames.AccountName" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-add-paye" class="govuk-link">
-                                    Set your account name
+                                <a asp-route="@RouteNames.AboutYourAgreement" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-sign-agreement" class="govuk-link">
+                                    Your employer agreement
                                 </a>
                             </span>
                             <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>

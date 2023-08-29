@@ -69,7 +69,8 @@ public class EmployerAccountRepository : IEmployerAccountRepository
             PublicHashedId = account.PublicHashedId,
             Name = account.Name,
             CreatedDate = account.CreatedDate,
-            ApprenticeshipEmployerType = (ApprenticeshipEmployerType)account.ApprenticeshipEmployerType
+            ApprenticeshipEmployerType = (ApprenticeshipEmployerType)account.ApprenticeshipEmployerType,
+            NameConfirmed = account.NameConfirmed
         };
 
         var activeLegalEntities = account.AccountLegalEntities.Where(x =>

@@ -6,6 +6,7 @@ using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
+using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 using SFA.DAS.Encoding;
 
@@ -327,22 +328,33 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             };
         }
 
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+
         var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
         {
             HashedAccountId = hashedAccountId
         });
 
-        if (accountResponse == null || accountResponse.Account == null)
+        var accountAgreementsResponse = await Mediator.Send(new GetEmployerAgreementsByAccountIdRequest
+        {
+            AccountId = accountId
+        });
+
+        if (accountResponse == null || accountResponse.Account == null || accountAgreementsResponse.EmployerAgreements == null || !accountAgreementsResponse.EmployerAgreements.Any())
         {
             return new OrchestratorResponse<AccountTaskListViewModel> { Status = HttpStatusCode.NotFound };
         }
+
+        var agreementId = accountAgreementsResponse.EmployerAgreements.Find(ea => ea.StatusId == EmployerAgreementStatus.Pending).Id;
 
         return new OrchestratorResponse<AccountTaskListViewModel>
         {
             Data = new AccountTaskListViewModel
             {
                 HashedAccountId = hashedAccountId,
-                HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false
+                HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false,
+                NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
+                PendingHashedAgreementId = _encodingService.Encode(agreementId, EncodingType.AccountId)
             }
         };
     }

@@ -12,7 +12,7 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
             get
             {
                 // by default, will have 1 completed section for user details (step previous)
-                return HasPayeScheme ? 2 : 1;
+                return NameConfirmed ? 3 : HasPayeScheme ? 2 : 1;
             }
         }
 
@@ -21,5 +21,7 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         public string AddPayeRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.EmployerAccountPayBillTriage : RouteNames.AddPayeShutter;
 
         public bool NameConfirmed { get; internal set; }
+
+        public string PendingHashedAgreementId { get; internal set; }
     }
 }
