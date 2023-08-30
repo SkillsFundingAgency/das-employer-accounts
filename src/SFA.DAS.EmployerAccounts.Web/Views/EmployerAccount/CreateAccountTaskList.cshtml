@@ -100,7 +100,7 @@
                         else
                         {
                             <span class="das-task-list__task-name">
-                                <a asp-route="@RouteNames.AboutYourAgreement" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-sign-agreement" class="govuk-link">
+                                <a asp-route="@RouteNames.AboutYourAgreement" asp-route-hashedAccountId="@Model.Data.HashedAccountId" asp-route-hashedAgreementId="@Model.Data.PendingHashedAgreementId" aria-describedby="status-sign-agreement" class="govuk-link">
                                     Your employer agreement
                                 </a>
                             </span>
