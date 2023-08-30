@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
-using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.PayeRefData;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
