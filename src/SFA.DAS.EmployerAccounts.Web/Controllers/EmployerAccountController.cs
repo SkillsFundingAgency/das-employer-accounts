@@ -405,7 +405,7 @@ public class EmployerAccountController : BaseController
 
                     if (response.Status == HttpStatusCode.OK)
                     {                        
-                        return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
+                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
                     }
 
                     response.Data = vm;

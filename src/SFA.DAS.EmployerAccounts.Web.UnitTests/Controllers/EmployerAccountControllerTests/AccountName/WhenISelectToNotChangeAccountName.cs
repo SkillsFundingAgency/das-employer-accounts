@@ -104,7 +104,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
                 await _employerAccountController.AccountName(hashedAccountId, viewModel) as RedirectToRouteResult;
 
             // Assert
-            result.RouteName.Should().Be(RouteNames.AccountNameSuccess);
+            result.RouteName.Should().Be(RouteNames.AccountNameConfirmSuccess);
         }
     }
 }
