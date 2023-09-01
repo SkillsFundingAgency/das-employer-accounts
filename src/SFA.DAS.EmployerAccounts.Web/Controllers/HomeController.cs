@@ -90,7 +90,7 @@ public class HomeController : BaseController
         }
         else
         {
-            if (_config["ResourceEnvironmentName"].Equals("PROD"))
+            if (_config["ResourceEnvironmentName"].Equals("prd"))
             {
                 //GDS requirement that users begin their service journey on .gov.uk
                 return Redirect(_configuration.GovUkSignInToASAccountUrl);
