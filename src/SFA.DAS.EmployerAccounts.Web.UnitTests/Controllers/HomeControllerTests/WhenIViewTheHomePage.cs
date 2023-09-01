@@ -17,19 +17,23 @@ public class WhenIViewTheHomePage : ControllerTestBase
 {
     private UserAccountsViewModel _userAccountsViewModel;
     private HomeController _homeController;
-    private readonly Mock<HomeOrchestrator> _homeOrchestrator = new();
+    private Mock<HomeOrchestrator> _homeOrchestrator;
     private EmployerAccountsConfiguration _configuration;
     private const string ExpectedUserId = "123ABC";
-    private readonly Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage = new();
+    private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
     private UrlActionHelper _urlActionHelper;
     private GaQueryData _queryData;
-    private readonly Mock<IConfiguration> _mockRootConfig = new();
+    private Mock<IConfiguration> _mockRootConfig;
 
     [SetUp]
     public void Arrange()
     {
         base.Arrange();
 
+        _homeOrchestrator = new();
+        _flashMessage = new();
+        _mockRootConfig = new();
+        
         var fixture = new Fixture();
         _queryData = fixture.Create<GaQueryData>();
 
