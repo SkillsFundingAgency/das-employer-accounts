@@ -18,17 +18,18 @@ using SFA.DAS.Testing.AutoFixture;
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers;
 
 [TestFixture]
-public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementControllerTestFixtures>
+public class EmployerAgreementControllerTests
 {
     private EmployerAgreementController _controller;
     private Mock<EmployerAgreementOrchestrator> _orchestratorMock;
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
     private Mock<IMediator> _mediator;
-    
+
     private const string HashedAccountLegalEntityId = "AYT887";
     private const string HashedAccountId = "ABC167";
     private const string UserId = "UserNumeroUno";
     private const string HashedAgreementId = "AGREE778";
+    private const string LegalEntityName = "I_Am+_Legal";
 
     [SetUp]
     public void Setup()
@@ -40,7 +41,8 @@ public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementCont
         var httpRequestMock = new Mock<HttpRequest>();
         var httpContextMock = new Mock<HttpContext>();
 
-        var store = new Dictionary<string, StringValues> { { ControllerConstants.AccountHashedIdRouteKeyName, HashedAccountId } };
+        var store = new Dictionary<string, StringValues>
+            { { ControllerConstants.AccountHashedIdRouteKeyName, HashedAccountId } };
         var queryCollection = new QueryCollection(store);
 
         httpRequestMock.Setup(x => x.Query).Returns(queryCollection);
@@ -67,11 +69,11 @@ public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementCont
         //Arrange
         _orchestratorMock
             .Setup(x => x.GetConfirmRemoveOrganisationViewModel(HashedAccountLegalEntityId, HashedAccountId, UserId))
-                    .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
-                    {
-                        Exception = new UnauthorizedAccessException(),
-                        Status = HttpStatusCode.Unauthorized
-                    });
+            .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
+            {
+                Exception = new UnauthorizedAccessException(),
+                Status = HttpStatusCode.Unauthorized
+            });
 
         //Act
         var response = await _controller.ConfirmRemoveOrganisation(HashedAccountLegalEntityId, HashedAccountId);
@@ -82,19 +84,20 @@ public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementCont
     }
 
     [Test]
-    public async Task WhenRequestingConfirmRemoveOrganisationPage_AndOrganisationCanBeRemoved_ThenConfirmRemoveViewIsReturned()
+    public async Task
+        WhenRequestingConfirmRemoveOrganisationPage_AndOrganisationCanBeRemoved_ThenConfirmRemoveViewIsReturned()
     {
         //Arrange
         _orchestratorMock
             .Setup(x => x.GetConfirmRemoveOrganisationViewModel(HashedAccountId, HashedAccountLegalEntityId, UserId))
-                    .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
-                    {
-                        Data = new ConfirmOrganisationToRemoveViewModel
-                        {
-                            CanBeRemoved = true
-                        },
-                        Status = HttpStatusCode.OK
-                    });
+            .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
+            {
+                Data = new ConfirmOrganisationToRemoveViewModel
+                {
+                    CanBeRemoved = true
+                },
+                Status = HttpStatusCode.OK
+            });
 
         //Act
         var response = await _controller.ConfirmRemoveOrganisation(HashedAccountId, HashedAccountLegalEntityId);
@@ -105,19 +108,20 @@ public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementCont
     }
 
     [Test]
-    public async Task WhenRequestingConfirmRemoveOrganisationPage_AndOrganisationCannotBeRemoved_ThenCannotRemoveOrganisationViewIsReturned()
+    public async Task
+        WhenRequestingConfirmRemoveOrganisationPage_AndOrganisationCannotBeRemoved_ThenCannotRemoveOrganisationViewIsReturned()
     {
         //Arrange
         _orchestratorMock
             .Setup(x => x.GetConfirmRemoveOrganisationViewModel(HashedAccountId, HashedAccountLegalEntityId, UserId))
-                    .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
-                    {
-                        Data = new ConfirmOrganisationToRemoveViewModel
-                        {
-                            CanBeRemoved = false
-                        },
-                        Status = HttpStatusCode.OK
-                    });
+            .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
+            {
+                Data = new ConfirmOrganisationToRemoveViewModel
+                {
+                    CanBeRemoved = false
+                },
+                Status = HttpStatusCode.OK
+            });
 
         //Act
         var response = await _controller.ConfirmRemoveOrganisation(HashedAccountId, HashedAccountLegalEntityId);
@@ -128,34 +132,45 @@ public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementCont
     }
 
     [Test]
-    public Task ConfirmRemoveOrganisation_WhenIRemoveAlegalEntityFromAnAccount_ThenTheOrchestratorIsCalledToGetTheConfirmRemoveModel()
+    public async Task
+        ConfirmRemoveOrganisation_WhenIRemoveALegalEntityFromAnAccount_ThenTheOrchestratorIsCalledToGetTheConfirmRemoveModel()
     {
-        return TestAsync(
-            fixtures => fixtures.Orchestrator.Setup(x => x.GetConfirmRemoveOrganisationViewModel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
-                {
-                    Data = new ConfirmOrganisationToRemoveViewModel()
-                }),
-            act: fixtures => fixtures.ConfirmRemoveOrganisation(),
-            assert: (fixtures, result) => fixtures.Orchestrator.Verify(
-                x => x.GetConfirmRemoveOrganisationViewModel(fixtures.HashedAccountId, fixtures.HashedAccountLegalEntityId, fixtures.UserId), Times.Once));
+        // Arrange 
+        _orchestratorMock
+            .Setup(x => x.GetConfirmRemoveOrganisationViewModel(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ReturnsAsync(new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel>
+            {
+                Data = new ConfirmOrganisationToRemoveViewModel()
+            });
+
+        // Assert 
+        await _controller.ConfirmRemoveOrganisation(HashedAccountId, HashedAccountLegalEntityId);
+
+        // Assert
+        _orchestratorMock.Verify(
+            x => x.GetConfirmRemoveOrganisationViewModel(HashedAccountId, HashedAccountLegalEntityId, UserId),
+            Times.Once);
     }
 
     [Test]
-    public async Task ViewUnsignedAgreements_WhenIViewUnsignedAgreements_ThenIShouldGoStraightToTheUnsignedAgreementIfThereIsOnlyOne()
+    public async Task
+        ViewUnsignedAgreements_WhenIViewUnsignedAgreements_ThenIShouldGoStraightToTheUnsignedAgreementIfThereIsOnlyOne()
     {
         //Arrange
         _orchestratorMock
             .Setup(x => x.GetNextUnsignedAgreement(HashedAccountId, UserId))
-                    .ReturnsAsync(new OrchestratorResponse<NextUnsignedAgreementViewModel>
-                    {
-                        Data = new NextUnsignedAgreementViewModel
-                        {
-                            HasNextAgreement = true,
-                            NextAgreementHashedId = HashedAgreementId
-                        },
-                        Status = HttpStatusCode.OK
-                    });
+            .ReturnsAsync(new OrchestratorResponse<NextUnsignedAgreementViewModel>
+            {
+                Data = new NextUnsignedAgreementViewModel
+                {
+                    HasNextAgreement = true,
+                    NextAgreementHashedId = HashedAgreementId
+                },
+                Status = HttpStatusCode.OK
+            });
 
         //Act
         var response = await _controller.ViewUnsignedAgreements(HashedAccountId);
@@ -187,33 +202,33 @@ public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementCont
     }
 
     [Test]
-    public Task AboutYourAgreement_WhenIViewAboutYourAgreementAsLevy_ThenShouldShowTheAboutYourAgreementView()
+    public async Task AboutYourAgreement_WhenIViewAboutYourAgreementAsLevy_ThenShouldShowTheAboutYourAgreementView()
     {
-        return TestAsync(
-            arrange: fixtures =>
+        // Arrange
+        _orchestratorMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new OrchestratorResponse<EmployerAgreementViewModel>
             {
-                fixtures.Orchestrator.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                    .ReturnsAsync(new OrchestratorResponse<EmployerAgreementViewModel>
+                Data = new EmployerAgreementViewModel
+                {
+                    EmployerAgreement = new EmployerAgreementView
                     {
-                        Data = new EmployerAgreementViewModel
-                        {
-                            EmployerAgreement = new EmployerAgreementView
-                            {
-                                AgreementType = AgreementType.Levy
-                            }
-                        }
-                    });
-            },
-            act: fixtures => fixtures.AboutYourAgreement(),
-            assert: (fixtures, actualResult) =>
-            {
-                Assert.IsNotNull(actualResult);
-                Assert.That(actualResult.Model, Is.InstanceOf<OrchestratorResponse<EmployerAgreementViewModel>>());
+                        AgreementType = AgreementType.Levy
+                    }
+                }
             });
+
+        // Act
+        var actualResult = await _controller.AboutYourAgreement(HashedAccountId, HashedAgreementId);
+
+        // Assert
+        Assert.IsNotNull(actualResult);
+        actualResult.Model.Should().BeOfType<OrchestratorResponse<EmployerAgreementViewModel>>();
+        // Assert.That(actualResult.Model, Is.InstanceOf<OrchestratorResponse<EmployerAgreementViewModel>>());
     }
 
     [Test, MoqAutoData]
-    public async Task ViewAgreementToSign_WhenIHaveNotSelectedAnOption_ThenAnErrorIsDisplayed(SignEmployerAgreementViewModel viewModel)
+    public async Task ViewAgreementToSign_WhenIHaveNotSelectedAnOption_ThenAnErrorIsDisplayed(
+        SignEmployerAgreementViewModel viewModel)
     {
         //Arrange
         _orchestratorMock
@@ -237,52 +252,51 @@ public class EmployerAgreementControllerTests : FluentTest<EmployerAgreementCont
     }
 
     [Test]
-    public Task WhenDoYouWantToView_WhenILandOnThePage_ThenTheLegalEntityNameIsCorrect()
+    public async Task WhenDoYouWantToView_WhenILandOnThePage_ThenTheLegalEntityNameIsCorrect()
     {
-        return TestAsync(
-            arrange: fixtures =>
+        // Arrange
+        _orchestratorMock
+            .Setup(x => x.GetById(HashedAgreementId, HashedAccountId, UserId))
+            .ReturnsAsync(new OrchestratorResponse<EmployerAgreementViewModel>
             {
-                fixtures.Orchestrator
-                    .Setup(x => x.GetById(fixtures.HashedAccountId, fixtures.HashedAgreementId, fixtures.UserId))
-                    .ReturnsAsync(new OrchestratorResponse<EmployerAgreementViewModel>
+                Data = new EmployerAgreementViewModel
+                {
+                    EmployerAgreement = new EmployerAgreementView
                     {
-                        Data = new EmployerAgreementViewModel { EmployerAgreement = new EmployerAgreementView { LegalEntityName = fixtures.LegalEntityName } }
-                    });
-            },
-            act: fixtures => fixtures.WhenDoYouWantToView(),
-            assert: (fixtures, actualResult) =>
-            {
-                Assert.IsNotNull(actualResult);
-                var viewResult = actualResult as ViewResult;
-                Assert.IsNotNull(viewResult);
-                var actualModel = viewResult.Model as WhenDoYouWantToViewViewModel;
-                Assert.IsNotNull(actualModel);
-                Assert.That(actualModel.EmployerAgreement.LegalEntityName, Is.EqualTo(fixtures.LegalEntityName));
+                        LegalEntityName = LegalEntityName
+                    }
+                }
             });
+
+        // Act
+        var actualResult = await _controller.WhenDoYouWantToView(0, HashedAccountId, HashedAgreementId);
+
+        // Assert
+        actualResult.Should().NotBeNull();
+        var viewResult = actualResult as ViewResult;
+        viewResult.Should().NotBeNull();
+        var actualModel = viewResult.Model as WhenDoYouWantToViewViewModel;
+        actualModel.Should().NotBeNull();
+        actualModel.EmployerAgreement.LegalEntityName.Should().Be(LegalEntityName);
     }
 
     [Test]
-    public Task WhenDoYouWantToView_WhenISelectNow_ThenTheAgreementIsShown()
+    public async Task WhenDoYouWantToView_WhenISelectNow_ThenTheAgreementIsShown()
     {
-        return TestAsync(
-            act: fixtures => fixtures.WhenDoYouWantToView(1, new WhenDoYouWantToViewViewModel { EmployerAgreement = new EmployerAgreementView() }),
-            assert: (fixtures, actualResult) =>
-            {
-                actualResult.Should().NotBeNull();
-                actualResult.RouteName.Should().Be(RouteNames.EmployerAgreementSignYourAgreement);
-            });
+        // Act
+        var actualResult = await _controller.WhenDoYouWantToView(1, HashedAgreementId, HashedAccountId) as RedirectToRouteResult;
+
+        // Assert
+        actualResult.Should().NotBeNull();
+        actualResult.RouteName.Should().Be(RouteNames.EmployerAgreementSignYourAgreement);
     }
 
     [Test]
-    public Task WhenDoYouWantToView_WhenISelectLater_ThenTheHomepageIsShown()
+    public async Task WhenDoYouWantToView_WhenISelectLater_ThenTheHomepageIsShown()
     {
-        return TestAsync(
-            act: fixtures => fixtures.WhenDoYouWantToView(2, new WhenDoYouWantToViewViewModel { EmployerAgreement = new EmployerAgreementView() }),
-            assert: (fixtures, actualResult) =>
-            {
-                actualResult.Should().NotBeNull();
-                actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
-            });
+        var actualResult = await _controller.WhenDoYouWantToView(2, HashedAgreementId, HashedAccountId) as RedirectToRouteResult;
+        actualResult.Should().NotBeNull();
+        actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
 }
 
