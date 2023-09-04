@@ -14,7 +14,7 @@ BEGIN
 		SignedByName = @signedByName, 
 		SignedDate = @signedDate, 
 		StatusId = 2,
-	    Acknowledged = 1
+        Acknowledged = 1
 	WHERE Id = @agreementId;
 
 	
