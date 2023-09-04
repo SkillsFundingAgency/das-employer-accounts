@@ -13,7 +13,8 @@ BEGIN
 	SET SignedById = @signedById, 
 		SignedByName = @signedByName, 
 		SignedDate = @signedDate, 
-		StatusId = 2 
+		StatusId = 2,
+	    Acknowledged = 1
 	WHERE Id = @agreementId;
 
 	
