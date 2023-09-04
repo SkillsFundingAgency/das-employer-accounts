@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SFA.DAS.EmployerAccounts.Commands.AcknowledgeEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Commands.RemoveLegalEntity;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Dtos;
@@ -104,6 +105,29 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
             return new OrchestratorResponse<EmployerAgreementViewModel>
             {
                 Status = HttpStatusCode.Unauthorized
+            };
+        }
+    }
+
+    public async Task<OrchestratorResponse> AcknowledgeAgreement(string hashedAgreementid)
+    {
+        try
+        {
+            var agreementId = _encodingService.Decode(hashedAgreementid, EncodingType.AccountId);
+
+            _ = _mediator.Send(new AcknowledgeEmployerAgreementCommand(agreementId));
+            
+            return new OrchestratorResponse
+            {
+                Status = HttpStatusCode.OK
+            };
+        }
+        catch (InvalidRequestException ex)
+        {
+            return new OrchestratorResponse
+            {
+                Exception = ex,
+                Status = HttpStatusCode.BadRequest
             };
         }
     }

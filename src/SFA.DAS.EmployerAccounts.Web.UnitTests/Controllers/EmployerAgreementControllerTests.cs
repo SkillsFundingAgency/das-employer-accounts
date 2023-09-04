@@ -1,18 +1,15 @@
 ﻿using System.Security.Claims;
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Primitives;
 using SFA.DAS.Common.Domain.Types;
-using SFA.DAS.EmployerAccounts.Dtos;
+using SFA.DAS.EmployerAccounts.Commands.AcknowledgeEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesCountByHashedAccountId;
-using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreement;
-using SFA.DAS.EmployerAccounts.Queries.GetLastSignedAgreement;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Testing;
+using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers;
@@ -24,6 +21,7 @@ public class EmployerAgreementControllerTests
     private Mock<EmployerAgreementOrchestrator> _orchestratorMock;
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
     private Mock<IMediator> _mediator;
+    private Mock<HttpContext> _httpContextMock;
 
     private const string HashedAccountLegalEntityId = "AYT887";
     private const string HashedAccountId = "ABC167";
@@ -39,20 +37,20 @@ public class EmployerAgreementControllerTests
         _mediator = new Mock<IMediator>();
 
         var httpRequestMock = new Mock<HttpRequest>();
-        var httpContextMock = new Mock<HttpContext>();
+        _httpContextMock = new Mock<HttpContext>();
 
         var store = new Dictionary<string, StringValues>
             { { ControllerConstants.AccountHashedIdRouteKeyName, HashedAccountId } };
         var queryCollection = new QueryCollection(store);
 
         httpRequestMock.Setup(x => x.Query).Returns(queryCollection);
-        httpContextMock.Setup(x => x.Request).Returns(httpRequestMock.Object);
+        _httpContextMock.Setup(x => x.Request).Returns(httpRequestMock.Object);
 
         var identity = new ClaimsIdentity(new[] { new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, UserId) });
 
         var principal = new ClaimsPrincipal(identity);
 
-        httpContextMock.Setup(x => x.User).Returns(principal);
+        _httpContextMock.Setup(x => x.User).Returns(principal);
 
         _controller = new EmployerAgreementController(
             _orchestratorMock.Object,
@@ -60,7 +58,7 @@ public class EmployerAgreementControllerTests
             _mediator.Object,
             Mock.Of<IUrlActionHelper>());
 
-        _controller.ControllerContext = new ControllerContext { HttpContext = httpContextMock.Object };
+        _controller.ControllerContext = new ControllerContext { HttpContext = _httpContextMock.Object };
     }
 
     [Test]
@@ -298,156 +296,28 @@ public class EmployerAgreementControllerTests
         actualResult.Should().NotBeNull();
         actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
-}
-
-public class EmployerAgreementControllerTestFixtures : FluentTest<EmployerAgreementControllerTestFixtures>
-{
-    public Mock<EmployerAgreementOrchestrator> Orchestrator;
-    public Mock<ICookieStorageService<FlashMessageViewModel>> FlashMessage;
-    public Mock<IMediator> Mediator;
-
-    public EmployerAgreementControllerTestFixtures()
+    
+    [Test, MoqAutoData]
+    public async Task SignAgreement_Later_ShouldAcknowledgeAgreement(
+        long agreementId,
+        [Frozen] Mock<IEncodingService> encodingServiceMock,
+        [Frozen] Mock<IMediator> mediatorMock,
+        [NoAutoProperties] EmployerAgreementController controller)
     {
-        Orchestrator = new Mock<EmployerAgreementOrchestrator>();
-        FlashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
-        Mediator = new Mock<IMediator>();
+        // Arrange 
+        controller.ControllerContext = new ControllerContext { HttpContext = _httpContextMock.Object };
         
-        GetAgreementRequest = new GetEmployerAgreementRequest
-        {
-            ExternalUserId = UserId,
-            HashedAccountId = HashedAccountId,
-            HashedAgreementId = HashedAgreementId
-        };
-
-        GetAgreementToSignViewModel = new EmployerAgreementViewModel
-        {
-            EmployerAgreement = new EmployerAgreementView()
-        };
-
-        GetSignAgreementViewModel = new SignEmployerAgreementViewModel();
-    }
-
-    public string HashedAccountId => "ABC123";
-    public string UserId => "AFV456TGF";
-    public string HashedAgreementId => "789UHY";
-    public long AccountLegalEntityId => 1234;
-    public string LegalEntityName => "FIFTEEN LIMITED";
-    public string HashedAccountLegalEntityId => "THGHFH";
-
-    public GetEmployerAgreementRequest GetAgreementRequest { get; }
-
-    public EmployerAgreementViewModel GetAgreementToSignViewModel { get; }
-
-    public SignEmployerAgreementViewModel GetSignAgreementViewModel { get; }
-
-    public ViewResult ViewResult { get; set; }
-
-    public EmployerAgreementControllerTestFixtures WithUnsignedEmployerAgreement()
-    {
-        var agreementResponse = new GetEmployerAgreementResponse
-        {
-            EmployerAgreement = new AgreementDto { LegalEntity = new AccountSpecificLegalEntityDto { AccountLegalEntityId = AccountLegalEntityId } }
-        };
-
-        Mediator.Setup(x => x.Send(It.Is<GetEmployerAgreementRequest>(r => r.HashedAgreementId == GetAgreementRequest.HashedAgreementId && r.HashedAccountId == GetAgreementRequest.HashedAccountId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(agreementResponse);
-        var entitiesCountResponse = new GetAccountLegalEntitiesCountByHashedAccountIdResponse
-        {
-            LegalEntitiesCount = 1
-        };
-
-        Mediator.Setup(x => x.Send(It.IsAny<GetAccountLegalEntitiesCountByHashedAccountIdRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(entitiesCountResponse);
-
-        Orchestrator.Setup(x => x.GetById(HashedAgreementId, HashedAccountId, UserId))
-            .ReturnsAsync(new OrchestratorResponse<EmployerAgreementViewModel> { Data = GetAgreementToSignViewModel });
-
-        return this;
-    }
-
-    public EmployerAgreementControllerTestFixtures WithPreviouslySignedAgreement()
-    {
-        var response = new GetLastSignedAgreementResponse { LastSignedAgreement = new AgreementDto() };
-
-        Mediator.Setup(x =>
-                x.Send(It.Is<GetLastSignedAgreementRequest>(r => r.AccountLegalEntityId == AccountLegalEntityId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-
-        return this;
-    }
-
-    public EmployerAgreementController CreateController(bool isAuthenticatedUser = true)
-    {
-        var httpRequestMock = new Mock<HttpRequest>();
-        var httpContextMock = new Mock<HttpContext>();
-
-        var store = new Dictionary<string, StringValues> { { ControllerConstants.AccountHashedIdRouteKeyName, HashedAccountId } };
-        var queryCollection = new QueryCollection(store);
-
-        httpRequestMock.Setup(x => x.Query).Returns(queryCollection);
-        httpContextMock.Setup(x => x.Request).Returns(httpRequestMock.Object);
-
-        var identity = new ClaimsIdentity(new[] { new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, isAuthenticatedUser ? "AFV456TGF" : string.Empty) });
-
-        var principal = new ClaimsPrincipal(identity);
-
-        httpContextMock.Setup(x => x.User).Returns(principal);
-
-        var controller = new EmployerAgreementController(
-            Orchestrator.Object,
-            FlashMessage.Object,
-            Mediator.Object,
-            Mock.Of<IUrlActionHelper>());
-
-        controller.ControllerContext = new ControllerContext { HttpContext = httpContextMock.Object };
-
-        return controller;
-    }
-
-    public Task<IActionResult> ConfirmRemoveOrganisation()
-    {
-        var controller = CreateController();
-        return controller.ConfirmRemoveOrganisation(HashedAccountId, HashedAccountLegalEntityId);
-    }
-
-    public async Task<RedirectToActionResult> ViewUnsignedAgreements()
-    {
-        var controller = CreateController(false);
-        var result = await controller.ViewUnsignedAgreements(HashedAccountId) as RedirectToActionResult;
-        return result;
-    }
-
-    public async Task<ViewResult> SignedAgreement()
-    {
-        var controller = CreateController();
-        ViewResult = await controller.SignAgreement(HashedAccountId, HashedAgreementId) as ViewResult;
-        return ViewResult;
-    }
-
-    public async Task<Tuple<ViewResult, ModelStateDictionary>> Sign(int? choice)
-    {
-        var controller = CreateController();
-        var result = await controller.Sign(HashedAgreementId, HashedAccountId, choice) as ViewResult;
-        return new Tuple<ViewResult, ModelStateDictionary>(result, controller.ModelState);
-    }
-
-    public async Task<ViewResult> AboutYourAgreement()
-    {
-        var controller = CreateController();
-        ViewResult = await controller.AboutYourAgreement(HashedAgreementId, HashedAccountId) as ViewResult;
-        return ViewResult;
-    }
-
-    public async Task<ViewResult> WhenDoYouWantToView()
-    {
-        var controller = CreateController();
-        ViewResult = await controller.WhenDoYouWantToView(HashedAgreementId, HashedAccountId) as ViewResult;
-        return ViewResult;
-    }
-
-    public async Task<RedirectToRouteResult> WhenDoYouWantToView(int? choice, WhenDoYouWantToViewViewModel model)
-    {
-        var controller = CreateController();
-        return await controller.WhenDoYouWantToView(choice, model.EmployerAgreement.HashedAgreementId, model.EmployerAgreement.HashedAccountId) as RedirectToRouteResult;
+        encodingServiceMock
+            .Setup(es => es.Decode(HashedAgreementId, EncodingType.AccountId))
+            .Returns(agreementId);
+        
+        // Act
+        var actualResult = await controller.Sign(HashedAccountId, HashedAgreementId, 1) as RedirectToRouteResult;
+        
+        // Assert
+        mediatorMock.Verify(m => 
+            m.Send(It.IsAny<AcknowledgeEmployerAgreementCommand>(), 
+                It.IsAny<CancellationToken>()));
+        actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
 }
