@@ -447,7 +447,7 @@ public class EmployerAccountController : BaseController
 
         response.Data = vm;
 
-        return View(response);
+        return View(response.Data);
     }
 
     [HttpGet]
