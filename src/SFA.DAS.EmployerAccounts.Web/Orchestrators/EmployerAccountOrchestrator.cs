@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.CreateLegalEntity;
-using SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
@@ -70,6 +70,36 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 NewName = string.Empty
             }
         };
+    }
+
+    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> SetEmployerAccountName(string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
+    {
+        var response = new OrchestratorResponse<RenameEmployerAccountViewModel> { Data = model };
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var renameResponse = await RenameEmployerAccount(hashedAccountId, model, userId);
+
+        if(renameResponse.Status == HttpStatusCode.OK)
+        {
+            try
+            {
+                await Mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+                {
+                    AccountId = accountId,
+                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
+                    HashedAccountId = hashedAccountId,
+                    ExternalUserId = userId,
+                    OrganisationName = model.CurrentName,
+                });
+            }
+            catch (InvalidRequestException ex)
+            {
+                response.Status = HttpStatusCode.BadRequest;
+                response.Data.ErrorDictionary = ex.ErrorMessages;
+                response.Exception = ex;
+            }
+        }
+
+        return response;
     }
 
     public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> RenameEmployerAccount(string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
@@ -244,51 +274,6 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             return new OrchestratorResponse<EmployerAgreementViewModel>
             {
                 Data = new EmployerAgreementViewModel(),
-                Status = HttpStatusCode.BadRequest,
-                Exception = ex,
-                FlashMessage = new FlashMessageViewModel()
-            };
-        }
-    }
-
-    public virtual async Task<OrchestratorResponse<EmployerAccountViewModel>> CreateMinimalUserAccountForSkipJourney(CreateUserAccountViewModel viewModel, HttpContext context)
-    {
-        try
-        {
-            var existingUserAccounts =
-                await Mediator.Send(new GetUserAccountsQuery { UserRef = viewModel.UserId });
-
-            if (existingUserAccounts?.Accounts?.AccountList?.Any() == true)
-                return new OrchestratorResponse<EmployerAccountViewModel>
-                {
-                    Data = new EmployerAccountViewModel
-                    {
-                        HashedId = existingUserAccounts.Accounts.AccountList.First().HashedId
-                    },
-                    Status = HttpStatusCode.OK
-                };
-
-            var result = await Mediator.Send(new CreateUserAccountCommand
-            {
-                ExternalUserId = viewModel.UserId,
-                OrganisationName = viewModel.OrganisationName
-            });
-
-            return new OrchestratorResponse<EmployerAccountViewModel>
-            {
-                Data = new EmployerAccountViewModel
-                {
-                    HashedId = result.HashedAccountId
-                },
-                Status = HttpStatusCode.OK
-            };
-        }
-        catch (InvalidRequestException ex)
-        {
-            _logger.LogError(ex, "Create User Account Validation Error: {Message}", ex.Message);
-            return new OrchestratorResponse<EmployerAccountViewModel>
-            {
-                Data = new EmployerAccountViewModel(),
                 Status = HttpStatusCode.BadRequest,
                 Exception = ex,
                 FlashMessage = new FlashMessageViewModel()

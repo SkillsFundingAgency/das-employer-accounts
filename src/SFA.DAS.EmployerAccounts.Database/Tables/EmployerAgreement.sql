@@ -7,7 +7,8 @@
     [SignedDate] DATETIME NULL, 
 	[AccountLegalEntityId] BIGINT NOT NULL,
     [ExpiredDate] DATETIME NULL, 
-    [SignedById] BIGINT NULL, 
+    [SignedById] BIGINT NULL,
+    [Acknowledged] BIT NULL DEFAULT(0),
     CONSTRAINT [FK_EmployerAgreement_AccountLegalEntity] FOREIGN KEY ([AccountLegalEntityId]) REFERENCES [employer_account].[AccountLegalEntity]([Id]), 
     CONSTRAINT [FK_EmployerAgreement_SignedBy] FOREIGN KEY ([SignedById]) REFERENCES [employer_account].[User]([Id])
 )

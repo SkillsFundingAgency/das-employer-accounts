@@ -7,6 +7,24 @@
     ViewBag.Title = "Check Details";
     ViewBag.ShowNav = false;
     ViewBag.GaData.Vpv = "/onboarding/address/update/page-extra-confirm-organisation";
+    var hiddenClass = Model?.GetType().GetProperty("InError") != null ? "" : "das-hidden";
+    var errorClass = Model?.GetType().GetProperty("InError") != null ? "govuk-form-group--error" : "";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="govuk-error-summary" role="alert" aria-labelledby="error-summary-heading" tabindex="-1">
+        <h2 class="govuk-error-summary__title" id="error-summary-heading">
+            There is a problem
+        </h2>
+        <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+                <li>
+                    <a href="#yes">You need to confirm if this is your organisation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 }
 
 <div class="govuk-grid-row">
@@ -64,7 +82,7 @@
                         @Model.Data.AORN
                     </td>
                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                        <a href="@Url.Action(ControllerConstants.SearchUsingAornActionName, ControllerConstants.SearchPensionRegulatorControllerName)" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> account office reference number</span></a>
+                        <a href="@Url.Action(ControllerConstants.SearchUsingAornActionName, ControllerConstants.SearchPensionRegulatorControllerName)" class="govuk-link govuk-link--no-visited-state">Change</a>
                     </td>
                 </tr>
                 }
@@ -82,12 +100,57 @@
                         </dl>
                     </td>
                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                        <a href="@Url.Action(ControllerConstants.GetApprenticeshipFundingActionName, ControllerConstants.EmployerAccountControllerName)" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> PAYE scheme</span></a>
+                        <a href="@Url.Action(ControllerConstants.GetApprenticeshipFundingActionName, ControllerConstants.EmployerAccountControllerName)" class="govuk-link govuk-link--no-visited-state">Change</a>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <form method="POST" asp-route="@RouteNames.EmployerAccountCreate">
+
+        <form method="POST" asp-route="@RouteNames.SummaryPost">
+            <div class="govuk-form-group @(ViewData.ModelState.IsValid ? "" : "govuk-form-group--error")" id="is-this-your-organisation-form">
+                <fieldset class="govuk-fieldset" aria-describedby="have-not-got-everything">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                        <h1 class="govuk-fieldset__heading">
+                            Is this your organisation?
+                        </h1>
+                    </legend>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <span class="govuk-error-message" aria-hidden="false" id="apprentice-for-existing-employee-error">
+                            You need to confirm if this is your organisation
+                        </span>
+                    }
+                    <div class="govuk-radios">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" type="radio" name="isOrganisationWithCorrectAddress" id="yes" value="@bool.TrueString" />
+                            <label class="govuk-label govuk-radios__label" for="yes">
+                                Yes, this is my organisation
+                            </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" type="radio" name="isOrganisationWithCorrectAddress" id="yes-but-address-is-wrong" value="@bool.FalseString" aria-describedby="yes-but-address-is-wrong" />
+                            <label class="govuk-label govuk-radios__label" for="yes-but-address-is-wrong">
+                                Yes, this is my organisation but the address is wrong
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <input type="hidden" name="OrganisationType" asp-for="Data.OrganisationType" />
+                <input type="hidden" name="PublicSectorDataSource" asp-for="Data.PublicSectorDataSource" />
+                <input type="hidden" name="OrganisationName" asp-for="Data.OrganisationName" />
+                <input type="hidden" name="OrganisationReferenceNumber" asp-for="Data.OrganisationReferenceNumber" />
+                <input type="hidden" name="PayeReference" asp-for="Data.PayeReference" />
+                <input type="hidden" name="EmployerRefName" asp-for="Data.EmployerRefName" />
+                <input type="hidden" name="AORN" asp-for="Data.AORN" />
+
+                <!-- Inside the form -->
+                @for (int i = 0; i < Model.Data.RegisteredAddress.Length; i++)
+                {
+                    <input type="hidden" name="RegisteredAddress[@i]" value="@Model.Data.RegisteredAddress[i]" />
+                }
+            </div>
+
             <div class="govuk-button-group">
                 <button class="govuk-button" type="submit" id="continue-check-details">Continue</button>
                 <a asp-route="@RouteNames.NewEmpoyerAccountTaskList" id="cancel-check-details" class="govuk-link">Cancel</a>

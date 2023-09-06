@@ -28,7 +28,7 @@ public class GetUserByRefQueryHandler : IRequestHandler<GetUserByRefQuery, GetUs
         _logger.LogDebug("Getting user with ref {UserRef}", message.UserRef);
 
         var user = await _repository.GetUserByRef(message.UserRef);
-
+        
         if (user == null)
         {
             validationResult.AddError(nameof(message.UserRef), "User does not exist");

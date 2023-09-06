@@ -167,7 +167,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
 
         return _mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
     }
-
+    
     private Task PublishAddPayeSchemeMessage(string empref, long accountId, string createdByName, Guid userRef, string aorn, string schemeName, string correlationId)
     {
         return _eventPublisher.Publish(new AddedPayeSchemeEvent

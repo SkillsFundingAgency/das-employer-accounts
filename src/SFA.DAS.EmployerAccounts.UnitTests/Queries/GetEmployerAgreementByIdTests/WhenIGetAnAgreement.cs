@@ -11,8 +11,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementByIdTes
 {
     internal class WhenIGetAnAgreement : QueryBaseTest<GetEmployerAgreementByIdRequestHandler, GetEmployerAgreementByIdRequest, GetEmployerAgreementByIdResponse>
     {
-        private static long AgreementId => 12;
-
         private Mock<IEmployerAgreementRepository> _employerAgreementRepository;
         private EmployerAgreementView _agreement;
 
@@ -28,7 +26,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementByIdTes
             _employerAgreementRepository = new Mock<IEmployerAgreementRepository>();
             _agreement = new EmployerAgreementView()
             {
-                AgreementType = AgreementType.NonLevyExpressionOfInterest
+                AgreementType = AgreementType.Combined
             };
 
             RequestHandler = new GetEmployerAgreementByIdRequestHandler(_employerAgreementRepository.Object, RequestValidator.Object);
@@ -41,7 +39,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementByIdTes
             _employerAgreementRepository.Setup(x => x.GetEmployerAgreement(It.IsAny<long>()))
                                         .ReturnsAsync(_agreement);
         }
-      
+
         [Test]
         public override async Task ThenIfTheMessageIsValidTheRepositoryIsCalled()
         {
