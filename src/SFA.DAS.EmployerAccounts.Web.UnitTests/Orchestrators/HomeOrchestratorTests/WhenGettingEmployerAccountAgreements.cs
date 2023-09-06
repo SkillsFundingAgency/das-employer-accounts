@@ -1,7 +1,6 @@
 using AutoFixture.NUnit3;
 using MediatR;
 using FluentAssertions;
-using SFA.DAS.EmployerAccounts.Dtos;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.Testing.AutoFixture;
 
