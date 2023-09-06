@@ -381,15 +381,15 @@ public class EmployerAccountController : BaseController
     public async Task<IActionResult> AccountName(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
         var response = new OrchestratorResponse<RenameEmployerAccountViewModel>();
-
+        
         switch (vm.ChangeAccountName)
         {
             case true:
                 {
-                    if (string.IsNullOrEmpty(vm.NewName))
+                    if (string.IsNullOrEmpty(vm.NewName) || vm.NewName == vm.CurrentName)
                     {
                         // Model validation failed, return the view with validation errors
-                        vm.ErrorDictionary.Add(nameof(vm.NewName), "Enter a name");
+                        vm.ErrorDictionary.Add(nameof(vm.NewName), "You have not changed your employer account name. Select cancel if you do not want to make any changes or continue if you want to use this");
                         response.Data = vm;
                         response.Status = response.Status = HttpStatusCode.BadRequest;
                         return View(response);
@@ -404,7 +404,7 @@ public class EmployerAccountController : BaseController
 
                     if (response.Status == HttpStatusCode.OK)
                     {                        
-                        return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
+                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
                     }
 
                     response.Data = vm;

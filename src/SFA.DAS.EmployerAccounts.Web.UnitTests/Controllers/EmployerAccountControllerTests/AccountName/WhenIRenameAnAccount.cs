@@ -87,7 +87,26 @@ public class WhenIRenameAnAccount : ControllerTestBase
         var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
         //Assert
-        model.Data.NewNameError.Should().Be("Enter a name");
+        model.Data.NewNameError.Should().Be("You have not changed your employer account name. Select cancel if you do not want to make any changes or continue if you want to use this");
+    }
+    
+    [Test, MoqAutoData]
+    public async Task WhenNameIsUnchanged_ThenIShouldRecieveAnError(string hashedAccountId, string accountName)
+    {
+        //Arrange
+        var viewModel = new RenameEmployerAccountViewModel
+        {
+            ChangeAccountName = true,
+            CurrentName = accountName,
+            NewName = accountName
+        };
+
+        //Act
+        var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as ViewResult;
+        var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
+
+        //Assert
+        model.Data.NewNameError.Should().Be("You have not changed your employer account name. Select cancel if you do not want to make any changes or continue if you want to use this");
     }
     
     [Test, MoqAutoData]
