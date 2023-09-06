@@ -198,7 +198,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountEmployerAgreement
                 .Without(ale => ale.Deleted)
                 .With(ale => ale.SignedAgreementVersion, (int?)null)
                 .With(ale => ale.SignedAgreement, (EmployerAgreement)null)
-                .With(ale => ale.PendingAgreement.Acknowledged, true)
+                .With(ale => ale.PendingAgreement, _fixture.Build<EmployerAgreement>().With(ea => ea.Acknowledged, true).Create())
                 .Create();
 
             _accountLegalEntities.Add(accountLegalEntity);
