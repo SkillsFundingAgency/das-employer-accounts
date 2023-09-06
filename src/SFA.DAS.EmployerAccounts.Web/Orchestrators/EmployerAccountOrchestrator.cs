@@ -340,12 +340,12 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             AccountId = accountId
         });
 
-        if (accountResponse == null || accountResponse.Account == null || accountAgreementsResponse.EmployerAgreements == null || !accountAgreementsResponse.EmployerAgreements.Any())
+        if (accountResponse?.Account == null || accountAgreementsResponse.EmployerAgreements == null || !accountAgreementsResponse.EmployerAgreements.Any())
         {
             return new OrchestratorResponse<AccountTaskListViewModel> { Status = HttpStatusCode.NotFound };
         }
 
-        var agreementId = accountAgreementsResponse.EmployerAgreements.Find(ea => ea.StatusId == EmployerAgreementStatus.Pending).Id;
+        var agreement = accountAgreementsResponse.EmployerAgreements.Find(ea => ea.StatusId == EmployerAgreementStatus.Pending);
 
         return new OrchestratorResponse<AccountTaskListViewModel>
         {
@@ -354,7 +354,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 HashedAccountId = hashedAccountId,
                 HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false,
                 NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
-                PendingHashedAgreementId = _encodingService.Encode(agreementId, EncodingType.AccountId)
+                PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId),
+                AgreementAcknowledged = agreement.Acknowledged.GetValueOrDefault()
             }
         };
     }

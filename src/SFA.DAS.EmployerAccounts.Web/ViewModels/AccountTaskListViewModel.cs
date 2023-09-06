@@ -23,5 +23,7 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         public bool NameConfirmed { get; internal set; }
 
         public string PendingHashedAgreementId { get; internal set; }
+        
+        public bool AgreementAcknowledged { get; set; }
     }
 }

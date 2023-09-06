@@ -104,9 +104,7 @@ public class HomeController : BaseController
 
             return View(ControllerConstants.ServiceStartPageViewName, model);
         }
-
-
-
+        
         if (accounts.Data.Invitations > 0)
         {
             return RedirectToAction(ControllerConstants.InvitationIndexName, ControllerConstants.InvitationControllerName,queryData);
@@ -119,7 +117,9 @@ public class HomeController : BaseController
 
             if (account != null)
             {
-                if (account.NameConfirmed)
+                var accountAgreementsResponse = await _homeOrchestrator.GetEmployerAccountAgreements(account.Id, userIdClaim.Value);
+                
+                if (!accountAgreementsResponse.Data.EmployerAgreementsData.HasPendingAgreements || accountAgreementsResponse.Data.EmployerAgreementsData.HasAcknowledgedAgreements)
                 {
                     return RedirectToRoute(RouteNames.EmployerTeamIndex, new
                     {

@@ -15,5 +15,5 @@ public class EmployerAgreement
     public virtual AgreementTemplate Template { get; set; }
     public virtual int TemplateId { get; set; }
     public virtual string SignedByEmail { get ; set ; }
-    public virtual bool Acknowledged { get; set; }
+    public virtual bool? Acknowledged { get; set; }
 }

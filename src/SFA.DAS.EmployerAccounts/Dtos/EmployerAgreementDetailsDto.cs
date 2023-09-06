@@ -7,4 +7,5 @@ public class EmployerAgreementDetailsDto
     public string PartialViewName { get; set; }
     public string HashedAgreementId { get; set; }
     public int VersionNumber { get; set; }
+    public bool? Acknowledged { get; set; }
 }

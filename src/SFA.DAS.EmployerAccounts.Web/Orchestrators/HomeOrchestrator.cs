@@ -1,6 +1,7 @@
 using SFA.DAS.EmployerAccounts.Commands.UnsubscribeProviderEmail;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetUserInvitations;
 
@@ -34,6 +35,7 @@ public class HomeOrchestrator
         {
             UserRef = userId
         });
+        
         return new OrchestratorResponse<UserAccountsViewModel>
         {
             Data = new UserAccountsViewModel
@@ -115,5 +117,32 @@ public class HomeOrchestrator
             return null;
         }
         
+    }
+
+    public virtual async Task<OrchestratorResponse<EmployerAgreementListViewModel>> GetEmployerAccountAgreements(long accountId, string externalUserId)
+    {
+        try
+        {
+            var response = await _mediator.Send(new GetAccountEmployerAgreementsRequest
+            {
+                AccountId = accountId,
+                ExternalUserId = externalUserId
+            });
+
+            return new OrchestratorResponse<EmployerAgreementListViewModel>
+            {
+                Data = new EmployerAgreementListViewModel
+                {
+                    EmployerAgreementsData = response
+                }
+            };
+        }
+        catch (Exception)
+        {
+            return new OrchestratorResponse<EmployerAgreementListViewModel>
+            {
+                Status = HttpStatusCode.Unauthorized
+            };
+        }
     }
 }

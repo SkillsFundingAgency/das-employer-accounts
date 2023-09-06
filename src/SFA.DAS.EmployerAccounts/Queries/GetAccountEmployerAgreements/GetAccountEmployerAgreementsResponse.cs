@@ -6,8 +6,9 @@ public class GetAccountEmployerAgreementsResponse
 {
     public List<EmployerAgreementStatusDto> EmployerAgreements { get; set; }
 
-    public bool HasPendingAgreements =>
-        EmployerAgreements != null && EmployerAgreements.Any(ag => ag.HasPendingAgreement);
+    public bool HasPendingAgreements => EmployerAgreements != null && EmployerAgreements.Any(ag => ag.HasPendingAgreement);
+    
+    public bool HasAcknowledgedAgreements => EmployerAgreements != null && EmployerAgreements.Any(ag => ag.Acknowledged ?? true);
 
     public int MinimumSignedAgreementVersion => EmployerAgreements == null ? 0 : EmployerAgreements.Min(ea => ea.Signed?.VersionNumber ?? 0);
 

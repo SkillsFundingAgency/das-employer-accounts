@@ -37,7 +37,7 @@ public class GetAccountEmployerAgreementsQueryHandler : IRequestHandler<GetAccou
         {
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
-
+        
         var agreements = await _db.Value.AccountLegalEntities
             .WithSignedOrPendingAgreementsForAccount(message.AccountId)
             .ProjectTo<EmployerAgreementStatusDto>(_configurationProvider)

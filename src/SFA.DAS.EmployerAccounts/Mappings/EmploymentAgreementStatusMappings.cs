@@ -18,6 +18,7 @@ public class EmploymentAgreementStatusMappings : Profile
             .ForMember(d => d.HashedAgreementId, o => o.Ignore())
             .ForMember(d => d.PartialViewName, conf => conf.MapFrom(ol => ol.Template.PartialViewName))
             .ForMember(d => d.TemplateId, conf => conf.MapFrom(ol => ol.Template.Id))
+            .ForMember(d => d.Acknowledged, conf => conf.MapFrom(ol => ol.Acknowledged))
             .ForMember(d => d.VersionNumber, conf => conf.MapFrom(ol => ol.Template.VersionNumber));
 
         CreateMap<AccountLegalEntity, EmployerAgreementStatusDto>()
