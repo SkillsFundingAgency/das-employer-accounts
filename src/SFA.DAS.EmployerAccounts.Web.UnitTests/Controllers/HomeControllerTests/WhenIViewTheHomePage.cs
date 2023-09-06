@@ -34,7 +34,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
         _homeOrchestrator = new Mock<HomeOrchestrator>();
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
         _homeOrchestrator = new Mock<HomeOrchestrator>();
-
+        _mockRootConfig = new Mock<IConfiguration>();
         var fixture = new Fixture();
         _queryData = fixture.Create<GaQueryData>();
 
