@@ -46,6 +46,7 @@
         public const string RenameAccountPost = "account-rename-post";
         public const string AccountNameConfirm = "account-name-confirm";
         public const string AccountNameConfirmPost = "account-name-confirm-post";
+        public const string AccountNameConfirmSuccess = "account-name-confirm-success";
         public const string AccountNameSuccess = "account-name-success";
         public const string CreateAccountSuccess = "create-account-success";
 

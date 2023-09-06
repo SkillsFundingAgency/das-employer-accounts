@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-
-namespace SFA.DAS.EmployerAccounts.Web.StartupExtensions
+﻿namespace SFA.DAS.EmployerAccounts.Web.StartupExtensions
 {
     public class RobotsTextMiddleware
     {
