@@ -38,6 +38,36 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             // Assert
             mediatorMock.Verify(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()), Times.Once);
         }
+        
+        [Test]
+        [DomainAutoData]
+        public async Task Then_EditUserDetailsLinkSet(
+            string userId,
+            GetUserByRefResponse userByRefResponse,
+            GetUserAccountsQueryResponse queryResponse,
+            [Frozen] Mock<IUrlActionHelper> urlHelperMock,
+            [Frozen] Mock<IMediator> mediatorMock,
+            [NoAutoProperties] EmployerAccountController controller)
+        {
+            // Arrange
+            queryResponse.Accounts.AccountList.Clear();
+            SetControllerContextUserIdClaim(userId, controller);
+            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(userByRefResponse);
+            urlHelperMock.Setup(m => m.EmployerProfileAddUserDetails("/user/edit-user-details"))
+                .Returns((string path) => $"http://testpath.gov.uk{path}");
+            
+            // Act
+            var result = await controller.CreateAccountTaskList(null) as ViewResult;
+
+            // Assert
+            var viewModel = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+            viewModel.Data.EditUserDetailsUrl
+                .Should()
+                .Contain($"user/edit-user-details?firstName={userByRefResponse.User.FirstName}&lastName={userByRefResponse.User.LastName}");
+        }
 
         [Test]
         [DomainAutoData]
