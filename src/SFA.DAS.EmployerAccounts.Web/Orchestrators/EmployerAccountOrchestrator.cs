@@ -350,7 +350,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             };
         }
 
-        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileAddUserDetails($"/user/edit-user-details") + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
+        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
 
         return response;
     }
