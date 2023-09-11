@@ -355,7 +355,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false,
                 NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
                 PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId),
-                AgreementAcknowledged = agreement.Acknowledged.GetValueOrDefault()
+                AgreementAcknowledged = agreement.Acknowledged
             }
         };
     }
