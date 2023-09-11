@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.Authentication;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
+using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests;
 
@@ -30,10 +31,10 @@ public class WhenIViewTheHomePage : ControllerTestBase
     {
         base.Arrange();
 
-        _homeOrchestrator = new();
-        _flashMessage = new();
-        _mockRootConfig = new();
-        
+        _homeOrchestrator = new Mock<HomeOrchestrator>();
+        _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
+        _homeOrchestrator = new Mock<HomeOrchestrator>();
+        _mockRootConfig = new Mock<IConfiguration>();
         var fixture = new Fixture();
         _queryData = fixture.Create<GaQueryData>();
 
@@ -62,9 +63,10 @@ public class WhenIViewTheHomePage : ControllerTestBase
         _homeController = new HomeController(
             _homeOrchestrator.Object,
             _configuration,
-            _flashMessage.Object,
-            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
-            Mock.Of<ILogger<HomeController>>(), _mockRootConfig.Object, null,
+            Mock.Of<ICookieStorageService<FlashMessageViewModel>>(),
+            Mock.Of<ILogger<HomeController>>(),
+            _mockRootConfig.Object,
+            Mock.Of<IStubAuthenticationService>(),
             _urlActionHelper)
         {
             ControllerContext = new ControllerContext { HttpContext = MockHttpContext.Object },

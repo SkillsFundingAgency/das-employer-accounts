@@ -15,6 +15,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 {
     private readonly ILogger<EmployerAccountOrchestrator> _logger;
     private readonly IEncodingService _encodingService;
+    private readonly IUrlActionHelper _urlHelper;
     private const string CookieName = "sfa-das-employerapprenticeshipsservice-employeraccount";
 
     //Needed for tests
@@ -25,11 +26,13 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         ILogger<EmployerAccountOrchestrator> logger,
         ICookieStorageService<EmployerAccountData> cookieService,
         EmployerAccountsConfiguration configuration,
-        IEncodingService encodingService)
+        IEncodingService encodingService,
+        IUrlActionHelper urlHelper)
         : base(mediator, cookieService, configuration)
     {
         _logger = logger;
         _encodingService = encodingService;
+        _urlHelper = urlHelper;
     }
 
     public async Task<OrchestratorResponse<EmployerAccountViewModel>> GetEmployerAccount(long accountId)
@@ -317,34 +320,39 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
     public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(string hashedAccountId, string userRef)
     {
+        var response = new OrchestratorResponse<AccountTaskListViewModel>();
+
+        var userResponse = await Mediator.Send(new GetUserByRefQuery { UserRef = userRef });
+
         if (string.IsNullOrEmpty(hashedAccountId))
         {
             var existingTaskListViewModel = await GetFirstUserAccount(userRef);
 
-            return new OrchestratorResponse<AccountTaskListViewModel>
+            response.Data = existingTaskListViewModel;
+        }
+        else
+        {
+            var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
             {
-                Data = existingTaskListViewModel
-            };
-        }
+                HashedAccountId = hashedAccountId
+            });
 
-        var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
-        {
-            HashedAccountId = hashedAccountId
-        });
+            if (accountResponse == null || accountResponse.Account == null)
+            {
+                response.Status = HttpStatusCode.NotFound;
+                return response;
+            }
 
-        if (accountResponse == null || accountResponse.Account == null)
-        {
-            return new OrchestratorResponse<AccountTaskListViewModel> { Status = HttpStatusCode.NotFound };
-        }
-
-        return new OrchestratorResponse<AccountTaskListViewModel>
-        {
-            Data = new AccountTaskListViewModel
+            response.Data = new AccountTaskListViewModel
             {
                 HashedAccountId = hashedAccountId,
                 HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false
-            }
-        };
+            };
+        }
+
+        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
+
+        return response;
     }
 
     private async Task<AccountTaskListViewModel> GetFirstUserAccount(string userRef)

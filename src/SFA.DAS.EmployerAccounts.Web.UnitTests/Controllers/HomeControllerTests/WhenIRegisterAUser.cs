@@ -34,7 +34,6 @@ public class WhenIRegisterAUser
             _homeOrchestrator.Object,
             _configuration.Object,
             _flashMessage.Object,
-            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
             Mock.Of<ILogger<HomeController>>(), null, null, _urlActionHelper.Object)
         {
             ControllerContext = new ControllerContext()
