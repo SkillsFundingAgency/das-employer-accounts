@@ -7,7 +7,8 @@
 	[ModifiedDate] DATETIME NULL, 
     [PublicHashedId] NVARCHAR(100) NULL, 
     [ApprenticeshipEmployerType] TINYINT NOT NULL, 
-    [NameConfirmed] BIT NULL DEFAULT(0)
+    [NameConfirmed] BIT NULL DEFAULT(0),
+    [AddTrainingProviderAcknowledged] BIT NULL DEFAULT(0)
 )
 GO
 
