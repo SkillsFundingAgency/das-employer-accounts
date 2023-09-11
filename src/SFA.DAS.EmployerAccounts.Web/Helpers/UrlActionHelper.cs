@@ -118,11 +118,18 @@ public class UrlActionHelper : IUrlActionHelper
         return NonAccountsAction(baseUrl, path);
     }
 
-    public string EmployerProfileAddUserDetails(string path)
+    public string EmployerProfileAddUserDetails(string path = "")
     {
         var builder = new UrlBuilder(_config["ResourceEnvironmentName"]);
 
         return builder.EmployerProfiles("UpdateUserDetails");
+    }
+    
+    public string EmployerProfileEditUserDetails(string path = "")
+    {
+        var builder = new UrlBuilder(_config["ResourceEnvironmentName"]);
+
+        return builder.EmployerProfiles("EditUserDetails");
     }
 
     private static string Action(string baseUrl, string path)
