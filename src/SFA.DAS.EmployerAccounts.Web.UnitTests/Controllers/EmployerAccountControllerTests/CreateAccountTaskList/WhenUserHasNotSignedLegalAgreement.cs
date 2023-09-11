@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
+using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -60,18 +61,23 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             long accountId,
             string hashedAccountId,
             string userId,
+            GetUserByRefResponse userByRefResponse,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
             GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            [Frozen] Mock<IUrlActionHelper> urlHelperMock,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
         {
             // Arrange
             encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
-
             accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement> { new EmployerAgreement { StatusId = EmployerAgreementStatus.Pending, Id = agreementId } };
             mediatorMock.Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId), It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse); 
             SetControllerContextUserIdClaim(userId, controller);
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(userByRefResponse);
 
             accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
             accountDetailResponse.Account.NameConfirmed = true;

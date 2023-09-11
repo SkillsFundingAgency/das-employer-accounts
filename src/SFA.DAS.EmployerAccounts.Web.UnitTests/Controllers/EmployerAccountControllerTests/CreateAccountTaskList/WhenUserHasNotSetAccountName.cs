@@ -3,10 +3,12 @@ using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
+using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.TestCommon.AutoFixture;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
@@ -39,6 +41,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
         [DomainAutoData]
         public async Task And_AccountId_Not_Supplied_Then_Should_Get_PAYE(
             string userId,
+            GetUserByRefResponse userByRefResponse,
             GetUserAccountsQueryResponse queryResponse,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
@@ -46,6 +49,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             // Arrange
             SetControllerContextUserIdClaim(userId, controller);
             mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
+            mediatorMock.Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(userByRefResponse);
 
             // Act
             var result = await controller.CreateAccountTaskList(null) as ViewResult;
@@ -63,6 +67,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string hashedAccountId,
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
+            GetUserByRefResponse userByRefResponse,
             GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
@@ -80,6 +85,10 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(userByRefResponse);
 
             // Act
             var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
@@ -114,6 +123,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string hashedAccountId,
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
+            GetUserByRefResponse userByRefResponse,
             GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
@@ -131,6 +141,10 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(userByRefResponse);
 
             // Act
             var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
@@ -147,6 +161,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             long accountId,
             string hashedAccountId,
             string userId,
+            GetUserByRefResponse userByRefResponse,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
             GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
@@ -165,6 +180,10 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(userByRefResponse);
 
             // Act
             var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
@@ -182,6 +201,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string hashedAccountId,
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
+            GetUserByRefResponse userByRefResponse,
             GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
@@ -199,6 +219,10 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(userByRefResponse);
 
             // Act
             var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;

@@ -16,6 +16,8 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         public string AddPayeRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.EmployerAccountPayBillTriage : RouteNames.AddPayeShutter;
 
         public bool NameConfirmed { get; internal set; }
+        
+        public string EditUserDetailsUrl { get; internal set; }
 
         public string PendingHashedAgreementId { get; internal set; }
         

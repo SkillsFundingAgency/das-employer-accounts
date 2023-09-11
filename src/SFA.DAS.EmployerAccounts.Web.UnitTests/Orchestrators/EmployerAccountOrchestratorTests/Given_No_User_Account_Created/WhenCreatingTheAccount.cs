@@ -34,7 +34,14 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             _cookieService = new Mock<ICookieStorageService<EmployerAccountData>>();
             _configuration = new EmployerAccountsConfiguration();
 
-            _employerAccountOrchestrator = new EmployerAccountOrchestrator(_mediator.Object, _logger.Object, _cookieService.Object, _configuration, Mock.Of<IEncodingService>());
+            _employerAccountOrchestrator = new EmployerAccountOrchestrator(
+                _mediator.Object, 
+                _logger.Object, 
+                _cookieService.Object, 
+                _configuration, 
+                Mock.Of<IEncodingService>(),
+                Mock.Of<IUrlActionHelper>());
+
             _mediator.Setup(x => x.Send(It.IsAny<CreateAccountCommand>(), It.IsAny<CancellationToken>()))
                      .ReturnsAsync(new CreateAccountCommandResponse()
                      {
@@ -93,22 +100,22 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             var employerAccountData = new EmployerAccountData
             {
                 EmployerAccountOrganisationData = new EmployerAccountOrganisationData
-                { 
-                OrganisationStatus = "Active",
-                OrganisationName = "Test Company",
-                OrganisationDateOfInception = DateTime.MaxValue,
-                OrganisationReferenceNumber = "ABC12345",
-                OrganisationRegisteredAddress = "My Address",
+                {
+                    OrganisationStatus = "Active",
+                    OrganisationName = "Test Company",
+                    OrganisationDateOfInception = DateTime.MaxValue,
+                    OrganisationReferenceNumber = "ABC12345",
+                    OrganisationRegisteredAddress = "My Address",
                 },
                 EmployerAccountPayeRefData = new EmployerAccountPayeRefData
-                { 
-                PayeReference = "123/abc",
-                EmployerRefName = "Test Scheme 1",
-                EmpRefNotFound = true
+                {
+                    PayeReference = "123/abc",
+                    EmployerRefName = "Test Scheme 1",
+                    EmpRefNotFound = true
                 }
             };
 
-            _cookieService.Setup(x => x.Get( It.IsAny<string>()))
+            _cookieService.Setup(x => x.Get(It.IsAny<string>()))
                 .Returns(employerAccountData);
 
             var context = new Mock<HttpContext>();
