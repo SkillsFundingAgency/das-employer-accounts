@@ -7,14 +7,9 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         public string HashedAccountId { get; set; }
         public bool HasPayeScheme { get; set; }
 
-        public int CompletedSections
-        {
-            get
-            {
-                // by default, will have 1 completed section for user details (step previous)
-                return NameConfirmed ? 3 : HasPayeScheme ? 2 : 1;
-            }
-        }
+        public int CompletedSections =>
+            // by default, will have 1 completed section for user details (step previous)
+            (AgreementAcknowledged ?? true) ? 4 : NameConfirmed ? 3 : HasPayeScheme ? 2 : 1;
 
         public string SaveProgressRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.NewAccountSaveProgress : RouteNames.PartialAccountSaveProgress;
 
