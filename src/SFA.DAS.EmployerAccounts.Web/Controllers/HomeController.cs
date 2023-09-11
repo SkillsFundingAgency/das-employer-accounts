@@ -17,7 +17,6 @@ public class HomeController : BaseController
 {
     private readonly HomeOrchestrator _homeOrchestrator;
     private readonly EmployerAccountsConfiguration _configuration;
-    private readonly ICookieStorageService<ReturnUrlModel> _returnUrlCookieStorageService;
     private readonly ILogger<HomeController> _logger;
     private readonly IConfiguration _config;
     private readonly IStubAuthenticationService _stubAuthenticationService;
@@ -29,7 +28,6 @@ public class HomeController : BaseController
         HomeOrchestrator homeOrchestrator,
         EmployerAccountsConfiguration configuration,
         ICookieStorageService<FlashMessageViewModel> flashMessage,
-        ICookieStorageService<ReturnUrlModel> returnUrlCookieStorageService,
         ILogger<HomeController> logger,
         IConfiguration config,
         IStubAuthenticationService stubAuthenticationService, IUrlActionHelper urlHelper)
@@ -37,7 +35,6 @@ public class HomeController : BaseController
     {
         _homeOrchestrator = homeOrchestrator;
         _configuration = configuration;
-        _returnUrlCookieStorageService = returnUrlCookieStorageService;
         _logger = logger;
         _config = config;
         _stubAuthenticationService = stubAuthenticationService;
