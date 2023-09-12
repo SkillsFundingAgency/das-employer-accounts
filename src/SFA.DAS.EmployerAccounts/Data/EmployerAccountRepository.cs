@@ -70,7 +70,8 @@ public class EmployerAccountRepository : IEmployerAccountRepository
             Name = account.Name,
             CreatedDate = account.CreatedDate,
             ApprenticeshipEmployerType = (ApprenticeshipEmployerType)account.ApprenticeshipEmployerType,
-            NameConfirmed = account.NameConfirmed
+            NameConfirmed = account.NameConfirmed,
+            AddTrainingProviderAcknowledged = account.AddTrainingProviderAcknowledged
         };
 
         var activeLegalEntities = account.AccountLegalEntities.Where(x =>

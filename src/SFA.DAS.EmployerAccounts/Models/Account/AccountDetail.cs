@@ -15,4 +15,5 @@ public class AccountDetail
     public List<AgreementType> AccountAgreementTypes { get; set; }
     public ApprenticeshipEmployerType ApprenticeshipEmployerType { get; set; }
     public bool NameConfirmed { get; set; }
+    public bool? AddTrainingProviderAcknowledged { get; set; }
 }

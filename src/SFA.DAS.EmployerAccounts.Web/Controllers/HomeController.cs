@@ -114,9 +114,7 @@ public class HomeController : BaseController
 
             if (account != null)
             {
-                var accountAgreementsResponse = await _homeOrchestrator.GetEmployerAccountAgreements(account.Id, userIdClaim.Value);
-                
-                if (!accountAgreementsResponse.Data.EmployerAgreementsData.HasPendingAgreements || accountAgreementsResponse.Data.EmployerAgreementsData.HasAcknowledgedAgreements)
+                if (account.AddTrainingProviderAcknowledged ?? true)
                 {
                     return RedirectToRoute(RouteNames.EmployerTeamIndex, new
                     {
@@ -129,7 +127,8 @@ public class HomeController : BaseController
                         queryData.utm_keywords,
                         queryData.utm_content
                     });
-                } else
+                } 
+                else
                 {
                     return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId = account.HashedId });
                 }

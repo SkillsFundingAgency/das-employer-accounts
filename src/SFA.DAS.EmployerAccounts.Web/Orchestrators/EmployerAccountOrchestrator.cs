@@ -27,7 +27,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         ILogger<EmployerAccountOrchestrator> logger,
         ICookieStorageService<EmployerAccountData> cookieService,
         EmployerAccountsConfiguration configuration,
-        IEncodingService encodingService)
+        IEncodingService encodingService,
+        IUrlActionHelper urlHelper)
         : base(mediator, cookieService, configuration)
     {
         _logger = logger;
@@ -359,7 +360,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false,
                 NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
                 PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId),
-                AgreementAcknowledged = agreement.Acknowledged
+                AgreementAcknowledged = agreement.Acknowledged,
+                AddTrainingProviderAcknowledged = accountResponse.Account.AddTrainingProviderAcknowledged
             };
         }
         
