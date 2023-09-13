@@ -29,8 +29,6 @@ public class EmployerAccountController : BaseController
     private const int Over3Million = 1;
     private const int CloseTo3Million = 2;
     private const int LessThan3Million = 3;
-    public const int AddPayeGovGateway = 1;
-    public const int AddPayeAorn = 2;
     private const int AddPayeGovGateway = 1;
     private const int AddPayeAorn = 2;
 
@@ -56,7 +54,7 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
-    [Route("create/tasklist", Order = 1, Name = RouteNames.NewEmpoyerAccountTaskList)]
+    [Route("create/tasklist", Order = 1, Name = RouteNames.NewEmployerAccountTaskList)]
     [Route("{HashedAccountId}/tasklist", Order = 2, Name = RouteNames.ContinueNewEmployerAccountTaskList)]
     public async Task<IActionResult> CreateAccountTaskList(string hashedAccountId)
     {
@@ -180,7 +178,7 @@ public class EmployerAccountController : BaseController
             {
                 BreadcrumbDescription = "Back to Your User Profile",
                 ConfirmUrl = _linkGenerator.GetUriByAction(HttpContext, ControllerConstants.GatewayViewName, ControllerConstants.EmployerAccountControllerName),
-                CancelRoute = string.IsNullOrEmpty(hashedAccountId) ? RouteNames.NewEmpoyerAccountTaskList : RouteNames.EmployerAccountPaye,
+                CancelRoute = string.IsNullOrEmpty(hashedAccountId) ? RouteNames.NewEmployerAccountTaskList : RouteNames.EmployerAccountPaye,
             }
         };
 
@@ -482,6 +480,40 @@ public class EmployerAccountController : BaseController
         return View(vm);
     }
 
+    [HttpGet]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
+    [Route("{HashedAccountId}/training-provider-triage", Name = RouteNames.TrainingProviderTriage)]
+    public IActionResult AddTrainingProviderTriage()
+    {
+        var model = new
+        {
+            HideHeaderSignInLink = true
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
+    [Route("{hashedAccountId}/training-provider-triage", Name = RouteNames.TrainingProviderTriage)]
+    public IActionResult AddTrainingProviderTriage(string hashedAccountId, int? choice)
+    {
+        switch (choice ?? 0)
+        {
+            case 1: return Redirect("provider-relationships-url");
+            case 2: return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
+            default:
+            {
+                var model = new
+                {
+                    InError = true
+                };
+
+                return View(model);
+            }
+        }
+    }
+    
     [HttpGet]
     [Route("amendOrganisation")]
     public IActionResult AmendOrganisation()

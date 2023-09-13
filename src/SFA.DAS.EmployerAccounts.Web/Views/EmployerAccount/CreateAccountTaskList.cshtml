@@ -128,24 +128,21 @@
                 </h2>
                 <ul class="das-task-list__items">
                     <li class="das-task-list__item">
-                        <span class="das-task-list__task-name">
-                            Training provider
-                        </span>
                         @if (Model.Data.AgreementAcknowledged == null)
                         {
                             <span class="das-task-list__task-name">
                                 Training provider
                             </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Cannot start yet</strong>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Cannot start yet</strong>
                         }
                         else
                         {
                             <span class="das-task-list__task-name">
-                                <a asp-route="@RouteNames.AboutYourAgreement" asp-route-hashedAccountId="@Model.Data.HashedAccountId" asp-route-hashedAgreementId="@Model.Data.PendingHashedAgreementId" aria-describedby="status-sign-agreement" class="govuk-link">
+                                <a asp-route="@RouteNames.TrainingProviderTriage" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-add-training-provider" class="govuk-link">
                                     Training provider
                                 </a>
                             </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Not started</strong>
                         }
                     </li>
                     <li class="das-task-list__item">
