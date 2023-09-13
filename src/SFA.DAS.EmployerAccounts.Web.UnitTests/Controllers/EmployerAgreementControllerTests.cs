@@ -312,7 +312,12 @@ public class EmployerAgreementControllerTests
         var actualResult = await _controller.Sign(HashedAccountId, HashedAgreementId, 1) as RedirectToRouteResult;
         
         // Assert
-        _orchestratorMock.Verify(m => m.AcknowledgeAgreement(HashedAgreementId));
+        _orchestratorMock
+            .Verify(m => m.AcknowledgeAgreement(
+                HashedAccountId, 
+                HashedAgreementId, 
+                UserId, 
+                viewModel.EmployerAgreement.LegalEntityName));
         actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
 }

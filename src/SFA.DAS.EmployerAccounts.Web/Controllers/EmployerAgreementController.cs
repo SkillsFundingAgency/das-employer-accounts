@@ -111,6 +111,7 @@ public class EmployerAgreementController : BaseController
         var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
         var agreement = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, userInfo);
         var hasPreviousAcknowledgement = agreement.Data.HasAcknowledgedAgreement;
+        var legalEntityName = agreement.Data.EmployerAgreement.LegalEntityName;
         
         if (choice == null)
         {
@@ -121,7 +122,7 @@ public class EmployerAgreementController : BaseController
 
         if (choice == SignEmployerAgreementViewModel.ReviewAgreementLater)
         {
-            _ = _orchestrator.AcknowledgeAgreement(hashedAgreementId);
+            _ = _orchestrator.AcknowledgeAgreement(hashedAccountId, hashedAgreementId, userInfo, legalEntityName);
 
             if (agreement.Data.HasAcknowledgedAgreement)
             {
@@ -129,7 +130,7 @@ public class EmployerAgreementController : BaseController
             }
         }
 
-        var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow);
+        var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow, legalEntityName);
 
         if (response.Status == HttpStatusCode.Unauthorized)
         {
@@ -151,7 +152,6 @@ public class EmployerAgreementController : BaseController
             }
         }
 
-
         if (response.Status == HttpStatusCode.OK)
         {
             ViewBag.CompanyName = response.Data.LegalEntityName;
@@ -164,9 +164,7 @@ public class EmployerAgreementController : BaseController
             
             return View(ControllerConstants.AcceptedEmployerAgreementViewName);
         }
-
         
-
         return RedirectToAction(ControllerConstants.SignAgreementActionName, new GetEmployerAgreementRequest { HashedAgreementId = hashedAgreementId, ExternalUserId = userInfo, HashedAccountId = hashedAccountId });
     }
 
