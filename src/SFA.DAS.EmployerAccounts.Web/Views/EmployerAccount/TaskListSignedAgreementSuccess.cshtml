@@ -1,0 +1,34 @@
+﻿@{
+    ViewBag.PageID = "page-agreement-signed-success";
+    ViewBag.Title = "Agreement Signed";
+    ViewBag.GaData.Vpv = "/agreement-signed-success";
+    ViewBag.ShowNav = false;
+    string hashedAccountId = ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId].ToString();
+}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    Success
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <p class="govuk-notification-banner__heading">
+                    Employer agreement accepted
+                </p>
+            </div>
+        </div>
+        <h1 class="govuk-heading-xl">You've accepted your employer agreement</h1>
+
+        <p>You can continue creating your account now or at a later date.</p>
+        <div class="govuk-button-group">
+            <a asp-route="@RouteNames.EmployerTeamIndex" asp-route-hashedAccountId="@hashedAccountId" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+                Continue
+            </a>
+            <a asp-route="@RouteNames.PartialAccountSaveProgress"
+               asp-route-hashedAccountId="@hashedAccountId"
+               class="govuk-body govuk-button govuk-button--secondary app-save-return__link">Save and come back later</a>
+        </div>
+    </div>
+</div>

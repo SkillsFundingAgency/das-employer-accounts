@@ -471,6 +471,13 @@ public class EmployerAccountController : BaseController
         var vm = await GetRenameViewModel(hashedAccountId);
         return View(vm);
     }
+    
+    [HttpGet]
+    [Route("{HashedAccountId}/create/agreement/success", Name = RouteNames.TaskListSignedAgreementSuccess)]
+    public async Task<IActionResult> TaskListSignedAgreementSuccess(string hashedAccountId)
+    {
+        return View();
+    }
 
     [HttpGet]
     [Route("{HashedAccountId}/create/success", Name = RouteNames.CreateAccountSuccess)]

@@ -86,5 +86,6 @@
         public const string ContinueNewEmployerAccountTaskList = "continue-account-task-list";
 
         public const string OrganisationAndPayeAddedSuccess = "org-and-paye-added-success";
+        public const string TaskListSignedAgreementSuccess = "task-list-sign-agreement-success";
     }
 }

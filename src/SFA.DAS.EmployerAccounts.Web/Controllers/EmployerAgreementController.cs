@@ -109,11 +109,11 @@ public class EmployerAgreementController : BaseController
     public async Task<IActionResult> Sign( string hashedAccountId, string hashedAgreementId, int? choice)
     {
         var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-
+        var agreement = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, userInfo);
+        var hasPreviousAcknowledgement = agreement.Data.HasAcknowledgedAgreement;
+        
         if (choice == null)
         {
-            var agreement = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, userInfo);
-
             ModelState.AddModelError(nameof(agreement.Data.Choice), "Select whether you accept the agreement");
 
             return View(ControllerConstants.SignAgreementViewName, agreement.Data);
@@ -122,7 +122,11 @@ public class EmployerAgreementController : BaseController
         if (choice == SignEmployerAgreementViewModel.ReviewAgreementLater)
         {
             _ = _orchestrator.AcknowledgeAgreement(hashedAgreementId);
-            return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
+
+            if (agreement.Data.HasAcknowledgedAgreement)
+            {
+                return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
+            }
         }
 
         var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow);
@@ -152,8 +156,16 @@ public class EmployerAgreementController : BaseController
         {
             ViewBag.CompanyName = response.Data.LegalEntityName;
             ViewBag.HasFurtherPendingAgreements = response.Data.HasFurtherPendingAgreements;
+            
+            if (hasPreviousAcknowledgement)
+            {
+                return RedirectToRoute(RouteNames.TaskListSignedAgreementSuccess, new { hashedAccountId });
+            }
+            
             return View(ControllerConstants.AcceptedEmployerAgreementViewName);
         }
+
+        
 
         return RedirectToAction(ControllerConstants.SignAgreementActionName, new GetEmployerAgreementRequest { HashedAgreementId = hashedAgreementId, ExternalUserId = userInfo, HashedAccountId = hashedAccountId });
     }

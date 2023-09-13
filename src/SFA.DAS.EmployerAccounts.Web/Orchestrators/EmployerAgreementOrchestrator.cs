@@ -109,7 +109,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         }
     }
 
-    public async Task<OrchestratorResponse> AcknowledgeAgreement(string hashedAgreementid)
+    public virtual async Task<OrchestratorResponse> AcknowledgeAgreement(string hashedAgreementid)
     {
         try
         {
