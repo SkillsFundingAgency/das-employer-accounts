@@ -1,8 +1,10 @@
 ﻿CREATE PROCEDURE [employer_account].[GetPayeSchemes_ByAccountId]
 	@accountId BIGINT
 AS
-	SELECT 
-		* 
+	SELECT
+        Ref
+        ,[Name]
+        ,AccountId
 	FROM 
 		[employer_account].[Paye] p
 	inner join 

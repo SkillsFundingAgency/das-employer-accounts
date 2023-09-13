@@ -24,7 +24,7 @@
                 </div>
                 <div class="govuk-notification-banner__content">
                     <p class="govuk-notification-banner__heading">
-                        We've updated our <a class="govuk-notification-banner__link" href="@Url.Action("TermsAndConditions", "Home" , new { returnUrl = "Home" })">terms of use</a>. By continuing to use this service you are accepting the updated terms.
+                        We've updated our <a class="govuk-notification-banner__link" href="@Url.Action("TermsAndConditions", "Home", new { returnUrl = "Home" })">terms of use</a>. By continuing to use this service you are accepting the updated terms.
                     </p>
                 </div>
             </div>
@@ -39,36 +39,38 @@
             <table class="govuk-table das-table--responsive">
                 <caption class="govuk-visually-hidden">Table of accounts with permissions</caption>
                 <thead class="govuk-table__head">
-                    <tr class="govuk-table__row">
-                        <th scope="col" class="govuk-table__header">Account name</th>
-                        <th scope="col" class="govuk-table__header">What you can do</th>
-                        <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Select account</span></th>
-                    </tr>
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Account name</th>
+                    <th scope="col" class="govuk-table__header">What you can do</th>
+                    <th scope="col" class="govuk-table__header">
+                        <span class="govuk-visually-hidden">Select account</span>
+                    </th>
+                </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                    @foreach (var account in Model.Data.Accounts.AccountList)
-                    {
-                        <tr class="govuk-table__row">
-                            <td data-label="Account name">
-                                <span class="das-!-display-block">
-                                    @account.Name
-                                </span>
-                                <span class="das-no-wrap account-id">
-                                    Account ID: @account.PublicHashedId
-                                </span>
-                            </td>
-                            <td data-label="What you can do">
-                                @RoleStrings.GetRoleDescription(account.RoleName)
-                            </td>
-                            <td class="govuk-table__cell govuk-table__cell--numeric">
-                                <a class="govuk-link govuk-link--no-visited-state"
-                                   asp-route="@RouteNames.EmployerTeamIndex"
-                                   asp-route-hashedAccountId="@account.HashedId">
-                                    Open<span class="govuk-visually-hidden"> @account.Name account homepage</span>
-                                </a>
-                            </td>
-                        </tr>
-                    }
+                @foreach (var account in Model.Data.Accounts.AccountList)
+                {
+                    <tr class="govuk-table__row">
+                        <td data-label="Account name">
+                            <span class="das-!-display-block">
+                                @account.Name
+                            </span>
+                            <span class="das-no-wrap account-id">
+                                Account ID: @account.PublicHashedId
+                            </span>
+                        </td>
+                        <td data-label="What you can do">
+                            @RoleStrings.GetRoleDescription(account.RoleName)
+                        </td>
+                        <td class="govuk-table__cell govuk-table__cell--numeric">
+                            <a class="govuk-link govuk-link--no-visited-state"
+                               asp-route="@RouteNames.EmployerTeamIndex"
+                               asp-route-hashedAccountId="@account.HashedId">
+                                Open<span class="govuk-visually-hidden"> @account.Name account homepage</span>
+                            </a>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
 

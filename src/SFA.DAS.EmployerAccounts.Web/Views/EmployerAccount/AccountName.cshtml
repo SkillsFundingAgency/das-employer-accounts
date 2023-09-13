@@ -2,7 +2,7 @@
 
 @{
     ViewBag.PageID = "page-change-account-name";
-    ViewBag.Title = "Set your employer account name";
+    ViewBag.Title = "Confirm your employer account name";
     ViewBag.GaData.Vpv = "/page-change-account-name";
     ViewBag.ShowNav = false;
     string hashedAccountId = ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId].ToString();
@@ -34,7 +34,7 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">Set your employer account name</h1>
+        <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
         <p>
             You can change the employer name you use in the apprenticeship service if there is another organisation name (such as a trading name) that you are known by.
             Your employer account name is visible to training providers and helps them to find you in the service.
@@ -53,7 +53,7 @@
             <div class="govuk-form-group @errorClass">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                        Do you want to change your employer account name?
+                        Do you want to use your organisation name as your employer account name?
                     </legend>
 
                     @if (Model.Data.ErrorDictionary.ContainsKey(nameof(Model.Data.ChangeAccountName)))
@@ -67,13 +67,13 @@
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="change-account-name-no" name="ChangeAccountName" type="radio" value="@bool.FalseString">
                             <label class="govuk-label govuk-radios__label" for="change-account-name-no">
-                                No, I want to use my organisation name as my employer account name
+                                Yes, I want to use my organisation name as my employer account name
                             </label>
                         </div>
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="ChangeAccountName" name="ChangeAccountName" type="radio" checked="@Model.Data.ChangeAccountName" value="@bool.TrueString" aria-controls="conditional-change-account-name" aria-expanded="true">
                             <label class="govuk-label govuk-radios__label" for="ChangeAccountName">
-                                Yes, I want to change my employer account name
+                                No, I want to change my employer account name
                             </label>
                         </div>
                         <div class="govuk-radios__conditional" id="conditional-change-account-name">
@@ -90,7 +90,7 @@
 
                                 <input id="NewName" name="NewName" type="text" maxlength="100" class="govuk-input" aria-required="true"
                                        aria-describedby="@(!string.IsNullOrEmpty(Model.Data.NewNameError) ? "error-message-newname" : "")"
-                                       value="@Model.Data.NewName" />
+                                       value="" />
                             </div>
                         </div>
                     </div>

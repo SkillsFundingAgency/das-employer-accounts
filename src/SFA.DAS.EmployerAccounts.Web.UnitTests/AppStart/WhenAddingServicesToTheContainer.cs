@@ -7,6 +7,7 @@ using SFA.DAS.EmployerAccounts.Commands.AcceptInvitation;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.CreateInvitation;
 using SFA.DAS.EmployerAccounts.Commands.CreateLegalEntity;
 using SFA.DAS.EmployerAccounts.Commands.CreateOrganisationAddress;
@@ -108,6 +109,7 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<DismissMonthlyTaskReminderCommand, Unit>))]
     [TestCase(typeof(IRequestHandler<UpdateUserNotificationSettingsCommand, Unit>))]
     [TestCase(typeof(IRequestHandler<UnsubscribeNotificationCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<SendAccountTaskListCompleteNotificationCommand, Unit>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Command_Handlers(Type toResolve)
     {
         RunTestForType(toResolve);

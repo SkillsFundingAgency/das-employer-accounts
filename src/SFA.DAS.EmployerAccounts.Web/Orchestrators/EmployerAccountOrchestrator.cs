@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.CreateLegalEntity;
-using SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
@@ -15,6 +15,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 {
     private readonly ILogger<EmployerAccountOrchestrator> _logger;
     private readonly IEncodingService _encodingService;
+    private readonly IUrlActionHelper _urlHelper;
     private const string CookieName = "sfa-das-employerapprenticeshipsservice-employeraccount";
 
     //Needed for tests
@@ -25,11 +26,13 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         ILogger<EmployerAccountOrchestrator> logger,
         ICookieStorageService<EmployerAccountData> cookieService,
         EmployerAccountsConfiguration configuration,
-        IEncodingService encodingService)
+        IEncodingService encodingService,
+        IUrlActionHelper urlHelper)
         : base(mediator, cookieService, configuration)
     {
         _logger = logger;
         _encodingService = encodingService;
+        _urlHelper = urlHelper;
     }
 
     public async Task<OrchestratorResponse<EmployerAccountViewModel>> GetEmployerAccount(long accountId)
@@ -67,6 +70,36 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 NewName = string.Empty
             }
         };
+    }
+
+    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> SetEmployerAccountName(string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
+    {
+        var response = new OrchestratorResponse<RenameEmployerAccountViewModel> { Data = model };
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var renameResponse = await RenameEmployerAccount(hashedAccountId, model, userId);
+
+        if(renameResponse.Status == HttpStatusCode.OK)
+        {
+            try
+            {
+                await Mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+                {
+                    AccountId = accountId,
+                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
+                    HashedAccountId = hashedAccountId,
+                    ExternalUserId = userId,
+                    OrganisationName = model.CurrentName,
+                });
+            }
+            catch (InvalidRequestException ex)
+            {
+                response.Status = HttpStatusCode.BadRequest;
+                response.Data.ErrorDictionary = ex.ErrorMessages;
+                response.Exception = ex;
+            }
+        }
+
+        return response;
     }
 
     public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> RenameEmployerAccount(string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
@@ -248,51 +281,6 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         }
     }
 
-    public virtual async Task<OrchestratorResponse<EmployerAccountViewModel>> CreateMinimalUserAccountForSkipJourney(CreateUserAccountViewModel viewModel, HttpContext context)
-    {
-        try
-        {
-            var existingUserAccounts =
-                await Mediator.Send(new GetUserAccountsQuery { UserRef = viewModel.UserId });
-
-            if (existingUserAccounts?.Accounts?.AccountList?.Any() == true)
-                return new OrchestratorResponse<EmployerAccountViewModel>
-                {
-                    Data = new EmployerAccountViewModel
-                    {
-                        HashedId = existingUserAccounts.Accounts.AccountList.First().HashedId
-                    },
-                    Status = HttpStatusCode.OK
-                };
-
-            var result = await Mediator.Send(new CreateUserAccountCommand
-            {
-                ExternalUserId = viewModel.UserId,
-                OrganisationName = viewModel.OrganisationName
-            });
-
-            return new OrchestratorResponse<EmployerAccountViewModel>
-            {
-                Data = new EmployerAccountViewModel
-                {
-                    HashedId = result.HashedAccountId
-                },
-                Status = HttpStatusCode.OK
-            };
-        }
-        catch (InvalidRequestException ex)
-        {
-            _logger.LogError(ex, "Create User Account Validation Error: {Message}", ex.Message);
-            return new OrchestratorResponse<EmployerAccountViewModel>
-            {
-                Data = new EmployerAccountViewModel(),
-                Status = HttpStatusCode.BadRequest,
-                Exception = ex,
-                FlashMessage = new FlashMessageViewModel()
-            };
-        }
-    }
-
     public virtual OrchestratorResponse<SummaryViewModel> GetSummaryViewModel(HttpContext context)
     {
         var enteredData = GetCookieData();
@@ -332,34 +320,39 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
     public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(string hashedAccountId, string userRef)
     {
+        var response = new OrchestratorResponse<AccountTaskListViewModel>();
+
+        var userResponse = await Mediator.Send(new GetUserByRefQuery { UserRef = userRef });
+
         if (string.IsNullOrEmpty(hashedAccountId))
         {
             var existingTaskListViewModel = await GetFirstUserAccount(userRef);
 
-            return new OrchestratorResponse<AccountTaskListViewModel>
+            response.Data = existingTaskListViewModel;
+        }
+        else
+        {
+            var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
             {
-                Data = existingTaskListViewModel
-            };
-        }
+                HashedAccountId = hashedAccountId
+            });
 
-        var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
-        {
-            HashedAccountId = hashedAccountId
-        });
+            if (accountResponse == null || accountResponse.Account == null)
+            {
+                response.Status = HttpStatusCode.NotFound;
+                return response;
+            }
 
-        if (accountResponse == null || accountResponse.Account == null)
-        {
-            return new OrchestratorResponse<AccountTaskListViewModel> { Status = HttpStatusCode.NotFound };
-        }
-
-        return new OrchestratorResponse<AccountTaskListViewModel>
-        {
-            Data = new AccountTaskListViewModel
+            response.Data = new AccountTaskListViewModel
             {
                 HashedAccountId = hashedAccountId,
                 HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false
-            }
-        };
+            };
+        }
+
+        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
+
+        return response;
     }
 
     private async Task<AccountTaskListViewModel> GetFirstUserAccount(string userRef)

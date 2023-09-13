@@ -15,7 +15,7 @@ public static class DatabaseServiceRegistrations
             options.UseSqlServer(dbConnection);
         }, ServiceLifetime.Transient);
 
-        services.AddTransient(provider => new Lazy<EmployerAccountsDbContext>(provider.GetService<EmployerAccountsDbContext>()));
+        services.AddScoped(provider => new Lazy<EmployerAccountsDbContext>(provider.GetService<EmployerAccountsDbContext>()));
 
         return services;
     }
