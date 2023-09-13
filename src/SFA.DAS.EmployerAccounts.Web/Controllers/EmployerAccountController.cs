@@ -476,8 +476,7 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/create/success", Name = RouteNames.CreateAccountSuccess)]
     public async Task<IActionResult> CreateAccountSuccess(string hashedAccountId)
     {
-        var vm = await GetRenameViewModel(hashedAccountId);
-        return View(vm);
+        return View();
     }
 
     [HttpGet]
