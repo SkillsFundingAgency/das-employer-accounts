@@ -460,7 +460,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
         //Assert
         Assert.IsNotNull(actual);
         var actualViewResult = actual as RedirectToRouteResult;
-        Assert.AreEqual(RouteNames.NewEmpoyerAccountTaskList, actualViewResult.RouteName);
+        Assert.AreEqual(RouteNames.NewEmployerAccountTaskList, actualViewResult.RouteName);
     }
 
     private static UserAccountsViewModel SetupUserAccountsViewModel()

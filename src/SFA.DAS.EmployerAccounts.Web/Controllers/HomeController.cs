@@ -148,7 +148,7 @@ public class HomeController : BaseController
             return View(accounts);
         }
 
-        return RedirectToRoute(RouteNames.NewEmpoyerAccountTaskList, queryData);
+        return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, queryData);
     }
 
     [Authorize]
