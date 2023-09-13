@@ -31,8 +31,10 @@ public class EmployerAccountController : BaseController
     private const int LessThan3Million = 3;
     public const int AddPayeGovGateway = 1;
     public const int AddPayeAorn = 2;
+    private const int AddPayeGovGateway = 1;
+    private const int AddPayeAorn = 2;
 
-    public const string ReturnUrlCookieName = "SFA.DAS.EmployerAccounts.Web.Controllers.ReturnUrlCookie";
+    private const string ReturnUrlCookieName = "SFA.DAS.EmployerAccounts.Web.Controllers.ReturnUrlCookie";
 
     public EmployerAccountController(EmployerAccountOrchestrator employerAccountOrchestrator,
         ILogger<EmployerAccountController> logger,
