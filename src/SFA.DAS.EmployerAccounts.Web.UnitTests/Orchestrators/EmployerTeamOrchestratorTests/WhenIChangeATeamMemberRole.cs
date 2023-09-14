@@ -43,7 +43,6 @@ class WhenIChangeATeamMemberRole
         const string email = "test@test.com";
         const Role role = Role.Owner;
         var response = new GetAccountTeamMembersResponse();
-        _mediator.Setup(x => x.Send(It.IsAny<ChangeTeamMemberRoleCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
         _mediator.Setup(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(response);
 
         //Act

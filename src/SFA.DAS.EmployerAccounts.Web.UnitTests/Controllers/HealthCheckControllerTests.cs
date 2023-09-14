@@ -81,9 +81,7 @@ public class HealthCheckControllerTestsFixture
     public Task<IActionResult> PostIndex()
     {
         RunHealthCheckCommand = new RunHealthCheckCommand();
-
-        Mediator.Setup(m => m.Send(RunHealthCheckCommand, It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
-
+        
         return HealthCheckController.Index(RunHealthCheckCommand);
     }
 }

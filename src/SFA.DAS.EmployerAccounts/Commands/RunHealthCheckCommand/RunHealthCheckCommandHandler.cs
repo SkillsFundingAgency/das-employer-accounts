@@ -13,22 +13,21 @@ public class RunHealthCheckCommandHandler : IRequestHandler<RunHealthCheckComman
     private readonly IAccountApiClient _accountsApiClient;
     private readonly IOuterApiClient _outerApiClient;
 
-    public RunHealthCheckCommandHandler(Lazy<EmployerAccountsDbContext> db, IAccountApiClient accountsApiClient, IOuterApiClient outerApiClient)
+    public RunHealthCheckCommandHandler(Lazy<EmployerAccountsDbContext> db, IAccountApiClient accountsApiClient,
+        IOuterApiClient outerApiClient)
     {
         _db = db;
         _accountsApiClient = accountsApiClient;
         _outerApiClient = outerApiClient;
     }
 
-    public async Task<Unit> Handle(RunHealthCheckCommand request, CancellationToken cancellationToken)
+    public async Task Handle(RunHealthCheckCommand request, CancellationToken cancellationToken)
     {
         var healthCheck = new HealthCheck(request.UserRef ?? Guid.NewGuid());
 
         await healthCheck.Run(() => _accountsApiClient.Ping());
         await healthCheck.Run(() => _outerApiClient.Get<PingResponse>(new PingRequest()));
 
-        _db.Value.HealthChecks.Add(healthCheck);
-
-        return Unit.Value;
+        await _db.Value.HealthChecks.AddAsync(healthCheck, cancellationToken);
     }
 }

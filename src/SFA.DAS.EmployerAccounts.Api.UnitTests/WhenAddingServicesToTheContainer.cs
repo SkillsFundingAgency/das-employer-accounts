@@ -43,7 +43,7 @@ public class WhenAddingServicesToTheContainer
         var config = GenerateConfiguration();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton(mockHostingEnvironment.Object);
-        serviceCollection.AddMediatR(typeof(GetUserAccountsQuery));
+        serviceCollection.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetUserAccountsQuery).Assembly));
         serviceCollection.AddAutoMapper(typeof(Startup).Assembly);
         serviceCollection.AddApplicationServices();
         serviceCollection.AddApiConfigurationSections(config);
@@ -68,8 +68,8 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<GetAccountLegalEntitiesByHashedAccountIdRequest, GetAccountLegalEntitiesByHashedAccountIdResponse>))]
     [TestCase(typeof(IRequestHandler<GetEmployerAgreementsByAccountIdRequest, GetEmployerAgreementsByAccountIdResponse>))]
     [TestCase(typeof(IRequestHandler<GetUserByEmailQuery, GetUserByEmailResponse>))]
-    [TestCase(typeof(IRequestHandler<UpdateUserAornLockRequest, Unit>))]
-    [TestCase(typeof(IRequestHandler<RemovePayeFromAccountCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<UpdateUserAornLockRequest>))]
+    [TestCase(typeof(IRequestHandler<RemovePayeFromAccountCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Handlers(Type toResolve)
     {
         var mockHostingEnvironment = new Mock<IWebHostEnvironment>();
@@ -87,7 +87,7 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddDataRepositories();
         serviceCollection.AddApplicationServices();
         serviceCollection.AddApiConfigurationSections(config);
-        serviceCollection.AddMediatR(typeof(GetAccountPayeSchemesQuery));
+        serviceCollection.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetAccountPayeSchemesQuery).Assembly));
         serviceCollection.AddMediatorValidators();
         serviceCollection.AddLogging();
 

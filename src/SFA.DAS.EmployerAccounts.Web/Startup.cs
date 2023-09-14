@@ -103,7 +103,7 @@ public class Startup
         services.AddAuthenticationServices();
 
         services.AddMediatorValidators();
-        services.AddMediatR(typeof(GetEmployerAccountByIdQuery));
+        services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetEmployerAccountByIdQuery).Assembly));
 
         var authenticationBuilder = services.AddAuthentication();
 

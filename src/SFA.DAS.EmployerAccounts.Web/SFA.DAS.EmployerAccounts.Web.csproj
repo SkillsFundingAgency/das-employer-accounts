@@ -20,7 +20,6 @@
         <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.24" />
         <PackageReference Include="NLog" Version="5.1.1" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.21.0" />

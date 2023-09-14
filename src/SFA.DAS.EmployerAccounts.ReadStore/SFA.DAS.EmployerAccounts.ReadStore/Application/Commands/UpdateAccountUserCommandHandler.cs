@@ -15,13 +15,11 @@ internal class UpdateAccountUserCommandHandler : IRequestHandler<UpdateAccountUs
         _accountUsersRepository = accountUsersRepository;
     }
 
-    public async Task<Unit> Handle(UpdateAccountUserCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateAccountUserCommand request, CancellationToken cancellationToken)
     {
         var user = await _accountUsersRepository.CreateQuery().SingleAsync(x => x.UserRef == request.UserRef && x.AccountId == request.AccountId, cancellationToken);
 
         user.UpdateRoles(request.Role, request.Updated, request.MessageId);
         await _accountUsersRepository.Update(user, null, cancellationToken);
-
-        return Unit.Value;
     }
 }

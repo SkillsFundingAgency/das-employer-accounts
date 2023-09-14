@@ -21,7 +21,7 @@ public class DeleteInvitationCommandHandler : IRequestHandler<DeleteInvitationCo
         _validator = new DeleteInvitationCommandValidator();
     }
 
-    public async Task<Unit> Handle(DeleteInvitationCommand message, CancellationToken cancellationToken)
+    public async Task Handle(DeleteInvitationCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -60,8 +60,6 @@ public class DeleteInvitationCommandHandler : IRequestHandler<DeleteInvitationCo
                 AffectedEntity = new AuditEntity { Type = "Invitation", Id = existing.Id.ToString() }
             }
         }, cancellationToken);
-
-        return Unit.Value;
     }
 
     private static bool IsWrongStatusToDelete(InvitationStatus status)

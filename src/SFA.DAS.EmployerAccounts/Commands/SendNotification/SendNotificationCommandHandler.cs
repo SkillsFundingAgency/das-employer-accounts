@@ -20,7 +20,7 @@ public class SendNotificationCommandHandler : IRequestHandler<SendNotificationCo
         _notificationsApi = notificationsApi;
     }
 
-    public async Task<Unit> Handle(SendNotificationCommand request, CancellationToken cancellationToken)
+    public async Task Handle(SendNotificationCommand request, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(request);
 
@@ -37,7 +37,5 @@ public class SendNotificationCommandHandler : IRequestHandler<SendNotificationCo
         {
             _logger.LogError(ex, "Error sending email to notifications api");
         }
-
-        return Unit.Value;
     }
 }

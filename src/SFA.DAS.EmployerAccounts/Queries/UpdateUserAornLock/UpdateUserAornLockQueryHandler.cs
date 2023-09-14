@@ -11,10 +11,8 @@ public class UpdateUserAornLockQueryHandler : IRequestHandler<UpdateUserAornLock
         _userAornPayeLockService = userAornPayeLockService;
     }
 
-    public async Task<Unit> Handle(UpdateUserAornLockRequest request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateUserAornLockRequest request, CancellationToken cancellationToken)
     {
         await _userAornPayeLockService.UpdateUserAornPayeAttempt(request.UserRef, request.Success);
-
-        return Unit.Value;
     }
 }

@@ -40,7 +40,7 @@ public class AddPayeToAccountCommandHandler : IRequestHandler<AddPayeToAccountCo
         _payeSchemeEventFactory = payeSchemeEventFactory;
     }
 
-    public async Task<Unit> Handle(AddPayeToAccountCommand message, CancellationToken cancellationToken)
+    public async Task Handle(AddPayeToAccountCommand message, CancellationToken cancellationToken)
     {
         await ValidateMessage(message);
 
@@ -65,8 +65,6 @@ public class AddPayeToAccountCommandHandler : IRequestHandler<AddPayeToAccountCo
         await AddPayeScheme(message.Empref, accountId, userResponse.User.FullName, userResponse.User.UserRef, message.Aorn, message.EmprefName, userResponse.User.CorrelationId);
 
         await NotifyPayeSchemeAdded(message.HashedAccountId, message.Empref);
-
-        return Unit.Value;
     }
 
     private async Task ValidateMessage(AddPayeToAccountCommand message)

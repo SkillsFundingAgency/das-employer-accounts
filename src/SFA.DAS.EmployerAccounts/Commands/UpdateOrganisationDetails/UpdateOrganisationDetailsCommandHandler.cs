@@ -24,7 +24,7 @@ public class UpdateOrganisationDetailsCommandHandler : IRequestHandler<UpdateOrg
         _eventPublisher = eventPublisher;
     }
 
-    public async Task<Unit> Handle(UpdateOrganisationDetailsCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UpdateOrganisationDetailsCommand command, CancellationToken cancellationToken)
     {
         var validationResults = _validator.Validate(command);
 
@@ -37,8 +37,6 @@ public class UpdateOrganisationDetailsCommandHandler : IRequestHandler<UpdateOrg
             command.Address);
 
         await PublishLegalEntityUpdatedMessage(command.AccountId, command.AccountLegalEntityId, command.Name, command.Address, command.UserId);
-
-        return Unit.Value;
     }
 
     private async Task PublishLegalEntityUpdatedMessage(

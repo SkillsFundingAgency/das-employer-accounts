@@ -16,7 +16,7 @@ public class UnsubscribeNotificationHandler : IRequestHandler<UnsubscribeNotific
         _accountRepository = accountRepository;
     }
 
-    public async Task<Unit> Handle(UnsubscribeNotificationCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UnsubscribeNotificationCommand command, CancellationToken cancellationToken)
     {
         _validator.Validate(command);
 
@@ -35,7 +35,5 @@ public class UnsubscribeNotificationHandler : IRequestHandler<UnsubscribeNotific
 
         setting.ReceiveNotifications = false;
         await _accountRepository.UpdateUserAccountSettings(command.UserRef, settings);
-
-        return Unit.Value;
     }
 }

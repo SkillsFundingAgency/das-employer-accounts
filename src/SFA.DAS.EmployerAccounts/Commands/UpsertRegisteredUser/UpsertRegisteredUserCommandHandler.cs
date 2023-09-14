@@ -20,7 +20,7 @@ public class UpsertRegisteredUserCommandHandler : IRequestHandler<UpsertRegister
         _eventPublisher = eventPublisher;
     }
 
-    public async Task<Unit> Handle(UpsertRegisteredUserCommand message, CancellationToken cancellationToken)
+    public async Task Handle(UpsertRegisteredUserCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -36,7 +36,5 @@ public class UpsertRegisteredUserCommandHandler : IRequestHandler<UpsertRegister
         });
 
         await _eventPublisher.Publish(new UpsertedUserEvent { Created = DateTime.UtcNow, UserRef = message.UserRef, CorrelationId = message.CorrelationId });
-
-        return Unit.Value;
     }
 }

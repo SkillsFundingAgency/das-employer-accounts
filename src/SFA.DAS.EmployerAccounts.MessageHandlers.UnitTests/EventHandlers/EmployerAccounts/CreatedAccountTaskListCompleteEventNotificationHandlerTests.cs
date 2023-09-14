@@ -36,7 +36,7 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
 
             SendNotificationCommand resultCommand = new SendNotificationCommand();
             mediatorMock.Setup(m => m.Send(It.IsAny<SendNotificationCommand>(), It.IsAny<CancellationToken>()))
-                .Callback((IRequest<Unit> request, CancellationToken cancelToken) =>
+                .Callback((IRequest request, CancellationToken cancelToken) =>
                 {
                     resultCommand = request as SendNotificationCommand;
                 });
@@ -68,7 +68,7 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
 
             var resultCommand = new SendNotificationCommand();
             mediatorMock.Setup(m => m.Send(It.IsAny<SendNotificationCommand>(), It.IsAny<CancellationToken>()))
-                .Callback((IRequest<Unit> request, CancellationToken cancelToken) =>
+                .Callback((IRequest request, CancellationToken cancelToken) =>
                 {
                     resultCommand = request as SendNotificationCommand;
                 });
