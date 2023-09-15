@@ -23,7 +23,7 @@ public class ReportTrainingProviderCommandHandler : IRequestHandler<ReportTraini
         _configuration = configuration;
     }
 
-    public async Task<Unit> Handle(ReportTrainingProviderCommand message, CancellationToken cancellationToken)
+    public async Task Handle(ReportTrainingProviderCommand message, CancellationToken cancellationToken)
     {
         var tokens = new Dictionary<string, string>()
         {
@@ -42,7 +42,5 @@ public class ReportTrainingProviderCommandHandler : IRequestHandler<ReportTraini
         }
 
         await _publisher.Send(new SendEmailCommand(ReportTrainingProviderTemplateId, _configuration.ReportTrainingProviderEmailAddress, tokens));
-
-        return Unit.Value;
     }
 }

@@ -20,7 +20,7 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
         _mediator = mediator;
     }
 
-    public async Task<Unit> Handle(UpdateUserNotificationSettingsCommand message, CancellationToken cancellationToken)
+    public async Task Handle(UpdateUserNotificationSettingsCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -33,8 +33,6 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
         {
             await AddAuditEntry(setting);
         }
-
-        return Unit.Value;
     }
 
     private async Task AddAuditEntry(UserNotificationSetting setting)

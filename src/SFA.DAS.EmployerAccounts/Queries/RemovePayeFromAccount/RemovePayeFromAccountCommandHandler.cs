@@ -41,7 +41,7 @@ public class RemovePayeFromAccountCommandHandler : IRequestHandler<RemovePayeFro
         _membershipRepository = membershipRepository;
     }
 
-    public async Task<Unit> Handle(RemovePayeFromAccountCommand message, CancellationToken cancellationToken)
+    public async Task Handle(RemovePayeFromAccountCommand message, CancellationToken cancellationToken)
     {
         await ValidateMessage(message);
 
@@ -56,8 +56,6 @@ public class RemovePayeFromAccountCommandHandler : IRequestHandler<RemovePayeFro
         await QueuePayeRemovedMessage(message.PayeRef, accountId, message.CompanyName, loggedInPerson.FullName(), loggedInPerson.UserRef);
 
         await NotifyPayeSchemeRemoved(message.HashedAccountId, message.PayeRef);
-
-        return Unit.Value;
     }
 
     private async Task ValidateMessage(RemovePayeFromAccountCommand message)

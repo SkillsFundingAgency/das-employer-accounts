@@ -17,7 +17,7 @@ internal class PingQueryHandler : IRequestHandler<PingQuery>
         _documentClient = documentClient;
     }
 
-    public Task<Unit> Handle(PingQuery request, CancellationToken cancellationToken)
+    public Task Handle(PingQuery request, CancellationToken cancellationToken)
     {
         var value = _documentClient.CreateDatabaseQuery()
             .Where(d => d.Id == DocumentSettings.DatabaseName)
@@ -30,7 +30,7 @@ internal class PingQueryHandler : IRequestHandler<PingQuery>
             throw new PingException();
         }
 
-        return Task.FromResult(Unit.Value);
+        return Task.CompletedTask;
     }
 }
 

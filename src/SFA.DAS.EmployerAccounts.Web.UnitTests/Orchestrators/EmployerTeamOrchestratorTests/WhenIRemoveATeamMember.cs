@@ -60,7 +60,6 @@ class WhenIRemoveATeamMember
     public async Task ThenIShouldGetASuccessMessage()
     {
         //Arrange
-        _mediator.Setup(x => x.Send(It.IsAny<RemoveTeamMemberCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
 
         //Act
         var result = await _orchestrator.Remove(2, "3242", "32342");
@@ -76,7 +75,6 @@ class WhenIRemoveATeamMember
     {
         //Arrange
         _mediator.Setup(x => x.Send(It.IsAny<GetUserQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetUserResponse());
-        _mediator.Setup(x => x.Send(It.IsAny<RemoveTeamMemberCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
 
         //Act
         var result = await _orchestrator.Remove(2, "3242", "32342");

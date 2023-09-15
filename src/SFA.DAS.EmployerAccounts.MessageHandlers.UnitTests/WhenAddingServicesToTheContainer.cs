@@ -57,14 +57,14 @@ public class WhenAddingServicesToTheContainer
     }
     
     [TestCase(typeof(IRequestHandler<CreateUserAccountCommand, CreateUserAccountCommandResponse>))]
-    [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<CreateAccountUserCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<AccountLevyStatusCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand>))]
+    [TestCase(typeof(IRequestHandler<CreateAccountUserCommand>))]
+    [TestCase(typeof(IRequestHandler<AccountLevyStatusCommand>))]
     [TestCase(typeof(IRequestHandler<GetUserByRefQuery, GetUserByRefResponse>))]
-    [TestCase(typeof(IRequestHandler<PublishGenericEventCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<CreateAuditCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UpdateAccountUserCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<PublishGenericEventCommand>))]
+    [TestCase(typeof(IRequestHandler<CreateAuditCommand>))]
+    [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand>))]
+    [TestCase(typeof(IRequestHandler<UpdateAccountUserCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Handlers(Type toResolve)
     {
         var services = new ServiceCollection();
@@ -100,9 +100,9 @@ public class WhenAddingServicesToTheContainer
         services.AddAuditServices();
         services.AddHttpContextAccessor();
         services.AddAuditServices();
-        services.AddMediatR(
-            typeof(UpdateAccountUserCommand),
-            typeof(AcceptInvitationCommand)
+        services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(
+            typeof(UpdateAccountUserCommand).Assembly,
+            typeof(AcceptInvitationCommand).Assembly)
         );
 
         RegisterEventHandlers(services);

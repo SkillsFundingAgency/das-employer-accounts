@@ -19,7 +19,7 @@ public class DismissMonthlyTaskReminderCommandHandler : IRequestHandler<DismissM
         _encodingService = encodingService;
     }
 
-    public async Task<Unit> Handle(DismissMonthlyTaskReminderCommand request, CancellationToken cancellationToken)
+    public async Task Handle(DismissMonthlyTaskReminderCommand request, CancellationToken cancellationToken)
     {
         var validationResults = _validator.Validate(request);
 
@@ -31,7 +31,5 @@ public class DismissMonthlyTaskReminderCommandHandler : IRequestHandler<DismissM
         var accountId = _encodingService.Decode(request.HashedAccountId, EncodingType.AccountId);
           
         await _taskService.DismissMonthlyTaskReminder(accountId, request.ExternalUserId, request.TaskType);
-
-        return Unit.Value;
     }
 }

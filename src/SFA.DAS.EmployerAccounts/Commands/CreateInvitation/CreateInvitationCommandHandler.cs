@@ -37,7 +37,7 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
             .Equals("prd", StringComparison.CurrentCultureIgnoreCase);
     }
 
-    public async Task<Unit> Handle(CreateInvitationCommand message, CancellationToken cancellationToken)
+    public async Task Handle(CreateInvitationCommand message, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(message);
 
@@ -146,8 +146,6 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
         var callerExternalUserId = caller.UserRef;
 
         await PublishUserInvitedEvent(caller.AccountId, message.NameOfPersonBeingInvited, caller.FullName(), callerExternalUserId);
-
-        return Unit.Value;
     }
 
     private Task PublishUserInvitedEvent(long accountId, string personInvited, string invitedByUserName, Guid invitedByUserRef)

@@ -17,7 +17,7 @@ internal class CreateAccountUserCommandHandler : IRequestHandler<CreateAccountUs
         _accountUsersRepository = accountUsersRepository;
     }
 
-    public async Task<Unit> Handle(CreateAccountUserCommand request, CancellationToken cancellationToken)
+    public async Task Handle(CreateAccountUserCommand request, CancellationToken cancellationToken)
     {
         var user = await _accountUsersRepository.CreateQuery().SingleOrDefaultAsync(x => x.UserRef == request.UserRef && x.AccountId == request.AccountId, cancellationToken);
 
@@ -36,6 +36,5 @@ internal class CreateAccountUserCommandHandler : IRequestHandler<CreateAccountUs
             user.Recreate(request.Role, request.Created, request.MessageId);
             await _accountUsersRepository.Update(user, null, cancellationToken);
         }
-        return Unit.Value;
     }
 }

@@ -22,7 +22,7 @@ public class RemoveTeamMemberCommandHandler : IRequestHandler<RemoveTeamMemberCo
         _eventPublisher = eventPublisher;
     }
 
-    public async Task<Unit> Handle(RemoveTeamMemberCommand message, CancellationToken cancellationToken)
+    public async Task Handle(RemoveTeamMemberCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -49,8 +49,6 @@ public class RemoveTeamMemberCommandHandler : IRequestHandler<RemoveTeamMemberCo
         await _membershipRepository.Remove(message.UserId, owner.AccountId);
 
         await _eventPublisher.Publish(new AccountUserRemovedEvent(teamMember.AccountId, message.UserRef, DateTime.UtcNow));
-
-        return Unit.Value;
     }
 
     private async Task AddAuditEntry(MembershipView owner, TeamMember teamMember)
