@@ -22,7 +22,7 @@ public class AccountLevyStatusCommandHandler : IRequestHandler<AccountLevyStatus
         _eventPublisher = eventPublisher;
     }
 
-    public async Task<Unit> Handle(AccountLevyStatusCommand command, CancellationToken cancellationToken)
+    public async Task Handle(AccountLevyStatusCommand command, CancellationToken cancellationToken)
     {
         var account = await _accountRepositoryObject.GetAccountById(command.AccountId);
 
@@ -33,7 +33,7 @@ public class AccountLevyStatusCommandHandler : IRequestHandler<AccountLevyStatus
             (ApprenticeshipEmployerType)account.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy ||
             command.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Unknown)
         {
-            return default;
+            return;
         }
 
         _logger.LogInformation(UpdatedStartedMessage(command));
@@ -54,8 +54,6 @@ public class AccountLevyStatusCommandHandler : IRequestHandler<AccountLevyStatus
         {
             _logger.LogError(ex, "{Message}", UpdateErrorMessage(command));
         }
-
-        return Unit.Value;
     }
 
     private static string UpdatedStartedMessage(AccountLevyStatusCommand updateCommand)

@@ -39,7 +39,7 @@ public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCo
         _logger = logger;
     }
 
-    public async Task<Unit> Handle(AcceptInvitationCommand message, CancellationToken cancellationToken)
+    public async Task Handle(AcceptInvitationCommand message, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Accepting Invitation '{Id}'", message.Id);
 
@@ -65,8 +65,6 @@ public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCo
         await CreateAuditEntry(message, user, invitation);
 
         await PublishUserJoinedMessage(invitation.AccountId, user, invitation);
-
-        return Unit.Value;
     }
 
     private async Task CheckIfUserIsAlreadyAMember(Invitation invitation, User user)

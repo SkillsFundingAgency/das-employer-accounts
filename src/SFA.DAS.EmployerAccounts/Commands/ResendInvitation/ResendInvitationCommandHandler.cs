@@ -29,7 +29,7 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         _validator = new ResendInvitationCommandValidator();
     }
 
-    public async Task<Unit> Handle(ResendInvitationCommand message, CancellationToken cancellationToken)
+    public async Task Handle(ResendInvitationCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -91,7 +91,5 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
                 }
             }
         }, cancellationToken);
-
-        return Unit.Value;
     }
 }

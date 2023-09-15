@@ -23,7 +23,7 @@ public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemb
         _validator = new ChangeTeamMemberRoleCommandValidator();
     }
 
-    public async  Task<Unit> Handle(ChangeTeamMemberRoleCommand message, CancellationToken cancellationToken)
+    public async Task Handle(ChangeTeamMemberRoleCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -63,7 +63,5 @@ public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemb
                 AffectedEntity = new AuditEntity { Type = "Membership", Id = existing.Id.ToString() }
             }
         }, cancellationToken);
-
-        return Unit.Value;
     }
 }

@@ -81,61 +81,38 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(SupportErrorOrchestrator))]
     [TestCase(typeof(TaskOrchestrator))]
     [TestCase(typeof(UserSettingsOrchestrator))]
-    //[TestCase(typeof(ICustomClaims))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Orchestrators(Type toResolve)
     {
-        var mockHostingEnvironment = new Mock<IHostingEnvironment>();
-        mockHostingEnvironment.Setup(x => x.EnvironmentName).Returns("Test");
-
-        var startup = new Startup(GenerateStubConfiguration(), new Mock<IWebHostEnvironment>().Object, false);
-        var serviceCollection = new ServiceCollection();
-        startup.ConfigureServices(serviceCollection);
-
-        serviceCollection.AddSingleton(_ => mockHostingEnvironment.Object);
-        var provider = serviceCollection.BuildServiceProvider();
-
-        var type = provider.GetService(toResolve);
-        Assert.IsNotNull(type);
+        RunTestForType(toResolve);
     }
 
-    [TestCase(typeof(IRequestHandler<RenameEmployerAccountCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<RenameEmployerAccountCommand>))]
     [TestCase(typeof(IRequestHandler<CreateLegalEntityCommand, CreateLegalEntityCommandResponse>))]
-    [TestCase(typeof(IRequestHandler<AddPayeToAccountCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<AddPayeToAccountCommand>))]
     [TestCase(typeof(IRequestHandler<CreateAccountCommand, CreateAccountCommandResponse>))]
     [TestCase(typeof(IRequestHandler<CreateUserAccountCommand, CreateUserAccountCommandResponse>))]
-    [TestCase(typeof(IRequestHandler<AddPayeToAccountCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<RemovePayeFromAccountCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<AddPayeToAccountCommand>))]
+    [TestCase(typeof(IRequestHandler<RemovePayeFromAccountCommand>))]
     [TestCase(typeof(IRequestHandler<SignEmployerAgreementCommand, SignEmployerAgreementCommandResponse>))]
-    [TestCase(typeof(IRequestHandler<RemoveLegalEntityCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<DeleteInvitationCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<ChangeTeamMemberRoleCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UpdateShowAccountWizardCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<CreateInvitationCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<RemoveTeamMemberCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<ResendInvitationCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UnsubscribeProviderEmailCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UpsertRegisteredUserCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UpdateTermAndConditionsAcceptedOnCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<AcceptInvitationCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UpdateOrganisationDetailsCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<DismissMonthlyTaskReminderCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UpdateUserNotificationSettingsCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<UnsubscribeNotificationCommand, Unit>))]
-    [TestCase(typeof(IRequestHandler<SendAccountTaskListCompleteNotificationCommand, Unit>))]
+    [TestCase(typeof(IRequestHandler<RemoveLegalEntityCommand>))]
+    [TestCase(typeof(IRequestHandler<DeleteInvitationCommand>))]
+    [TestCase(typeof(IRequestHandler<ChangeTeamMemberRoleCommand>))]
+    [TestCase(typeof(IRequestHandler<UpdateShowAccountWizardCommand>))]
+    [TestCase(typeof(IRequestHandler<CreateInvitationCommand>))]
+    [TestCase(typeof(IRequestHandler<RemoveTeamMemberCommand>))]
+    [TestCase(typeof(IRequestHandler<ResendInvitationCommand>))]
+    [TestCase(typeof(IRequestHandler<UnsubscribeProviderEmailCommand>))]
+    [TestCase(typeof(IRequestHandler<UpsertRegisteredUserCommand>))]
+    [TestCase(typeof(IRequestHandler<UpdateTermAndConditionsAcceptedOnCommand>))]
+    [TestCase(typeof(IRequestHandler<AcceptInvitationCommand>))]
+    [TestCase(typeof(IRequestHandler<UpdateOrganisationDetailsCommand>))]
+    [TestCase(typeof(IRequestHandler<DismissMonthlyTaskReminderCommand>))]
+    [TestCase(typeof(IRequestHandler<UpdateUserNotificationSettingsCommand>))]
+    [TestCase(typeof(IRequestHandler<UnsubscribeNotificationCommand>))]
+    [TestCase(typeof(IRequestHandler<SendAccountTaskListCompleteNotificationCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Command_Handlers(Type toResolve)
     {
-        var mockHostingEnvironment = new Mock<IHostingEnvironment>();
-        mockHostingEnvironment.Setup(x => x.EnvironmentName).Returns("Test");
-
-        var startup = new Startup(GenerateStubConfiguration(), new Mock<IWebHostEnvironment>().Object, false);
-        var serviceCollection = new ServiceCollection();
-        startup.ConfigureServices(serviceCollection);
-
-        serviceCollection.AddSingleton(_ => mockHostingEnvironment.Object);
-        var provider = serviceCollection.BuildServiceProvider();
-
-        var type = provider.GetService(toResolve);
-        Assert.IsNotNull(type);
+        RunTestForType(toResolve);
     }
 
     [TestCase(typeof(IRequestHandler<GetEmployerAccountByIdQuery, GetEmployerAccountByIdResponse>))]
@@ -184,6 +161,11 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<GetUserNotificationSettingsQuery, GetUserNotificationSettingsQueryResponse>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Query_Handlers(Type toResolve)
     {
+        RunTestForType(toResolve);
+    }
+
+    private static void RunTestForType(Type toResolve)
+    {
         var mockHostingEnvironment = new Mock<IHostingEnvironment>();
         mockHostingEnvironment.Setup(x => x.EnvironmentName).Returns("Test");
 
@@ -197,48 +179,50 @@ public class WhenAddingServicesToTheContainer
         var type = provider.GetService(toResolve);
         Assert.IsNotNull(type);
     }
-    
+
     private static IConfigurationRoot GenerateStubConfiguration()
     {
         var configSource = new MemoryConfigurationSource
         {
             InitialData = new List<KeyValuePair<string, string>>
-                {
-                    new("SFA.DAS.Encoding", "{\"Encodings\": [{\"EncodingType\": \"AccountId\",\"Salt\": \"and vinegar\",\"MinHashLength\": 32,\"Alphabet\": \"46789BCDFGHJKLMNPRSTVWXY\"}]}"),
-                    new("SFA.DAS.EmployerAccounts:DatabaseConnectionString", "Server=(localdb)\\MSSQLLocalDB;Integrated Security=true"),
-                    new("SFA.DAS.EmployerAccounts:AccountApiConfiguration:ApiBaseUrl", "https://localhost:1"),
-                    new("SFA.DAS.EmployerAccounts:EmployerAccountsConfiguration:OuterApiApiBaseUri", "https://localhost:1"),
-                    new("SFA.DAS.EmployerAccounts:EmployerAccountsConfiguration:OuterApiSubscriptionKey", "test"),
-                    new("SFA.DAS.EmployerAccounts:ContentApi:ApiBaseUrl", "test"),
-                    new("SFA.DAS.EmployerAccounts:ContentApi:IdentifierUrl", "test"),
-                    new("SFA.DAS.EmployerAccounts:ProviderRegistrationsApi:BaseUrl", "test"),
-                    new("SFA.DAS.EmployerAccounts:ProviderRegistrationsApi:IdentifierUrl", "test"),
-                    new("Environment", "test"),
-                    new("EnvironmentName", "test"),
-                    new("APPINSIGHTS_INSTRUMENTATIONKEY", "test"),
-                    new("SFA.DAS.EmployerAccounts:CommitmentsApi:IdentifierUrl", "test"),
-                    new("SFA.DAS.EmployerAccounts:CommitmentsApi:ApiBaseUrl", "test"),
-                    new("SFA.DAS.EmployerAccounts:DefaultServiceTimeoutMilliseconds", "100"),
-                    new("SFA.DAS.EmployerAccounts:EmployerAccountsOuterApiConfiguration:BaseUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:EmployerAccountsOuterApiConfiguration:Key", "test"),
-                    new("SFA.DAS.EmployerAccounts:Hmrc:BaseUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:PensionRegulatorApi:IdentifierUri", "test"),
-                    new("SFA.DAS.EmployerAccounts:PensionRegulatorApi:BaseUrl", "test"),
-                    new("SFA.DAS.EmployerAccounts:RecruitApi:IdentifierUri", "test"),
-                    new("SFA.DAS.EmployerAccounts:AuditApi:BaseUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:AuditApi:IdentifierUri", "test"),
-                    new("SFA.DAS.EmployerAccounts:TokenServiceApi:ApiBaseUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:TokenServiceApi:ClientId", "test"),
-                    new("SFA.DAS.EmployerAccounts:TokenServiceApi:ClientSecret", "test"),
-                    new("SFA.DAS.EmployerAccounts:TokenServiceApi:IdentifierUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:TokenServiceApi:Tenant", "test"),
-                    new("SFA.DAS.EmployerAccounts:TasksApi:ApiBaseUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:TasksApi:IdentifierUrl", "https://test.test"),
-                    new("ResourceEnvironmentName", "TEST"),
-                    new("SFA.DAS.EmployerAccounts:Identity:ClientId", "clientId"),
-                    new("SFA.DAS.EmployerAccounts:EventsApi:BaseUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:EventsApi:ClientToken", "CLIENT_TOKEN")
-                }
+            {
+                new("SFA.DAS.Encoding",
+                    "{\"Encodings\": [{\"EncodingType\": \"AccountId\",\"Salt\": \"and vinegar\",\"MinHashLength\": 32,\"Alphabet\": \"46789BCDFGHJKLMNPRSTVWXY\"}]}"),
+                new("SFA.DAS.EmployerAccounts:DatabaseConnectionString",
+                    "Server=(localdb)\\MSSQLLocalDB;Integrated Security=true"),
+                new("SFA.DAS.EmployerAccounts:AccountApiConfiguration:ApiBaseUrl", "https://localhost:1"),
+                new("SFA.DAS.EmployerAccounts:EmployerAccountsConfiguration:OuterApiApiBaseUri", "https://localhost:1"),
+                new("SFA.DAS.EmployerAccounts:EmployerAccountsConfiguration:OuterApiSubscriptionKey", "test"),
+                new("SFA.DAS.EmployerAccounts:ContentApi:ApiBaseUrl", "test"),
+                new("SFA.DAS.EmployerAccounts:ContentApi:IdentifierUrl", "test"),
+                new("SFA.DAS.EmployerAccounts:ProviderRegistrationsApi:BaseUrl", "test"),
+                new("SFA.DAS.EmployerAccounts:ProviderRegistrationsApi:IdentifierUrl", "test"),
+                new("Environment", "test"),
+                new("EnvironmentName", "test"),
+                new("APPINSIGHTS_INSTRUMENTATIONKEY", "test"),
+                new("SFA.DAS.EmployerAccounts:CommitmentsApi:IdentifierUrl", "test"),
+                new("SFA.DAS.EmployerAccounts:CommitmentsApi:ApiBaseUrl", "test"),
+                new("SFA.DAS.EmployerAccounts:DefaultServiceTimeoutMilliseconds", "100"),
+                new("SFA.DAS.EmployerAccounts:EmployerAccountsOuterApiConfiguration:BaseUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:EmployerAccountsOuterApiConfiguration:Key", "test"),
+                new("SFA.DAS.EmployerAccounts:Hmrc:BaseUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:PensionRegulatorApi:IdentifierUri", "test"),
+                new("SFA.DAS.EmployerAccounts:PensionRegulatorApi:BaseUrl", "test"),
+                new("SFA.DAS.EmployerAccounts:RecruitApi:IdentifierUri", "test"),
+                new("SFA.DAS.EmployerAccounts:AuditApi:BaseUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:AuditApi:IdentifierUri", "test"),
+                new("SFA.DAS.EmployerAccounts:TokenServiceApi:ApiBaseUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:TokenServiceApi:ClientId", "test"),
+                new("SFA.DAS.EmployerAccounts:TokenServiceApi:ClientSecret", "test"),
+                new("SFA.DAS.EmployerAccounts:TokenServiceApi:IdentifierUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:TokenServiceApi:Tenant", "test"),
+                new("SFA.DAS.EmployerAccounts:TasksApi:ApiBaseUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:TasksApi:IdentifierUrl", "https://test.test"),
+                new("ResourceEnvironmentName", "TEST"),
+                new("SFA.DAS.EmployerAccounts:Identity:ClientId", "clientId"),
+                new("SFA.DAS.EmployerAccounts:EventsApi:BaseUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:EventsApi:ClientToken", "CLIENT_TOKEN")
+            }
         };
 
         var provider = new MemoryConfigurationProvider(configSource);

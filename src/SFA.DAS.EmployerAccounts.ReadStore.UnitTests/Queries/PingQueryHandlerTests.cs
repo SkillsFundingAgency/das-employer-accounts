@@ -41,7 +41,7 @@ namespace SFA.DAS.EmployerAccounts.ReadStore.UnitTests.Queries
         public PingQuery Query { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public Mock<IDocumentClient> DocumentClient { get; set; }
-        public IRequestHandler<PingQuery, Unit> Handler { get; set; }
+        public IRequestHandler<PingQuery> Handler { get; set; }
         public List<Database> Databases { get; set; }
 
         public PingQueryHandlerTestsFixture()

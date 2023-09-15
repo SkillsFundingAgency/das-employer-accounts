@@ -13,7 +13,7 @@ public class CreateAuditCommandHandler : IRequestHandler<CreateAuditCommand>
         _validator = validator;
     }
 
-    public async Task<Unit> Handle(CreateAuditCommand message, CancellationToken cancellationToken)
+    public async Task Handle(CreateAuditCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -23,7 +23,5 @@ public class CreateAuditCommandHandler : IRequestHandler<CreateAuditCommand>
         }
 
         await _auditService.SendAuditMessage(message.EasAuditMessage);
-
-        return Unit.Value;
     }
 }

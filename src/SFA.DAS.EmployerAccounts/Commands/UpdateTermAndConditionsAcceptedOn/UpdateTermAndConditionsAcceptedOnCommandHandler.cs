@@ -11,10 +11,8 @@ public class UpdateTermAndConditionsAcceptedOnCommandHandler : IRequestHandler<U
         _userRepository = userRepository;
     }
 
-    public async Task<Unit> Handle(UpdateTermAndConditionsAcceptedOnCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateTermAndConditionsAcceptedOnCommand request, CancellationToken cancellationToken)
     {
         await _userRepository.UpdateTermAndConditionsAcceptedOn(request.UserRef);
-
-        return Unit.Value;
     }
 }

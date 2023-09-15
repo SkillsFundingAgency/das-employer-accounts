@@ -15,7 +15,7 @@ public sealed class CookieBasedOrganisationAndPayeDataSaver : IRequestHandler<Sa
         _cookieRepository = cookieRepository ?? throw new ArgumentNullException(nameof(cookieRepository));
     }
 
-    public Task<Unit> Handle(SaveOrganisationAndPayeData message, CancellationToken cancellationToken)
+    public Task Handle(SaveOrganisationAndPayeData message, CancellationToken cancellationToken)
     {
         var existingCookie = _cookieRepository.Get(CookieName);
 
@@ -28,7 +28,7 @@ public sealed class CookieBasedOrganisationAndPayeDataSaver : IRequestHandler<Sa
             UpdateExistingCookieWithNewData(existingCookie, message.OrganisationData, message.PayeRefData);
         }
 
-        return Task.FromResult(Unit.Value);
+        return Task.CompletedTask;
     }
 
     private void UpdateExistingCookieWithNewData(EmployerAccountData existingCookie, EmployerAccountOrganisationData organisationData, EmployerAccountPayeRefData payeRefData)

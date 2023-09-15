@@ -56,7 +56,7 @@ public class EmployerAccountsApiClientTests : FluentTest<EmployerAccountsApiClie
     [Test]
     public Task Ping_WhenReadStorePingSucceeds_ThenShouldNotThrowException()
     {
-        return TestExceptionAsync(f => f.SetReadStorePingSuccess(), f => f.Ping(), (f, r) => r.Should().NotThrowAsync<Exception>());
+        return TestExceptionAsync(f => f.Ping(), (f, r) => r.Should().NotThrowAsync<Exception>());
     }
 
     [Test]
@@ -117,13 +117,6 @@ public class EmployerAccountsApiClientTestsFixture
     public Task Ping()
     {
         return EmployerAccountsApiClient.Ping(CancellationToken);
-    }
-
-    public EmployerAccountsApiClientTestsFixture SetReadStorePingSuccess()
-    {
-        MockApiMediator.Setup(m => m.Send(It.IsAny<PingQuery>(), CancellationToken)).ReturnsAsync(Unit.Value);
-
-        return this;
     }
 
     public EmployerAccountsApiClientTestsFixture SetReadStorePingFailure()

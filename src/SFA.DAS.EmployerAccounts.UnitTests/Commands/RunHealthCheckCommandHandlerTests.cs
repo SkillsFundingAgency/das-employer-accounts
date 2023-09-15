@@ -22,7 +22,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands
         [Test]
         public Task Handle_WhenHandlingARunHealthCheckCommand_ThenShouldAddAHealthCheck()
         {
-            return TestAsync(f => f.Handle(), f => f.Db.Verify(d => d.HealthChecks.Add(It.IsAny<HealthCheck>())));
+            return TestAsync(f => f.Handle(), f => f.Db.Verify(d => d.HealthChecks.AddAsync(It.IsAny<HealthCheck>(), It.IsAny<CancellationToken>())));
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands
     {
         public Mock<EmployerAccountsDbContext> Db { get; set; }
         public RunHealthCheckCommand RunHealthCheckCommand { get; set; }
-        public IRequestHandler<RunHealthCheckCommand, Unit> Handler { get; set; }
+        public IRequestHandler<RunHealthCheckCommand> Handler { get; set; }
         public Mock<IAccountApiClient> AccountsApiClient { get; set; }
         public Mock<IOuterApiClient> OuterApiClient { get; set; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
