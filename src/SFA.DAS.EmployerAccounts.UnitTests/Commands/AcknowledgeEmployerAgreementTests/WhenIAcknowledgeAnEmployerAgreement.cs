@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementTests
             // Arrange
             
             // Act
-            _ = await handler.Handle(command, default);
+            await handler.Handle(command, default);
 
             // Assert
             repositoryMock.Verify(m => m.AcknowledgeEmployerAgreement(command.AgreementId));

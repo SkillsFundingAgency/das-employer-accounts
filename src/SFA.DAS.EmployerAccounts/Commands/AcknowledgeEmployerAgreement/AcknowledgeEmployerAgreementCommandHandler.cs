@@ -12,10 +12,8 @@ public class AcknowledgeEmployerAgreementCommandHandler : IRequestHandler<Acknow
         _employerAgreementRepository = employerAgreementRepository;
     }
 
-    public async Task<Unit> Handle(AcknowledgeEmployerAgreementCommand message, CancellationToken cancellationToken)
+    public async Task Handle(AcknowledgeEmployerAgreementCommand message, CancellationToken cancellationToken)
     {
         await _employerAgreementRepository.AcknowledgeEmployerAgreement(message.AgreementId);
-
-        return Unit.Value;
     }
 }

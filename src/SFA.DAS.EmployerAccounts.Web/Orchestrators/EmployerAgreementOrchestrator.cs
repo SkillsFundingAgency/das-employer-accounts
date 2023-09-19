@@ -124,7 +124,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
             var agreementId = _encodingService.Decode(hashedAgreementId, EncodingType.AccountId);
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
             
-            _ = await _mediator.Send(new AcknowledgeEmployerAgreementCommand(agreementId));
+            await _mediator.Send(new AcknowledgeEmployerAgreementCommand(agreementId));
             
             await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
             {
