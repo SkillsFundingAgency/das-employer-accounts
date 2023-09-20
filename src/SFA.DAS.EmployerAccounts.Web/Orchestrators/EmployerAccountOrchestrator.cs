@@ -1,6 +1,6 @@
-﻿using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
+﻿using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
+using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
-using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.CreateLegalEntity;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
@@ -358,7 +358,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
        var firstAccount = !getUserAccountsQueryResponse.Accounts.AccountList.Any() 
             ? null 
-            : getUserAccountsQueryResponse.Accounts.AccountList.OrderBy(x => x.CreatedDate).FirstOrDefault();
+            : getUserAccountsQueryResponse.Accounts.AccountList.MinBy(x => x.CreatedDate);
 
         if (firstAccount != null)
         {
@@ -374,5 +374,12 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             HasPayeScheme = getAccountPayeResponse.PayeSchemes?.Any() ?? false,
             NameConfirmed = firstAccount?.NameConfirmed ?? false
         };
+    }
+
+    public async Task AcknowledgeTrainingProviderTask(string hashedAccountId)
+    {
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+
+        Mediator.Send(new AcknowledgeTrainingProviderTaskCommand(accountId));
     }
 }

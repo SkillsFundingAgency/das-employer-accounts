@@ -153,4 +153,10 @@ public class EmployerAccountRepository : IEmployerAccountRepository
             transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
             commandType: CommandType.StoredProcedure);
     }
+
+    public async Task AcknowledgeTrainingProviderTask(long accountId)
+    {
+        var account = await _db.Value.Accounts.FindAsync(accountId);
+        account.AddTrainingProviderAcknowledged = true;
+    }
 }

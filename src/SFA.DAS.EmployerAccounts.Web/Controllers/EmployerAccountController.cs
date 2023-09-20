@@ -507,7 +507,9 @@ public class EmployerAccountController : BaseController
         switch (choice ?? 0)
         {
             case 1: return Redirect("provider-relationships-url");
-            case 2: return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
+            case 2:
+                _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId);
+                return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
             default:
             {
                 var model = new
