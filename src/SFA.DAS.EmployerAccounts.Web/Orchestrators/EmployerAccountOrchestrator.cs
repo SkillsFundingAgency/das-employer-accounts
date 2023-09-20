@@ -338,8 +338,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false,
                 NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
                 PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId),
-                AgreementAcknowledged = agreement.Acknowledged,
-                AddTrainingProviderAcknowledged = accountResponse.Account.AddTrainingProviderAcknowledged
+                AgreementAcknowledged = agreement.Acknowledged ?? true,
+                AddTrainingProviderAcknowledged = accountResponse.Account.AddTrainingProviderAcknowledged ?? true
             };
         }
         

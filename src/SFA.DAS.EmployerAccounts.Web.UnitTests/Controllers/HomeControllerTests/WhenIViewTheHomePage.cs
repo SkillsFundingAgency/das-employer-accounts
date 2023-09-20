@@ -254,7 +254,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        _singleEmployerAgreement.EmployerAgreementsData.EmployerAgreements[0].Pending.Acknowledged = false;
+        _userAccountsViewModel.Accounts.AccountList[0].AddTrainingProviderAcknowledged = false;
 
         //Act
         var actual = await _homeController.Index(_queryData);

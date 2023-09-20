@@ -210,7 +210,15 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             // Arrange
             encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
-            accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement> { new EmployerAgreement { StatusId = EmployerAccounts.Models.EmployerAgreement.EmployerAgreementStatus.Pending, Id = agreementId } };
+            accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement>
+            {
+                new()
+                {
+                    StatusId = EmployerAccounts.Models.EmployerAgreement.EmployerAgreementStatus.Pending, 
+                    Id = agreementId,
+                    Acknowledged = false
+                }
+            };
             mediatorMock.Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId), It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse);
             SetControllerContextUserIdClaim(userId, controller);
 

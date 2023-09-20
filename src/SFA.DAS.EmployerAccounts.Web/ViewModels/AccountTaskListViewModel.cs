@@ -9,7 +9,7 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
 
         public int CompletedSections =>
             // by default, will have 1 completed section for user details (step previous)
-            (AgreementAcknowledged ?? true) ? 4 : NameConfirmed ? 3 : HasPayeScheme ? 2 : 1;
+            AgreementAcknowledged ? 4 : NameConfirmed ? 3 : HasPayeScheme ? 2 : 1;
 
         public string SaveProgressRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.NewAccountSaveProgress : RouteNames.PartialAccountSaveProgress;
 
@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
 
         public string PendingHashedAgreementId { get; internal set; }
         
-        public bool? AgreementAcknowledged { get; set; }
-        public bool? AddTrainingProviderAcknowledged { get; set; }
+        public bool AgreementAcknowledged { get; set; }
+        public bool AddTrainingProviderAcknowledged { get; set; }
     }
 }

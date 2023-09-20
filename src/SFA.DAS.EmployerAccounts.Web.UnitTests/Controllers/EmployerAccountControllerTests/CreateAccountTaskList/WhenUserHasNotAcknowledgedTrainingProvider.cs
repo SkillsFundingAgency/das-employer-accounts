@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
+using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -23,6 +24,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
             GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetUserByRefResponse userByRefResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
@@ -30,15 +32,31 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             // Arrange
             encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
-            accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement> { new EmployerAgreement { StatusId = EmployerAgreementStatus.Pending, Id = agreementId, Acknowledged = true} };
-            mediatorMock.Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId), It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse); 
+            accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement>
+            {
+                new EmployerAgreement
+                {
+                    StatusId = EmployerAgreementStatus.Pending,
+                    Id = agreementId, Acknowledged = true
+                }
+            };
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId),
+                    It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse);
             SetControllerContextUserIdClaim(userId, controller);
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(userByRefResponse);
 
             accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
             accountDetailResponse.Account.NameConfirmed = true;
 
             mediatorMock
-                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(
+                    It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
 
             // Act
