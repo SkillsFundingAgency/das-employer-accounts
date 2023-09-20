@@ -314,10 +314,8 @@ public class EmployerAgreementControllerTests
         // Assert
         _orchestratorMock
             .Verify(m => m.AcknowledgeAgreement(
-                HashedAccountId, 
-                HashedAgreementId, 
-                UserId, 
-                viewModel.EmployerAgreement.LegalEntityName));
+                HashedAgreementId,
+                viewModel.HasAcknowledgedAgreement));
         actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
 }
