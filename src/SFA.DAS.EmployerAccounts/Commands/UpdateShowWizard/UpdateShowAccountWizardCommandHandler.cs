@@ -17,7 +17,7 @@ public class UpdateShowAccountWizardCommandHandler : IRequestHandler<UpdateShowA
         _logger = logger;
     }
 
-    public async Task<Unit> Handle(UpdateShowAccountWizardCommand message, CancellationToken cancellationToken)
+    public async Task Handle(UpdateShowAccountWizardCommand message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -29,7 +29,5 @@ public class UpdateShowAccountWizardCommandHandler : IRequestHandler<UpdateShowA
         _logger.LogInformation("User {ExternalUserId} has set the show wizard toggle to {ShowWizard} for account {HashedAccountId}", message.ExternalUserId, message.ShowWizard, message.HashedAccountId);
 
         await _membershipRepository.SetShowAccountWizard(message.HashedAccountId, message.ExternalUserId, message.ShowWizard);
-
-        return Unit.Value;
     }
 }

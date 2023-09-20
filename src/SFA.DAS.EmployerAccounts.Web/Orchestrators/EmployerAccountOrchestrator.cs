@@ -76,29 +76,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
     public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> SetEmployerAccountName(string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
     {
         var response = new OrchestratorResponse<RenameEmployerAccountViewModel> { Data = model };
-        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-        var renameResponse = await RenameEmployerAccount(hashedAccountId, model, userId);
-
-        if(renameResponse.Status == HttpStatusCode.OK)
-        {
-            try
-            {
-                await Mediator.Send(new SendAccountTaskListCompleteNotificationCommand
-                {
-                    AccountId = accountId,
-                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
-                    HashedAccountId = hashedAccountId,
-                    ExternalUserId = userId,
-                    OrganisationName = model.CurrentName,
-                });
-            }
-            catch (InvalidRequestException ex)
-            {
-                response.Status = HttpStatusCode.BadRequest;
-                response.Data.ErrorDictionary = ex.ErrorMessages;
-                response.Exception = ex;
-            }
-        }
+        _ = await RenameEmployerAccount(hashedAccountId, model, userId);
 
         return response;
     }

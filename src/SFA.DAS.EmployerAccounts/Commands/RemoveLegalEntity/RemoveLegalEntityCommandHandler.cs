@@ -47,7 +47,7 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
         _commitmentsV2ApiClient = commitmentsV2ApiClient;
     }
 
-    public async Task<Unit> Handle(RemoveLegalEntityCommand message, CancellationToken cancellationToken)
+    public async Task Handle(RemoveLegalEntityCommand message, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(message);
 
@@ -85,7 +85,7 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
         // it appears that an agreement is created whenever we create a legal entity, so there should always be an agreement associated with a legal entity
         if (agreement == null)
         {
-            return Unit.Value;
+            return;
         }
 
         var agreementSigned = agreement.Status == EmployerAgreementStatus.Signed;
@@ -101,8 +101,6 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
             agreement.LegalEntityName,
             agreement.AccountLegalEntityId,
             message.UserId);
-
-        return Unit.Value;
     }
 
     private async Task ValidateLegalEntityHasNoCommitments(EmployerAgreementView agreement, long accountId, ValidationResult validationResult)

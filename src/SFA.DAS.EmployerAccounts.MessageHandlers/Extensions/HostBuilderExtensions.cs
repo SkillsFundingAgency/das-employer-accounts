@@ -50,9 +50,10 @@ public static class HostBuilderExtensions
             services.AddEventsApi();
             services.AddAuditServices();
             services.AddHttpContextAccessor();
-            services.AddMediatR(
+            services.AddMediatR(serviceConfiguration=> serviceConfiguration.RegisterServicesFromAssemblies(
                 typeof(CreateAccountUserCommandHandler).Assembly,
-                typeof(AccountLevyStatusCommandHandler).Assembly);
+                typeof(AccountLevyStatusCommandHandler).Assembly)
+            );
             services.AddNServiceBus();
         });
 

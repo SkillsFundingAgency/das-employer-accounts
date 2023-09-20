@@ -48,7 +48,6 @@ class WhenIInviteATeamMember
             Email = "test@test.com"
         };
         var response = new GetAccountTeamMembersResponse();
-        _mediator.Setup(x => x.Send(It.IsAny<CreateInvitationCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
         _mediator.Setup(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(response);
 
         //Act

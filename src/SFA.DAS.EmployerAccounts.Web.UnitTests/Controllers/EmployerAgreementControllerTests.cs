@@ -298,26 +298,24 @@ public class EmployerAgreementControllerTests
     }
     
     [Test, MoqAutoData]
-    public async Task SignAgreement_Later_ShouldAcknowledgeAgreement(
-        long agreementId,
-        [Frozen] Mock<IEncodingService> encodingServiceMock,
-        [Frozen] Mock<IMediator> mediatorMock,
-        [NoAutoProperties] EmployerAgreementController controller)
+    public async Task SignAgreement_Later_ShouldAcknowledgeAgreement(SignEmployerAgreementViewModel viewModel)
     {
         // Arrange 
-        controller.ControllerContext = new ControllerContext { HttpContext = _httpContextMock.Object };
-        
-        encodingServiceMock
-            .Setup(es => es.Decode(HashedAgreementId, EncodingType.AccountId))
-            .Returns(agreementId);
+        _orchestratorMock
+            .Setup(x => x.GetSignedAgreementViewModel(HashedAccountId, HashedAgreementId, UserId))
+            .ReturnsAsync(new OrchestratorResponse<SignEmployerAgreementViewModel>
+            {
+                Data = viewModel
+            });
         
         // Act
-        var actualResult = await controller.Sign(HashedAccountId, HashedAgreementId, 1) as RedirectToRouteResult;
+        var actualResult = await _controller.Sign(HashedAccountId, HashedAgreementId, 1) as RedirectToRouteResult;
         
         // Assert
-        mediatorMock.Verify(m => 
-            m.Send(It.IsAny<AcknowledgeEmployerAgreementCommand>(), 
-                It.IsAny<CancellationToken>()));
+        _orchestratorMock
+            .Verify(m => m.AcknowledgeAgreement(
+                HashedAgreementId,
+                viewModel.HasAcknowledgedAgreement));
         actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
 }

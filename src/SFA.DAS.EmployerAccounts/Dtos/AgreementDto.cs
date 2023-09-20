@@ -17,4 +17,5 @@ public class AgreementDto
     public DateTime? SignedDate { get; set; }
     public EmployerAgreementStatus StatusId { get; set; }
     public AgreementTemplateDto Template { get; set; }
+    public bool? Acknowledged { get; set; }
 }

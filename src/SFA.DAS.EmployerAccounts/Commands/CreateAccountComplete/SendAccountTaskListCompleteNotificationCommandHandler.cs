@@ -19,7 +19,7 @@ public class SendAccountTaskListCompleteNotificationCommandHandler : IRequestHan
         _logger = logger;
     }
 
-    public async Task<Unit> Handle(SendAccountTaskListCompleteNotificationCommand request, CancellationToken cancellationToken)
+    public async Task Handle(SendAccountTaskListCompleteNotificationCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting processing of {TypeName}. Request: '{Request}'.", nameof(SendAccountTaskListCompleteNotificationCommandHandler), request);
         
@@ -35,8 +35,6 @@ public class SendAccountTaskListCompleteNotificationCommandHandler : IRequestHan
         });
         
         _logger.LogInformation("Completed processing of {TypeName}.", nameof(SendAccountTaskListCompleteNotificationCommandHandler));
-
-        return Unit.Value;
     }
     
     private void ValidateRequest(SendAccountTaskListCompleteNotificationCommand message)

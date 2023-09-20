@@ -39,7 +39,7 @@ public class RenameEmployerAccountCommandHandler : IRequestHandler<RenameEmploye
         _accountEventFactory = accountEventFactory;
     }
 
-    public async Task<Unit> Handle(RenameEmployerAccountCommand message, CancellationToken cancellationToken)
+    public async Task Handle(RenameEmployerAccountCommand message, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(message);
 
@@ -68,8 +68,6 @@ public class RenameEmployerAccountCommandHandler : IRequestHandler<RenameEmploye
         await NotifyAccountRenamed(message.HashedAccountId);
 
         await PublishAccountRenamedMessage(accountId, accountPreviousName, message.NewName, owner.FullName(), owner.UserRef);
-
-        return Unit.Value;
     }
 
     private Task PublishAccountRenamedMessage(
