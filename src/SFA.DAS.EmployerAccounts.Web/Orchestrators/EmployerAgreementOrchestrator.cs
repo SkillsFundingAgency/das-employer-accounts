@@ -117,23 +117,27 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         string hashedAccountId,
         string hashedAgreementId, 
         string userId,
-        string legalEntityName)
+        string legalEntityName,
+        bool hasPreviousAcknowledgement)
     {
         try
         {
-            var agreementId = _encodingService.Decode(hashedAgreementId, EncodingType.AccountId);
-            var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-            
-            await _mediator.Send(new AcknowledgeEmployerAgreementCommand(agreementId));
-            
-            await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+            if (!hasPreviousAcknowledgement)
             {
-                AccountId = accountId,
-                PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
-                HashedAccountId = hashedAccountId,
-                ExternalUserId = userId,
-                OrganisationName = legalEntityName,
-            });
+                var agreementId = _encodingService.Decode(hashedAgreementId, EncodingType.AccountId);
+                var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+
+                await _mediator.Send(new AcknowledgeEmployerAgreementCommand(agreementId));
+
+                await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+                {
+                    AccountId = accountId,
+                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
+                    HashedAccountId = hashedAccountId,
+                    ExternalUserId = userId,
+                    OrganisationName = legalEntityName,
+                });
+            }
 
             return new OrchestratorResponse
             {
@@ -155,7 +159,8 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         string hashedAccountId, 
         string externalUserId, 
         DateTime signedDate,
-        string legalEntityName)
+        string legalEntityName,
+        bool hasPreviousAcknowledgement)
     {
         try
         {
@@ -167,15 +172,18 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 SignedDate = signedDate,
                 HashedAgreementId = agreementId
             });
-            
-            await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+
+            if (!hasPreviousAcknowledgement)
             {
-                AccountId = accountId,
-                PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
-                HashedAccountId = hashedAccountId,
-                ExternalUserId = externalUserId,
-                OrganisationName = legalEntityName,
-            });
+                await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+                {
+                    AccountId = accountId,
+                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
+                    HashedAccountId = hashedAccountId,
+                    ExternalUserId = externalUserId,
+                    OrganisationName = legalEntityName,
+                });
+            }
 
             var unsignedAgreement = await _mediator.Send(new GetNextUnsignedEmployerAgreementRequest
             {

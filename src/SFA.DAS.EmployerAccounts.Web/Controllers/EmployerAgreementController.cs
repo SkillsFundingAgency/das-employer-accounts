@@ -127,13 +127,12 @@ public class EmployerAgreementController : BaseController
 
         if (choice == SignEmployerAgreementViewModel.ReviewAgreementLater)
         {
-            _ = await _orchestrator.AcknowledgeAgreement(hashedAccountId, hashedAgreementId, userInfo, legalEntityName);
+            _ = await _orchestrator.AcknowledgeAgreement(hashedAccountId, hashedAgreementId, userInfo, legalEntityName, hasPreviousAcknowledgement);
 
             return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
         }
 
-        var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow,
-            legalEntityName);
+        var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow, legalEntityName, hasPreviousAcknowledgement);
 
         if (response.Status == HttpStatusCode.Unauthorized)
         {
