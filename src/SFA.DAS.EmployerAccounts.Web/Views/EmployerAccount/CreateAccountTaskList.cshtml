@@ -128,7 +128,7 @@
                 </h2>
                 <ul class="das-task-list__items">
                     <li class="das-task-list__item">
-                        @if (Model.Data.AgreementAcknowledged == null)
+                        @if (!Model.Data.AgreementAcknowledged)
                         {
                             <span class="das-task-list__task-name">
                                 Training provider
