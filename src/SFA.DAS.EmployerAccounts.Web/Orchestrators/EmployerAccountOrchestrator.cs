@@ -14,6 +14,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
 public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 {
+    private readonly IEmployerAccountService _employerAccountService;
     private readonly ILogger<EmployerAccountOrchestrator> _logger;
     private readonly IEncodingService _encodingService;
     private readonly IUrlActionHelper _urlHelper;
@@ -23,6 +24,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
     protected EmployerAccountOrchestrator() { }
 
     public EmployerAccountOrchestrator(
+        IEmployerAccountService employerAccountService,
         IMediator mediator,
         ILogger<EmployerAccountOrchestrator> logger,
         ICookieStorageService<EmployerAccountData> cookieService,
@@ -31,6 +33,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         IUrlActionHelper urlHelper)
         : base(mediator, cookieService, configuration)
     {
+        _employerAccountService = employerAccountService;
         _logger = logger;
         _encodingService = encodingService;
         _urlHelper = urlHelper;
@@ -312,7 +315,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         else
         {
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-
+            var employerAccountTaskListResponse = await _employerAccountService.GetEmployerAccountTaskList(accountId);
+            
             var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
             {
                 HashedAccountId = hashedAccountId

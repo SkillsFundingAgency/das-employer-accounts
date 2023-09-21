@@ -27,6 +27,8 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IHttpServiceFactory, HttpServiceFactory>();
         services.AddTransient<IUserAornPayeLockService, UserAornPayeLockService>();
 
+        services.AddTransient<IEmployerAccountService, EmployerAccountService>();
+        
         services.AddTransient<IReservationsService, ReservationsService>();
         services.Decorate<IReservationsService, ReservationsServiceWithTimeout>();
 
