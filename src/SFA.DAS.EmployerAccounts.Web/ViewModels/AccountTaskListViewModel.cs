@@ -23,5 +23,6 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         
         public bool AgreementAcknowledged { get; set; }
         public bool AddTrainingProviderAcknowledged { get; set; }
+        public bool HasSignedAgreement { get; set; }
     }
 }

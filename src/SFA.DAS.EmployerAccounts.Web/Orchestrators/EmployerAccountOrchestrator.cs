@@ -315,7 +315,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         else
         {
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-            var employerAccountTaskListResponse = await _employerAccountService.GetEmployerAccountTaskList(accountId);
+            var employerAccountTaskListResponse = await _employerAccountService.GetEmployerAccountTaskList(hashedAccountId);
             
             var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
             {
@@ -343,6 +343,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
                 PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId),
                 AgreementAcknowledged = agreement.Acknowledged ?? true,
+                HasSignedAgreement = agreement.SignedDate.HasValue,
                 AddTrainingProviderAcknowledged = accountResponse.Account.AddTrainingProviderAcknowledged ?? true
             };
         }
