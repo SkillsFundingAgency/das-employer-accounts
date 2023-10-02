@@ -1,5 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
+using Azure.Core;
+using Azure.Identity;
 using SFA.DAS.Api.Common.Interfaces;
 
 namespace SFA.DAS.EmployerAccounts.Services;
@@ -40,7 +42,14 @@ public class ContentApiClient : IContentApiClient
     {
         if (!string.IsNullOrEmpty(_identifierUri))
         {
-            var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_identifierUri);
+            var azureServiceTokenProvider = new ChainedTokenCredential(
+                new ManagedIdentityCredential(),
+                new AzureCliCredential(),
+                new VisualStudioCodeCredential(),
+                new VisualStudioCredential()
+            );
+        
+            var accessToken = (await azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { _identifierUri }))).Token;
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }

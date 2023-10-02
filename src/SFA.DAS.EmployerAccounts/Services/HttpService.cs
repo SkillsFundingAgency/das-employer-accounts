@@ -2,6 +2,8 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net;
 using System.Net.Http;
+using Azure.Core;
+using Azure.Identity;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
@@ -66,8 +68,14 @@ public class HttpService : IHttpService
 
     private static async Task<string> GetManagedIdentityAuthenticationResult(string resource)
     {
-        var azureServiceTokenProvider = new AzureServiceTokenProvider();
-        return await azureServiceTokenProvider.GetAccessTokenAsync(resource);
+        var azureServiceTokenProvider = new ChainedTokenCredential(
+            new ManagedIdentityCredential(),
+            new AzureCliCredential(),
+            new VisualStudioCodeCredential(),
+            new VisualStudioCredential()
+        );
+        
+        return (await azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { resource }))).Token;
     }
 
     private static bool IsClientCredentialConfiguration(string clientId, string clientSecret, string tenant)
