@@ -399,12 +399,10 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
 
-        var getAccountTask = Mediator.Send(new GetEmployerAccountByIdQuery { AccountId = accountId, UserId = externalUserId });
+        var accountResponse = await Mediator.Send(new GetEmployerAccountByIdQuery { AccountId = accountId, UserId = externalUserId });
 
         await Mediator.Send(new AcknowledgeTrainingProviderTaskCommand(accountId));
-
-        var accountResponse = await getAccountTask;
-
+        
         await Mediator.Send(new SendAccountTaskListCompleteNotificationCommand
         {
             AccountId = accountId,
