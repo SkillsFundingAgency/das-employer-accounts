@@ -160,18 +160,6 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 HashedAgreementId = agreementId
             });
 
-            if (!hasPreviousAcknowledgement)
-            {
-                await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
-                {
-                    AccountId = accountId,
-                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
-                    HashedAccountId = hashedAccountId,
-                    ExternalUserId = externalUserId,
-                    OrganisationName = legalEntityName,
-                });
-            }
-
             var unsignedAgreement = await _mediator.Send(new GetNextUnsignedEmployerAgreementRequest
             {
                 ExternalUserId = externalUserId,

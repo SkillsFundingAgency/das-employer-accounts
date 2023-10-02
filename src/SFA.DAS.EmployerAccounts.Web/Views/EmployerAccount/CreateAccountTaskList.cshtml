@@ -106,7 +106,7 @@
                                     Your employer agreement
                                 </a>
                             </span>
-                            if (Model.Data.AgreementAcknowledged == null)
+                            if (!Model.Data.AgreementAcknowledged)
                             {
                                 <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>
                             }

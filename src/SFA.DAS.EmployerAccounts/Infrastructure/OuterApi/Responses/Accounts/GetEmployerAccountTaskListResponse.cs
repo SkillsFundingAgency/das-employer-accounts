@@ -2,7 +2,7 @@ namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Accounts;
 
 public class GetEmployerAccountTaskListResponse
 {
-    public IEnumerable<EmployerAccountLegalEntityPermissionItem> EmployerAccountLegalEntityPermissionItems { get; set; }
+    public IEnumerable<EmployerAccountLegalEntityPermissionItem> EmployerAccountLegalEntityPermissions { get; set; }
 }
 
 public class EmployerAccountLegalEntityPermissionItem

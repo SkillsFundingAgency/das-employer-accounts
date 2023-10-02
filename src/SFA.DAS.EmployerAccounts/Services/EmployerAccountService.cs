@@ -43,7 +43,7 @@ public class EmployerAccountService : IEmployerAccountService
     {
         return new EmployerAccountTaskList
         {
-            HasProviderPermissions = getEmployerTaskListResponse.EmployerAccountLegalEntityPermissionItems?.Any() ?? false
+            HasProviderPermissions = getEmployerTaskListResponse.EmployerAccountLegalEntityPermissions?.Any() ?? false
         };
     }
 }

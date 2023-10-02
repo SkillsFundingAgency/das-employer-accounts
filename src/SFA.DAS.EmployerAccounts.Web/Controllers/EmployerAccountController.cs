@@ -240,26 +240,26 @@ public class EmployerAccountController : BaseController
             _logger.LogInformation("Gateway response is for user identity ID {ExternalUserId}", externalUserId);
 
             var email = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserEmailClaimTypeIdentifier);
-            var empref = await _employerAccountOrchestrator.GetHmrcEmployerInformation(response.Data.AccessToken, email);
-            _logger.LogInformation("Gateway response is for empref {Empref} \n {SerializedEmpref}", empref.Empref, JsonConvert.SerializeObject(empref));
+            var empRef = await _employerAccountOrchestrator.GetHmrcEmployerInformation(response.Data.AccessToken, email);
+            _logger.LogInformation("Gateway response is for empRef {empRef} \n {SerializedEmpRef}", empRef.Empref, JsonConvert.SerializeObject(empRef));
 
             await _mediator.Send(new SavePayeRefData(new EmployerAccountPayeRefData
             {
-                EmployerRefName = empref.EmployerLevyInformation?.Employer?.Name?.EmprefAssociatedName ?? "",
-                PayeReference = empref.Empref,
+                EmployerRefName = empRef.EmployerLevyInformation?.Employer?.Name?.EmprefAssociatedName ?? "",
+                PayeReference = empRef.Empref,
                 AccessToken = response.Data.AccessToken,
                 RefreshToken = response.Data.RefreshToken,
-                EmpRefNotFound = empref.EmprefNotFound,
+                EmpRefNotFound = empRef.EmprefNotFound,
             }));
 
             _logger.LogInformation("Finished processing gateway response");
 
-            if (string.IsNullOrEmpty(empref.Empref) || empref.EmprefNotFound)
+            if (string.IsNullOrEmpty(empRef.Empref) || empRef.EmprefNotFound)
             {
                 return RedirectToAction(ControllerConstants.PayeErrorActionName,
                     new
                     {
-                        NotFound = empref.EmprefNotFound
+                        NotFound = empRef.EmprefNotFound
                     });
             }
 
@@ -302,7 +302,7 @@ public class EmployerAccountController : BaseController
             return View(response);
         }
 
-        if (!model.IsOrganisationWithCorrectAddress.Value)
+        if (!model.IsOrganisationWithCorrectAddress.GetValueOrDefault())
         {
             return RedirectToRoute(RouteNames.OrganisationWrongAddress);
         }
@@ -342,14 +342,14 @@ public class EmployerAccountController : BaseController
 
         if (response.Status == HttpStatusCode.OK)
         {
-            var flashmessage = new FlashMessageViewModel
+            var flashMessage = new FlashMessageViewModel
             {
                 Headline = "Account renamed",
                 Message = "You successfully updated the account name",
                 Severity = FlashMessageSeverityLevel.Success
             };
 
-            AddFlashMessageToCookie(flashmessage);
+            AddFlashMessageToCookie(flashMessage);
 
             return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
         }
@@ -502,16 +502,18 @@ public class EmployerAccountController : BaseController
     [HttpPost]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     [Route("{hashedAccountId}/training-provider-triage", Name = RouteNames.TrainingProviderTriage)]
-    public IActionResult AddTrainingProviderTriage(string hashedAccountId, int? choice)
+    public async Task<IActionResult> AddTrainingProviderTriage(string hashedAccountId, int? choice, [FromServices] IUrlActionHelper urlHelper)
     {
+        var externalUserId = GetUserId();
+        
         switch (choice ?? 0)
         {
-            case 1: return Redirect("provider-relationships-url");
+            case 1: return Redirect(urlHelper.ProviderRelationshipsAction("providers"));
             case 2:
-                _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId);
+                await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
                 return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
             default:
-            {
+            { 
                 var model = new
                 {
                     InError = true
