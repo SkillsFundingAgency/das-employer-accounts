@@ -35,7 +35,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ContentBanner
            _configuration = new ContentClientApiConfiguration
             {
                 ApiBaseUrl = _apiBaseUrl,
-                IdentifierUri = _identifierUri                
+                IdentifierUri = string.Empty                
             };
 
             _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
