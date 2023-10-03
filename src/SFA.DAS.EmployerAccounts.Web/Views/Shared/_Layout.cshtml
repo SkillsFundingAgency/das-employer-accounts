@@ -9,7 +9,7 @@
 
 @{
     ViewBag.HideHeaderBorder = true;
-    string hashedAccountId = (string)this.ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] ?? "";
+    string hashedAccountId =  ViewBag.ShowNav ?? true ? (string)this.ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] ?? string.Empty : string.Empty;
     var footerModel = new FooterModel { AccountId = hashedAccountId, UsePrivacyV2 = true };
 }
 <!DOCTYPE html>
