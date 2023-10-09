@@ -127,6 +127,7 @@
     <Build Include="StoredProcedures\GetAccountsLinkedToLegalEntity.sql" />
     <PostDeploy Include="Scripts\PostDeployment\PostDeployment.sql" />
     <PreDeploy Include="Scripts\PreDeployment\PreDeployment.sql" />
+    <None Include="Scripts\Manual\MAC-317-V9_LegalAgreement.sql" />
     <None Include="Scripts\PostDeployment\SeedDevData.sql" />
     <None Include="Scripts\PreDeployment\AML-2381-DeleteDuplicateUserAccountSettings.sql" />
     <Build Include="Tables\ClientOutboxData.sql" />
