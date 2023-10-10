@@ -5,6 +5,7 @@ using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Factories;
+using SFA.DAS.EmployerAccounts.Infrastructure.AzureTokenService;
 using SFA.DAS.EmployerAccounts.Policies.Hmrc;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.TasksApi;
@@ -45,7 +46,7 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IPensionRegulatorService, PensionRegulatorService>();
 
         services.AddTransient<IDateTimeService, DateTimeService>();
-
+        services.AddTransient<IAzureServiceTokenProvider, AzureServiceTokenProvider>();
         services.AddSingleton<IEncodingService, EncodingService>();
 
         services.AddTransient<IUserAccountRepository, UserAccountRepository>();
