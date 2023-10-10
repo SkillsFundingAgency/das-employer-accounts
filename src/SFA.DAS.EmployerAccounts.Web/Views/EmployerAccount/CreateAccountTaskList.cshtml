@@ -97,7 +97,7 @@
                             <span class="das-task-list__task-name">
                                 Your employer agreement
                             </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Cannot start yet</strong>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-sign-agreement">Cannot start yet</strong>
                         }
                         else
                         {
@@ -108,15 +108,15 @@
                             </span>
                             if (!Model.Data.AgreementAcknowledged)
                             {
-                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>
+                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-sign-agreement">Not started</strong>
                             }
                             else if (Model.Data.HasSignedAgreement)
                             {
-                                <strong class="govuk-tag das-task-list__task-tag" id="status-set-account-name">Completed</strong>
+                                <strong class="govuk-tag das-task-list__task-tag" id="status-sign-agreement">Completed</strong>
                             }
                             else
                             {
-                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--blue" id="status-set-account-name">Pending</strong>
+                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--blue" id="status-sign-agreement">Pending</strong>
                             }
                         }
                     </li>
@@ -142,7 +142,14 @@
                                     Training provider
                                 </a>
                             </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Not started</strong>
+                            if (!Model.Data.HasProviders)
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Not started</strong>
+                            }
+                            else
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag" id="status-add-training-provider">Completed</strong>
+                            }
                         }
                     </li>
                     <li class="das-task-list__item">

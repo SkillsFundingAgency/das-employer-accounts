@@ -358,6 +358,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             {
                 response.Data.AgreementAcknowledged = agreement.Acknowledged ?? true;
                 response.Data.HasSignedAgreement = agreement.SignedDate.HasValue;
+                response.Data.HasProviders = employerAccountTaskListResponse.HasProviders;
+                response.Data.HasProviderPermissions = employerAccountTaskListResponse.HasProviderPermissions;
             }
         }
 
