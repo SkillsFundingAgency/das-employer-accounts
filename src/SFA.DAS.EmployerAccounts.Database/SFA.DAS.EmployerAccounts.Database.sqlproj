@@ -60,7 +60,6 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
-    <Folder Include="StoredProcedures" />
     <Folder Include="Views" />
     <Folder Include="Schemas" />
     <Folder Include="UserDefinedTypes" />
@@ -73,6 +72,9 @@
   <ItemGroup>
     <Build Include="StoredProcedures\Cleardown.sql" />
     <Build Include="StoredProcedures\CreateAccount.sql" />
+    <Build Include="StoredProcedures\CreateAuditMessage.sql" />
+    <Build Include="StoredProcedures\CreateChangedProperty.sql" />
+    <Build Include="StoredProcedures\CreateRelatedEntity.sql" />
     <Build Include="Tables\AuditMessage.sql" />
     <Build Include="Tables\ChangedProperties.sql" />
     <Build Include="Tables\RelatedEntities.sql" />

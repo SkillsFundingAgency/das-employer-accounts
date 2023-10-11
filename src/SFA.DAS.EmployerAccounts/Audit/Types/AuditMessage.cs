@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.EmployerAccounts.Audit.Types;
 
-public class AuditMessage
+public sealed class AuditMessage
 {
     public AuditEntity AffectedEntity { get; set; }
     public string Category { get; set; }
