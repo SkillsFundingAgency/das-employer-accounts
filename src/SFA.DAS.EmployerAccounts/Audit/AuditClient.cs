@@ -6,13 +6,13 @@ using SFA.DAS.EmployerAccounts.Audit.Types;
 
 namespace SFA.DAS.EmployerAccounts.Audit;
 
-public class AuditApiClient : IAuditApiClient
+public class AuditClient : IAuditClient
 {
     private readonly  HttpClient _httpClient;
     private readonly IAuditApiClientConfiguration _configuration;
     private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
-    public AuditApiClient(
+    public AuditClient(
         HttpClient httpClient, 
         IAuditApiClientConfiguration configuration,
         IAzureClientCredentialHelper azureClientCredentialHelper)

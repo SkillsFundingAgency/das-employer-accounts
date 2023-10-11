@@ -14,7 +14,7 @@ public static class AuditServiceRegistrations
         services.AddTransient<IAuditMessageBuilder, BaseAuditMessageBuilder>();
         services.AddTransient<IAuditMessageBuilder, ChangedByMessageBuilder>();
 
-        services.AddHttpClient<IAuditApiClient, AuditApiClient>();
+        services.AddHttpClient<IAuditClient, AuditClient>();
         services.AddTransient<IAuditService, AuditService>();
 
         return services;
