@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[CreateChangedProperty]
+﻿CREATE PROCEDURE [employer_account].[CreateChangedProperty]
 	@PropertyName varchar(50),
 	@NewValue varchar(max),
 	@MessageId uniqueidentifier

@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[CreateAuditMessage]
+﻿CREATE PROCEDURE [employer_account].[CreateAuditMessage]
 	@Id uniqueidentifier,
 	@AffectedEntityType varchar(255),
 	@AffectedEntityId varchar(255),
@@ -12,7 +12,7 @@
 	@ChangedByEmail varchar(255),
 	@ChangedByOriginIp varchar(50)
 AS
-	INSERT INTO [dbo].[AuditMessage]
+	INSERT INTO [employer_account].[AuditMessage]
 	(Id,AffectedEntityType,AffectedEntityId,Category,Description,SourceSystem,SourceComponent,SourceVersion,ChangedAt,ChangedById,ChangedByEmail,ChangedByOriginIp)
 	VALUES
 	(@Id,@AffectedEntityType,@AffectedEntityId,@Category,@Description,@SourceSystem,@SourceComponent,@SourceVersion,@ChangedAt,@ChangedById,@ChangedByEmail,@ChangedByOriginIp)
