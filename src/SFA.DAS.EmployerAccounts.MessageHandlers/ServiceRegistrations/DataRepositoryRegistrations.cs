@@ -15,6 +15,7 @@ public static class DataRepositoryRegistrations
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserAccountRepository, UserAccountRepository>();
+        services.AddScoped<IAuditRepository, AuditRepository>();
 
         return services;
     }
