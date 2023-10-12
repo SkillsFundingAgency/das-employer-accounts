@@ -4,5 +4,5 @@ namespace SFA.DAS.EmployerAccounts.Interfaces;
 
 public interface IEmployerAccountService
 {
-    Task<EmployerAccountTaskList> GetEmployerAccountTaskList(string hashedAccountId);
+    Task<EmployerAccountTaskList> GetEmployerAccountTaskList(long accountId, string hashedAccountId);
 }

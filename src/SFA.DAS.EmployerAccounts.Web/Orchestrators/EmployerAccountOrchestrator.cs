@@ -323,7 +323,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         else
         {
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-            var employerAccountTaskListResponse = await _employerAccountService.GetEmployerAccountTaskList(hashedAccountId);
+            var employerAccountTaskListResponse = await _employerAccountService.GetEmployerAccountTaskList(accountId, hashedAccountId);
 
             var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
             {

@@ -16,7 +16,7 @@ public class EmployerAccountService : IEmployerAccountService
         _outerApiClient = apiClient;
     }
     
-    public async Task<EmployerAccountTaskList> GetEmployerAccountTaskList(string hashedAccountId)
+    public async Task<EmployerAccountTaskList> GetEmployerAccountTaskList(long accountId, string hashedAccountId)
     {
         EmployerAccountTaskList taskList = null;
 
@@ -24,7 +24,7 @@ public class EmployerAccountService : IEmployerAccountService
         {
             _logger.LogInformation("Getting task list for account ID: {hashedAccountId}", hashedAccountId);
 
-            var taskListResponse = await _outerApiClient.Get<GetEmployerAccountTaskListResponse>(new GetEmployerAccountTaskListRequest(hashedAccountId));
+            var taskListResponse = await _outerApiClient.Get<GetEmployerAccountTaskListResponse>(new GetEmployerAccountTaskListRequest(accountId, hashedAccountId));
 
             if (taskListResponse != null)
             {
