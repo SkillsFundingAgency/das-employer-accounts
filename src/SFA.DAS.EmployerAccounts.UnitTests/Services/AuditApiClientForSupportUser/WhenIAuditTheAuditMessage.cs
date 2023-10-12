@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AuditApiClientForSupportUs
 {
     public class WhenIAuditTheAuditMessage
     {
-        private Audit.AuditClientForSupportUser _sut;
+        private AuditClientForSupportUser _sut;
         private AuditMessage _auditMessage;
         private string SupportConsoleUsers = "Tier1User,Tier2User";
         private Mock<IAuditClient> _mockInnerClient;
@@ -65,7 +65,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AuditApiClientForSupportUs
                 .Setup(m => m.HttpContext.User.FindFirst(ClaimTypes.Email))
                 .Returns(new Claim(ClaimTypes.Email, _supportUserEmail));
 
-            _sut = new Audit.AuditClientForSupportUser(_mockInnerClient.Object, _userContext);
+            _sut = new AuditClientForSupportUser(_mockInnerClient.Object, _userContext);
         }
 
         [Test]
