@@ -1,17 +1,17 @@
 ﻿namespace SFA.DAS.EmployerAccounts.Audit.Types;
 
-public class AuditMessageEntity
+public sealed class AuditMessageEntity
 {
-    public virtual Guid Id { get; set; } = Guid.NewGuid();
-    public virtual string AffectedEntityType { get; set; }
-    public virtual string AffectedEntityId { get; set; }
-    public virtual string Category { get; set; }
-    public virtual string Description { get; set; }
-    public virtual string SourceSystem { get; set; }
-    public virtual string SourceComponent { get; set; }
-    public virtual string SourceVersion { get; set; }
-    public virtual DateTime ChangedAt { get; set; }
-    public virtual string ChangedById { get; set; }
-    public virtual string ChangedByEmail { get; set; }
-    public virtual string ChangedByOriginIp { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string AffectedEntityType { get; set; }
+    public string AffectedEntityId { get; set; }
+    public string Category { get; set; }
+    public string Description { get; set; }
+    public string SourceSystem { get; set; }
+    public string SourceComponent { get; set; }
+    public string SourceVersion { get; set; }
+    public DateTime ChangedAt { get; set; }
+    public string ChangedById { get; set; }
+    public string ChangedByEmail { get; set; }
+    public string ChangedByOriginIp { get; set; }
 }
