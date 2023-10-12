@@ -9,9 +9,10 @@ public class AuditClient : IAuditClient
 
     public AuditClient(IAuditRepository auditRepository) => _auditRepository = auditRepository;
 
-
-    public async Task Audit(AuditMessage message)
+    public Task Audit(AuditMessage message)
     {
-        await _auditRepository.Store(message);
+        _auditRepository.Store(message);
+
+        return Task.CompletedTask;
     }
 }
