@@ -127,8 +127,13 @@ public class EmployerAgreementController : BaseController
 
         if (choice == SignEmployerAgreementViewModel.ReviewAgreementLater)
         {
-            _ = await _orchestrator.AcknowledgeAgreement(hashedAgreementId, hasPreviousAcknowledgement);
+            _ = await _orchestrator.AcknowledgeAgreement(hashedAccountId, hashedAgreementId, userInfo, legalEntityName, hasPreviousAcknowledgement);
 
+            if (!hasPreviousAcknowledgement)
+            {
+                return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
+            }
+            
             return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
         }
 

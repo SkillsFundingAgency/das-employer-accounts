@@ -301,6 +301,8 @@ public class EmployerAgreementControllerTests
     public async Task SignAgreement_Later_ShouldAcknowledgeAgreement(SignEmployerAgreementViewModel viewModel)
     {
         // Arrange 
+        viewModel.PreviouslySignedEmployerAgreement = null;
+        viewModel.EmployerAgreement.Acknowledged = false;
         _orchestratorMock
             .Setup(x => x.GetSignedAgreementViewModel(HashedAccountId, HashedAgreementId, UserId))
             .ReturnsAsync(new OrchestratorResponse<SignEmployerAgreementViewModel>
@@ -314,8 +316,12 @@ public class EmployerAgreementControllerTests
         // Assert
         _orchestratorMock
             .Verify(m => m.AcknowledgeAgreement(
+                HashedAccountId,
                 HashedAgreementId,
-                viewModel.HasAcknowledgedAgreement));
-        actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
+                UserId,
+                viewModel.EmployerAgreement.LegalEntityName,
+                viewModel.HasAcknowledgedAgreement
+                ));
+        actualResult.RouteName.Should().Be(RouteNames.CreateAccountSuccess);
     }
 }

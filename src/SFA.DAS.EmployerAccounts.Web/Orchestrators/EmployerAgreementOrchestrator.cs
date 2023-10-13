@@ -114,16 +114,29 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
     }
 
     public virtual async Task<OrchestratorResponse> AcknowledgeAgreement(
+        string hashedAccountId,
         string hashedAgreementId,
+        string externalUserId,
+        string legalEntityName,
         bool hasPreviousAcknowledgement)
     {
         try
         {
             if (!hasPreviousAcknowledgement)
             {
+                var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
                 var agreementId = _encodingService.Decode(hashedAgreementId, EncodingType.AccountId);
 
                 await _mediator.Send(new AcknowledgeEmployerAgreementCommand(agreementId));
+                
+                await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+                {
+                    AccountId = accountId,
+                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
+                    HashedAccountId = hashedAccountId,
+                    ExternalUserId = externalUserId,
+                    OrganisationName = legalEntityName,
+                });
             }
 
             return new OrchestratorResponse
