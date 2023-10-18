@@ -370,9 +370,10 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName", Name = RouteNames.AccountName)]
-    public async Task<IActionResult> AccountName(string hashedAccountId)
+    public async Task<IActionResult> AccountName(string hashedAccountId, bool nameConfirmed)
     {
         var vm = await GetRenameViewModel(hashedAccountId);
+        vm.Data.NameConfirmed = nameConfirmed;
         return View(vm);
     }
 
@@ -404,7 +405,7 @@ public class EmployerAccountController : BaseController
 
                     if (response.Status == HttpStatusCode.OK)
                     {                        
-                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
+                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId, chosenName = Uri.EscapeDataString(vm.LegalEntityName), vm.NameConfirmed });
                     }
 
                     response.Data = vm;
@@ -459,9 +460,13 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName/confirm/success", Name = RouteNames.AccountNameConfirmSuccess)]
-    public IActionResult AccountNameConfirmSuccess(string hashedAccountId)
+    public IActionResult AccountNameConfirmSuccess(string hashedAccountId, string chosenName, bool nameConfirmed)
     {
-        return View();
+        return View(new AccountNameConfirmSuccessViewModel
+        {
+            NameConfirmed = nameConfirmed,
+            Name = Uri.UnescapeDataString(chosenName)
+        });        
     }
 
     [HttpGet]
@@ -514,7 +519,7 @@ public class EmployerAccountController : BaseController
 
     private async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> GetRenameViewModel(string hashedAccountId)
     {
-        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, GetUserId());
+        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, GetUserId());        
         return vm;
     }
 
