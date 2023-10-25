@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +18,7 @@ using SFA.DAS.EmployerAccounts.Api.ErrorHandler;
 using SFA.DAS.EmployerAccounts.Api.Extensions;
 using SFA.DAS.EmployerAccounts.Api.Filters;
 using SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
+using SFA.DAS.EmployerAccounts.AppStart;
 using SFA.DAS.EmployerAccounts.Authorisation;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data;
@@ -116,7 +116,7 @@ public class Startup
         // which would require upgrading to NET6 to resolve.
         var serviceDescriptor = serviceProvider.FirstOrDefault(serv => serv.ServiceType == typeof(IClientOutboxStorageV2));
         serviceProvider.Remove(serviceDescriptor);
-        serviceProvider.AddScoped<IClientOutboxStorageV2, AppStart.ClientOutboxPersisterV2>();
+        serviceProvider.AddScoped<IClientOutboxStorageV2, ClientOutboxPersisterV2>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
