@@ -27,20 +27,24 @@ namespace SFA.DAS.EmployerAccounts.AppStart
 
         public async Task<IClientOutboxTransaction> BeginTransactionAsync()
         {
-            var obj = await _connectionBuilder.OpenConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
-            var transaction = await obj.BeginTransactionAsync();
-            return new SqlClientOutboxTransaction(obj, transaction);
+            await using var dbConnection = await _connectionBuilder.OpenConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
+            await using var transaction = await dbConnection.BeginTransactionAsync();
+            
+            return new SqlClientOutboxTransaction(dbConnection, transaction);
         }
 
         public async Task<ClientOutboxMessageV2> GetAsync(Guid messageId, SynchronizedStorageSession synchronizedStorageSession)
         {
             var sqlStorageSession = synchronizedStorageSession.GetSqlStorageSession();
             await using var command = sqlStorageSession.Connection.CreateCommand();
+          
             command.CommandText = "SELECT EndpointName, Operations FROM dbo.ClientOutboxData WHERE MessageId = @MessageId";
             command.CommandType = CommandType.Text;
             command.Transaction = sqlStorageSession.Transaction;
             command.AddParameter("MessageId", messageId);
+           
             await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(continueOnCapturedContext: false);
+            
             if (await reader.ReadAsync().ConfigureAwait(continueOnCapturedContext: false))
             {
                 var @string = reader.GetString(0);
@@ -58,11 +62,14 @@ namespace SFA.DAS.EmployerAccounts.AppStart
         {
             await using var connection = await _connectionBuilder.OpenConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
             await using var command = connection.CreateCommand();
+         
             command.CommandText = "SELECT MessageId, EndpointName FROM dbo.ClientOutboxData WHERE Dispatched = 0 AND CreatedAt <= @CreatedAt AND PersistenceVersion = '2.0.0' ORDER BY CreatedAt";
             command.CommandType = CommandType.Text;
             command.AddParameter("CreatedAt", _dateTimeService.UtcNow.AddSeconds(-10.0));
+            
             await using var reader = await command.ExecuteReaderAsync().ConfigureAwait(continueOnCapturedContext: false);
             var clientOutboxMessages = new List<IClientOutboxMessageAwaitingDispatch>();
+            
             while (await reader.ReadAsync().ConfigureAwait(continueOnCapturedContext: false))
             {
                 var guid = reader.GetGuid(0);
@@ -78,10 +85,12 @@ namespace SFA.DAS.EmployerAccounts.AppStart
         {
             await using var connection = await _connectionBuilder.OpenConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
             await using var command = connection.CreateCommand();
+          
             command.CommandText = "UPDATE dbo.ClientOutboxData SET Dispatched = 1, DispatchedAt = @DispatchedAt, Operations = '[]' WHERE MessageId = @MessageId";
             command.CommandType = CommandType.Text;
             command.AddParameter("MessageId", messageId);
             command.AddParameter("DispatchedAt", _dateTimeService.UtcNow);
+            
             await command.ExecuteNonQueryAsync().ConfigureAwait(continueOnCapturedContext: false);
         }
 
@@ -89,11 +98,13 @@ namespace SFA.DAS.EmployerAccounts.AppStart
         {
             var sqlStorageSession = synchronizedStorageSession.GetSqlStorageSession();
             await using var dbCommand = sqlStorageSession.Connection.CreateCommand();
+           
             dbCommand.CommandText = "UPDATE dbo.ClientOutboxData SET Dispatched = 1, DispatchedAt = @DispatchedAt, Operations = '[]' WHERE MessageId = @MessageId";
             dbCommand.CommandType = CommandType.Text;
             dbCommand.Transaction = sqlStorageSession.Transaction;
             dbCommand.AddParameter("MessageId", messageId);
             dbCommand.AddParameter("DispatchedAt", _dateTimeService.UtcNow);
+            
             await dbCommand.ExecuteNonQueryAsync();
         }
 
@@ -101,6 +112,7 @@ namespace SFA.DAS.EmployerAccounts.AppStart
         {
             var sqlClientOutboxTransaction = (SqlClientOutboxTransaction)clientOutboxTransaction;
             await using var dbCommand = sqlClientOutboxTransaction.Connection.CreateCommand();
+           
             dbCommand.CommandText = "INSERT INTO dbo.ClientOutboxData (MessageId, EndpointName, CreatedAt, PersistenceVersion, Operations) VALUES (@MessageId, @EndpointName, @CreatedAt, '2.0.0', @Operations)";
             dbCommand.CommandType = CommandType.Text;
             dbCommand.Transaction = sqlClientOutboxTransaction.Transaction;
@@ -118,7 +130,9 @@ namespace SFA.DAS.EmployerAccounts.AppStart
         public async Task RemoveEntriesOlderThanAsync(DateTime oldest, CancellationToken cancellationToken)
         {
             await using var connection = await _connectionBuilder.OpenConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
+            
             var flag = false;
+           
             while (!cancellationToken.IsCancellationRequested && !flag)
             {
                 await using var command = connection.CreateCommand();
