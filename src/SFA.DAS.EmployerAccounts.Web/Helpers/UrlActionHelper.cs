@@ -122,7 +122,7 @@ public class UrlActionHelper : IUrlActionHelper
     {
         var baseUrl = _configuration.EmployerAanBaseUrl;
 
-        return NonAccountsAction(baseUrl, path);
+        return AccountAction(baseUrl, path);
     }
 
     public string EmployerProfileAddUserDetails(string path = "")
