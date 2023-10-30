@@ -118,7 +118,7 @@ public class UrlActionHelper : IUrlActionHelper
         return NonAccountsAction(baseUrl, path);
     }
 
-    public string EmployerAanAction(string path)
+    public string EmployerAanAction(string path = "")
     {
         var baseUrl = _configuration.EmployerAanBaseUrl;
 
