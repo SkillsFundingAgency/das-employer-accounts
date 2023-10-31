@@ -49,7 +49,6 @@ public static class HostBuilderExtensions
             services.AddMemoryCache();
             services.AddCachesRegistrations();
             services.AddDatabaseRegistration();
-            services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddEventsApi();
             services.AddAuditServices();
             services.AddHttpContextAccessor();
