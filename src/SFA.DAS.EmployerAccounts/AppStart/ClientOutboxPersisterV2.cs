@@ -27,8 +27,8 @@ namespace SFA.DAS.EmployerAccounts.AppStart
 
         public async Task<IClientOutboxTransaction> BeginTransactionAsync()
         {
-            await using var dbConnection = await _connectionBuilder.OpenConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
-            await using var transaction = await dbConnection.BeginTransactionAsync();
+            var dbConnection = await _connectionBuilder.OpenConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
+            var transaction = await dbConnection.BeginTransactionAsync();
             
             return new SqlClientOutboxTransaction(dbConnection, transaction);
         }
