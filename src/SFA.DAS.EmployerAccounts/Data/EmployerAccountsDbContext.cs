@@ -12,6 +12,8 @@ namespace SFA.DAS.EmployerAccounts.Data;
 
 public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
 {
+    private const string DbSchemaName = "employer_account";
+    
     private readonly EmployerAccountsConfiguration _configuration;
     private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
@@ -51,12 +53,11 @@ public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
         }
 
         optionsBuilder.UseSqlServer(_connection as SqlConnection);
-
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("employer_account");
+        modelBuilder.HasDefaultSchema(DbSchemaName);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EmployerAccountsDbContext).Assembly);
     }
