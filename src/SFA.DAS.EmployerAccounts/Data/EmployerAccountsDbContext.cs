@@ -16,7 +16,6 @@ public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
     private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
     private readonly IDbConnection _connection;
-
     public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
     public virtual DbSet<Account> Accounts { get; set; }
     public virtual DbSet<AccountHistory> AccountHistory { get; set; }
@@ -60,5 +59,12 @@ public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
         modelBuilder.HasDefaultSchema("employer_account");
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EmployerAccountsDbContext).Assembly);
+    }
+
+    public override void Dispose()
+    {
+        _connection?.Dispose();
+        
+        base.Dispose();
     }
 }
