@@ -17,27 +17,30 @@ public class AuditRepository : IAuditRepository
     {
         var messageEntity = MapDomainToEntity(message);
 
-        await _db.Value.Database.GetDbConnection().ExecuteAsync(
+        var connection = _db.Value.Database.GetDbConnection();
+        var currentTransaction = _db.Value.Database.CurrentTransaction?.GetDbTransaction();
+        
+        await connection.ExecuteAsync(
             sql: "[employer_account].[CreateAuditMessage]",
             param: messageEntity,
-            transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
+            transaction: currentTransaction,
             commandType: CommandType.StoredProcedure);
         
         foreach (var entity in message.RelatedEntities)
         {
-            await _db.Value.Database.GetDbConnection().ExecuteAsync(
+            await connection.ExecuteAsync(
                 sql: "[employer_account].[CreateRelatedEntity]",
                 param: new { EntityType = entity.Type, EntityId = entity.Id, MessageId = messageEntity.Id },
-                transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
+                transaction: currentTransaction,
                 commandType: CommandType.StoredProcedure);
         }
         
         foreach (var update in message.ChangedProperties)
         {
-            await _db.Value.Database.GetDbConnection().ExecuteAsync(
+            await connection.ExecuteAsync(
                 sql: "[employer_account].[CreateChangedProperty]",
                 param:  new { update.PropertyName, update.NewValue, MessageId = messageEntity.Id },
-                transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
+                transaction: currentTransaction,
                 commandType: CommandType.StoredProcedure);
         }
     }

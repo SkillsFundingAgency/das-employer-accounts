@@ -25,14 +25,15 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
         var validationResult = _validator.Validate(message);
 
         if (!validationResult.IsValid())
+        {
             throw new InvalidRequestException(validationResult.ValidationDictionary);
+        }
 
         await _accountRepository.UpdateUserAccountSettings(message.UserRef, message.Settings);
 
-        foreach (var setting in message.Settings)
-        {
-            await AddAuditEntry(setting);
-        }
+        var auditTasks = message.Settings.Select(AddAuditEntry).ToList();
+
+        await Task.WhenAll(auditTasks);
     }
 
     private async Task AddAuditEntry(UserNotificationSetting setting)
@@ -42,17 +43,19 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
             EasAuditMessage = new AuditMessage
             {
                 Category = "UPDATED",
-                Description =
-                    $"User {setting.UserId} has updated email notification setting for account {setting.HashedAccountId}",
+                Description = $"User {setting.UserId} has updated email notification setting for account {setting.HashedAccountId}",
                 ChangedProperties = new List<PropertyUpdate>
                 {
-                    new PropertyUpdate
+                    new()
                     {
                         PropertyName = "ReceiveNotifications",
                         NewValue = setting.ReceiveNotifications.ToString()
                     }
                 },
-                RelatedEntities = new List<AuditEntity> { new AuditEntity { Id = setting.UserId.ToString(), Type = "User" } },
+                RelatedEntities = new List<AuditEntity>
+                {
+                    new() { Id = setting.UserId.ToString(), Type = "User" }
+                },
                 AffectedEntity = new AuditEntity { Type = "UserAccountSetting", Id = setting.Id.ToString() }
             }
         });
