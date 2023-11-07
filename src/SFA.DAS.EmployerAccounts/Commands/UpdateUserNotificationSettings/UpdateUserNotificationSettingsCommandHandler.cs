@@ -29,11 +29,11 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        await _accountRepository.UpdateUserAccountSettings(message.UserRef, message.Settings);
+        var tasks = message.Settings.Select(AddAuditEntry).ToList();
 
-        var auditTasks = message.Settings.Select(AddAuditEntry).ToList();
+        tasks.Add(_accountRepository.UpdateUserAccountSettings(message.UserRef, message.Settings));
 
-        await Task.WhenAll(auditTasks);
+        await Task.WhenAll(tasks);
     }
 
     private async Task AddAuditEntry(UserNotificationSetting setting)
@@ -43,7 +43,8 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
             EasAuditMessage = new AuditMessage
             {
                 Category = "UPDATED",
-                Description = $"User {setting.UserId} has updated email notification setting for account {setting.HashedAccountId}",
+                Description =
+                    $"User {setting.UserId} has updated email notification setting for account {setting.HashedAccountId}",
                 ChangedProperties = new List<PropertyUpdate>
                 {
                     new()
