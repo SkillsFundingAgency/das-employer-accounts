@@ -29,20 +29,11 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        //var tasks = message.Settings.Select(AddAuditEntry).ToList();
-
         var tasks = message.Settings.Select(setting => _mediator.Send(CreateAuditCommand(setting), cancellationToken)).ToList();
 
         tasks.Add(_accountRepository.UpdateUserAccountSettings(message.UserRef, message.Settings));
 
         await Task.WhenAll(tasks);
-    }
-    
-    private Task AddAuditEntry(UserNotificationSetting setting)
-    {
-        _mediator.Send(CreateAuditCommand(setting));
-
-        return Task.CompletedTask;
     }
 
     private static CreateAuditCommand CreateAuditCommand(UserNotificationSetting setting)
