@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.UpdateUserNotificationSettings;
@@ -30,7 +31,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UpdateUserNotificationSett
                 It.IsAny<List<UserNotificationSetting>>()
             )).Returns(() => Task.FromResult(new Unit()));
 
-            _handler = new UpdateUserNotificationSettingsCommandHandler(_repository.Object, _validator.Object, Mock.Of<IMediator>());
+            _handler = new UpdateUserNotificationSettingsCommandHandler(_repository.Object, _validator.Object, Mock.Of<IMediator>(), Mock.Of<ILogger<UpdateUserNotificationSettingsCommandHandler>>());
         }
 
         [Test]
