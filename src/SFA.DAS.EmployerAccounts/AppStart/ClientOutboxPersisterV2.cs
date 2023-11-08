@@ -43,7 +43,7 @@ namespace SFA.DAS.EmployerAccounts.AppStart
             command.Transaction = sqlStorageSession.Transaction;
             command.AddParameter("MessageId", messageId);
            
-            var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(continueOnCapturedContext: false);
+            await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(continueOnCapturedContext: false);
             
             if (await reader.ReadAsync().ConfigureAwait(continueOnCapturedContext: false))
             {
