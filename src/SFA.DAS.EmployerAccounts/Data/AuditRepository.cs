@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -17,30 +18,27 @@ public class AuditRepository : IAuditRepository
     {
         var messageEntity = MapDomainToEntity(message);
 
-        var connection = _db.Value.Database.GetDbConnection();
-        var currentTransaction = _db.Value.Database.CurrentTransaction?.GetDbTransaction();
-        
-        await connection.ExecuteAsync(
+        await _db.Value.Database.GetDbConnection().ExecuteAsync(
             sql: "[employer_account].[CreateAuditMessage]",
             param: messageEntity,
-            transaction: currentTransaction,
+            transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
             commandType: CommandType.StoredProcedure);
         
         foreach (var entity in message.RelatedEntities)
         {
-            await connection.ExecuteAsync(
+            await _db.Value.Database.GetDbConnection().ExecuteAsync(
                 sql: "[employer_account].[CreateRelatedEntity]",
                 param: new { EntityType = entity.Type, EntityId = entity.Id, MessageId = messageEntity.Id },
-                transaction: currentTransaction,
+                transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
                 commandType: CommandType.StoredProcedure);
         }
         
         foreach (var update in message.ChangedProperties)
         {
-            await connection.ExecuteAsync(
+            await _db.Value.Database.GetDbConnection().ExecuteAsync(
                 sql: "[employer_account].[CreateChangedProperty]",
                 param:  new { update.PropertyName, update.NewValue, MessageId = messageEntity.Id },
-                transaction: currentTransaction,
+                transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
                 commandType: CommandType.StoredProcedure);
         }
     }
