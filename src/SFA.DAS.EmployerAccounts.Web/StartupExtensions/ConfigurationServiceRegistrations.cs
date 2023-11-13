@@ -33,6 +33,7 @@ public static class ConfigurationServiceRegistrations
         services.AddSingleton(encodingConfig);
 
         services.AddSingleton<IHmrcConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().Hmrc);
+        services.AddSingleton<EmployerAccountsOuterApiConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().EmployerAccountsOuterApiConfiguration);
         services.AddSingleton<ITokenServiceApiClientConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().TokenServiceApi);
         services.AddSingleton<ITaskApiConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().TasksApi);
         services.AddSingleton<IReferenceDataApiConfiguration>(cfg =>cfg.GetService<EmployerAccountsConfiguration>().ReferenceDataApi);

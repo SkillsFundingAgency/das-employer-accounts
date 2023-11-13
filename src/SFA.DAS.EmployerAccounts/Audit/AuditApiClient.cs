@@ -8,7 +8,7 @@ namespace SFA.DAS.EmployerAccounts.Audit;
 
 public class AuditApiClient : IAuditApiClient
 {
-    private readonly  HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
     private readonly IAuditApiClientConfiguration _configuration;
     private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
@@ -30,7 +30,7 @@ public class AuditApiClient : IAuditApiClient
 
     public async Task Audit(AuditMessage message)
     {
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "api/audit");
+        using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "api/audit");
         httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(message), System.Text.Encoding.UTF8, "application/json");
 
         await AddAuthenticationHeader(httpRequestMessage);

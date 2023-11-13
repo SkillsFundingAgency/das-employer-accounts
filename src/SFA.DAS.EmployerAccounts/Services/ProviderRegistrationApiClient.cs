@@ -24,37 +24,40 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         _logger = logger;
     }
 
-    public async Task Unsubscribe(string CorrelationId)
+    public async Task Unsubscribe(string correlationId)
     {
-        await AddAuthenticationHeader();           
+        var url = $"{_apiBaseUrl}api/unsubscribe/{correlationId}";
 
-        var url = $"{_apiBaseUrl}api/unsubscribe/{CorrelationId}";
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+        await AddAuthenticationHeaders(request);
 
         _logger.LogInformation("Getting Unsubscribe {Url}", url);
 
-        await _client.GetAsync(url);
+        await _client.SendAsync(request);
     }
 
-    public async Task<string> GetInvitations(string CorrelationId)
+    public async Task<string> GetInvitations(string correlationId)
     {
-        await AddAuthenticationHeader();
-            
-        var url = $"{_apiBaseUrl}api/invitations/{CorrelationId}";
+        var url = $"{_apiBaseUrl}api/invitations/{correlationId}";
         _logger.LogInformation("Getting Invitations {Url}", url);
-        var response = await _client.GetAsync(url);
+        
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        
+        using var response =  await _client.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
     }
-
-    private async Task AddAuthenticationHeader()
+    
+    private async Task AddAuthenticationHeaders(HttpRequestMessage httpRequestMessage)
     {
         if (!string.IsNullOrEmpty(_identifierUri))
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
             var accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(_identifierUri);
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }
 }
