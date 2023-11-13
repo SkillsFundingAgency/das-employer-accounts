@@ -61,3 +61,11 @@ BEGIN
 	VALUES (9, '_Agreement_V8', 8, 2, GETDATE(), Convert(DateTime,'2022-10-26')) 
 	SET IDENTITY_INSERT [employer_account].[EmployerAgreementTemplate] OFF
 END
+
+IF (NOT EXISTS (SELECT 1 FROM [employer_account].[EmployerAgreementTemplate] WHERE PartialViewName = '_Agreement_V9'))
+BEGIN 
+	SET IDENTITY_INSERT [employer_account].[EmployerAgreementTemplate] ON
+	INSERT INTO [employer_account].[EmployerAgreementTemplate] (Id, PartialViewName, VersionNumber, AgreementType, CreatedDate, PublishedDate)
+	VALUES (10, '_Agreement_V9', 9, 2, GETDATE(), Convert(DateTime,'2023-10-31')) 
+	SET IDENTITY_INSERT [employer_account].[EmployerAgreementTemplate] OFF
+END
