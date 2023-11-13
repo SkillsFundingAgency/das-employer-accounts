@@ -13,7 +13,7 @@ public static class DatabaseServiceRegistrations
         {
             var dbConnection = DatabaseExtensions.GetSqlConnection(sp.GetService<EmployerAccountsConfiguration>().DatabaseConnectionString);
             options.UseSqlServer(dbConnection);
-        }, ServiceLifetime.Transient);
+        });
 
         services.AddScoped(provider => new Lazy<EmployerAccountsDbContext>(provider.GetService<EmployerAccountsDbContext>()));
 
