@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SFA.DAS.EmployerAccounts.Infrastructure;
-using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers;
 
@@ -15,13 +14,11 @@ public abstract class ControllerTestBase
     protected ControllerContext ControllerContext;
     protected Mock<HttpResponse> HttpResponse = new();
     protected RouteData Routes;
-    protected Mock<ILog> Logger;
     protected Mock<IMediator> Mediator;
     protected const string UserId = "USER_ID";
 
     public virtual void Arrange(string redirectUrl = "http://localhost/testpost")
     {
-        Logger = new Mock<ILog>();
         Mediator = new Mock<IMediator>();
 
         Routes = new RouteData();

@@ -2,6 +2,7 @@
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
@@ -30,7 +31,7 @@ public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
     public virtual DbSet<UserAccountSetting> UserAccountSettings { get; set; }
     public virtual DbSet<RunOnceJob> RunOnceJobs { get; set; }
     public virtual DbSet<Paye> Payees { get; set; }
-
+    
     // For tests
     public EmployerAccountsDbContext() { }
 
