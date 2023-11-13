@@ -390,7 +390,7 @@ public class EmployerAccountController : BaseController
                     if (string.IsNullOrEmpty(vm.NewName) || vm.NewName == vm.CurrentName)
                     {
                         // Model validation failed, return the view with validation errors
-                        vm.ErrorDictionary.Add(nameof(vm.NewName), "You have not changed your employer account name. Select cancel if you do not want to make any changes or continue if you want to use this");
+                        vm.ErrorDictionary.Add(nameof(vm.NewName), "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name.");
                         response.Data = vm;
                         response.Status = response.Status = HttpStatusCode.BadRequest;
                         return View(response);
