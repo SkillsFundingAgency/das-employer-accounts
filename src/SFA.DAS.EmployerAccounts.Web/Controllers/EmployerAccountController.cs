@@ -396,7 +396,7 @@ public class EmployerAccountController : BaseController
                         return View(response);
                     }
 
-                    return RedirectToRoute(RouteNames.AccountNameConfirm, new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
+                    return RedirectToRoute(RouteNames.AccountNameConfirm, new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName), vm.NameConfirmed });
                 }
             case false:
                 {
@@ -425,12 +425,13 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName/confirm", Name = RouteNames.AccountNameConfirm)]
-    public IActionResult AccountNameConfirm(string hashedAccountId, string newAccountName)
+    public IActionResult AccountNameConfirm(string hashedAccountId, string newAccountName, bool nameConfirmed)
     {
         return View(new RenameEmployerAccountViewModel
         {
             ChangeAccountName = true,
-            NewName = Uri.UnescapeDataString(newAccountName)
+            NewName = Uri.UnescapeDataString(newAccountName),
+            NameConfirmed = nameConfirmed
         });
     }
 
@@ -443,7 +444,7 @@ public class EmployerAccountController : BaseController
 
         if (response.Status == HttpStatusCode.OK)
         {            
-            return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
+            return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId, vm.NameConfirmed });
         }
 
         response.Data = vm;
@@ -471,9 +472,10 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName/success", Name = RouteNames.AccountNameSuccess)]
-    public async Task<IActionResult> AccountNameSuccess(string hashedAccountId)
+    public async Task<IActionResult> AccountNameSuccess(string hashedAccountId, bool nameConfirmed)
     {
         var vm = await GetRenameViewModel(hashedAccountId);
+        vm.Data.NameConfirmed = nameConfirmed;
         return View(vm);
     }
     
