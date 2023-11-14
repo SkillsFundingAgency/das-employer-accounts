@@ -2,6 +2,7 @@
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
@@ -12,11 +13,12 @@ namespace SFA.DAS.EmployerAccounts.Data;
 
 public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
 {
+    private const string DbSchemaName = "employer_account";
+    
     private readonly EmployerAccountsConfiguration _configuration;
     private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
     private readonly IDbConnection _connection;
-
     public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
     public virtual DbSet<Account> Accounts { get; set; }
     public virtual DbSet<AccountHistory> AccountHistory { get; set; }
@@ -29,7 +31,7 @@ public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
     public virtual DbSet<UserAccountSetting> UserAccountSettings { get; set; }
     public virtual DbSet<RunOnceJob> RunOnceJobs { get; set; }
     public virtual DbSet<Paye> Payees { get; set; }
-
+    
     // For tests
     public EmployerAccountsDbContext() { }
 
@@ -52,13 +54,19 @@ public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
         }
 
         optionsBuilder.UseSqlServer(_connection as SqlConnection);
-
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("employer_account");
+        modelBuilder.HasDefaultSchema(DbSchemaName);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EmployerAccountsDbContext).Assembly);
+    }
+
+    public override void Dispose()
+    {
+        _connection?.Dispose();
+        
+        base.Dispose();
     }
 }

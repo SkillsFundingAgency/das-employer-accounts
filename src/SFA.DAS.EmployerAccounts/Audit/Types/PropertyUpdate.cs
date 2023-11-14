@@ -2,10 +2,10 @@
 
 namespace SFA.DAS.EmployerAccounts.Audit.Types;
 
-public class PropertyUpdate
+public sealed class PropertyUpdate
 {
-    public string PropertyName { get; set; }
-    public string NewValue { get; set; }
+    public string PropertyName { get; init; }
+    public string NewValue { get; init; }
 
     public static PropertyUpdate FromString(string propertyName, string newValue)
     {
