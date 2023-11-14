@@ -11,7 +11,6 @@ using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Reservations;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Services;
-using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Reservations
 {

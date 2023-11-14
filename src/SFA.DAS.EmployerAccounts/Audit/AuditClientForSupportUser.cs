@@ -5,12 +5,12 @@ using SFA.DAS.EmployerUsers.WebClientComponents;
 
 namespace SFA.DAS.EmployerAccounts.Audit;
 
-public class AuditApiClientForSupportUser : IAuditApiClient
+public class AuditClientForSupportUser : IAuditClient
 {
-    private readonly IAuditApiClient _client;
+    private readonly IAuditClient _client;
     private readonly IUserContext _userContext;
 
-    public AuditApiClientForSupportUser(IAuditApiClient client, IUserContext userContext)
+    public AuditClientForSupportUser(IAuditClient client, IUserContext userContext)
     {
         _client = client;
         _userContext = userContext;

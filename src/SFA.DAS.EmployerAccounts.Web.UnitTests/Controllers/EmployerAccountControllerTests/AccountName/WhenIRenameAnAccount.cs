@@ -17,6 +17,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
     private Mock<IMediator> _mediator;
     private const string ExpectedRedirectUrl = "http://redirect.local.test";
+    private const string AccountNameErrorMessage = "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name.";
 
     [SetUp]
     public void Arrange()
@@ -87,7 +88,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
         //Assert
-        model.Data.NewNameError.Should().Be("You have not changed your employer account name. Select cancel if you do not want to make any changes or continue if you want to use this");
+        model.Data.NewNameError.Should().Be(AccountNameErrorMessage);
     }
     
     [Test, MoqAutoData]
@@ -106,7 +107,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
         //Assert
-        model.Data.NewNameError.Should().Be("You have not changed your employer account name. Select cancel if you do not want to make any changes or continue if you want to use this");
+        model.Data.NewNameError.Should().Be(AccountNameErrorMessage);
     }
     
     [Test, MoqAutoData]

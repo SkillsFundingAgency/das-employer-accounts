@@ -8,7 +8,6 @@ using SFA.DAS.EmployerAccounts.Queries.GetGatewayToken;
 using SFA.DAS.EmployerAccounts.Queries.GetHmrcEmployerInformation;
 using SFA.DAS.EmployerAccounts.Queries.GetMember;
 using SFA.DAS.Encoding;
-using SFA.DAS.NLog.Logger;
 using EmpRefLevyInformation = HMRC.ESFA.Levy.Api.Types.EmpRefLevyInformation;
 using Name = HMRC.ESFA.Levy.Api.Types.Name;
 

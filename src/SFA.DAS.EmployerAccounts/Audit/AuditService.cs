@@ -6,13 +6,13 @@ namespace SFA.DAS.EmployerAccounts.Audit;
 
 public class AuditService : IAuditService
 {
-    private readonly IAuditApiClient _auditApiClient;
+    private readonly IAuditClient _auditClient;
     private readonly IEnumerable<IAuditMessageBuilder> _builders;
     private readonly ILogger<AuditService> _logger;
 
-    public AuditService(IAuditApiClient auditApiClient, IEnumerable<IAuditMessageBuilder> builders, ILogger<AuditService> logger)
+    public AuditService(IAuditClient auditClient, IEnumerable<IAuditMessageBuilder> builders, ILogger<AuditService> logger)
     {
-        _auditApiClient = auditApiClient;
+        _auditClient = auditClient;
         _builders = builders;
         _logger = logger;
     }
@@ -26,7 +26,6 @@ public class AuditService : IAuditService
                 builder.Build(message);
             }
 
-
             // ?
             message.Category = message.Category;
             message.Description = message.Description;
@@ -34,7 +33,7 @@ public class AuditService : IAuditService
             message.RelatedEntities = message.RelatedEntities;
             message.AffectedEntity = message.AffectedEntity;
 
-            await _auditApiClient.Audit(message);
+            await _auditClient.Audit(message);
         }
         catch (Exception exception)
         {
