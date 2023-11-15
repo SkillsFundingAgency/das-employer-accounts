@@ -405,7 +405,7 @@ public class EmployerAccountController : BaseController
 
                     if (response.Status == HttpStatusCode.OK)
                     {                        
-                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId, chosenName = Uri.EscapeDataString(vm.LegalEntityName), vm.NameConfirmed });
+                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId, chosenName = Uri.EscapeDataString(vm.LegalEntityName) });
                     }
 
                     response.Data = vm;
@@ -461,11 +461,10 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName/confirm/success", Name = RouteNames.AccountNameConfirmSuccess)]
-    public IActionResult AccountNameConfirmSuccess(string hashedAccountId, string chosenName, bool nameConfirmed)
+    public IActionResult AccountNameConfirmSuccess(string hashedAccountId, string chosenName)
     {
         return View(new AccountNameConfirmSuccessViewModel
         {
-            NameConfirmed = nameConfirmed,
             Name = Uri.UnescapeDataString(chosenName)
         });        
     }
