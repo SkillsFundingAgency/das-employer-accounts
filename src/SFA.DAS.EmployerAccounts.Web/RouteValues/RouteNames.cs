@@ -88,5 +88,6 @@
         public const string OrganisationAndPayeAddedSuccess = "org-and-paye-added-success";
         public const string TrainingProviderTriage = "training-provider-triage";
         public const string TaskListSignedAgreementSuccess = "task-list-sign-agreement-success";
+        public const string TrainingProviderSuccess = "task-list-trainig-provider-success";
     }
 }
