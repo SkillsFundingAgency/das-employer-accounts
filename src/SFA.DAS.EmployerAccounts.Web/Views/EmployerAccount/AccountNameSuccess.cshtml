@@ -21,10 +21,26 @@
                 </p>
             </div>
         </div>
-
-        <h1 class="govuk-heading-xl">Your account name has been changed to @Model.Data.CurrentName</h1>
+        @if (Model.Data.NameConfirmed)
+        {
+            <h1 class="govuk-heading-xl">You have confirmed your account name as @Model.Data.CurrentName</h1>
+        }
+        else
+        {
+            <h1 class="govuk-heading-xl">Your account name has been changed to @Model.Data.CurrentName</h1>
+        }
+       
         <p class="govuk-body">You can change your account name at any time.</p>
-        <p class="govuk-body govuk-!-margin-bottom-8">Continue to create your account.</p>
+
+        @if (Model.Data.NameConfirmed)
+        {
+            <p class="govuk-body govuk-!-margin-bottom-8">Continue creating your account.</p>
+        }
+        else
+        {
+            <p class="govuk-body govuk-!-margin-bottom-8">Continue to create your account.</p>
+        }
+       
 
         <div class="govuk-button-group">
             <a asp-route="@RouteNames.ContinueNewEmployerAccountTaskList" asp-route-hashedAccountId="@hashedAccountId" role="button" draggable="false" class="govuk-button" data-module="govuk-button">

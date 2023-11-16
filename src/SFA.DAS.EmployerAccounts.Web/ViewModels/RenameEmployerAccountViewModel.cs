@@ -18,4 +18,5 @@ public class RenameEmployerAccountViewModel : ViewModelBase
     public bool?  ChangeAccountName { get; set; }
     public string NewNameError => GetErrorMessage(nameof(NewName));
     public string LegalEntityName { get; set; }
+    public bool NameConfirmed { get; set; }
 }

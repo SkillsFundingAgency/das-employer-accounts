@@ -370,9 +370,10 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName", Name = RouteNames.AccountName)]
-    public async Task<IActionResult> AccountName(string hashedAccountId)
+    public async Task<IActionResult> AccountName(string hashedAccountId, bool nameConfirmed)
     {
         var vm = await GetRenameViewModel(hashedAccountId);
+        vm.Data.NameConfirmed = nameConfirmed;
         return View(vm);
     }
 
@@ -395,7 +396,7 @@ public class EmployerAccountController : BaseController
                         return View(response);
                     }
 
-                    return RedirectToRoute(RouteNames.AccountNameConfirm, new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
+                    return RedirectToRoute(RouteNames.AccountNameConfirm, new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName), vm.NameConfirmed });
                 }
             case false:
                 {
@@ -404,7 +405,7 @@ public class EmployerAccountController : BaseController
 
                     if (response.Status == HttpStatusCode.OK)
                     {                        
-                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
+                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId, chosenName = Uri.EscapeDataString(vm.LegalEntityName) });
                     }
 
                     response.Data = vm;
@@ -424,12 +425,13 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName/confirm", Name = RouteNames.AccountNameConfirm)]
-    public IActionResult AccountNameConfirm(string hashedAccountId, string newAccountName)
+    public IActionResult AccountNameConfirm(string hashedAccountId, string newAccountName, bool nameConfirmed)
     {
         return View(new RenameEmployerAccountViewModel
         {
             ChangeAccountName = true,
-            NewName = Uri.UnescapeDataString(newAccountName)
+            NewName = Uri.UnescapeDataString(newAccountName),
+            NameConfirmed = nameConfirmed
         });
     }
 
@@ -442,7 +444,7 @@ public class EmployerAccountController : BaseController
 
         if (response.Status == HttpStatusCode.OK)
         {            
-            return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId });
+            return RedirectToRoute(RouteNames.AccountNameSuccess, new { hashedAccountId, vm.NameConfirmed });
         }
 
         response.Data = vm;
@@ -459,16 +461,20 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName/confirm/success", Name = RouteNames.AccountNameConfirmSuccess)]
-    public IActionResult AccountNameConfirmSuccess(string hashedAccountId)
+    public IActionResult AccountNameConfirmSuccess(string hashedAccountId, string chosenName)
     {
-        return View();
+        return View(new AccountNameConfirmSuccessViewModel
+        {
+            Name = Uri.UnescapeDataString(chosenName)
+        });        
     }
 
     [HttpGet]
     [Route("{HashedAccountId}/create/accountName/success", Name = RouteNames.AccountNameSuccess)]
-    public async Task<IActionResult> AccountNameSuccess(string hashedAccountId)
+    public async Task<IActionResult> AccountNameSuccess(string hashedAccountId, bool nameConfirmed)
     {
         var vm = await GetRenameViewModel(hashedAccountId);
+        vm.Data.NameConfirmed = nameConfirmed;
         return View(vm);
     }
     
@@ -514,7 +520,7 @@ public class EmployerAccountController : BaseController
 
     private async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> GetRenameViewModel(string hashedAccountId)
     {
-        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, GetUserId());
+        var vm = await _employerAccountOrchestrator.GetRenameEmployerAccountViewModel(hashedAccountId, GetUserId());        
         return vm;
     }
 
