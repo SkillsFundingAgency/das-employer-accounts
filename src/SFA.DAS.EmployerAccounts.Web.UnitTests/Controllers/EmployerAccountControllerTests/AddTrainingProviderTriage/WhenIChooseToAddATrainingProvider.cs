@@ -2,7 +2,7 @@
 using FluentAssertions;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.PayBillTriage;
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.AddTrainingProviderTriage;
 
 class WhenIChooseToAddATrainingProvider : EmployerAccountControllerTestsBase
 {
@@ -15,6 +15,7 @@ class WhenIChooseToAddATrainingProvider : EmployerAccountControllerTestsBase
         [NoAutoProperties] EmployerAccountController controller)
     {
         // Arrange
+        var expectedRedirect = $"{providersUri.AbsoluteUri}?AccountTasks=true";
         SetControllerContextUserIdClaim(userId, controller);
         urlActionHelper
             .Setup(u => u.ProviderRelationshipsAction(It.Is<string>(s =>
@@ -25,6 +26,6 @@ class WhenIChooseToAddATrainingProvider : EmployerAccountControllerTestsBase
         var result = (await controller.AddTrainingProviderTriage(hashedAccountId, 1, urlActionHelper.Object)) as RedirectResult;
 
         //Assert
-        result.Url.Should().Be(providersUri.AbsoluteUri);
+        result.Url.Should().Be(expectedRedirect);
     }
 }

@@ -526,7 +526,7 @@ public class EmployerAccountController : BaseController
 
         switch (choice ?? 0)
         {
-            case 1: return Redirect(urlHelper.ProviderRelationshipsAction("providers") + $"?accountTask=true");
+            case 1: return Redirect(urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true");
             case 2:
                 await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
                 return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
