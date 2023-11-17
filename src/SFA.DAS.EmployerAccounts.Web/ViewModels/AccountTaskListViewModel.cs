@@ -16,16 +16,13 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         public string AddPayeRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.EmployerAccountPayBillTriage : RouteNames.AddPayeShutter;
 
         public bool NameConfirmed { get; internal set; }
-        
         public string EditUserDetailsUrl { get; internal set; }
-
         public string PendingHashedAgreementId { get; internal set; }
-        
-        public bool HasAgreement { get; set; }
         public bool AgreementAcknowledged { get; set; }
         public bool AddTrainingProviderAcknowledged { get; set; }
         public bool HasSignedAgreement { get; set; }
         public bool HasProviders { get; set; }
         public bool HasProviderPermissions { get; set; }
+        public string ProviderPermissionsUrl { get; set; }
     }
 }

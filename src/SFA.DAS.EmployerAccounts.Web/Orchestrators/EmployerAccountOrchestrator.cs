@@ -307,8 +307,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         CookieService.Delete(CookieName);
     }
 
-    public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(
-        string hashedAccountId, string userRef)
+    public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(string hashedAccountId, string userRef)
     {
         var response = new OrchestratorResponse<AccountTaskListViewModel>();
 
@@ -365,6 +364,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
         response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() +
                                            $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
+        response.Data.ProviderPermissionsUrl =
+            _urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true";
 
         return response;
     }
@@ -377,7 +378,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             UserRef = userRef
         });
 
-        var firstAccount = !getUserAccountsQueryResponse.Accounts.AccountList.Any()
+        var firstAccount = getUserAccountsQueryResponse.Accounts == null || !getUserAccountsQueryResponse.Accounts.AccountList.Any()
             ? null
             : getUserAccountsQueryResponse.Accounts.AccountList.MinBy(x => x.CreatedDate);
 

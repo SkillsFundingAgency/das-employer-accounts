@@ -153,10 +153,21 @@
                         }
                     </li>
                     <li class="das-task-list__item">
-                        <span class="das-task-list__task-name">
-                            Training provider permissions
-                        </span>
-                        <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-provider-permissions">Cannot start yet</strong>
+                        @if(!Model.Data.HasProviders)
+                        {
+                            <span class="das-task-list__task-name">
+                                Training provider permissions
+                            </span>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-provider-permissions">Cannot start yet</strong>
+                        }
+                        else
+                        {
+                            <span class="das-task-list__task-name">
+                                <a asp-route="@RouteNames.TrainingProviderTriage" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-add-training-provider" class="govuk-link">
+                                    Training provider permissions
+                                </a>
+                            </span>
+                        }
                     </li>
                 </ul>
             </li>
