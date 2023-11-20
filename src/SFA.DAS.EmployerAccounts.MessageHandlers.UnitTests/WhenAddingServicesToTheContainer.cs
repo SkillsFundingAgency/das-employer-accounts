@@ -13,6 +13,8 @@ using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
 using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Configuration;
+using SFA.DAS.EmployerAccounts.Data;
+using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 using SFA.DAS.EmployerAccounts.MessageHandlers.Extensions;
 using SFA.DAS.EmployerAccounts.MessageHandlers.ServiceRegistrations;
@@ -93,6 +95,7 @@ public class WhenAddingServicesToTheContainer
         services.AddUnitOfWork();
         services.AddNServiceBus();
         services.AddNServiceBusUnitOfWork();
+        services.AddScoped<IAuditRepository, AuditRepository>();
         services.AddMemoryCache();
         services.AddCachesRegistrations();
         services.AddDatabaseRegistration();
