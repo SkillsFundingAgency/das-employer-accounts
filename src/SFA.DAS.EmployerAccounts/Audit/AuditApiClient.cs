@@ -6,14 +6,14 @@ using SFA.DAS.EmployerAccounts.Audit.Types;
 
 namespace SFA.DAS.EmployerAccounts.Audit;
 
-public class AuditApiClient : IAuditApiClient
+public class AuditApiClient : IAuditClient
 {
     private readonly HttpClient _httpClient;
     private readonly IAuditApiClientConfiguration _configuration;
     private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
     public AuditApiClient(
-        HttpClient httpClient, 
+        HttpClient httpClient,
         IAuditApiClientConfiguration configuration,
         IAzureClientCredentialHelper azureClientCredentialHelper)
     {
@@ -23,8 +23,8 @@ public class AuditApiClient : IAuditApiClient
 
         var baseUrl = _configuration.BaseUrl.EndsWith("/")
             ? _configuration.BaseUrl
-            : _configuration.BaseUrl + "/"; 
-            
+            : _configuration.BaseUrl + "/";
+
         _httpClient.BaseAddress = new Uri(baseUrl);
     }
 

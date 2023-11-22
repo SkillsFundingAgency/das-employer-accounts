@@ -4,6 +4,8 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
 using SFA.DAS.EmployerAccounts.Configuration;
+using SFA.DAS.EmployerAccounts.Data;
+using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.MessageHandlers.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.MessageHandlers.Startup;
 using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;

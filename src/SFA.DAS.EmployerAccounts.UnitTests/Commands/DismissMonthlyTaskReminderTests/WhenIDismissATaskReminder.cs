@@ -7,7 +7,6 @@ using SFA.DAS.EmployerAccounts.Commands.DismissMonthlyTaskReminder;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.TasksApi;
 using SFA.DAS.Encoding;
-using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.DismissMonthlyTaskReminderTests
 {
@@ -16,7 +15,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.DismissMonthlyTaskReminder
         private Mock<ITaskService> _taskService;
         private DismissMonthlyTaskReminderCommandHandler _handler;
         private DismissMonthlyTaskReminderCommand _command;
-        private Mock<ILog> _logger;
         private Mock<IValidator<DismissMonthlyTaskReminderCommand>> _validator;
         private Mock<IEncodingService> _encodingService;
         private const long AccountId = 3;
@@ -25,7 +23,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.DismissMonthlyTaskReminder
         public void Arrange()
         {
             _taskService = new Mock<ITaskService>();
-            _logger = new Mock<ILog>();
             _validator = new Mock<IValidator<DismissMonthlyTaskReminderCommand>>();
 
             _command = new DismissMonthlyTaskReminderCommand

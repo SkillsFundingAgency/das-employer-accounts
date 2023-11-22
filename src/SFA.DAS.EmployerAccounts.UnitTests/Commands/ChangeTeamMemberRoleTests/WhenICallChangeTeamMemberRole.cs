@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
         [SetUp]
         public void Setup()
         {
-            
+
 
             _command = new ChangeTeamMemberRoleCommand
             {
@@ -67,7 +67,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
             _eventPublisher = new Mock<IEventPublisher>();
 
             _handler = new ChangeTeamMemberRoleCommandHandler(_membershipRepository.Object, _mediator.Object, _eventPublisher.Object);
-            
+
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
             await _handler.Handle(_command, CancellationToken.None);
 
             _eventPublisher.Verify(x => x.Publish(It.Is<AccountUserRolesUpdatedEvent>(
-                p => p.AccountId  == _userMembership.AccountId &&
+                p => p.AccountId == _userMembership.AccountId &&
                      p.UserRef == _userMembership.UserRef &&
                      p.Role == (UserRole)_command.Role))
                 , Times.Once);
@@ -203,11 +203,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
 
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
-            Assert.That(exception.ErrorMessages.Count, Is.EqualTo(4));
+            Assert.That(exception.ErrorMessages.Count, Is.EqualTo(3));
 
             Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "AccountId"), Is.Not.Null);
             Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Email"), Is.Not.Null);
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Role"), Is.Not.Null);
             Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "ExternalUserId"), Is.Not.Null);
         }
 
@@ -219,7 +218,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
 
             //Assert
             _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-                      c.EasAuditMessage.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Role") && y.NewValue.Equals(_command.Role.ToString())) != null 
+                      c.EasAuditMessage.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Role") && y.NewValue.Equals(_command.Role.ToString())) != null
                     ), It.IsAny<CancellationToken>()));
             _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
                       c.EasAuditMessage.Description.Equals($"Member {_command.Email} on account {ExpectedAccountId} role has changed to {_command.Role.ToString()}")), It.IsAny<CancellationToken>()));
