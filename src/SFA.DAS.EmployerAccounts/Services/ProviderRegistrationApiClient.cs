@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.Authentication.Extensions.Legacy;
 
 namespace SFA.DAS.EmployerAccounts.Services;
@@ -12,8 +12,13 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
     private readonly string _identifierUri;
     private readonly HttpClient _client;
     private readonly ILogger<ProviderRegistrationApiClient> _logger;
+    private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
-    public ProviderRegistrationApiClient(HttpClient client, IProviderRegistrationClientApiConfiguration configuration, ILogger<ProviderRegistrationApiClient> logger) : base(client)
+    public ProviderRegistrationApiClient(HttpClient client,
+        IProviderRegistrationClientApiConfiguration configuration,
+        ILogger<ProviderRegistrationApiClient> logger,
+        IAzureClientCredentialHelper azureClientCredentialHelper
+        ) : base(client)
     {
         _apiBaseUrl = configuration.BaseUrl.EndsWith("/")
             ? configuration.BaseUrl
@@ -22,6 +27,7 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         _identifierUri = configuration.IdentifierUri;
         _client = client;
         _logger = logger;
+        _azureClientCredentialHelper = azureClientCredentialHelper;
     }
 
     public async Task Unsubscribe(string correlationId)
@@ -54,9 +60,7 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
     {
         if (!string.IsNullOrEmpty(_identifierUri))
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
-            var accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(_identifierUri);
-
+            var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_identifierUri);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }
