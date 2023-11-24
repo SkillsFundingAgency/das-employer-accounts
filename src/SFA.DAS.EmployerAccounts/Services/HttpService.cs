@@ -1,8 +1,8 @@
-﻿using System.Net;
+﻿using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
@@ -31,11 +31,9 @@ public class HttpService : IHttpService
         var accessToken = await GetAccessToken();
 
         using var client = new HttpClient();
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
-        
-        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = await client.SendAsync(httpRequest);
+        using var response = await client.GetAsync(url);
 
         if (responseChecker != null && !responseChecker(response))
         {
