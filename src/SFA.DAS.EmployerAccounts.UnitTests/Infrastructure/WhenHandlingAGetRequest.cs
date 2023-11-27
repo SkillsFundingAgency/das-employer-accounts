@@ -38,7 +38,7 @@ public class WhenHandlingAGetRequest
         httClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", config.Key);
         httClient.DefaultRequestHeaders.Add("X-Version", "1");
 
-        var apiClient = new OuterApiClient(httClient);
+        var apiClient = new OuterApiClient(httClient, config);
 
         //Act
         var actual = await apiClient.Get<List<string>>(getTestRequest);
@@ -62,7 +62,7 @@ public class WhenHandlingAGetRequest
 
         var httpMessageHandler = SetupMessageHandlerMock(response, $"{config.BaseUrl}{getTestRequest.GetUrl}", config.Key);
         var client = new HttpClient(httpMessageHandler.Object);
-        var apiClient = new OuterApiClient(client);
+        var apiClient = new OuterApiClient(client, config);
 
         //Act Assert
         Assert.ThrowsAsync<InvalidOperationException>(() => apiClient.Get<List<string>>(getTestRequest));

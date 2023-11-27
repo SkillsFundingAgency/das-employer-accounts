@@ -7,12 +7,11 @@
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="12.0.1" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-        <PackageReference Include="Azure.Identity" Version="1.9.0" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.25" />
 
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.25" />
 
         <PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.35" />
 
@@ -40,9 +39,9 @@
         <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.28" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.25" />
         <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="6.0.18" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="6.0.25" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SFA.DAS.EmployerAccounts.Api.Client\SFA.DAS.EmployerAccounts.Api.Client.csproj" />
