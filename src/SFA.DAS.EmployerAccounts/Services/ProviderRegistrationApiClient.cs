@@ -32,7 +32,6 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         var url = $"{_apiBaseUrl}api/unsubscribe/{correlationId}";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-
         await AddAuthenticationHeaders(request);
 
         _logger.LogInformation("Getting Unsubscribe {Url}", url);
@@ -46,6 +45,7 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         _logger.LogInformation("Getting Invitations {Url}", url);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        await AddAuthenticationHeaders(request);
 
         using var response = await _client.SendAsync(request);
         response.EnsureSuccessStatusCode();
