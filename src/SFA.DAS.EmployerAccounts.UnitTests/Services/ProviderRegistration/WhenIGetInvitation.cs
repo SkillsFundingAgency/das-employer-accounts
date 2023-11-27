@@ -55,7 +55,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ProviderRegistration
 
             var httpClient = new HttpClient(_mockHttpMessageHandler.Object);
 
-            _sut = new ProviderRegistrationApiClient(httpClient, _configuration, _logger.Object);
+            _sut = new ProviderRegistrationApiClient(httpClient, _configuration, _logger.Object, Mock.Of<IAzureClientCredentialHelper>());
         }
 
         [Test]

@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.Authentication.Extensions.Legacy;
 
 namespace SFA.DAS.EmployerAccounts.Services;
@@ -12,10 +13,12 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
     private readonly string _identifierUri;
     private readonly HttpClient _client;
     private readonly ILogger<ProviderRegistrationApiClient> _logger;
+    private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
     public ProviderRegistrationApiClient(HttpClient client,
         IProviderRegistrationClientApiConfiguration configuration,
-        ILogger<ProviderRegistrationApiClient> logger
+        ILogger<ProviderRegistrationApiClient> logger,
+        IAzureClientCredentialHelper azureClientCredentialHelper
     ) : base(client)
     {
         _apiBaseUrl = configuration.BaseUrl.EndsWith("/")
@@ -25,6 +28,7 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         _identifierUri = configuration.IdentifierUri;
         _client = client;
         _logger = logger;
+        _azureClientCredentialHelper = azureClientCredentialHelper;
     }
 
     public async Task Unsubscribe(string correlationId)
@@ -32,7 +36,7 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         var url = $"{_apiBaseUrl}api/unsubscribe/{correlationId}";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        await AddAuthenticationHeaders(request);
+        await AddAuthenticationHeader(request);
 
         _logger.LogInformation("Getting Unsubscribe {Url}", url);
 
@@ -45,20 +49,19 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         _logger.LogInformation("Getting Invitations {Url}", url);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        await AddAuthenticationHeaders(request);
+        await AddAuthenticationHeader(request);
 
         using var response = await _client.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
     }
-
-    private async Task AddAuthenticationHeaders(HttpRequestMessage httpRequestMessage)
+    
+    private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
         if (!string.IsNullOrEmpty(_identifierUri))
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
-            var accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(_identifierUri);
+            var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_identifierUri);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }
