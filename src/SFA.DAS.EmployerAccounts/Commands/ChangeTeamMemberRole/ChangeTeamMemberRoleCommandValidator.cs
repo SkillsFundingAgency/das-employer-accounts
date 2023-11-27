@@ -1,6 +1,4 @@
-﻿using SFA.DAS.EmployerAccounts.Models;
-
-namespace SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
+﻿namespace SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
 
 public class ChangeTeamMemberRoleCommandValidator : IValidator<ChangeTeamMemberRoleCommand>
 {
@@ -13,9 +11,6 @@ public class ChangeTeamMemberRoleCommandValidator : IValidator<ChangeTeamMemberR
 
         if (string.IsNullOrWhiteSpace(item.Email))
             validationResult.AddError("Email", "No Email supplied");
-
-        if (item.Role == Role.None)
-            validationResult.AddError("Role", "No Role supplied");
 
         if (string.IsNullOrWhiteSpace(item.ExternalUserId))
             validationResult.AddError("ExternalUserId", "No ExternalUserId supplied");

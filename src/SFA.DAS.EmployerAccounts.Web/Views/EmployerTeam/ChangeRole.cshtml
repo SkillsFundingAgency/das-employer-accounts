@@ -56,6 +56,12 @@
                     </legend>
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="radio1" type="radio" name="Role" value="0" @(Model.Data.Role == Role.None ? "checked" : "") />
+                            <label class="govuk-label govuk-radios__label" for="radio0">
+                                @(RoleStrings.GetRoleDescription(Role.None))
+                            </label>
+                        </div>
+                        <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="radio1" type="radio" name="Role" value="3" @(Model.Data.Role == Role.Viewer ? "checked" : "") />
                             <label class="govuk-label govuk-radios__label" for="radio1">
                                 @(RoleStrings.GetRoleDescription(Role.Viewer))
