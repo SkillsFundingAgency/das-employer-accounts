@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
@@ -13,7 +14,8 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
     private readonly IMediator _mediator;
 
     public UpdateUserNotificationSettingsCommandHandler(IAccountRepository accountRepository,
-        IValidator<UpdateUserNotificationSettingsCommand> validator, IMediator mediator)
+        IValidator<UpdateUserNotificationSettingsCommand> validator,
+        IMediator mediator)
     {
         _accountRepository = accountRepository;
         _validator = validator;
@@ -25,36 +27,39 @@ public class UpdateUserNotificationSettingsCommandHandler : IRequestHandler<Upda
         var validationResult = _validator.Validate(message);
 
         if (!validationResult.IsValid())
-            throw new InvalidRequestException(validationResult.ValidationDictionary);
-
-        await _accountRepository.UpdateUserAccountSettings(message.UserRef, message.Settings);
-
-        foreach (var setting in message.Settings)
         {
-            await AddAuditEntry(setting);
+            throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
+
+        var tasks = message.Settings.Select(setting => _mediator.Send(CreateAuditCommand(setting), cancellationToken)).ToList();
+        
+        tasks.Add(_accountRepository.UpdateUserAccountSettings(message.UserRef, message.Settings));
+        
+        await Task.WhenAll(tasks);
     }
 
-    private async Task AddAuditEntry(UserNotificationSetting setting)
+    private static CreateAuditCommand CreateAuditCommand(UserNotificationSetting setting)
     {
-        await _mediator.Send(new CreateAuditCommand
+        return new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {
                 Category = "UPDATED",
-                Description =
-                    $"User {setting.UserId} has updated email notification setting for account {setting.HashedAccountId}",
+                Description = $"User {setting.UserId} has updated email notification setting for account {setting.HashedAccountId}",
                 ChangedProperties = new List<PropertyUpdate>
                 {
-                    new PropertyUpdate
+                    new()
                     {
                         PropertyName = "ReceiveNotifications",
                         NewValue = setting.ReceiveNotifications.ToString()
                     }
                 },
-                RelatedEntities = new List<AuditEntity> { new AuditEntity { Id = setting.UserId.ToString(), Type = "User" } },
+                RelatedEntities = new List<AuditEntity>
+                {
+                    new() { Id = setting.UserId.ToString(), Type = "User" }
+                },
                 AffectedEntity = new AuditEntity { Type = "UserAccountSetting", Id = setting.Id.ToString() }
             }
-        });
+        };
     }
 }

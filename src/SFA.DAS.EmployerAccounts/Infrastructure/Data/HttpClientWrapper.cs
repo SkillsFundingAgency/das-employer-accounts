@@ -26,7 +26,7 @@ public class HttpClientWrapper : IHttpClientWrapper
         using var httpClient = CreateHttpClient();
 
         var serializeObject = JsonConvert.SerializeObject(content);
-        var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, url)
+        using var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, url)
         {
             Content = new StringContent(serializeObject, System.Text.Encoding.UTF8, "application/json")
         });
@@ -38,10 +38,11 @@ public class HttpClientWrapper : IHttpClientWrapper
     public async Task<T> Get<T>(string authToken, string url)
     {
         using var httpClient = CreateHttpClient();
-
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(AuthScheme, authToken);
-
-        var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, url));
+        using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(AuthScheme, authToken);
+        
+        using var response = await httpClient.SendAsync(httpRequestMessage);
         await EnsureSuccessfulResponse(response);
 
         return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
@@ -50,6 +51,7 @@ public class HttpClientWrapper : IHttpClientWrapper
     public async Task<string> GetString(string url, string accessToken)
     {
         using var client = new HttpClient();
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
         if (!string.IsNullOrEmpty(accessToken))
         {
@@ -57,10 +59,10 @@ public class HttpClientWrapper : IHttpClientWrapper
                 ? AuthScheme
                 : "Bearer";
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authScheme, accessToken);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue(authScheme, accessToken);
         }
 
-        var response = await client.GetAsync(url);
+        using var response = await client.SendAsync(httpRequest);
         await EnsureSuccessfulResponse(response);
 
         return await response.Content.ReadAsStringAsync();

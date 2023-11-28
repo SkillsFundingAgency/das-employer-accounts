@@ -60,9 +60,7 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
-    <Folder Include="StoredProcedures" />
     <Folder Include="Views" />
-    <Folder Include="Tables" />
     <Folder Include="Schemas" />
     <Folder Include="UserDefinedTypes" />
     <Folder Include="Scripts" />
@@ -74,6 +72,12 @@
   <ItemGroup>
     <Build Include="StoredProcedures\Cleardown.sql" />
     <Build Include="StoredProcedures\CreateAccount.sql" />
+    <Build Include="StoredProcedures\CreateAuditMessage.sql" />
+    <Build Include="StoredProcedures\CreateChangedProperty.sql" />
+    <Build Include="StoredProcedures\CreateRelatedEntity.sql" />
+    <Build Include="Tables\AuditMessage.sql" />
+    <Build Include="Tables\ChangedProperties.sql" />
+    <Build Include="Tables\RelatedEntities.sql" />
     <Build Include="Views\GetInvitations.sql" />
     <Build Include="Views\GetTeamMembers.sql" />
     <Build Include="Views\MembershipView.sql" />
@@ -127,6 +131,7 @@
     <Build Include="StoredProcedures\GetAccountsLinkedToLegalEntity.sql" />
     <PostDeploy Include="Scripts\PostDeployment\PostDeployment.sql" />
     <PreDeploy Include="Scripts\PreDeployment\PreDeployment.sql" />
+    <None Include="Scripts\Manual\MAC-317-V9_LegalAgreement.sql" />
     <None Include="Scripts\PostDeployment\SeedDevData.sql" />
     <None Include="Scripts\PreDeployment\AML-2381-DeleteDuplicateUserAccountSettings.sql" />
     <Build Include="Tables\ClientOutboxData.sql" />
@@ -154,7 +159,6 @@
     <None Include="Scripts\Manual\CON-3367 Migrate And Add v6 Legal Agreement.sql" />
     <None Include="Scripts\Manual\CON-3968 Migrate And Add v7 Legal Agreement.sql" />
     <None Include="Scripts\Manual\MAC-127-ExpireLegalAgreements.sql" />
-    <None Include="Scripts\PostDeployment\MAC-174-Account-name-confirmation.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.EmployerAccounts.Database.refactorlog" />

@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.Authentication.Extensions.Legacy;
 
 namespace SFA.DAS.EmployerAccounts.Services;
@@ -12,8 +13,13 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
     private readonly string _identifierUri;
     private readonly HttpClient _client;
     private readonly ILogger<ProviderRegistrationApiClient> _logger;
+    private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
-    public ProviderRegistrationApiClient(HttpClient client, IProviderRegistrationClientApiConfiguration configuration, ILogger<ProviderRegistrationApiClient> logger) : base(client)
+    public ProviderRegistrationApiClient(HttpClient client,
+        IProviderRegistrationClientApiConfiguration configuration,
+        ILogger<ProviderRegistrationApiClient> logger,
+        IAzureClientCredentialHelper azureClientCredentialHelper
+    ) : base(client)
     {
         _apiBaseUrl = configuration.BaseUrl.EndsWith("/")
             ? configuration.BaseUrl
@@ -22,39 +28,41 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         _identifierUri = configuration.IdentifierUri;
         _client = client;
         _logger = logger;
+        _azureClientCredentialHelper = azureClientCredentialHelper;
     }
 
-    public async Task Unsubscribe(string CorrelationId)
+    public async Task Unsubscribe(string correlationId)
     {
-        await AddAuthenticationHeader();           
+        var url = $"{_apiBaseUrl}api/unsubscribe/{correlationId}";
 
-        var url = $"{_apiBaseUrl}api/unsubscribe/{CorrelationId}";
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        await AddAuthenticationHeader(request);
 
         _logger.LogInformation("Getting Unsubscribe {Url}", url);
 
-        await _client.GetAsync(url);
+        await _client.SendAsync(request);
     }
 
-    public async Task<string> GetInvitations(string CorrelationId)
+    public async Task<string> GetInvitations(string correlationId)
     {
-        await AddAuthenticationHeader();
-            
-        var url = $"{_apiBaseUrl}api/invitations/{CorrelationId}";
+        var url = $"{_apiBaseUrl}api/invitations/{correlationId}";
         _logger.LogInformation("Getting Invitations {Url}", url);
-        var response = await _client.GetAsync(url);
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        await AddAuthenticationHeader(request);
+
+        using var response = await _client.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
     }
-
-    private async Task AddAuthenticationHeader()
+    
+    private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
         if (!string.IsNullOrEmpty(_identifierUri))
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
-            var accessToken = await azureServiceTokenProvider.GetAccessTokenAsync(_identifierUri);
-
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_identifierUri);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
         private CreateInvitationCommandValidator _validator;
         private CreateInvitationCommand _createInvitationCommand;
         private Mock<IMembershipRepository> _membershipRepository;
-        
+
         [SetUp]
         public void Arrange()
         {
@@ -28,7 +28,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             };
 
             _membershipRepository = new Mock<IMembershipRepository>();
-            _membershipRepository.Setup(x => x.GetCaller(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new MembershipView {Role = Role.Owner});
+            _membershipRepository.Setup(x => x.GetCaller(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new MembershipView { Role = Role.Owner });
             _membershipRepository.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new TeamMember { IsUser = false });
 
             _validator = new CreateInvitationCommandValidator(_membershipRepository.Object);
@@ -52,10 +52,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
 
             //Assert
             Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("EmailOfPersonBeingInvited", "Enter email address"),result.ValidationDictionary );
-            Assert.Contains(new KeyValuePair<string,string>("HashedAccountId", "No HashedAccountId supplied"),result.ValidationDictionary );
-            Assert.Contains(new KeyValuePair<string,string>("NameOfPersonBeingInvited", "Enter name"),result.ValidationDictionary );
-            Assert.Contains(new KeyValuePair<string,string>("RoleOfPersonBeingInvited", "Select team member role"),result.ValidationDictionary );
+            Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter email address"), result.ValidationDictionary);
+            Assert.Contains(new KeyValuePair<string, string>("HashedAccountId", "No HashedAccountId supplied"), result.ValidationDictionary);
+            Assert.Contains(new KeyValuePair<string, string>("NameOfPersonBeingInvited", "Enter name"), result.ValidationDictionary);
         }
 
         [TestCase("notvalid")]
@@ -97,7 +96,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
         public async Task ThenTheUserIsCheckedToSeeIfTheyAreAnOwnerAndFalseIsReturnedIfTheyArent()
         {
             //Arrange
-            _membershipRepository.Setup(x => x.GetCaller(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new MembershipView {Role = Role.Transactor});
+            _membershipRepository.Setup(x => x.GetCaller(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new MembershipView { Role = Role.Transactor });
 
             //Act
             var result = await _validator.ValidateAsync(_createInvitationCommand);
@@ -112,7 +111,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
         public async Task ThenFalseIsReturnedIfTheEmailIsAlreadyInUse()
         {
             //Arrange
-            _membershipRepository.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new TeamMember {IsUser = true});
+            _membershipRepository.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new TeamMember { IsUser = true });
 
             //Act
             var result = await _validator.ValidateAsync(_createInvitationCommand);
@@ -121,6 +120,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             Assert.IsFalse(result.IsValid());
             Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", $"{_createInvitationCommand.EmailOfPersonBeingInvited} is already invited"), result.ValidationDictionary);
         }
-        
+
     }
 }

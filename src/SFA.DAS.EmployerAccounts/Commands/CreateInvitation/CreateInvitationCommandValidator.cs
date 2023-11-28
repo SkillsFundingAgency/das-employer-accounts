@@ -36,10 +36,6 @@ public class CreateInvitationCommandValidator : IValidator<CreateInvitationComma
         if (string.IsNullOrWhiteSpace(item.NameOfPersonBeingInvited))
             validationResult.AddError(nameof(item.NameOfPersonBeingInvited), "Enter name");
 
-        if (item.RoleOfPersonBeingInvited == Role.None)
-            validationResult.AddError(nameof(item.RoleOfPersonBeingInvited), "Select team member role");
-
-
         if (!validationResult.IsValid())
         {
             return validationResult;

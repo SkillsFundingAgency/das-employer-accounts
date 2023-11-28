@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Services;
@@ -55,7 +55,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ProviderRegistration
 
             var httpClient = new HttpClient(_mockHttpMessageHandler.Object);
 
-            _sut = new ProviderRegistrationApiClient(httpClient, _configuration, _logger.Object);
+            _sut = new ProviderRegistrationApiClient(httpClient, _configuration, _logger.Object, Mock.Of<IAzureClientCredentialHelper>());
         }
 
         [Test]

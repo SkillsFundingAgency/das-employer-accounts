@@ -15,24 +15,24 @@ namespace SFA.DAS.EmployerAccounts.Api.ServiceRegistrations
         private const string AzureResource = "https://database.windows.net/";
 
         public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, EmployerAccountsConfiguration configuration)
-        {   
+        {
+            services.AddHealthChecks()
+                .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
+                .AddCheck<ReservationsApiHealthCheck>("Employer Accounts API Health Check")
+                .AddSqlServer(configuration.DatabaseConnectionString, name: "Employer Accounts DB Health Check", configure: BeforeOpen);
+
+            return services;
+
             void BeforeOpen(SqlConnection connection)
             {
                 var connectionStringBuilder = new SqlConnectionStringBuilder(connection.ConnectionString);
-                bool useManagedIdentity = !connectionStringBuilder.IntegratedSecurity && string.IsNullOrEmpty(connectionStringBuilder.UserID);
+                var useManagedIdentity = !connectionStringBuilder.IntegratedSecurity && string.IsNullOrEmpty(connectionStringBuilder.UserID);
                 if (useManagedIdentity)
                 {
                     var azureServiceTokenProvider = new AzureServiceTokenProvider();
                     connection.AccessToken = azureServiceTokenProvider.GetAccessTokenAsync(AzureResource).Result;
                 }
             }
-
-            services.AddHealthChecks()
-                .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
-                .AddCheck<ReservationsApiHealthCheck>("Employer Accounts API Health Check")
-                .AddSqlServer(configuration.DatabaseConnectionString, name: "Employer Accounts DB Health Check", beforeOpenConnectionConfigurer: BeforeOpen);
-
-            return services;
         }
 
         public static IApplicationBuilder UseDasHealthChecks(this IApplicationBuilder app)

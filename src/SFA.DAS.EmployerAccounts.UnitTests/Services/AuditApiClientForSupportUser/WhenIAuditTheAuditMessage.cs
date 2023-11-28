@@ -15,10 +15,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AuditApiClientForSupportUs
 {
     public class WhenIAuditTheAuditMessage
     {
-        private Audit.AuditApiClientForSupportUser _sut;
+        private AuditClientForSupportUser _sut;
         private AuditMessage _auditMessage;
         private string SupportConsoleUsers = "Tier1User,Tier2User";
-        private Mock<IAuditApiClient> _mockInnerClient;
+        private Mock<IAuditClient> _mockInnerClient;
         private Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private EmployerAccountsConfiguration _config;
         private IUserContext _userContext;
@@ -46,7 +46,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AuditApiClientForSupportUs
             _auditMessage = new AuditMessage();
             _auditMessage.ChangedBy = new Actor { Id = _impersonatedUser, EmailAddress = _impersonatedUserEmail };
 
-            _mockInnerClient = new Mock<IAuditApiClient>();
+            _mockInnerClient = new Mock<IAuditClient>();
             
             
             _httpContextAccessorMock
@@ -65,7 +65,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AuditApiClientForSupportUs
                 .Setup(m => m.HttpContext.User.FindFirst(ClaimTypes.Email))
                 .Returns(new Claim(ClaimTypes.Email, _supportUserEmail));
 
-            _sut = new Audit.AuditApiClientForSupportUser(_mockInnerClient.Object, _userContext);
+            _sut = new AuditClientForSupportUser(_mockInnerClient.Object, _userContext);
         }
 
         [Test]
