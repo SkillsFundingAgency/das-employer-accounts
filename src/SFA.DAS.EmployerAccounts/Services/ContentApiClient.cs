@@ -28,10 +28,10 @@ public class ContentApiClient : IContentApiClient
     public async Task<string> Get(string type, string applicationId)
     {
         var uri = $"{_apiBaseUrl}api/content?applicationId={applicationId}&type={type}";
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
         await AddAuthenticationHeader(requestMessage);
 
-        var response = await _client.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await _client.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

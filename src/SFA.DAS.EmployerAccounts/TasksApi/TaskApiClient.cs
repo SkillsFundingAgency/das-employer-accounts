@@ -34,7 +34,7 @@ public class TaskApiClient : ITaskApiClient
         var baseUrl = GetBaseUrl();
         var url = $"{baseUrl}api/tasks/{employerAccountId}/{userId}?{nameof(applicableToApprenticeshipEmployerType)}={(int)applicableToApprenticeshipEmployerType}";
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
         _logger.LogInformation("Get: {Url}", url);

@@ -29,10 +29,10 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         _logger.LogInformation("Getting GetApprenticeship {Url}", url);
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
             
-        var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -46,10 +46,10 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         _logger.LogInformation("Getting GetApprenticeships {Url}", url);
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);            
 
-        var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -62,10 +62,10 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         _logger.LogInformation("Getting GetCohorts {Url}", url);
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
-        var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -78,10 +78,10 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         _logger.LogInformation("Getting GetDraftApprenticeships {Url}", url);
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
-        var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -94,10 +94,10 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         _logger.LogInformation("Getting GetEmployerAccountSummary {Url}", url);
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
             
-        var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -113,7 +113,7 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         return _config.ApiBaseUrl + "/";
     }
-      
+    
     private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
         if (!string.IsNullOrEmpty(_config.IdentifierUri))

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using Azure.Core;
 using Azure.Identity;
+using System.Net.Http.Headers;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
@@ -31,21 +32,19 @@ public class HttpService : IHttpService
     {
         var accessToken = await GetAccessToken();
 
-        using (var client = new HttpClient())
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        using var response = await client.GetAsync(url);
+
+        if (responseChecker != null && !responseChecker(response))
         {
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-            var response = await client.GetAsync(url);
-
-            if (responseChecker != null && !responseChecker(response))
-            {
-                return null;
-            }
-
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadAsStringAsync();
+            return null;
         }
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadAsStringAsync();
     }
 
     private async Task<string> GetAccessToken()

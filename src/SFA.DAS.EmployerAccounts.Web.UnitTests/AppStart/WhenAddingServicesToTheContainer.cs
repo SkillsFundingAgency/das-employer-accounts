@@ -211,6 +211,8 @@ public class WhenAddingServicesToTheContainer
                 new("SFA.DAS.EmployerAccounts:RecruitApi:IdentifierUri", "test"),
                 new("SFA.DAS.EmployerAccounts:AuditApi:BaseUrl", "https://test.test"),
                 new("SFA.DAS.EmployerAccounts:AuditApi:IdentifierUri", "test"),
+                new("SFA.DAS.EmployerAccounts:EmployerAccountsOuterApiConfiguration:ApiBaseUrl", "https://test.test"),
+                new("SFA.DAS.EmployerAccounts:EmployerAccountsOuterApiConfiguration:ClientId", "test"),
                 new("SFA.DAS.EmployerAccounts:TokenServiceApi:ApiBaseUrl", "https://test.test"),
                 new("SFA.DAS.EmployerAccounts:TokenServiceApi:ClientId", "test"),
                 new("SFA.DAS.EmployerAccounts:TokenServiceApi:ClientSecret", "test"),
