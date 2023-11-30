@@ -30,9 +30,8 @@ public class AuditApiClient : IAuditClient
 
     public async Task Audit(AuditMessage message)
     {
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "api/audit");
-        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(message), System.Text.Encoding.UTF8,
-            "application/json");
+        using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "api/audit");
+        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(message), System.Text.Encoding.UTF8, "application/json");
 
         await AddAuthenticationHeader(httpRequestMessage);
 
