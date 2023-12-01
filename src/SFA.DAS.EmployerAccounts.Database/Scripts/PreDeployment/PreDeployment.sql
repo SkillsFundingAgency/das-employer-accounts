@@ -18,4 +18,5 @@ BEGIN
 	:r .\AML-2119-BackupAgreementDetails.sql
 	:r .\AML-2434-DeleteOrphanedUserAccountSettings.sql
 	:r .\AML-3784-AgreementTypeChanges.sql
+	:r .\APPMAN-117_Null-tasklist-acknowledgements
 END
