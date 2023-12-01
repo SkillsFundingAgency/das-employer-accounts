@@ -59,9 +59,15 @@ public class EmployerAccountController : BaseController
     public async Task<IActionResult> CreateAccountTaskList(string hashedAccountId)
     {
         var userIdClaim = HttpContext.User.Claims.First(x => x.Type.Equals(ControllerConstants.UserRefClaimKeyName));
-        var accountTaskListViewModel = await _employerAccountOrchestrator.GetCreateAccountTaskList(hashedAccountId, userIdClaim.Value);
+        var accountTaskListViewModelResponse = await _employerAccountOrchestrator.GetCreateAccountTaskList(hashedAccountId, userIdClaim.Value);
 
-        return View(nameof(CreateAccountTaskList), accountTaskListViewModel);
+        if (accountTaskListViewModelResponse.Status == HttpStatusCode.OK 
+            && accountTaskListViewModelResponse.Data.TaskListComplete)
+        {
+            return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
+        }
+
+        return View(nameof(CreateAccountTaskList), accountTaskListViewModelResponse);
     }
 
     [HttpGet]

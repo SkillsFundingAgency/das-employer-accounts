@@ -65,6 +65,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             GetUserByRefResponse userByRefResponse,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
             GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            [Frozen] Mock<IEmployerAccountService> employerAccountServiceMock,
             [Frozen] Mock<IUrlActionHelper> urlHelperMock,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,

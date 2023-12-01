@@ -7,39 +7,18 @@ using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
+using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccountTaskList;
 
 [TestFixture]
-public class WhenUserHasNotAddedProviderPermissions
+public class WhenUserHasCompletedAllTasks
 {
     [Test]
     [MoqAutoData]
-    public async Task Then_GetProviders(
-        string hashedAccountId,
-        long accountId,
-        string userId,
-        [Frozen] Mock<IEncodingService> encodingServiceMock,
-        [Frozen] Mock<IMediator> mediatorMock,
-        [Frozen] Mock<IEmployerAccountService> employerAccountServiceMock,
-        [NoAutoProperties] EmployerAccountController controller)
-    {
-        // Arrange
-        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
-        SetControllerContextUserIdClaim(userId, controller);
-
-        // Act
-        _ = await controller.CreateAccountTaskList(hashedAccountId);
-
-        // Assert
-        employerAccountServiceMock.Verify(m => m.GetEmployerAccountTaskList(accountId, hashedAccountId), Times.Once);
-    }
-
-    [Test]
-    [MoqAutoData]
-    public async Task Then_HasProviders_ShouldReturnTrue(
+    public async Task PermissionsAdded_Then_ShouldRedirect(
         long agreementId,
         long accountId,
         string hashedAccountId,
@@ -47,6 +26,7 @@ public class WhenUserHasNotAddedProviderPermissions
         GetUserByRefResponse userByRefResponse,
         [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
         GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+        [Frozen] Mock<IEmployerAccountService> employerAccountServiceMock,
         [Frozen] Mock<IUrlActionHelper> urlHelperMock,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [Frozen] Mock<IMediator> mediatorMock,
@@ -56,7 +36,7 @@ public class WhenUserHasNotAddedProviderPermissions
         encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
         accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement>
         {
-            new()
+            new EmployerAgreement
             {
                 StatusId = EmployerAgreementStatus.Pending,
                 Id = agreementId,
@@ -64,6 +44,13 @@ public class WhenUserHasNotAddedProviderPermissions
             }
         };
 
+        employerAccountServiceMock.Setup(m => m.GetEmployerAccountTaskList(accountId, hashedAccountId)).ReturnsAsync(
+            new EmployerAccountTaskList()
+            {
+                HasProviders = true,
+                HasProviderPermissions = true,
+            });
+        
         mediatorMock
             .Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId),
                 It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse);
@@ -83,19 +70,15 @@ public class WhenUserHasNotAddedProviderPermissions
             .ReturnsAsync(accountDetailResponse);
 
         // Act
-        var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
-        var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+        var result = await controller.CreateAccountTaskList(hashedAccountId) as RedirectToRouteResult;
 
         // Assert
-        Assert.IsNotNull(model);
-        model.Data.HasProviders.Should().BeTrue();
-        model.Data.HasProviderPermissions.Should().BeFalse();
-        model.Data.CompletedSections.Should().Be(4);
+        result.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
-
+    
     [Test]
     [MoqAutoData]
-    public async Task Then_SetProviderPermissionsUrl(
+    public async Task TrainingProviderAcknowledged_Then_ShouldRedirect(
         long agreementId,
         long accountId,
         string hashedAccountId,
@@ -103,25 +86,31 @@ public class WhenUserHasNotAddedProviderPermissions
         GetUserByRefResponse userByRefResponse,
         [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
         GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+        [Frozen] Mock<IEmployerAccountService> employerAccountServiceMock,
         [Frozen] Mock<IUrlActionHelper> urlHelperMock,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [Frozen] Mock<IMediator> mediatorMock,
         [NoAutoProperties] EmployerAccountController controller)
     {
         // Arrange
-        var taskListOuterApiResponse = new EmployerAccountTaskList { HasProviders = true, HasProviderPermissions = false };
         encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
         accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement>
         {
             new EmployerAgreement
             {
-                StatusId = EmployerAgreementStatus.Signed,
-                SignedDate = DateTime.Now.AddHours(-1),
+                StatusId = EmployerAgreementStatus.Pending,
                 Id = agreementId,
                 Acknowledged = true
             }
         };
 
+        employerAccountServiceMock.Setup(m => m.GetEmployerAccountTaskList(accountId, hashedAccountId)).ReturnsAsync(
+            new EmployerAccountTaskList()
+            {
+                HasProviders = false,
+                HasProviderPermissions = false,
+            });
+        
         mediatorMock
             .Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId),
                 It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse);
@@ -133,6 +122,7 @@ public class WhenUserHasNotAddedProviderPermissions
 
         accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
         accountDetailResponse.Account.NameConfirmed = true;
+        accountDetailResponse.Account.AddTrainingProviderAcknowledged = true;
 
         mediatorMock
             .Setup(m => m.Send(
@@ -141,11 +131,10 @@ public class WhenUserHasNotAddedProviderPermissions
             .ReturnsAsync(accountDetailResponse);
 
         // Act
-        var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
-        var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+        var result = await controller.CreateAccountTaskList(hashedAccountId) as RedirectToRouteResult;
 
         // Assert
-        model.Data.ProviderPermissionsUrl.Should().Contain("?AccountTasks=true");
+        result.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
 
     private static void SetControllerContextUserIdClaim(string userId, EmployerAccountController controller)
