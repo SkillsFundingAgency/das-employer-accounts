@@ -406,6 +406,9 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
 
         try
         {
+            var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+            var employerAgreementsResponse = await _mediator.Send(new GetAccountEmployerAgreementsRequest { AccountId = accountId, ExternalUserId = externalUserId });
+            
             var result = await _mediator.Send(new GetEmployerAgreementRequest
             {
                 HashedAccountId = hashedAccountId, HashedAgreementId = agreementId, ExternalUserId = externalUserId
@@ -418,6 +421,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 _mapper.Map<EmployerAccounts.Models.EmployerAgreement.EmployerAgreementView>(signedAgreementResponse
                     .LastSignedAgreement);
 
+            viewModel.HasAcknowledgedAgreement = employerAgreementsResponse.HasAcknowledgedAgreements;
             response.Data = viewModel;
         }
         catch (InvalidRequestException ex)
