@@ -7,7 +7,7 @@ using SFA.DAS.EmployerAccounts.Commands.AcknowledgeEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementTests
+namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AcknowledgeEmployerAgreementTests
 {
     [TestFixture]
     public class WhenIAcknowledgeAnEmployerAgreement

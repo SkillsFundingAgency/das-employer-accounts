@@ -11,4 +11,5 @@ public interface IEmployerAccountRepository
     Task<AccountStats> GetAccountStats(long accountId);
     Task RenameAccount(long id, string name);
     Task SetAccountLevyStatus(long accountId, ApprenticeshipEmployerType apprenticeshipEmployerType);
+    Task AcknowledgeTrainingProviderTask(long accountId);
 }

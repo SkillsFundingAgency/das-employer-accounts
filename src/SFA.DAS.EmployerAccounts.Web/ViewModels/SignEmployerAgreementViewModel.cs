@@ -10,6 +10,5 @@ public class SignEmployerAgreementViewModel
     public int Choice { get; set; }
     public int LegalEntitiesCount { get; set; }
     public bool NoChoiceSelected { get; set; }
-    public bool HasAcknowledgedAgreement =>
-        PreviouslySignedEmployerAgreement != null || (EmployerAgreement.Acknowledged ?? true);
+    public bool HasAcknowledgedAgreement { get; set; }
 }

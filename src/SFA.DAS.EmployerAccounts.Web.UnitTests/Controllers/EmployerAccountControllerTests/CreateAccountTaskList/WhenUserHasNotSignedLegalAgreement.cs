@@ -10,7 +10,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccountTaskList
 {
     [TestFixture]
     public class WhenUserHasNotSignedLegalAgreement
@@ -71,7 +71,16 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
         {
             // Arrange
             encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
-            accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement> { new EmployerAgreement { StatusId = EmployerAgreementStatus.Pending, Id = agreementId } };
+            accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement>
+            {
+                new EmployerAgreement
+                {
+                    StatusId = EmployerAgreementStatus.Pending, 
+                    Id = agreementId, 
+                    Acknowledged = false
+                }
+            };
+            
             mediatorMock.Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId), It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse); 
             SetControllerContextUserIdClaim(userId, controller);
             

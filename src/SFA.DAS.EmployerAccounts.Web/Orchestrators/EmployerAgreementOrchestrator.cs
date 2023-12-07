@@ -160,18 +160,6 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 HashedAgreementId = agreementId
             });
 
-            if (!hasPreviousAcknowledgement)
-            {
-                await _mediator.Send(new SendAccountTaskListCompleteNotificationCommand
-                {
-                    AccountId = accountId,
-                    PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
-                    HashedAccountId = hashedAccountId,
-                    ExternalUserId = externalUserId,
-                    OrganisationName = legalEntityName,
-                });
-            }
-
             var unsignedAgreement = await _mediator.Send(new GetNextUnsignedEmployerAgreementRequest
             {
                 ExternalUserId = externalUserId,
@@ -418,6 +406,9 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
 
         try
         {
+            var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+            var employerAgreementsResponse = await _mediator.Send(new GetAccountEmployerAgreementsRequest { AccountId = accountId, ExternalUserId = externalUserId });
+            
             var result = await _mediator.Send(new GetEmployerAgreementRequest
             {
                 HashedAccountId = hashedAccountId, HashedAgreementId = agreementId, ExternalUserId = externalUserId
@@ -430,6 +421,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 _mapper.Map<EmployerAccounts.Models.EmployerAgreement.EmployerAgreementView>(signedAgreementResponse
                     .LastSignedAgreement);
 
+            viewModel.HasAcknowledgedAgreement = employerAgreementsResponse.HasAcknowledgedAgreements;
             response.Data = viewModel;
         }
         catch (InvalidRequestException ex)

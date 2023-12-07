@@ -116,33 +116,5 @@ public class HomeOrchestrator
         {
             return null;
         }
-        
-    }
-
-    public virtual async Task<OrchestratorResponse<EmployerAgreementListViewModel>> GetEmployerAccountAgreements(long accountId, string externalUserId)
-    {
-        try
-        {
-            var response = await _mediator.Send(new GetAccountEmployerAgreementsRequest
-            {
-                AccountId = accountId,
-                ExternalUserId = externalUserId
-            });
-
-            return new OrchestratorResponse<EmployerAgreementListViewModel>
-            {
-                Data = new EmployerAgreementListViewModel
-                {
-                    EmployerAgreementsData = response
-                }
-            };
-        }
-        catch (Exception)
-        {
-            return new OrchestratorResponse<EmployerAgreementListViewModel>
-            {
-                Status = HttpStatusCode.Unauthorized
-            };
-        }
     }
 }

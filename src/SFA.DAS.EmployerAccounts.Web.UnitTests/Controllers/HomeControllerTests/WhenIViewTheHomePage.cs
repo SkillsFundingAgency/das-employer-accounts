@@ -66,13 +66,13 @@ public class WhenIViewTheHomePage : ControllerTestBase
             }
         };
         
-        _homeOrchestrator
-            .Setup(x => x.GetEmployerAccountAgreements(_userAccountsViewModel.Accounts.AccountList[0].Id, ExpectedUserId))
-            .ReturnsAsync(new OrchestratorResponse<EmployerAgreementListViewModel>
-            {
-                Data = _singleEmployerAgreement,
-                Status = HttpStatusCode.OK
-            });
+        // _homeOrchestrator
+        //     .Setup(x => x.GetEmployerAccountAgreements(_userAccountsViewModel.Accounts.AccountList[0].Id, ExpectedUserId))
+        //     .ReturnsAsync(new OrchestratorResponse<EmployerAgreementListViewModel>
+        //     {
+        //         Data = _singleEmployerAgreement,
+        //         Status = HttpStatusCode.OK
+        //     });
 
         _configuration = new EmployerAccountsConfiguration
         {
@@ -254,7 +254,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        _singleEmployerAgreement.EmployerAgreementsData.EmployerAgreements[0].Pending.Acknowledged = false;
+        _userAccountsViewModel.Accounts.AccountList[0].AddTrainingProviderAcknowledged = false;
 
         //Act
         var actual = await _homeController.Index(_queryData);
@@ -460,7 +460,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
         //Assert
         Assert.IsNotNull(actual);
         var actualViewResult = actual as RedirectToRouteResult;
-        Assert.AreEqual(RouteNames.NewEmpoyerAccountTaskList, actualViewResult.RouteName);
+        Assert.AreEqual(RouteNames.NewEmployerAccountTaskList, actualViewResult.RouteName);
     }
 
     private static UserAccountsViewModel SetupUserAccountsViewModel()

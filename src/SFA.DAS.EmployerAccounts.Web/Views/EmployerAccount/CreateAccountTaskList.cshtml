@@ -11,7 +11,7 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
         <h2 class="govuk-heading-s govuk-!-margin-bottom-2">Account creation incomplete</h2>
-        <p class="govuk-body">You have completed @Model.Data.CompletedSections of 4 sections.</p>
+        <p class="govuk-body">You have completed @Model.Data.CompletedSections of 5 sections.</p>
         <div class="govuk-inset-text govuk-!-margin-bottom-7">
             You do not have to complete all sections at once. Those labelled 'completed' have been saved so you can continue your employer account creation later.
         </div>
@@ -97,7 +97,7 @@
                             <span class="das-task-list__task-name">
                                 Your employer agreement
                             </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Cannot start yet</strong>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-sign-agreement">Cannot start yet</strong>
                         }
                         else
                         {
@@ -106,35 +106,79 @@
                                     Your employer agreement
                                 </a>
                             </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-set-account-name">Not started</strong>
+                            if (!Model.Data.AgreementAcknowledged)
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-sign-agreement">Not started</strong>
+                            }
+                            else if (Model.Data.HasSignedAgreement)
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag" id="status-sign-agreement">Completed</strong>
+                            }
+                            else
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--blue" id="status-sign-agreement">Pending</strong>
+                            }
                         }
                     </li>
                 </ul>
             </li>
-            @* <li>
-            <h2 class="das-task-list__section">
-            <span class="das-task-list__section-number">5. </span> Add a training provider
-            </h2>
-            <ul class="das-task-list__items">
-            <li class="das-task-list__item">
-            <span class="das-task-list__task-name">
-            Add a training provider
-            </span>
-            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-training-provider">Cannot start yet</strong>
+            <li>
+                <h2 class="das-task-list__section">
+                    <span class="das-task-list__section-number">5. </span> Add a training provider
+                </h2>
+                <ul class="das-task-list__items">
+                    <li class="das-task-list__item">
+                        @if (!Model.Data.AgreementAcknowledged)
+                        {
+                            <span class="das-task-list__task-name">
+                                Training provider
+                            </span>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Cannot start yet</strong>
+                        }
+                        else
+                        {
+                            <span class="das-task-list__task-name">
+                                <a asp-route="@RouteNames.TrainingProviderTriage" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-add-training-provider" class="govuk-link">
+                                    Training provider
+                                </a>
+                            </span>
+                            if (!Model.Data.HasProviders)
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Not started</strong>
+                            }
+                            else
+                            {
+                                <strong class="govuk-tag das-task-list__task-tag" id="status-add-training-provider">Completed</strong>
+                            }
+                        }
+                    </li>
+                    <li class="das-task-list__item">
+                        @if(!Model.Data.HasProviders)
+                        {
+                            <span class="das-task-list__task-name">
+                                Training provider permissions
+                            </span>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-provider-permissions">Cannot start yet</strong>
+                        }
+                        else
+                        {
+                            <span class="das-task-list__task-name">
+                                <a href="@Model.Data.ProviderPermissionsUrl" aria-describedby="status-provider-permissions" class="govuk-link">
+                                    Training provider permissions
+                                </a>
+                            </span>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-provider-permissions">Not started</strong>
+                        }
+                    </li>
+                </ul>
             </li>
-            <li class="das-task-list__item">
-            <span class="das-task-list__task-name">
-            Set your training provider permissions
-            </span>
-            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-provider-permissions">Cannot start yet</strong>
-            </li>
-            </ul>
-            </li>*@
         </ol>
         @*<div class="app-save-return">*@
         <a asp-route="@Model.Data.SaveProgressRouteName"
            asp-route-hashedAccountId="@Model.Data.HashedAccountId"
-           class="govuk-body govuk-button govuk-button--secondary app-save-return__link">Save and come back later</a>
+           class="govuk-body govuk-button govuk-button--secondary app-save-return__link">
+            Save and come back later
+        </a>
         @*</div>*@
     </div>
 </div>

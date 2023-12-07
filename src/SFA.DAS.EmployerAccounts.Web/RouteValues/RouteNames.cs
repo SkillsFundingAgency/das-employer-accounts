@@ -82,10 +82,12 @@
         public const string TriageCannotSetupWithoutApproximateStartDate = "triage-cannot-setup-without-approx-start-date";
         public const string TriageWhenApprenticeshipForExistingEmployee = "triage-existing-employee";
         public const string TriageWhenApprenticeshipForExistingEmployeePost = "triage-existing-employee-post";
-        public const string NewEmpoyerAccountTaskList = "new-account-task-list";
+        public const string NewEmployerAccountTaskList = "new-account-task-list";
         public const string ContinueNewEmployerAccountTaskList = "continue-account-task-list";
 
         public const string OrganisationAndPayeAddedSuccess = "org-and-paye-added-success";
+        public const string TrainingProviderTriage = "training-provider-triage";
         public const string TaskListSignedAgreementSuccess = "task-list-sign-agreement-success";
+        public const string TrainingProviderSuccess = "task-list-trainig-provider-success";
     }
 }

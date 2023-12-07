@@ -1,4 +1,5 @@
-﻿using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
+﻿using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
+using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.CreateLegalEntity;
@@ -14,15 +15,19 @@ namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
 public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 {
+    private readonly IEmployerAccountService _employerAccountService;
     private readonly ILogger<EmployerAccountOrchestrator> _logger;
     private readonly IEncodingService _encodingService;
     private readonly IUrlActionHelper _urlHelper;
     private const string CookieName = "sfa-das-employerapprenticeshipsservice-employeraccount";
 
     //Needed for tests
-    protected EmployerAccountOrchestrator() { }
+    protected EmployerAccountOrchestrator()
+    {
+    }
 
     public EmployerAccountOrchestrator(
+        IEmployerAccountService employerAccountService,
         IMediator mediator,
         ILogger<EmployerAccountOrchestrator> logger,
         ICookieStorageService<EmployerAccountData> cookieService,
@@ -31,6 +36,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         IUrlActionHelper urlHelper)
         : base(mediator, cookieService, configuration)
     {
+        _employerAccountService = employerAccountService;
         _logger = logger;
         _encodingService = encodingService;
         _urlHelper = urlHelper;
@@ -53,7 +59,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         };
     }
 
-    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> GetRenameEmployerAccountViewModel(string hashedAccountId, string userId)
+    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> GetRenameEmployerAccountViewModel(
+        string hashedAccountId, string userId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
         var response = await Mediator.Send(new GetEmployerAccountByIdQuery
@@ -73,7 +80,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         };
     }
 
-    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> SetEmployerAccountName(string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
+    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> SetEmployerAccountName(
+        string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
     {
         var response = new OrchestratorResponse<RenameEmployerAccountViewModel> { Data = model };
         _ = await RenameEmployerAccount(hashedAccountId, model, userId);
@@ -81,7 +89,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         return response;
     }
 
-    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> RenameEmployerAccount(string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
+    public virtual async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> RenameEmployerAccount(
+        string hashedAccountId, RenameEmployerAccountViewModel model, string userId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
         var response = new OrchestratorResponse<RenameEmployerAccountViewModel> { Data = model };
@@ -120,7 +129,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         return response;
     }
 
-    public virtual async Task<OrchestratorResponse<EmployerAgreementViewModel>> CreateOrUpdateAccount(CreateAccountModel model, HttpContext context)
+    public virtual async Task<OrchestratorResponse<EmployerAgreementViewModel>> CreateOrUpdateAccount(
+        CreateAccountModel model, HttpContext context)
     {
         if (string.IsNullOrWhiteSpace(model?.HashedAccountId?.Value))
         {
@@ -312,6 +322,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         else
         {
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+            var employerAccountTaskListResponse = await _employerAccountService.GetEmployerAccountTaskList(accountId, hashedAccountId);
 
             var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
             {
@@ -323,26 +334,38 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 AccountId = accountId
             });
 
-            if (accountResponse?.Account == null 
-                || accountAgreementsResponse.EmployerAgreements == null 
+            if (accountResponse?.Account == null
+                || accountAgreementsResponse.EmployerAgreements == null
                 || !accountAgreementsResponse.EmployerAgreements.Any())
             {
                 return new OrchestratorResponse<AccountTaskListViewModel> { Status = HttpStatusCode.NotFound };
             }
 
-            var agreement = accountAgreementsResponse.EmployerAgreements.Find(ea => ea.StatusId == EmployerAgreementStatus.Pending);
-            
+            var agreement = accountAgreementsResponse.EmployerAgreements.FirstOrDefault();
+            var hasAgreement = agreement != null;
+
             response.Data = new AccountTaskListViewModel
             {
                 HashedAccountId = hashedAccountId,
                 HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false,
                 NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
                 PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId),
-                AgreementAcknowledged = agreement.Acknowledged.GetValueOrDefault()
+                AddTrainingProviderAcknowledged = accountResponse.Account.AddTrainingProviderAcknowledged ?? true
             };
+
+            if (hasAgreement)
+            {
+                response.Data.AgreementAcknowledged = agreement.Acknowledged ?? true;
+                response.Data.HasSignedAgreement = agreement.SignedDate.HasValue;
+                response.Data.HasProviders = employerAccountTaskListResponse?.HasProviders ?? false;
+                response.Data.HasProviderPermissions = employerAccountTaskListResponse?.HasProviderPermissions ?? false;
+            }
         }
-        
-        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
+
+        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() +
+                                           $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
+        response.Data.ProviderPermissionsUrl =
+            _urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true";
 
         return response;
     }
@@ -355,9 +378,9 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             UserRef = userRef
         });
 
-       var firstAccount = !getUserAccountsQueryResponse.Accounts.AccountList.Any() 
-            ? null 
-            : getUserAccountsQueryResponse.Accounts.AccountList.OrderBy(x => x.CreatedDate).FirstOrDefault();
+        var firstAccount = getUserAccountsQueryResponse.Accounts == null || !getUserAccountsQueryResponse.Accounts.AccountList.Any()
+            ? null
+            : getUserAccountsQueryResponse.Accounts.AccountList.MinBy(x => x.CreatedDate);
 
         if (firstAccount != null)
         {
@@ -373,5 +396,23 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             HasPayeScheme = getAccountPayeResponse.PayeSchemes?.Any() ?? false,
             NameConfirmed = firstAccount?.NameConfirmed ?? false
         };
+    }
+
+    public async Task AcknowledgeTrainingProviderTask(string hashedAccountId, string externalUserId)
+    {
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+
+        var accountResponse = await Mediator.Send(new GetEmployerAccountByIdQuery { AccountId = accountId, UserId = externalUserId });
+
+        await Mediator.Send(new AcknowledgeTrainingProviderTaskCommand(accountId));
+        
+        await Mediator.Send(new SendAccountTaskListCompleteNotificationCommand
+        {
+            AccountId = accountId,
+            PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
+            HashedAccountId = hashedAccountId,
+            ExternalUserId = externalUserId,
+            OrganisationName = accountResponse.Account.Name
+        });
     }
 }
