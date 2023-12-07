@@ -1,0 +1,74 @@
+﻿@using SFA.DAS.EmployerAccounts.Web.Helpers
+@{
+    ViewBag.PageID = "training-provider-triage";
+    ViewBag.Title = "Add a training provider";
+    ViewBag.ShowNav = false;
+
+    ViewBag.GaData.Vpv = "/service/training-provider-triage";
+    var hiddenClass = Model?.GetType().GetProperty("InError") != null ? "" : "das-hidden";
+    var errorClass = Model?.GetType().GetProperty("InError") != null ? "govuk-form-group--error" : "";
+}
+
+@if (Model?.GetType().GetProperty("InError") != null)
+{
+    <div class="govuk-error-summary" data-module="govuk-error-summary">
+        <div role="alert">
+            <h2 class="govuk-error-summary__title">
+                There is a problem
+            </h2>
+            <div class="govuk-error-summary__body">
+                <ul class="govuk-list govuk-error-summary__list">
+                    <li>
+                        <a href="#add-training-provider-now">Tell us if you want to add a training provider</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">
+            @ViewBag.Title
+        </h1>
+        
+         <div class="govuk-body">You can either add a training provider now, or finish creating your account and add a training provider later.</div>
+        
+        <form method="POST" asp-route="@RouteNames.TrainingProviderTriage">
+            <div class="govuk-form-group @errorClass" id="do-you-want-to-add-a-training-provider-form">
+                <fieldset class="govuk-fieldset" aria-describedby="have-not-got-everything">
+                    
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        Do you want to add a training provider now?
+                    </legend>
+                   
+                    <span class="govuk-error-message @hiddenClass" aria-hidden="false" id="have-not-got-everything">
+                        Tell us if you want to add a training provider
+                    </span>
+                    <div class="govuk-radios">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" type="radio" name="choice" id="add-training-provider-now" value="1"/>
+                            <label class="govuk-label govuk-radios__label" for="add-training-provider-now">
+                                Yes, I'll add a training provider now
+                            </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" type="radio" name="choice" id="add-training-provider-later" value="2"/>
+                            <label class="govuk-label govuk-radios__label" for="add-training-provider-later">
+                                No, I want to finish setting up my account and add one later
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="govuk-button-group">
+                <button class="govuk-button" type="submit" id="submit-add-a-paye-scheme-button">Continue</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section breadcrumb {
+    <div class="das-js-back-link"></div>
+}

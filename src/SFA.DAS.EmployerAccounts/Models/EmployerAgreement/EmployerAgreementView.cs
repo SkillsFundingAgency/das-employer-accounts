@@ -26,4 +26,5 @@ public class EmployerAgreementView
     public string AccountLegalEntityPublicHashedId { get; set; }
     public AgreementType AgreementType { get; set; }
     public int VersionNumber { get; set; }
+    public bool? Acknowledged { get; set; }
 }

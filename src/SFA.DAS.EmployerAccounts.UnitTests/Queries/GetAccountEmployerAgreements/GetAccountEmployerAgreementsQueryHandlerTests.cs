@@ -184,6 +184,37 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountEmployerAgreement
             // Assert
             response.MinimumSignedAgreementVersion.Should().Be(signedAgreementVersions.Min());
         }
+        
+        [Test]
+        public async Task Handle_WhenSingleAccountLegalEntityWithPendingAgreement_ThenAcknowledgedSet()
+        {
+            // Arrange
+            var request = _fixture.Create<GetAccountEmployerAgreementsRequest>();
+            int[] signedAgreementVersions = new[] { 7 };
+
+            var accountLegalEntity = _fixture
+                .Build<AccountLegalEntity>()
+                .With(ale => ale.AccountId, request.AccountId)
+                .Without(ale => ale.Deleted)
+                .With(ale => ale.SignedAgreementVersion, (int?)null)
+                .With(ale => ale.SignedAgreement, (EmployerAgreement)null)
+                .With(ale => ale.PendingAgreement, _fixture.Build<EmployerAgreement>().With(ea => ea.Acknowledged, true).Create())
+                .Create();
+
+            _accountLegalEntities.Add(accountLegalEntity);
+
+            _mockValidator.Setup(x => x.ValidateAsync(request))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockEncodingService.Setup(x => x.Encode(request.AccountId, EncodingType.AccountId))
+                .Returns<long, EncodingType>((id, et) => $"encoded_{id}");
+
+            // Act
+            var response = await _handler.Handle(request, CancellationToken.None);
+
+            // Assert
+            response.HasAcknowledgedAgreements.Should().Be(true);
+        }
 
         [Test]
         public void Handle_WhenRequestIsInvalid_ThrowsInvalidRequestException()

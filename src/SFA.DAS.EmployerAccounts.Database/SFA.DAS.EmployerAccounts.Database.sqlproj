@@ -65,7 +65,6 @@
     <Folder Include="UserDefinedTypes" />
     <Folder Include="Scripts" />
     <Folder Include="Scripts\PostDeployment" />
-    <Folder Include="Scripts\PreDeployment" />
     <Folder Include="Scripts\Manual" />
     <Folder Include="Functions" />
   </ItemGroup>
@@ -145,6 +144,7 @@
     <None Include="Scripts\PreDeployment\AML-2434-DeleteOrphanedUserAccountSettings.sql" />
     <None Include="Scripts\Manual\AML-2674-NullAccountLegalEntityPublicHashIds.sql" />
     <Build Include="Tables\HealthChecks.sql" />
+    <None Include="Scripts\PreDeployment\APPMAN-117_Null-tasklist-acknowledgements.sql" />
     <None Include="Scripts\PreDeployment\DeleteHealthChecks.sql" />
     <Build Include="Tables\RunOnceJob.sql" />
     <Build Include="StoredProcedures\CreateUserAccount.sql" />

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ContentBanner
 {
-    public class WhenIGetContentApiClientwITHCaching
+    public class WhenIGetContentApiClientWithCaching
     {
         private string _contentType;
         private string _clientId;

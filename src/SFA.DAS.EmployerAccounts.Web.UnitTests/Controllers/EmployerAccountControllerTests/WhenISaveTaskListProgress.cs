@@ -41,7 +41,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             var model = result.Model as CreateAccountProgressSavedViewModel;
 
             // Assert
-            model.ContinueTaskListRouteName.Should().Be(RouteNames.NewEmpoyerAccountTaskList);
+            model.ContinueTaskListRouteName.Should().Be(RouteNames.NewEmployerAccountTaskList);
         }
     }
 }

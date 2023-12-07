@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authentication;
+using SFA.DAS.EmployerAccounts.Dtos;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.GovUK.Auth.Services;
 
@@ -17,6 +19,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests
 public class WhenIViewTheHomePage : ControllerTestBase
 {
     private UserAccountsViewModel _userAccountsViewModel;
+    private EmployerAgreementListViewModel _singleEmployerAgreement;
     private HomeController _homeController;
     private Mock<HomeOrchestrator> _homeOrchestrator;
     private EmployerAccountsConfiguration _configuration;
@@ -45,6 +48,31 @@ public class WhenIViewTheHomePage : ControllerTestBase
             {
                 Data = _userAccountsViewModel
             });
+
+        _singleEmployerAgreement = new EmployerAgreementListViewModel
+        {
+            EmployerAgreementsData = new GetAccountEmployerAgreementsResponse
+            {
+                EmployerAgreements = new List<EmployerAgreementStatusDto>
+                {
+                    new()
+                    {
+                        Pending = new EmployerAgreementDetailsDto
+                        {
+                            Acknowledged = true
+                        }
+                    }
+                }
+            }
+        };
+        
+        // _homeOrchestrator
+        //     .Setup(x => x.GetEmployerAccountAgreements(_userAccountsViewModel.Accounts.AccountList[0].Id, ExpectedUserId))
+        //     .ReturnsAsync(new OrchestratorResponse<EmployerAgreementListViewModel>
+        //     {
+        //         Data = _singleEmployerAgreement,
+        //         Status = HttpStatusCode.OK
+        //     });
 
         _configuration = new EmployerAccountsConfiguration
         {
@@ -218,7 +246,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
     }
 
     [Test]
-    public async Task ThenIfIHave_OneIncompleteAccount_IAmRedirectedToTheEmployerTeamsIndexPage()
+    public async Task ThenIfIHave_OneIncompleteAccount_IAmRedirectedToTheContinueTaskListPage()
     {
         //Arrange
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
@@ -226,7 +254,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        _userAccountsViewModel.Accounts.AccountList[0].NameConfirmed = false;
+        _userAccountsViewModel.Accounts.AccountList[0].AddTrainingProviderAcknowledged = false;
 
         //Act
         var actual = await _homeController.Index(_queryData);
@@ -432,7 +460,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
         //Assert
         Assert.IsNotNull(actual);
         var actualViewResult = actual as RedirectToRouteResult;
-        Assert.AreEqual(RouteNames.NewEmpoyerAccountTaskList, actualViewResult.RouteName);
+        Assert.AreEqual(RouteNames.NewEmployerAccountTaskList, actualViewResult.RouteName);
     }
 
     private static UserAccountsViewModel SetupUserAccountsViewModel()

@@ -9,4 +9,5 @@ public class EmployerAgreementStatusDto
     public EmployerAgreementDetailsDto Pending { get; set; }
     public bool HasPendingAgreement => Pending != null;
     public bool HasSignedAgreement => Signed!= null;
+    public bool? Acknowledged => Pending?.Acknowledged;
 }

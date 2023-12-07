@@ -15,4 +15,5 @@ public class Account
     public virtual byte ApprenticeshipEmployerType { get; set; }
     public virtual ICollection<Membership> Memberships { get; set; } = new List<Membership>();
     public virtual ICollection<AccountHistory> AccountHistory { get; set; } = new List<AccountHistory>();
+    public virtual bool? AddTrainingProviderAcknowledged { get; set; }
 }

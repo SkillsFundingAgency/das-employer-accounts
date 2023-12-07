@@ -101,9 +101,7 @@ public class HomeController : BaseController
 
             return View(ControllerConstants.ServiceStartPageViewName, model);
         }
-
-
-
+        
         if (accounts.Data.Invitations > 0)
         {
             return RedirectToAction(ControllerConstants.InvitationIndexName, ControllerConstants.InvitationControllerName,queryData);
@@ -116,7 +114,7 @@ public class HomeController : BaseController
 
             if (account != null)
             {
-                if (account.NameConfirmed)
+                if (account.AddTrainingProviderAcknowledged ?? true)
                 {
                     return RedirectToRoute(RouteNames.EmployerTeamIndex, new
                     {
@@ -129,7 +127,8 @@ public class HomeController : BaseController
                         queryData.utm_keywords,
                         queryData.utm_content
                     });
-                } else
+                } 
+                else
                 {
                     return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId = account.HashedId });
                 }
@@ -149,7 +148,7 @@ public class HomeController : BaseController
             return View(accounts);
         }
 
-        return RedirectToRoute(RouteNames.NewEmpoyerAccountTaskList, queryData);
+        return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, queryData);
     }
 
     [Authorize]

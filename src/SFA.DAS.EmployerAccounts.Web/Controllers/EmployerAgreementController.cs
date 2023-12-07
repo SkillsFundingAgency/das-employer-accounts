@@ -24,7 +24,7 @@ public class EmployerAgreementController : BaseController
         ICookieStorageService<FlashMessageViewModel> flashMessage,
         IMediator mediator,
         IUrlActionHelper urlActionHelper)
-        : base( flashMessage)
+        : base(flashMessage)
     {
         _orchestrator = orchestrator;
         _mediator = mediator;
@@ -65,7 +65,8 @@ public class EmployerAgreementController : BaseController
     [Route("agreements/{hashedAgreementId}/view", Name = RouteNames.AgreementView)]
     public async Task<IActionResult> View(string hashedAccountId, string hashedAgreementId)
     {
-        var agreement = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var agreement = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
         return View(agreement.Data);
     }
 
@@ -73,11 +74,14 @@ public class EmployerAgreementController : BaseController
     [Route("agreements/unsigned/view")]
     public async Task<IActionResult> ViewUnsignedAgreements(string hashedAccountId)
     {
-        var unsignedAgeementResponse = await _orchestrator.GetNextUnsignedAgreement(hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var unsignedAgeementResponse = await _orchestrator.GetNextUnsignedAgreement(hashedAccountId,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
-        if (!unsignedAgeementResponse.Data.HasNextAgreement) return RedirectToAction(ControllerConstants.IndexActionName);
+        if (!unsignedAgeementResponse.Data.HasNextAgreement)
+            return RedirectToAction(ControllerConstants.IndexActionName);
 
-        return RedirectToAction(ControllerConstants.AboutYourAgreementActionName, new { agreementId = unsignedAgeementResponse.Data.NextAgreementHashedId });
+        return RedirectToAction(ControllerConstants.AboutYourAgreementActionName,
+            new { agreementId = unsignedAgeementResponse.Data.NextAgreementHashedId });
     }
 
     [HttpGet]
@@ -99,21 +103,23 @@ public class EmployerAgreementController : BaseController
     {
         var externalUserId = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
 
-        var viewModel = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, externalUserId);
+        var viewModel =
+            await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, externalUserId);
 
         return View(viewModel.Data);
     }
 
     [HttpPost]
     [Route("agreements/{hashedAgreementId}/sign", Name = RouteNames.EmployerAgreementSign)]
-    public async Task<IActionResult> Sign( string hashedAccountId, string hashedAgreementId, int? choice)
+    public async Task<IActionResult> Sign(string hashedAccountId, string hashedAgreementId, int? choice)
     {
         var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
+        var agreement = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, userInfo);
+        var hasPreviousAcknowledgement = agreement.Data.HasAcknowledgedAgreement;
+        var legalEntityName = agreement.Data.EmployerAgreement.LegalEntityName;
 
         if (choice == null)
         {
-            var agreement = await _orchestrator.GetSignedAgreementViewModel(hashedAccountId, hashedAgreementId, userInfo);
-
             ModelState.AddModelError(nameof(agreement.Data.Choice), "Select whether you accept the agreement");
 
             return View(ControllerConstants.SignAgreementViewName, agreement.Data);
@@ -121,10 +127,12 @@ public class EmployerAgreementController : BaseController
 
         if (choice == SignEmployerAgreementViewModel.ReviewAgreementLater)
         {
+            _ = await _orchestrator.AcknowledgeAgreement(hashedAgreementId, hasPreviousAcknowledgement);
+
             return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
         }
 
-        var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow);
+        var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow, legalEntityName, hasPreviousAcknowledgement);
 
         if (response.Status == HttpStatusCode.Unauthorized)
         {
@@ -142,26 +150,38 @@ public class EmployerAgreementController : BaseController
 
             if (getProviderInvitationQueryResponse.Result?.Status < InvitationComplete)
             {
-                return Redirect(_urlActionHelper.ProviderRelationshipsAction($"providers/invitation/{user.User.CorrelationId}") + $"?userref={user.User.Ref}");
+                return Redirect(
+                    _urlActionHelper.ProviderRelationshipsAction($"providers/invitation/{user.User.CorrelationId}") +
+                    $"?userref={user.User.Ref}");
             }
         }
-
 
         if (response.Status == HttpStatusCode.OK)
         {
             ViewBag.CompanyName = response.Data.LegalEntityName;
             ViewBag.HasFurtherPendingAgreements = response.Data.HasFurtherPendingAgreements;
+
+            if (!hasPreviousAcknowledgement)
+            {
+                return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId });
+            }
+
             return View(ControllerConstants.AcceptedEmployerAgreementViewName);
         }
 
-        return RedirectToAction(ControllerConstants.SignAgreementActionName, new GetEmployerAgreementRequest { HashedAgreementId = hashedAgreementId, ExternalUserId = userInfo, HashedAccountId = hashedAccountId });
+        return RedirectToAction(ControllerConstants.SignAgreementActionName,
+            new GetEmployerAgreementRequest
+            {
+                HashedAgreementId = hashedAgreementId, ExternalUserId = userInfo, HashedAccountId = hashedAccountId
+            });
     }
 
     [HttpGet]
     [Route("agreements/{hashedAgreementId}/agreement-pdf", Name = RouteNames.GetPdfAgreement)]
     public async Task<IActionResult> GetPdfAgreement(string hashedAccountId, string hashedAgreementId)
     {
-        var stream = await _orchestrator.GetPdfEmployerAgreement(hashedAccountId, hashedAgreementId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var stream = await _orchestrator.GetPdfEmployerAgreement(hashedAccountId, hashedAgreementId,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         if (stream.Data.PdfStream == null)
         {
@@ -176,7 +196,8 @@ public class EmployerAgreementController : BaseController
     [Route("agreements/{hashedAgreementId}/signed-agreement-pdf", Name = RouteNames.GetSignedPdfAgreement)]
     public async Task<IActionResult> GetSignedPdfAgreement(string hashedAccountId, string hashedAgreementId)
     {
-        var stream = await _orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var stream = await _orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         if (stream.Data.PdfStream == null)
         {
@@ -189,11 +210,16 @@ public class EmployerAgreementController : BaseController
 
     [HttpGet]
     [Route("agreements/{accountLegalEntityHashedId}/remove")]
-    public async Task<IActionResult> ConfirmRemoveOrganisation(string hashedAccountId, string accountLegalEntityHashedId)
+    public async Task<IActionResult> ConfirmRemoveOrganisation(string hashedAccountId,
+        string accountLegalEntityHashedId)
     {
-        var model = await _orchestrator.GetConfirmRemoveOrganisationViewModel(hashedAccountId, accountLegalEntityHashedId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var model = await _orchestrator.GetConfirmRemoveOrganisationViewModel(hashedAccountId,
+            accountLegalEntityHashedId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
-        return View(model.Data != null && model.Data.CanBeRemoved ? ControllerConstants.ConfirmRemoveOrganisationActionName : ControllerConstants.CannotRemoveOrganisationViewName, model);
+        return View(
+            model.Data != null && model.Data.CanBeRemoved
+                ? ControllerConstants.ConfirmRemoveOrganisationActionName
+                : ControllerConstants.CannotRemoveOrganisationViewName, model);
     }
 
     [HttpPost]
@@ -202,11 +228,15 @@ public class EmployerAgreementController : BaseController
     {
         if (!ModelState.IsValid)
         {
-            return View(ControllerConstants.ConfirmRemoveOrganisationViewName, new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel> { Data = model });
+            return View(ControllerConstants.ConfirmRemoveOrganisationViewName,
+                new OrchestratorResponse<ConfirmOrganisationToRemoveViewModel> { Data = model });
         }
-        if (!model.Remove.HasValue || !model.Remove.Value) return RedirectToRoute(RouteNames.EmployerAgreementIndex, new { model.HashedAccountId });
 
-        var response = await _orchestrator.RemoveLegalAgreement(model, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        if (!model.Remove.HasValue || !model.Remove.Value)
+            return RedirectToRoute(RouteNames.EmployerAgreementIndex, new { model.HashedAccountId });
+
+        var response = await _orchestrator.RemoveLegalAgreement(model,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         if (response.Status == HttpStatusCode.OK)
         {
@@ -234,13 +264,16 @@ public class EmployerAgreementController : BaseController
     {
         switch (choice ?? 0)
         {
-            case ViewAgreementNow: return RedirectToRoute(RouteNames.EmployerAgreementSignYourAgreement, new { hashedAccountId, hashedAgreementId });
+            case ViewAgreementNow:
+                return RedirectToRoute(RouteNames.EmployerAgreementSignYourAgreement,
+                    new { hashedAccountId, hashedAgreementId });
             case ViewAgreementLater: return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
             default:
             {
                 var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
                 var agreement = await _orchestrator.GetById(hashedAgreementId, hashedAccountId, userInfo);
-                return View(new WhenDoYouWantToViewViewModel { EmployerAgreement = agreement.Data.EmployerAgreement, InError = true });
+                return View(new WhenDoYouWantToViewViewModel
+                    { EmployerAgreement = agreement.Data.EmployerAgreement, InError = true });
             }
         }
     }

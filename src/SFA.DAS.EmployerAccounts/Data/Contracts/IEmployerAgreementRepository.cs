@@ -17,4 +17,5 @@ public interface IEmployerAgreementRepository
     Task<EmployerAgreementStatus?> GetEmployerAgreementStatus(long agreementId);
     Task SetAccountLegalEntityAgreementDetails(long accountLegalEntityId, long? pendingAgreementId, int? pendingAgreementVersion, long? signedAgreementId, int? signedAgreementVersion);
     Task<AccountLegalEntity> GetOrganisationsAgreements(long accountLegalEntityId);
+    Task AcknowledgeEmployerAgreement(long agreementId);
 }

@@ -1,5 +1,4 @@
 ﻿@using SFA.DAS.Common.Domain.Types
-@using SFA.DAS.EmployerAccounts.Web.Helpers
 @model OrchestratorResponse<SummaryViewModel>
 
 @{
@@ -153,7 +152,7 @@
 
             <div class="govuk-button-group">
                 <button class="govuk-button" type="submit" id="continue-check-details">Continue</button>
-                <a asp-route="@RouteNames.NewEmpoyerAccountTaskList" id="cancel-check-details" class="govuk-link">Cancel</a>
+                <a asp-route="@RouteNames.NewEmployerAccountTaskList" id="cancel-check-details" class="govuk-link">Cancel</a>
             </div>
         </form>
     </div>

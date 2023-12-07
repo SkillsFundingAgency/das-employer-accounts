@@ -13,14 +13,25 @@
                 Employer account created
             </h1>
         </div>
-        @*<p>We've sent you a confirmation email (you may need to check your junk folder and add us to your safe senders list).</p>*@
-        <h2 class="govuk-heading-m">Next steps</h2>
-        <p class="govuk-body"> Before you can reserve funds for apprenticeship training you will need to:</p>
+        <p>We've sent you a confirmation email (you may need to check your junk folder and add us to your safe senders list).</p>
+        <h2 class="govuk-heading-m">Within your employer account you can:</h2>
         <ul class="govuk-list govuk-list--bullet">
-            <li><a asp-route="@RouteNames.EmployerAgreementIndex" asp-route-hashedAccountId="@hashedAccountId" class="govuk-link">accept the agreement</a> between your organisation and the Department for Education (DfE)</li>
-            <li><a href="@UrlHelpers.ProviderRelationshipsAction("providers")" class="govuk-link">add a training provider</a> who will support your apprentice(s) through their apprenticeship.</li>
+            <li>add new team members</li>
+            <li>manage and control permissions of team members</li>
+            <li>select your notification settings</li>
+            <li>manage apprentices</li>
+            <li>give or change permissions to your training provider</li>
         </ul>
-        <p class="govuk-body">You can also give permission for your training provider to create adverts and reserve apprenticeship funds on your behalf.</p>
+        <h2 class="govuk-heading-m">What happens next?</h2>
+        <p class="govuk-body">You will be able to: </p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>add new team members</li>
+            <li>manage and control permissions of team members</li>
+            <li>select your notification settings</li>
+            <li>manage apprentices</li>
+            <li>give or change permissions to your training provider</li>
+        </ul>
+
         <a asp-route="@RouteNames.EmployerTeamIndex" asp-route-hashedAccountId="@hashedAccountId" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
             Go to your employer account homepage
         </a>

@@ -15,6 +15,7 @@ public class WhenGettingTheTokenResponse
     private Mock<IMediator> _mediator;
     private Mock<ICookieStorageService<EmployerAccountData>> _cookieService;
     private EmployerAccountsConfiguration _configuration;
+    private Mock<IEmployerAccountService> _employerAccountService;
 
     [SetUp]
     public void Arrange()
@@ -22,12 +23,14 @@ public class WhenGettingTheTokenResponse
         _logger = new Mock<ILogger<EmployerAccountOrchestrator>>();
         _mediator = new Mock<IMediator>();
         _cookieService = new Mock<ICookieStorageService<EmployerAccountData>>();
+        _employerAccountService = new Mock<IEmployerAccountService>();
         _configuration = new EmployerAccountsConfiguration
         {
             Hmrc = new HmrcConfiguration()
         };
 
         _employerAccountOrchestrator = new EmployerAccountOrchestrator(
+            _employerAccountService.Object,
             _mediator.Object, 
             _logger.Object, 
             _cookieService.Object, 

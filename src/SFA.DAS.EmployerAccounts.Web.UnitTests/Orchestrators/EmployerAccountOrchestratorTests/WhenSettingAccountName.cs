@@ -38,32 +38,6 @@ public class WhenSettingAccountName
     }
 
     [Test, DomainAutoData]
-    public async Task ThenSuccessShouldSendCreateAccountCompleteCommand(
-       Account account,
-       [Frozen] Mock<IMediator> mediatorMock,
-       EmployerAccountOrchestrator orchestrator)
-    {
-        // Arrange
-        mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetEmployerAccountByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetEmployerAccountByIdResponse { Account = account });
-
-        mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetUserAccountRoleQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetUserAccountRoleResponse { UserRole = Role.Owner });
-
-        //Act
-        var response = await orchestrator.SetEmployerAccountName(account.HashedId, new RenameEmployerAccountViewModel
-        {
-            ChangeAccountName = true,
-            NewName = "New Account Name"
-        }, "ABC123");
-
-        //Assert
-        mediatorMock.Verify(x => x.Send(It.Is<SendAccountTaskListCompleteNotificationCommand>(c => c.HashedAccountId == account.HashedId), It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Test, DomainAutoData]
     public async Task ThenErrorShouldSendCreateAccountCompleteCommand(
       Account account,
       [Frozen] Mock<IMediator> mediatorMock,
