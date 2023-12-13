@@ -139,23 +139,6 @@ public class EmployerAgreementController : BaseController
             return View(response);
         }
 
-        var user = await _mediator.Send(new GetUserByRefQuery { UserRef = userInfo });
-
-        if (!string.IsNullOrWhiteSpace(user.User.CorrelationId))
-        {
-            var getProviderInvitationQueryResponse = await _mediator.Send(new GetProviderInvitationQuery
-            {
-                CorrelationId = Guid.Parse(user.User.CorrelationId)
-            });
-
-            if (getProviderInvitationQueryResponse.Result?.Status < InvitationComplete)
-            {
-                return Redirect(
-                    _urlActionHelper.ProviderRelationshipsAction($"providers/invitation/{user.User.CorrelationId}") +
-                    $"?userref={user.User.Ref}");
-            }
-        }
-
         if (response.Status == HttpStatusCode.OK)
         {
             ViewBag.CompanyName = response.Data.LegalEntityName;
