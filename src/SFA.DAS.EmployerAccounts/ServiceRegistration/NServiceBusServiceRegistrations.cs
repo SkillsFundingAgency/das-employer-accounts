@@ -35,7 +35,7 @@ public static class NServiceBusServiceRegistrations
             throw new InvalidConfigurationValueException("DatabaseConnectionString");
         }
 
-        var allowOutboxCleanup = endpointType = ServiceBusEndpointType.Api;
+        var allowOutboxCleanup = endpointType == ServiceBusEndpointType.Api;
 
         var endpointConfiguration = new EndpointConfiguration(endPointName)
             .UseErrorQueue($"{endPointName}-errors")
@@ -43,7 +43,7 @@ public static class NServiceBusServiceRegistrations
             .UseMessageConventions()
             .UseServicesBuilder(services)
             .UseNewtonsoftJsonSerializer()
-            .UseOutbox()
+            .UseOutbox(allowOutboxCleanup)
             .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(databaseConnectionString))
             .ConfigureServiceBusTransport(() => employerAccountsConfiguration.ServiceBusConnectionString, isDevOrLocal)
             .UseUnitOfWork();

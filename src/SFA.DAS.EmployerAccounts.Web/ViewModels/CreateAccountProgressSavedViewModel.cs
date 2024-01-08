@@ -5,6 +5,6 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
     public class CreateAccountProgressSavedViewModel
     {
         public string HashedAccountId { get; set; }
-        public string ContinueTaskListRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.NewEmpoyerAccountTaskList : RouteNames.ContinueNewEmployerAccountTaskList;
+        public string ContinueTaskListRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.NewEmployerAccountTaskList : RouteNames.ContinueNewEmployerAccountTaskList;
     }
 }

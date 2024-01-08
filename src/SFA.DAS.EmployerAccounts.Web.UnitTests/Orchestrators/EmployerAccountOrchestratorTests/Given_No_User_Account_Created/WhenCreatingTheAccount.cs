@@ -12,6 +12,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
         private Mock<IMediator> _mediator;
         private Mock<ILogger<EmployerAccountOrchestrator>> _logger;
         private Mock<ICookieStorageService<EmployerAccountData>> _cookieService;
+        private Mock<IEmployerAccountService> _employerAccountService;
 
         private EmployerAccountsConfiguration _configuration;
 
@@ -22,8 +23,10 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             _logger = new Mock<ILogger<EmployerAccountOrchestrator>>();
             _cookieService = new Mock<ICookieStorageService<EmployerAccountData>>();
             _configuration = new EmployerAccountsConfiguration();
-
+            _employerAccountService = new Mock<IEmployerAccountService>();
+            
             _employerAccountOrchestrator = new EmployerAccountOrchestrator(
+                _employerAccountService.Object,
                 _mediator.Object, 
                 _logger.Object, 
                 _cookieService.Object, 

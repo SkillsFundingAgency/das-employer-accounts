@@ -1,9 +1,9 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.Azure.Services.AppAuthentication;
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.EmployerAccounts.Configuration;
@@ -14,18 +14,13 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly CommitmentsApiV2ClientConfiguration _config;
-    private readonly ILogger<CommitmentsV2ApiClient> _logger;
-    private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
+    private readonly ILogger<CommitmentsV2ApiClient> _logger;        
 
-    public CommitmentsV2ApiClient(HttpClient httpClient,
-        CommitmentsApiV2ClientConfiguration config,
-        ILogger<CommitmentsV2ApiClient> logger,
-        IAzureClientCredentialHelper azureClientCredentialHelper)
+    public CommitmentsV2ApiClient(HttpClient httpClient, CommitmentsApiV2ClientConfiguration config, ILogger<CommitmentsV2ApiClient> logger)
     {
         _httpClient = httpClient;
         _config = config;            
         _logger = logger;
-        _azureClientCredentialHelper = azureClientCredentialHelper;
     }
 
     public async Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId)
@@ -123,7 +118,14 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
     {
         if (!string.IsNullOrEmpty(_config.IdentifierUri))
         {
-            var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_config.IdentifierUri);
+            var azureServiceTokenProvider = new ChainedTokenCredential(
+                new ManagedIdentityCredential(),
+                new AzureCliCredential(),
+                new VisualStudioCodeCredential(),
+                new VisualStudioCredential()
+            );
+        
+            var accessToken = (await azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { _config.IdentifierUri }))).Token;
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }

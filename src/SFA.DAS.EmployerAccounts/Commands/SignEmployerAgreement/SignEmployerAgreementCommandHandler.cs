@@ -150,7 +150,7 @@ public class SignEmployerAgreementCommandHandler : IRequestHandler<SignEmployerA
         };
 
         await _employerAgreementRepository.SignAgreement(signedAgreementDetails);
-    }
+    } 
 
     private async Task AddAuditEntry(SignEmployerAgreementCommand message, long accountId, long agreementId)
     {

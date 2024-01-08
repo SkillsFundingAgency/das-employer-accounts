@@ -168,4 +168,11 @@ public class EmployerAgreementRepository : IEmployerAgreementRepository
 
         return accountLegalEntity;
     }
+
+    public async Task AcknowledgeEmployerAgreement(long agreementId)
+    {
+        var agreement = await _db.Value.Agreements.FindAsync(agreementId);
+
+        agreement.Acknowledged = true;
+    }
 }

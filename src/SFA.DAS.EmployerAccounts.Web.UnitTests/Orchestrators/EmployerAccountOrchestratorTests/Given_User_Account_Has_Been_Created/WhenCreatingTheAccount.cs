@@ -19,6 +19,7 @@ public class WhenCreatingTheAccount
 
     private EmployerAccountsConfiguration _configuration;
     private Mock<IEncodingService> _encodingService;
+    private Mock<IEmployerAccountService> _employerAccountService;
 
     private const long AgreementId = 78743;
     private const string HashedAgreementId = "AGGG165";
@@ -29,10 +30,12 @@ public class WhenCreatingTheAccount
         _mediator = new Mock<IMediator>();
         _logger = new Mock<ILogger<EmployerAccountOrchestrator>>();
         _cookieService = new Mock<ICookieStorageService<EmployerAccountData>>();
+        _employerAccountService = new Mock<IEmployerAccountService>();
         _configuration = new EmployerAccountsConfiguration();
         _encodingService = new Mock<IEncodingService>();
 
         _employerAccountOrchestrator = new EmployerAccountOrchestrator(
+            _employerAccountService.Object,
             _mediator.Object, 
             _logger.Object, 
             _cookieService.Object, 
