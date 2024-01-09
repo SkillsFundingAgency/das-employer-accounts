@@ -146,7 +146,7 @@ public class EmployerAgreementController : BaseController
 
             if (!hasPreviousAcknowledgement)
             {
-                return RedirectToRoute(RouteNames.TaskListSignedAgreementSuccess);
+                return RedirectToRoute(RouteNames.TaskListSignedAgreementSuccess, new { hashedAccountId });
             }
 
             return View(ControllerConstants.AcceptedEmployerAgreementViewName);
