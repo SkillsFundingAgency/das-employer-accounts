@@ -61,7 +61,7 @@ public class EmployerAccountController : BaseController
         var userIdClaim = HttpContext.User.Claims.First(x => x.Type.Equals(ControllerConstants.UserRefClaimKeyName));
         var accountTaskListViewModelResponse = await _employerAccountOrchestrator.GetCreateAccountTaskList(hashedAccountId, userIdClaim.Value);
 
-        if (accountTaskListViewModelResponse.Status == HttpStatusCode.OK 
+        if (accountTaskListViewModelResponse.Status == HttpStatusCode.OK
             && accountTaskListViewModelResponse.Data.TaskListComplete)
         {
             return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
@@ -116,14 +116,14 @@ public class EmployerAccountController : BaseController
             case CloseTo3Million: return RedirectToAction(ControllerConstants.GatewayInformActionName);
             case LessThan3Million: return RedirectToRoute(RouteNames.EmployerAccountGetApprenticeshipFunding);
             default:
-            {
-                var model = new
                 {
-                    InError = true
-                };
+                    var model = new
+                    {
+                        InError = true
+                    };
 
-                return View(model);
-            }
+                    return View(model);
+                }
         }
     }
 
@@ -159,14 +159,14 @@ public class EmployerAccountController : BaseController
                 return RedirectToAction(ControllerConstants.SearchUsingAornActionName,
                     ControllerConstants.SearchPensionRegulatorControllerName, new { hashedAccountId });
             default:
-            {
-                var model = new
                 {
-                    InError = true
-                };
+                    var model = new
+                    {
+                        InError = true
+                    };
 
-                return View(model);
-            }
+                    return View(model);
+                }
         }
     }
 
@@ -405,43 +405,47 @@ public class EmployerAccountController : BaseController
         switch (vm.ChangeAccountName)
         {
             case true:
-            {
-                if (string.IsNullOrEmpty(vm.NewName) || vm.NewName == vm.CurrentName)
+                {
+                    if (string.IsNullOrEmpty(vm.NewName) || vm.NewName == vm.CurrentName)
+                    {
+                        var newNameError = vm.NewName == vm.CurrentName
+                         ? "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name."
+                         : "Enter a name";
+
+                        vm.ErrorDictionary.Add(nameof(vm.NewName), newNameError);
+
+                        response.Data = vm;
+                        response.Status = HttpStatusCode.BadRequest;
+
+                        return View(response);
+                    }
+
+                    return RedirectToRoute(RouteNames.AccountNameConfirm,
+                        new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
+                }
+            case false:
+                {
+                    var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
+                    response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
+
+                    if (response.Status == HttpStatusCode.OK)
+                    {
+                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
+                    }
+
+                    response.Data = vm;
+
+                    return View(response);
+                }
+            default:
                 {
                     // Model validation failed, return the view with validation errors
-                    vm.ErrorDictionary.Add(nameof(vm.NewName),
-                        "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name.");
+                    vm.ErrorDictionary.Add(nameof(vm.ChangeAccountName),
+                        "Please select whether you wish to set a new Employer Account name.");
                     response.Data = vm;
                     response.Status = response.Status = HttpStatusCode.BadRequest;
                     return View(response);
                 }
-
-                return RedirectToRoute(RouteNames.AccountNameConfirm,
-                    new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
-            }
-            case false:
-            {
-                var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-                response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
-
-                if (response.Status == HttpStatusCode.OK)
-                {
-                    return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
-                }
-
-                response.Data = vm;
-
-                return View(response);
-            }
-            default:
-            {
-                // Model validation failed, return the view with validation errors
-                vm.ErrorDictionary.Add(nameof(vm.ChangeAccountName),
-                    "Please select whether you wish to set a new Employer Account name.");
-                response.Data = vm;
-                response.Status = response.Status = HttpStatusCode.BadRequest;
-                return View(response);
-            }
         }
     }
 
@@ -537,14 +541,14 @@ public class EmployerAccountController : BaseController
                 await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
                 return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
             default:
-            {
-                var model = new
                 {
-                    InError = true
-                };
+                    var model = new
+                    {
+                        InError = true
+                    };
 
-                return View(model);
-            }
+                    return View(model);
+                }
         }
     }
 
@@ -662,7 +666,7 @@ public class EmployerAccountController : BaseController
         {
             response.Status = HttpStatusCode.OK;
             response.FlashMessage = new FlashMessageViewModel
-                { Headline = "There was a problem creating your account" };
+            { Headline = "There was a problem creating your account" };
             return RedirectToAction(ControllerConstants.SummaryActionName);
         }
 

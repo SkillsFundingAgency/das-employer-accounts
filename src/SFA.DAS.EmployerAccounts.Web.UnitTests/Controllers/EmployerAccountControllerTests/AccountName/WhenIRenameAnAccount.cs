@@ -18,6 +18,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
     private Mock<IMediator> _mediator;
     private const string ExpectedRedirectUrl = "http://redirect.local.test";
     private const string AccountNameErrorMessage = "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name.";
+    private const string AccountNameBlankErrorMessage = "Enter a name";
 
     [SetUp]
     public void Arrange()
@@ -88,7 +89,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
         //Assert
-        model.Data.NewNameError.Should().Be(AccountNameErrorMessage);
+        model.Data.NewNameError.Should().Be(AccountNameBlankErrorMessage);
     }
     
     [Test, MoqAutoData]
