@@ -9,8 +9,6 @@ public static class AuditServiceRegistrations
 {
     public static IServiceCollection AddAuditServices(this IServiceCollection services)
     {
-        services.AddSingleton<IAuditApiClientConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().AuditApi);
-
         services.AddTransient<IAuditMessageBuilder, BaseAuditMessageBuilder>();
         services.AddTransient<IAuditMessageBuilder, ChangedByMessageBuilder>();
 
