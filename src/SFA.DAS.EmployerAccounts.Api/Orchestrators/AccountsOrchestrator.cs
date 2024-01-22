@@ -11,7 +11,6 @@ using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
-using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetPagedEmployerAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
@@ -61,7 +60,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
         {
             _logger.LogInformation("Getting account {accountId}", accountId);
 
-            var accountResult = await _mediator.Send(new GetAccountByIdQuery { AccountId = accountId});
+            var accountResult = await _mediator.Send(new GetAccountByIdQuery { AccountId = accountId });
             return accountResult.Account == null ? null : ConvertToAccountDetail(accountResult);
         }
 
@@ -167,7 +166,6 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
                 PublicHashedAccountId = accountResult.Account.PublicHashedId,
                 DateRegistered = accountResult.Account.CreatedDate,
                 DasAccountName = accountResult.Account.Name,
-                LegalEntities = new ResourceList(accountResult.Account.AccountLegalEntities.Select(x => new Resource { Id = x.ToString() })),
                 ApprenticeshipEmployerType = accountResult.Account.ApprenticeshipEmployerType.ToString()
             };
         }
