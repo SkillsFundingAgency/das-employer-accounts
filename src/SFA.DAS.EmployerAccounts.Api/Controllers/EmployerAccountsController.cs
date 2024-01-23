@@ -51,7 +51,7 @@ public class EmployerAccountsController : ControllerBase
         return Ok(result);
     }
 
-    [Route("{accountId:long}/account-by-id", Name = "GetAccountById")]
+    [Route("{accountId:long}", Name = "GetAccountById")]
     [Authorize(Policy = ApiRoles.ReadAllAccountUsers)]
     [HttpGet]
     public async Task<IActionResult> GetAccountById(long accountId)
