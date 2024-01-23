@@ -15,7 +15,6 @@ public static class DatabaseExtensions
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
-
         
         var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
         bool useManagedIdentity = !connectionStringBuilder.IntegratedSecurity && string.IsNullOrEmpty(connectionStringBuilder.UserID);

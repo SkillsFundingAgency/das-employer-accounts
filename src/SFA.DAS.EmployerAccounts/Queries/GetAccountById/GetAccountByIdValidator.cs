@@ -14,12 +14,13 @@
             {
                 result.AddError(nameof(item.AccountId), "Account ID has not been supplied");
             }
+
             return result;
         }
 
         public Task<ValidationResult> ValidateAsync(GetAccountByIdQuery item)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(Validate(item));
         }
     }
 }

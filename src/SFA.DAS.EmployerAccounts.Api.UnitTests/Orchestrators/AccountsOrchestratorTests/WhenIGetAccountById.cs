@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
+using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -12,7 +13,6 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
 {
     public class WhenIGetAccountById
     {
-
         [Test, MoqAutoData]
         public async Task AndResponseFromMediator_IsNot_Null_Response_IsNot_Null(
             long accountId,
@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             // Act
             var result = await _orchestrator.GetAccountById(accountId);
 
-            Assert.IsNotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Test, MoqAutoData]
@@ -46,6 +46,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             {
                 Account = null
             };
+
             _mediator
                 .Setup(m => m.Send(It.Is<GetAccountByIdQuery>(r => r.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
@@ -53,7 +54,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             // Act
             var result = await _orchestrator.GetAccountById(accountId);
 
-            Assert.IsNull(result);
+            result.Should().BeNull();
         }
     }
 }
