@@ -12,11 +12,11 @@ using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
 using SFA.DAS.EmployerAccounts.Models.Recruit;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountStats;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountTasks;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetInvitation;
 using SFA.DAS.EmployerAccounts.Queries.GetMember;
+using SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUser;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
@@ -181,15 +181,13 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
             var apprenticeshipEmployerType = (ApprenticeshipEmployerType)Enum.Parse(typeof(ApprenticeshipEmployerType), accountDetailViewModel.ApprenticeshipEmployerType, true);
 
-            var tasksResponse = await _mediator.Send(new GetAccountTasksQuery
+            var tasksResponse = await _mediator.Send(new GetTaskSummaryQuery
             {
-                AccountId = accountResponse.Account.Id,
-                ExternalUserId = externalUserId,
-                ApprenticeshipEmployerType = apprenticeshipEmployerType
+                AccountId = accountResponse.Account.Id              
             });
 
             var pendingAgreements = agreementsResponse.EmployerAgreements.Where(a => a.HasPendingAgreement && !a.HasSignedAgreement).Select(a => new PendingAgreementsViewModel { HashedAgreementId = a.Pending.HashedAgreementId }).ToList();
-            var tasks = tasksResponse?.Tasks.Where(t => t.ItemsDueCount > 0 && t.Type != "AgreementToSign").ToList() ?? new List<AccountTask>();
+
             var showWizard = userResponse.User.ShowWizard && userRoleResponse.UserRole == Role.Owner;
 
             var viewModel = new AccountDashboardViewModel
@@ -205,7 +203,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
                 TeamMemberCount = accountStatsResponse?.Stats?.TeamMemberCount ?? 0,
                 TeamMembersInvited = accountStatsResponse?.Stats?.TeamMembersInvited ?? 0,
                 ShowAcademicYearBanner = _currentDateTime.Now < new DateTime(2017, 10, 20),
-                Tasks = tasks,
+                TaskSummary = tasksResponse?.TaskSummary ?? new TaskSummary(),
                 RequiresAgreementSigning = pendingAgreements.Count,
                 SignedAgreementCount = agreementsResponse.EmployerAgreements.Count(x => x.HasSignedAgreement),
                 PendingAgreements = pendingAgreements,
