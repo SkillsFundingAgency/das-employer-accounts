@@ -39,7 +39,7 @@ public class EmployerAccountService : IEmployerAccountService
         return taskList;
     }
 
-     public async Task<TaskSummary> GetTaskSummary(long accountId)
+    public async Task<TaskSummary> GetTaskSummary(long accountId)
     {
         TaskSummary taskSummary = null;
 
