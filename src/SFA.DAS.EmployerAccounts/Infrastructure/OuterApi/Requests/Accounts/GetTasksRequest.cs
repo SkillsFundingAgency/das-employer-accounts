@@ -5,7 +5,7 @@ namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.Accounts
     internal class GetTasksRequest : IGetApiRequest
     {
         private long AccountId { get; }
-        public string GetUrl => $"accounts/{AccountId}/get-tasks";
+        public string GetUrl => $"accounts/{AccountId}/teams";
 
         public GetTasksRequest(long accountId)
         {
