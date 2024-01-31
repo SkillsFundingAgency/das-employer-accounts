@@ -212,23 +212,27 @@ else
                         </li>
                     </ul>
                     <div class="govuk-tabs__panel" id="tasks">
-                        <ul class="govuk-list">
+                        
                         @if (Model.Data.TaskSummary.UnableToGetTasks)
                         {
+                            <ul class="govuk-list">
                             <li>
                                 <span>
                                     Unable to obtain tasks, try again later
                                 </span>
                             </li>
+                            </ul>
                         }
                         else
-                        {
+                        {                           
                             @if (Model.Data.TaskSummary.HasAnyTask())
                             {
+                                <ul class="govuk-list">
                                 <li>
                                     <span>
                                         <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")" class="govuk-link govuk-link govuk-link--no-visited-state">Start adding apprentices now</a>
                                     </span>
+                                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                 </li>
                                 @if (Model.Data.TaskSummary.ShowLevyDeclarationTask)
                                 {
@@ -236,6 +240,7 @@ else
                                         <span>
                                             Levy declaration due by 19 @DateTime.Now.ToString("MMMM")
                                         </span>
+                                            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
                                 }
                                 @if (Model.Data.TaskSummary.NumberOfApprenticesToReview > 0)
@@ -245,6 +250,7 @@ else
                                             @Model.Data.TaskSummary.NumberOfApprenticesToReview apprentice change@(Model.Data.TaskSummary.NumberOfApprenticesToReview > 1 ? "s" : "") to review
                                             <br /><a href="@UrlHelpers.EmployerCommitmentsV2Action("apprentices")" class="govuk-link govuk-link govuk-link--no-visited-state">View<span class="govuk-visually-hidden">apprentice</span> change@(Model.Data.TaskSummary.NumberOfApprenticesToReview > 1 ? "s" : "")</a>
                                         </span>
+                                            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
                                 }
                                 @if (Model.Data.TaskSummary.NumberOfCohortsForApproval > 0)
@@ -254,6 +260,7 @@ else
                                             @Model.Data.TaskSummary.NumberOfCohortsForApproval cohort@(Model.Data.TaskSummary.NumberOfCohortsForApproval > 1 ? "s" : "") ready for approval
                                             <br /><a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/review")" class="govuk-link govuk-link govuk-link--no-visited-state">View cohort<span class="govuk-visually-hidden"></span>@(Model.Data.TaskSummary.NumberOfCohortsForApproval > 1 ? "s" : "")</a>
                                         </span>
+                                            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
                                 }
                                 @if (Model.Data.TaskSummary.NumberOfTransferRequestToReview > 0)
@@ -263,6 +270,7 @@ else
                                             Transfer request received
                                             <br /><a href="@UrlHelpers.EmployerFinanceAction("transfers/connections")" class="govuk-link govuk-link govuk-link--no-visited-state">View details</a>
                                         </span>
+                                            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
                                 }
 
@@ -273,6 +281,7 @@ else
                                             @Model.Data.TaskSummary.NumberOfPendingTransferConnections connection request@(Model.Data.TaskSummary.NumberOfPendingTransferConnections > 1 ? "s" : "") to review
                                             <br /><a href="@UrlHelpers.EmployerFinanceAction("transfers/connections")" class="govuk-link govuk-link govuk-link--no-visited-state">View details</a>
                                         </span>
+                                            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
                                 }
 
@@ -283,16 +292,16 @@ else
                                             @Model.Data.TaskSummary.NumberTransferPledgeApplicationsToReview transfer pledge application@(Model.Data.TaskSummary.NumberOfPendingTransferConnections > 1 ? "s" : "") awaiting your approval
                                                 <br /><a href="@UrlHelpers.LevyTransfersMatchingAction("pledges")" class="govuk-link govuk-link--no-visited-state">View<span class="govuk-visually-hidden"> transfer pledge</span> application@(Model.Data.TaskSummary.NumberTransferPledgeApplicationsToReview > 1 ? "s" : "")</a>
                                         </span>
+                                            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
                                 }
+                                </ul>
                             }
                             else
                             {
                                 <p>You do not have any tasks</p>
                             }
-                        }
-                        </ul>
-
+                        }                        
                     </div>
                 </div>
             }
