@@ -1,7 +1,4 @@
-﻿
-using SFA.DAS.EmployerAccounts.Queries.GetAccountTasks;
-
-namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary
+﻿namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary
 {
     public class GetTaskSummaryQuery : IRequest<GetTaskSummaryResponse>
     {

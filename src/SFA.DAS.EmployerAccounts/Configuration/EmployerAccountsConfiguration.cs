@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.Authentication;
 using SFA.DAS.EAS.Account.Api.Client;
-using SFA.DAS.EmployerAccounts.TasksApi;
 using SFA.DAS.TokenService.Api.Client;
 
 namespace SFA.DAS.EmployerAccounts.Configuration;
@@ -59,7 +58,6 @@ public class EmployerAccountsConfiguration
     public int DefaultCacheExpirationInMinutes { get; set; }
     public string SupportConsoleUsers { get; set; }
     public DateTime? LastTermsAndConditionsUpdate { get; set; }
-    public TaskApiConfiguration TasksApi { get; set; }
     public bool UseGovSignIn { get; set; }
     public string DataProtectionKeysDatabase { get; set; }
     public ReferenceDataApiClientConfiguration ReferenceDataApi { get; set; }
