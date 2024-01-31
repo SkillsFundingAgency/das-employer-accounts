@@ -9,6 +9,7 @@ using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetPagedEmployerAccounts;
@@ -52,6 +53,14 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
             _logger.LogInformation("Getting account {HashedAccountId}", hashedAccountId);
 
             var accountResult = await _mediator.Send(new GetEmployerAccountDetailByHashedIdQuery { HashedAccountId = hashedAccountId });
+            return accountResult.Account == null ? null : ConvertToAccountDetail(accountResult);
+        }
+
+        public async Task<AccountDetail> GetAccountById(long accountId)
+        {
+            _logger.LogInformation("Getting account {accountId}", accountId);
+
+            var accountResult = await _mediator.Send(new GetAccountByIdQuery { AccountId = accountId });
             return accountResult.Account == null ? null : ConvertToAccountDetail(accountResult);
         }
 
@@ -145,6 +154,19 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
                 PayeSchemes = new ResourceList(accountResult.Account.PayeSchemes.Select(x => new Resource { Id = x })),
                 ApprenticeshipEmployerType = accountResult.Account.ApprenticeshipEmployerType.ToString(),
                 AccountAgreementType = GetAgreementType(accountResult.Account.AccountAgreementTypes)
+            };
+        }
+
+        private static AccountDetail ConvertToAccountDetail(GetAccountByIdResponse accountResult)
+        {
+            return new AccountDetail
+            {
+                AccountId = accountResult.Account.Id,
+                HashedAccountId = accountResult.Account.HashedId,
+                PublicHashedAccountId = accountResult.Account.PublicHashedId,
+                DateRegistered = accountResult.Account.CreatedDate,
+                DasAccountName = accountResult.Account.Name,
+                ApprenticeshipEmployerType = accountResult.Account.ApprenticeshipEmployerType.ToString()
             };
         }
 
