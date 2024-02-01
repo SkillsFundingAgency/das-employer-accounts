@@ -14,14 +14,14 @@
         public bool HasAnyTask()
         {
             return ShowLevyDeclarationTask ||
-                   new[]
-                   {
-                   NumberOfApprenticesToReview,
-                   NumberOfCohortsForApproval,
-                   NumberOfPendingTransferConnections,
-                   NumberOfTransferRequestToReview,
-                   NumberTransferPledgeApplicationsToReview
-                   }.Any(x => x > 0);
+                Array.Exists(new[]
+                {
+                    NumberOfApprenticesToReview,
+                    NumberOfCohortsForApproval,
+                    NumberOfPendingTransferConnections,
+                    NumberOfTransferRequestToReview,
+                    NumberTransferPledgeApplicationsToReview
+                }, x => x > 0);
         }
     }
 }

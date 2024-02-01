@@ -45,7 +45,7 @@ public class EmployerAccountService : IEmployerAccountService
 
         try
         {
-            _logger.LogInformation($"Getting TaskSummary for account ID: {accountId}");
+            _logger.LogInformation("Getting TaskSummary for account ID: {accountId}", accountId);
 
             var tasksResponse = await _outerApiClient.Get<GetTasksResponse>(new GetTasksRequest(accountId));
 
@@ -56,7 +56,7 @@ public class EmployerAccountService : IEmployerAccountService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Could not find TaskSummary for account ID: {accountId}");
+            _logger.LogError(ex, "Could not find TaskSummary for account ID: {accountId}", accountId);
             return new TaskSummary
             {
                 UnableToGetTasks = true
