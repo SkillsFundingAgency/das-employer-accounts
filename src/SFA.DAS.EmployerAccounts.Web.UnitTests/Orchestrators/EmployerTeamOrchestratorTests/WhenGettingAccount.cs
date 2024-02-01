@@ -206,21 +206,6 @@ public class WhenGettingAccount
     }
 
     [Test]
-    public async Task ThenShouldReturnEmptyTaskSummaryWhenNoResponseFromAPIM()
-    {
-        _mediator.Setup(m => m.Send(It.IsAny<GetTaskSummaryQuery>(), It.IsAny<CancellationToken>()))
-           .ReturnsAsync((GetTaskSummaryResponse)null);
-        // Act
-        var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _mediator.Verify(m => m.Send(It.IsAny<GetTaskSummaryQuery>(), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.IsNotNull(actual.Data);
-        Assert.IsNotNull(actual.Data.TaskSummary);
-        Assert.AreEqual(false, actual.Data.TaskSummary.ShowLevyDeclarationTask);
-    }
-
-    [Test]
     public async Task ThenShouldSetAccountHashId()
     {
         //Act

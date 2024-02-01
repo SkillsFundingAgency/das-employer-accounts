@@ -203,7 +203,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
                 TeamMemberCount = accountStatsResponse?.Stats?.TeamMemberCount ?? 0,
                 TeamMembersInvited = accountStatsResponse?.Stats?.TeamMembersInvited ?? 0,
                 ShowAcademicYearBanner = _currentDateTime.Now < new DateTime(2017, 10, 20),
-                TaskSummary = tasksResponse?.TaskSummary ?? new TaskSummary(),
+                TaskSummary = tasksResponse.TaskSummary,
                 RequiresAgreementSigning = pendingAgreements.Count,
                 SignedAgreementCount = agreementsResponse.EmployerAgreements.Count(x => x.HasSignedAgreement),
                 PendingAgreements = pendingAgreements,

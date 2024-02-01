@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using SFA.DAS.EmployerAccounts.Models.Account;
 
 namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary
 {
@@ -20,7 +21,7 @@ namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary
 
             return new GetTaskSummaryResponse
             {
-                TaskSummary = taskSummary
+                TaskSummary = taskSummary?? new TaskSummary()
             };
         }
 
