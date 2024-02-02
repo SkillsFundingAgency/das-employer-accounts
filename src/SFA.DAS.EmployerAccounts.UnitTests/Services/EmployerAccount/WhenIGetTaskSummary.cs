@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.EmployerAccount
             // Assert
             result.Should().NotBeNull();
             result.ShowLevyDeclarationTask.Should().Be(tasksResponse.ShowLevyDeclarationTask);
-            result.NumberOfCohortsForApproval.Should().Be(tasksResponse.NumberOfCohortsForApproval);
+            result.NumberOfCohortsReadyToReview.Should().Be(tasksResponse.NumberOfCohortsReadyToReview);
             result.NumberOfApprenticesToReview.Should().Be(tasksResponse.NumberOfApprenticesToReview);
             result.NumberOfPendingTransferConnections.Should().Be(tasksResponse.NumberOfPendingTransferConnections);
             result.NumberOfTransferRequestToReview.Should().Be(tasksResponse.NumberOfTransferRequestToReview);

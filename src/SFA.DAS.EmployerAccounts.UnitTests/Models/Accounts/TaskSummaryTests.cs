@@ -14,7 +14,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Models.Accounts
             {
                 ShowLevyDeclarationTask = true,
                 NumberOfApprenticesToReview = 0,
-                NumberOfCohortsForApproval = 0,
+                NumberOfCohortsReadyToReview = 0,
                 NumberOfPendingTransferConnections = 0,
                 NumberOfTransferRequestToReview = 0,
                 NumberTransferPledgeApplicationsToReview = 0
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Models.Accounts
             {
                 ShowLevyDeclarationTask = false,
                 NumberOfApprenticesToReview = 0,
-                NumberOfCohortsForApproval = 0,
+                NumberOfCohortsReadyToReview = 0,
                 NumberOfPendingTransferConnections = 1,
                 NumberOfTransferRequestToReview = 0,
                 NumberTransferPledgeApplicationsToReview = 0

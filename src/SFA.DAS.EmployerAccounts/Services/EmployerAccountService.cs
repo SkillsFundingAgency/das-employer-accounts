@@ -81,7 +81,7 @@ public class EmployerAccountService : IEmployerAccountService
         {
           ShowLevyDeclarationTask = getTasksResponse.ShowLevyDeclarationTask,
           NumberOfApprenticesToReview = getTasksResponse.NumberOfApprenticesToReview,
-          NumberOfCohortsForApproval  = getTasksResponse.NumberOfCohortsForApproval,
+          NumberOfCohortsReadyToReview  = getTasksResponse.NumberOfCohortsReadyToReview,
           NumberOfPendingTransferConnections = getTasksResponse.NumberOfPendingTransferConnections,
           NumberOfTransferRequestToReview = getTasksResponse.NumberOfTransferRequestToReview,
           NumberTransferPledgeApplicationsToReview = getTasksResponse.NumberTransferPledgeApplicationsToReview

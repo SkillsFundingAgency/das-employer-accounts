@@ -224,16 +224,17 @@ else
                             </ul>
                         }
                         else
-                        {                           
+                        {           
+                            <ul class="govuk-list">
+                            <li>
+                                <span>
+                                    <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")" class="govuk-link govuk-link govuk-link--no-visited-state">Start adding apprentices now</a>
+                                </span>
+                                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                            </li>
                             @if (Model.Data.TaskSummary.HasAnyTask())
                             {
-                                <ul class="govuk-list">
-                                <li>
-                                    <span>
-                                        <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")" class="govuk-link govuk-link govuk-link--no-visited-state">Start adding apprentices now</a>
-                                    </span>
-                                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-                                </li>
+                               
                                 @if (Model.Data.TaskSummary.ShowLevyDeclarationTask)
                                 {
                                     <li>
@@ -253,12 +254,12 @@ else
                                             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
                                 }
-                                @if (Model.Data.TaskSummary.NumberOfCohortsForApproval > 0)
+                                @if (Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 0)
                                 {
                                     <li>
                                         <span>
-                                            @Model.Data.TaskSummary.NumberOfCohortsForApproval cohort@(Model.Data.TaskSummary.NumberOfCohortsForApproval > 1 ? "s" : "") ready for approval
-                                            <br /><a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/review")" class="govuk-link govuk-link govuk-link--no-visited-state">View cohort<span class="govuk-visually-hidden"></span>@(Model.Data.TaskSummary.NumberOfCohortsForApproval > 1 ? "s" : "")</a>
+                                            @Model.Data.TaskSummary.NumberOfCohortsReadyToReview cohort@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "") ready for approval
+                                            <br /><a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/review")" class="govuk-link govuk-link govuk-link--no-visited-state">View cohort<span class="govuk-visually-hidden"></span>@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "")</a>
                                         </span>
                                             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
@@ -289,18 +290,18 @@ else
                                 {
                                     <li>
                                         <span>
-                                            @Model.Data.TaskSummary.NumberTransferPledgeApplicationsToReview transfer pledge application@(Model.Data.TaskSummary.NumberOfPendingTransferConnections > 1 ? "s" : "") awaiting your approval
+                                                @Model.Data.TaskSummary.NumberTransferPledgeApplicationsToReview transfer pledge application@(Model.Data.TaskSummary.NumberTransferPledgeApplicationsToReview > 1 ? "s" : "") awaiting your approval
                                                 <br /><a href="@UrlHelpers.LevyTransfersMatchingAction("pledges")" class="govuk-link govuk-link--no-visited-state">View<span class="govuk-visually-hidden"> transfer pledge</span> application@(Model.Data.TaskSummary.NumberTransferPledgeApplicationsToReview > 1 ? "s" : "")</a>
                                         </span>
                                             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
-                                }
-                                </ul>
+                                }                               
                             }
                             else
                             {
                                 <p>You do not have any tasks</p>
                             }
+                            </ul>
                         }                        
                     </div>
                 </div>
