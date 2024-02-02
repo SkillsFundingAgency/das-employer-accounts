@@ -2,6 +2,8 @@
 using AutoMapper;
 using SFA.DAS.Caches;
 using SFA.DAS.EmployerAccounts.Extensions;
+using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrganisation;
+using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Models.ReferenceData;
 using SFA.DAS.ReferenceData.Api.Client;
 using SFA.DAS.ReferenceData.Types.DTO;
@@ -21,21 +23,24 @@ public class ReferenceDataService : IReferenceDataService
 
     private readonly Lazy<Task<CommonOrganisationType[]>> _identifiableOrganisationTypes;
     private readonly IReferenceDataApiClient _client;
+    private readonly IOuterApiClient _outerApiClient;
     private readonly IMapper _mapper;
     private readonly IInProcessCache _inProcessCache;
 
     private readonly List<string> _termsToRemove = new List<string> { "ltd", "ltd.", "limited", "plc", "plc." };
 
     public ReferenceDataService(
-        IReferenceDataApiClient client, 
-        IMapper mapper, 
-        IInProcessCache inProcessCache
+        IReferenceDataApiClient client,
+        IMapper mapper,
+        IInProcessCache inProcessCache,
+        IOuterApiClient outerApiClient
         )
     {
         _client = client;
         _mapper = mapper;
         _inProcessCache = inProcessCache;
         _identifiableOrganisationTypes = new Lazy<Task<CommonOrganisationType[]>>(InitialiseOrganisationTypes);
+        _outerApiClient = outerApiClient;
     }
 
     public async Task<Charity> GetCharity(int registrationNumber)
@@ -77,12 +82,12 @@ public class ReferenceDataService : IReferenceDataService
         {
             return new PagedResponse<OrganisationName>();
         }
-            
+
         if (organisationType != null)
         {
             result = FilterOrganisationsByType(result, organisationType.Value);
         }
-            
+
         return CreatePagedOrganisationResponse(pageNumber, pageSize, result);
     }
 
@@ -236,7 +241,7 @@ public class ReferenceDataService : IReferenceDataService
         var result = _inProcessCache.Get<List<OrganisationName>>(cacheKey);
         if (result != null && result.Any()) return result;
 
-        var orgs = await _client.SearchOrganisations(searchTerm);
+        var orgs = await _outerApiClient.Get<IEnumerable<Organisation>>(new SearchOrganisationRequest(searchTerm));
 
         if (orgs == null) return new List<OrganisationName>();
 
@@ -259,8 +264,8 @@ public class ReferenceDataService : IReferenceDataService
     {
         return new PagedResponse<OrganisationName>
         {
-            Data = result.Skip((pageNumber-1)*pageSize).Take(pageSize).ToList(),
-            TotalPages = (int)Math.Ceiling(((decimal) result.Count / pageSize)),
+            Data = result.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(),
+            TotalPages = (int)Math.Ceiling(((decimal)result.Count / pageSize)),
             PageNumber = pageNumber,
             TotalResults = result.Count
         };
