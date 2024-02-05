@@ -45,7 +45,7 @@ public class ReferenceDataService : IReferenceDataService
 
     public async Task<Charity> GetCharity(int registrationNumber)
     {
-        var dto = await _client.GetCharity(registrationNumber);
+        var dto = await _outerApiClient.Get<ReferenceData.Types.DTO.Charity>(new GetCharityRequest(registrationNumber));
         var result = _mapper.Map<ReferenceData.Types.DTO.Charity, Charity>(dto);
         return result;
     }
@@ -91,9 +91,9 @@ public class ReferenceDataService : IReferenceDataService
         return CreatePagedOrganisationResponse(pageNumber, pageSize, result);
     }
 
-    public Task<Organisation> GetLatestDetails(CommonOrganisationType organisationType, string identifier)
+    public async Task<Organisation> GetLatestDetails(CommonOrganisationType organisationType, string identifier)
     {
-        return _client.GetLatestDetails(organisationType.ToReferenceDataOrganisationType(), identifier);
+        return await _outerApiClient.Get<Organisation>(new GetLatestDetailsRequest(organisationType.ToReferenceDataOrganisationType(), identifier));
     }
 
     public async Task<bool> IsIdentifiableOrganisationType(CommonOrganisationType organisationType)
