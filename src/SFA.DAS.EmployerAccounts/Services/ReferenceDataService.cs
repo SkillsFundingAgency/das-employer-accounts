@@ -6,6 +6,7 @@ using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrganisati
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Models.ReferenceData;
 using SFA.DAS.ReferenceData.Api.Client;
+using SFA.DAS.ReferenceData.Api.Client.Dto;
 using SFA.DAS.ReferenceData.Types.DTO;
 using Address = SFA.DAS.EmployerAccounts.Models.Organisation.Address;
 using Charity = SFA.DAS.EmployerAccounts.Models.ReferenceData.Charity;
@@ -62,7 +63,7 @@ public class ReferenceDataService : IReferenceDataService
 
     public async Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm, int pageNumber, int pageSize)
     {
-        var dto = await _client.SearchPublicSectorOrganisation(searchTerm, pageNumber, pageSize);
+        var dto = await _outerApiClient.Get<PagedApiResponse<PublicSectorOrganisation>>(new GetPublicSectorOrganisationsRequest(searchTerm, pageNumber, pageSize));
 
         var orgainsations = dto.Data.Select(x => _mapper.Map<PublicSectorOrganisation>(x)).ToList();
 
@@ -110,7 +111,7 @@ public class ReferenceDataService : IReferenceDataService
 
     private async Task<CommonOrganisationType[]> InitialiseOrganisationTypes()
     {
-        var result = await _client.GetIdentifiableOrganisationTypes();
+        var result = await _outerApiClient.Get<ReferenceDataOrganisationType[]>(new GetIdentifiableOrganisationTypesRequest());
 
         var filteredOrganisationTypes = result
                     .Select(referenceDataOrganisationType => referenceDataOrganisationType.ToCommonOrganisationType())
