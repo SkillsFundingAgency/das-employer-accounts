@@ -8,7 +8,7 @@ namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrgani
         private readonly string Identifier;
         public readonly OrganisationType OrganisationType;
 
-        public string GetUrl => $"SearchOrganisation/get?identifer={Identifier}&organisationType={OrganisationType}";
+        public string GetUrl => $"SearchOrganisation/get?identifier={Identifier}&organisationType={OrganisationType}";
 
         public GetLatestDetailsRequest(OrganisationType organisationType, string identifier)
         {
