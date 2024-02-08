@@ -11,9 +11,9 @@ using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrganisati
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Models.ReferenceData;
 using SFA.DAS.EmployerAccounts.Services;
-using SFA.DAS.ReferenceData.Api.Client;
 using SFA.DAS.ReferenceData.Types.DTO;
 using SFA.DAS.Testing.AutoFixture;
+using Organisation = SFA.DAS.ReferenceData.Types.DTO.Organisation;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
 {
@@ -43,7 +43,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
             string searchTerm,
             OrganisationName cacheResponse,
             [Frozen] Mock<IInProcessCache> cacheMock,
-            [Frozen] Mock<IReferenceDataApiClient> refDataApiClientMock,
+            [Frozen] Mock<IOuterApiClient> outerApiClient,
             [Greedy] ReferenceDataService referenceDataService)
         {
             // Arrange
@@ -54,7 +54,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
             var result = await referenceDataService.SearchOrganisations(searchTerm);
 
             // Assert
-            refDataApiClientMock.Verify(m => m.SearchOrganisations(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+            outerApiClient.Verify(m => m.Get<IEnumerable<Organisation>>(It.IsAny<SearchOrganisationRequest>()), Times.Never);
         }
 
         [Test, MoqAutoData]
@@ -75,11 +75,12 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
         [Test, MoqAutoData]
         public async Task WhenNoResultsForSearchTerm_ThenReturnEmptyResultSet(
             string searchTerm,
-            [Frozen] Mock<IReferenceDataApiClient> refDataApiClientMock,
+            [Frozen] Mock<IOuterApiClient> outerApiClient,
             [Greedy] ReferenceDataService referenceDataService)
         {
             // Arrange
-            refDataApiClientMock.Setup(m => m.SearchOrganisations(searchTerm, It.IsAny<int>())).ReturnsAsync(new List<Organisation>());
+            outerApiClient.Setup(m => m.Get<IEnumerable<Organisation>>(It.IsAny<SearchOrganisationRequest>()))
+                .ReturnsAsync(new List<Organisation>());
 
             // Act
             var result = await referenceDataService.SearchOrganisations(searchTerm);
@@ -91,11 +92,13 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
         [Test, MoqAutoData]
         public async Task WhenNullResultsForSearchTerm_ThenReturnEmptyResultSet(
             string searchTerm,
-            [Frozen] Mock<IReferenceDataApiClient> refDataApiClientMock,
+            [Frozen] Mock<IOuterApiClient> outerApiClient,
             [Greedy] ReferenceDataService referenceDataService)
         {
             // Arrange
-            refDataApiClientMock.Setup(m => m.SearchOrganisations(searchTerm, It.IsAny<int>())).ReturnsAsync((List<Organisation>)null);
+            outerApiClient.Setup(m => m.Get<IEnumerable<Organisation>>(It.IsAny<SearchOrganisationRequest>()))
+               .ReturnsAsync((List<Organisation>)null);
+
 
             // Act
             var result = await referenceDataService.SearchOrganisations(searchTerm);
@@ -155,12 +158,13 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
            OrganisationStatus organisationStatus,
            string searchTerm,
            Organisation organisation,
-           [Frozen] Mock<IReferenceDataApiClient> refDataApiClientMock,
+           [Frozen] Mock<IOuterApiClient> outerApiClient,
            [Greedy] ReferenceDataService referenceDataService)
         {
             // Arrange
             organisation.OrganisationStatus = organisationStatus;
-            refDataApiClientMock.Setup(m => m.SearchOrganisations(searchTerm, It.IsAny<int>())).ReturnsAsync(new List<Organisation> { organisation });
+            outerApiClient.Setup(m => m.Get<IEnumerable<Organisation>>(It.IsAny<SearchOrganisationRequest>()))
+            .ReturnsAsync(new List<Organisation> { organisation });
 
             // Act
             var result = await referenceDataService.SearchOrganisations(searchTerm);
@@ -173,13 +177,14 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
         public async Task WhenResultsExistForSearchTerm_ThenShouldUpdateCache(
            string searchTerm,
            Organisation organisation,
-           [Frozen] Mock<IReferenceDataApiClient> refDataApiClientMock,
+           [Frozen] Mock<IOuterApiClient> outerApiClient,
            [Frozen] Mock<IInProcessCache> cacheMock,
            [Greedy] ReferenceDataService referenceDataService)
         {
             // Arrange
             var base64SearchTerm = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(searchTerm));
-            refDataApiClientMock.Setup(m => m.SearchOrganisations(searchTerm, It.IsAny<int>())).ReturnsAsync(new List<Organisation> { organisation });
+            outerApiClient.Setup(m => m.Get<IEnumerable<Organisation>>(It.IsAny<SearchOrganisationRequest>()))
+            .ReturnsAsync(new List<Organisation> { organisation });
 
             // Act
             var result = await referenceDataService.SearchOrganisations(searchTerm);
@@ -195,14 +200,16 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
            Common.Domain.Types.OrganisationType organisationTypeFilter,
            string searchTerm,
            List<Organisation> organisations,
-           [Frozen] Mock<IReferenceDataApiClient> refDataApiClientMock,
+           [Frozen] Mock<IOuterApiClient> outerApiClient,
            [Greedy] ReferenceDataService referenceDataService)
         {
             // Arrange
             organisations[0].Type = OrganisationType.PublicSector;
             organisations[1].Type = OrganisationType.EducationOrganisation;
             organisations[2].Type = OrganisationType.Company;
-            refDataApiClientMock.Setup(m => m.SearchOrganisations(searchTerm, It.IsAny<int>())).ReturnsAsync(organisations);
+
+            outerApiClient.Setup(m => m.Get<IEnumerable<Organisation>>(It.IsAny<SearchOrganisationRequest>()))
+            .ReturnsAsync(organisations);
 
             // Act
             var result = await referenceDataService.SearchOrganisations(searchTerm, organisationType: organisationTypeFilter);
@@ -219,14 +226,16 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ReferenceData
            Common.Domain.Types.OrganisationType organisationTypeFilter,
            string searchTerm,
            List<Organisation> organisations,
-           [Frozen] Mock<IReferenceDataApiClient> refDataApiClientMock,
+           [Frozen] Mock<IOuterApiClient> outerApiClient,
            [Greedy] ReferenceDataService referenceDataService)
         {
             // Arrange
             organisations[0].Type = OrganisationType.PublicSector;
             organisations[1].Type = OrganisationType.EducationOrganisation;
             organisations[2].Type = refDataOrganisationType;
-            refDataApiClientMock.Setup(m => m.SearchOrganisations(searchTerm, It.IsAny<int>())).ReturnsAsync(organisations);
+
+            outerApiClient.Setup(m => m.Get<IEnumerable<Organisation>>(It.IsAny<SearchOrganisationRequest>()))
+            .ReturnsAsync(organisations);
 
             // Act
             var result = await referenceDataService.SearchOrganisations(searchTerm, organisationType: organisationTypeFilter);

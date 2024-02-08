@@ -5,8 +5,6 @@ using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrganisation;
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Models.ReferenceData;
-using SFA.DAS.ReferenceData.Api.Client;
-using SFA.DAS.ReferenceData.Api.Client.Dto;
 using SFA.DAS.ReferenceData.Types.DTO;
 using Address = SFA.DAS.EmployerAccounts.Models.Organisation.Address;
 using Charity = SFA.DAS.EmployerAccounts.Models.ReferenceData.Charity;
@@ -23,7 +21,6 @@ public class ReferenceDataService : IReferenceDataService
     private const int DefaultPageSize = 100;
 
     private readonly Lazy<Task<CommonOrganisationType[]>> _identifiableOrganisationTypes;
-    private readonly IReferenceDataApiClient _client;
     private readonly IOuterApiClient _outerApiClient;
     private readonly IMapper _mapper;
     private readonly IInProcessCache _inProcessCache;
@@ -31,13 +28,11 @@ public class ReferenceDataService : IReferenceDataService
     private readonly List<string> _termsToRemove = new List<string> { "ltd", "ltd.", "limited", "plc", "plc." };
 
     public ReferenceDataService(
-        IReferenceDataApiClient client,
         IMapper mapper,
         IInProcessCache inProcessCache,
         IOuterApiClient outerApiClient
         )
     {
-        _client = client;
         _mapper = mapper;
         _inProcessCache = inProcessCache;
         _identifiableOrganisationTypes = new Lazy<Task<CommonOrganisationType[]>>(InitialiseOrganisationTypes);
@@ -63,16 +58,7 @@ public class ReferenceDataService : IReferenceDataService
 
     public async Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm, int pageNumber, int pageSize)
     {
-        var dto = await _outerApiClient.Get<PagedApiResponse<PublicSectorOrganisation>>(new GetPublicSectorOrganisationsRequest(searchTerm, pageNumber, pageSize));
-
-        var orgainsations = dto.Data.Select(x => _mapper.Map<PublicSectorOrganisation>(x)).ToList();
-
-        return new PagedResponse<PublicSectorOrganisation>
-        {
-            Data = orgainsations,
-            PageNumber = dto.PageNumber,
-            TotalPages = dto.TotalPages
-        };
+       return await _outerApiClient.Get<PagedResponse<PublicSectorOrganisation>>(new GetPublicSectorOrganisationsRequest(searchTerm, pageNumber, pageSize));
     }
 
     public async Task<PagedResponse<OrganisationName>> SearchOrganisations(string searchTerm, int pageNumber = 1, int pageSize = 25, CommonOrganisationType? organisationType = null)

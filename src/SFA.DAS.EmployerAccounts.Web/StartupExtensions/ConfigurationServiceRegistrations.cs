@@ -6,7 +6,6 @@ using SFA.DAS.EmployerAccounts.Interfaces.Hmrc;
 using SFA.DAS.EmployerAccounts.ReadStore.Configuration;
 using SFA.DAS.EmployerAccounts.TasksApi;
 using SFA.DAS.Encoding;
-using SFA.DAS.ReferenceData.Api.Client;
 using SFA.DAS.TokenService.Api.Client;
 
 namespace SFA.DAS.EmployerAccounts.Web.StartupExtensions;
@@ -36,7 +35,6 @@ public static class ConfigurationServiceRegistrations
         services.AddSingleton<EmployerAccountsOuterApiConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().EmployerAccountsOuterApiConfiguration);
         services.AddSingleton<ITokenServiceApiClientConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().TokenServiceApi);
         services.AddSingleton<ITaskApiConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().TasksApi);
-        services.AddSingleton<IReferenceDataApiConfiguration>(cfg =>cfg.GetService<EmployerAccountsConfiguration>().ReferenceDataApi);
 
         services.Configure<IEmployerAccountsApiClientConfiguration>(configuration.GetSection(ConfigurationKeys.EmployerAccountsApiClient));
         services.AddSingleton<IEmployerAccountsApiClientConfiguration>(cfg => cfg.GetService<IOptions<EmployerAccountsApiClientConfiguration>>().Value);

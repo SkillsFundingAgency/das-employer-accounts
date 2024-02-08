@@ -99,7 +99,6 @@ public class Startup
         services.AddContentApiClient(employerAccountsConfiguration);
         services.AddProviderRegistration(employerAccountsConfiguration);
         services.AddApprenticeshipLevyApi(employerAccountsConfiguration);
-        services.AddReferenceDataApi();
 
         services.AddAuthenticationServices();
 

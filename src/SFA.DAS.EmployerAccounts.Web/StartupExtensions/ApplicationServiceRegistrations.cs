@@ -30,6 +30,8 @@ public static class ApplicationServiceRegistrations
 
         services.AddTransient<IEmployerAccountService, EmployerAccountService>();
         
+        services.AddScoped<IReferenceDataService, ReferenceDataService>();
+
         services.AddTransient<IReservationsService, ReservationsService>();
         services.Decorate<IReservationsService, ReservationsServiceWithTimeout>();
 
