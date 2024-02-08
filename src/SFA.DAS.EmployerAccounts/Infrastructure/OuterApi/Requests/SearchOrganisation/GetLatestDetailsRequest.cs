@@ -3,7 +3,7 @@ using SFA.DAS.ReferenceData.Types.DTO;
 
 namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrganisation
 {
-    internal class GetLatestDetailsRequest : IGetApiRequest
+    public class GetLatestDetailsRequest : IGetApiRequest
     {
         private readonly string Identifier;
         public readonly OrganisationType OrganisationType;
