@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using AutoMapper;
 using SFA.DAS.Caches;
 using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrganisation;
@@ -7,59 +6,29 @@ using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Models.ReferenceData;
 using SFA.DAS.ReferenceData.Types.DTO;
 using Address = SFA.DAS.EmployerAccounts.Models.Organisation.Address;
-using Charity = SFA.DAS.EmployerAccounts.Models.ReferenceData.Charity;
 using CommonOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 using OrganisationSubType = SFA.DAS.Common.Domain.Types.OrganisationSubType;
-using PublicSectorOrganisation = SFA.DAS.EmployerAccounts.Models.ReferenceData.PublicSectorOrganisation;
 using ReferenceDataOrganisationType = SFA.DAS.ReferenceData.Types.DTO.OrganisationType;
-
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
 public class ReferenceDataService : IReferenceDataService
 {
-    private const int DefaultPageSize = 100;
-
     private readonly Lazy<Task<CommonOrganisationType[]>> _identifiableOrganisationTypes;
     private readonly IOuterApiClient _outerApiClient;
-    private readonly IMapper _mapper;
     private readonly IInProcessCache _inProcessCache;
 
     private readonly List<string> _termsToRemove = new List<string> { "ltd", "ltd.", "limited", "plc", "plc." };
 
     public ReferenceDataService(
-        IMapper mapper,
         IInProcessCache inProcessCache,
         IOuterApiClient outerApiClient
         )
     {
-        _mapper = mapper;
         _inProcessCache = inProcessCache;
         _identifiableOrganisationTypes = new Lazy<Task<CommonOrganisationType[]>>(InitialiseOrganisationTypes);
         _outerApiClient = outerApiClient;
-    }
-
-    public async Task<Charity> GetCharity(int registrationNumber)
-    {
-        var dto = await _outerApiClient.Get<ReferenceData.Types.DTO.Charity>(new GetCharityRequest(registrationNumber));
-        var result = _mapper.Map<ReferenceData.Types.DTO.Charity, Charity>(dto);
-        return result;
-    }
-
-    public Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm)
-    {
-        return SearchPublicSectorOrganisation(searchTerm, 1, DefaultPageSize);
-    }
-
-    public Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm, int pageNumber)
-    {
-        return SearchPublicSectorOrganisation(searchTerm, pageNumber, DefaultPageSize);
-    }
-
-    public async Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm, int pageNumber, int pageSize)
-    {
-       return await _outerApiClient.Get<PagedResponse<PublicSectorOrganisation>>(new GetPublicSectorOrganisationsRequest(searchTerm, pageNumber, pageSize));
-    }
+    }    
 
     public async Task<PagedResponse<OrganisationName>> SearchOrganisations(string searchTerm, int pageNumber = 1, int pageSize = 25, CommonOrganisationType? organisationType = null)
     {
