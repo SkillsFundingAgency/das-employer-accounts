@@ -12,7 +12,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Infrastructure.OuterApi.Requests.Se
         {
             var actual = new SearchOrganisationRequest(searchTerm, maximumResults);
 
-            var expected = $"SearchOrganisation/?searchTerm={searchTerm}&maximumResults={maximumResults}";
+            var expected = $"SearchOrganisation/organisations/search/results?searchTerm={searchTerm}&maximumResults={maximumResults}";
 
             actual.GetUrl.Should().Be(expected);
         }

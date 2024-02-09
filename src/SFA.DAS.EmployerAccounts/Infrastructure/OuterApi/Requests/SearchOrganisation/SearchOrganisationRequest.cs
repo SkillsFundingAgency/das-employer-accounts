@@ -12,7 +12,7 @@ namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrgani
         private readonly string SearchTerm;
         private readonly int MaximumResults;
 
-        public string GetUrl => $"SearchOrganisation/?searchTerm={SearchTerm}&maximumResults={MaximumResults}";
+        public string GetUrl => $"SearchOrganisation/organisations/search/results?searchTerm={SearchTerm}&maximumResults={MaximumResults}";
 
         public SearchOrganisationRequest(string searchTerm, int maximumResults = 500)
         {

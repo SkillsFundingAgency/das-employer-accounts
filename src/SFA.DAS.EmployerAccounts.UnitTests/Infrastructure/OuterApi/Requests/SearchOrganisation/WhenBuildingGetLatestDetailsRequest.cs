@@ -13,7 +13,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Infrastructure.OuterApi.Requests.Se
         {
             var actual = new GetLatestDetailsRequest(organisationType, identifier);
 
-            var expected = $"SearchOrganisation/get?identifier={identifier}&organisationType={organisationType}";
+            var expected = $"SearchOrganisation/review?identifier={identifier}&organisationType={organisationType}";
 
             actual.GetUrl.Should().Be(expected);
         }
