@@ -38,6 +38,33 @@ public class EmployerAccountService : IEmployerAccountService
 
         return taskList;
     }
+
+    public async Task<TaskSummary> GetTaskSummary(long accountId)
+    {
+        TaskSummary taskSummary = null;
+
+        try
+        {
+            _logger.LogInformation("Getting TaskSummary for account ID: {accountId}", accountId);
+
+            var tasksResponse = await _outerApiClient.Get<GetTasksResponse>(new GetTasksRequest(accountId));
+
+            if (tasksResponse != null)
+            {
+                taskSummary =  MapFrom(tasksResponse);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not find TaskSummary for account ID: {accountId}", accountId);
+            return new TaskSummary
+            {
+                UnableToGetTasks = true
+            };
+        }
+
+        return taskSummary;
+    }
     
     private static EmployerAccountTaskList MapFrom(GetEmployerAccountTaskListResponse getEmployerTaskListResponse)
     {
@@ -45,6 +72,19 @@ public class EmployerAccountService : IEmployerAccountService
         {
             HasProviders = getEmployerTaskListResponse.HasProviders,
             HasProviderPermissions = getEmployerTaskListResponse.HasPermissions
+        };
+    } 
+    
+    private static TaskSummary MapFrom(GetTasksResponse getTasksResponse)
+    {
+        return new TaskSummary
+        {
+          ShowLevyDeclarationTask = getTasksResponse.ShowLevyDeclarationTask,
+          NumberOfApprenticesToReview = getTasksResponse.NumberOfApprenticesToReview,
+          NumberOfCohortsReadyToReview  = getTasksResponse.NumberOfCohortsReadyToReview,
+          NumberOfPendingTransferConnections = getTasksResponse.NumberOfPendingTransferConnections,
+          NumberOfTransferRequestToReview = getTasksResponse.NumberOfTransferRequestToReview,
+          NumberTransferPledgeApplicationsToReview = getTasksResponse.NumberTransferPledgeApplicationsToReview
         };
     }
 }

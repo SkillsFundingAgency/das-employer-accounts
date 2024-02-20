@@ -15,7 +15,6 @@ public static class OrchestratorsServiceRegistrations
         services.AddTransient<SearchOrganisationOrchestrator>();
         services.AddTransient<SearchPensionRegulatorOrchestrator>();
         services.AddTransient<SupportErrorOrchestrator>();
-        services.AddTransient<TaskOrchestrator>();
         services.AddTransient<UserSettingsOrchestrator>();
 
         return services;

@@ -7,8 +7,8 @@ using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountStats;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountTasks;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
+using SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccountRole;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
@@ -26,11 +26,10 @@ public class WhenGettingAccount
     private Mock<IEncodingService> _encodingServiceMock;
     private EmployerTeamOrchestrator _orchestrator;        
     private AccountStats _accountStats;
+    private TaskSummary _taskSummary;
     private Mock<ICurrentDateTime> _currentDateTime;
     private Mock<IAccountApiClient> _accountApiClient;
     private Mock<IMapper> _mapper;
-    private List<AccountTask> _tasks;
-    private AccountTask _testTask;
     private DateTime _lastTermsAndConditionsUpdate;
 
     [SetUp]
@@ -44,15 +43,9 @@ public class WhenGettingAccount
             TeamMemberCount = 8
         };
 
-        _testTask = new AccountTask
+        _taskSummary = new TaskSummary
         {
-            Type = "Test",
-            ItemsDueCount = 2
-        };
-
-        _tasks = new List<AccountTask>
-        {
-            _testTask
+            ShowLevyDeclarationTask = true
         };
 
         _mediator = new Mock<IMediator>();
@@ -65,12 +58,6 @@ public class WhenGettingAccount
                     Id = AccountId,
                     Name = "Account 1"
                 }
-            });
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetAccountTasksQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAccountTasksResponse
-            {
-                Tasks = _tasks
             });
 
         _mediator.Setup(m => m.Send(It.Is<GetUserAccountRoleQuery>(q => q.ExternalUserId == UserId), It.IsAny<CancellationToken>()))
@@ -129,6 +116,9 @@ public class WhenGettingAccount
 
         _mediator.Setup(x => x.Send(It.IsAny<GetAccountStatsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetAccountStatsResponse {Stats = _accountStats});
+
+         _mediator.Setup(x => x.Send(It.IsAny<GetTaskSummaryQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetTaskSummaryResponse {TaskSummary = _taskSummary});
 
         _currentDateTime = new Mock<ICurrentDateTime>();
 
@@ -203,55 +193,16 @@ public class WhenGettingAccount
     }
 
     [Test]
-    public async Task ThenShouldReturnTasks()
+    public async Task ThenShouldReturnTaskSummary()
     {
         // Act
         var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        _mediator.Verify(m => m.Send(It.IsAny<GetAccountTasksQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mediator.Verify(m => m.Send(It.IsAny<GetTaskSummaryQuery>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.IsNotNull(actual.Data);
-        Assert.Contains(_testTask, actual.Data.Tasks.ToArray());
-    }
-
-    [Test]
-    public async Task ThenIShouldNotReturnTasksWithZeroItems()
-    {
-        //Arrange
-        _testTask.ItemsDueCount = 0;
-
-        // Act
-        var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        Assert.IsNotNull(actual.Data);
-        Assert.IsEmpty(actual.Data.Tasks);
-    }
-
-    [Test]
-    public async Task ThenShouldReturnNoTasksIfANullIsReturnedFromTaskQuery()
-    {
-        //Arrange
-        _mediator.Setup(x => x.Send(It.IsAny<GetAccountTasksQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => null);
-
-        // Act
-        var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        Assert.IsNotNull(actual.Data);
-        Assert.IsEmpty(actual.Data.Tasks);
-    }
-
-    [Test]
-    public async Task ThenShouldReturnAccountsTasks()
-    {
-        //Act
-        var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        Assert.AreEqual(_tasks, actual.Data.Tasks);
-        _mediator.Verify(x => x.Send(It.Is<GetAccountTasksQuery>(r => r.AccountId.Equals(AccountId)), It.IsAny<CancellationToken>()),Times.Once);
+        Assert.IsNotNull(actual.Data.TaskSummary);
+        Assert.AreEqual(true, actual.Data.TaskSummary.ShowLevyDeclarationTask);
     }
 
     [Test]
