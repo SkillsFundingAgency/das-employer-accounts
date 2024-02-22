@@ -7,6 +7,8 @@ namespace SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
 public static class CachingServiceRegistrations
 {
     private const int RedisConnectionTimeoutMilliseconds = 15000;
+    private const int RedisConnectionRetryAttemptCount = 5;
+    private const int RedisDeltaBackoffMilliseconds = 5000;
     
     public static IServiceCollection AddDasDistributedMemoryCache(this IServiceCollection services, EmployerAccountsConfiguration configuration, bool isDevelopment)
     {
@@ -20,6 +22,8 @@ public static class CachingServiceRegistrations
             {
                 var config = ConfigurationOptions.Parse(configuration.RedisConnectionString);
                 config.ConnectTimeout = RedisConnectionTimeoutMilliseconds;
+                config.ConnectRetry = RedisConnectionRetryAttemptCount;
+                config.ReconnectRetryPolicy = new ExponentialRetry(RedisDeltaBackoffMilliseconds);
                 
                 redisCacheOptions.ConfigurationOptions = config;
             });
