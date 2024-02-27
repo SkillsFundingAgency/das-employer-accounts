@@ -2,6 +2,7 @@
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
+using SFA.DAS.EmployerAccounts.Commands.AddProviderDetailsFromInvitation;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
@@ -112,6 +113,19 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
             }, cancellationToken);
         }
 
+        if (!string.IsNullOrEmpty(userResponse.User.CorrelationId))
+        {
+            await _mediator.Send(new AddProviderDetailsFromInvitationCommand
+            {
+                UserId = userResponse.User.Ref.ToString(),
+                AccountId = createAccountResult.AccountId,
+                CorrelationId = userResponse.User.CorrelationId,
+                Email = userResponse.User.Email,
+                FirstName = userResponse.User.FirstName,
+                LastName = userResponse.User.LastName
+            }, cancellationToken);
+        }
+
         return new CreateAccountCommandResponse
         {
             HashedAccountId = hashedAccountId,
@@ -167,7 +181,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
 
         return _mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
     }
-    
+
     private Task PublishAddPayeSchemeMessage(string empref, long accountId, string createdByName, Guid userRef, string aorn, string schemeName, string correlationId)
     {
         return _eventPublisher.Publish(new AddedPayeSchemeEvent
