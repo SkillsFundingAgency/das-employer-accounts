@@ -9,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
+using SFA.DAS.EmployerAccounts.Commands.AddProviderDetailsFromInvitation;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
@@ -428,6 +429,48 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
 
             //Assert
             _mediator.Verify(x => x.Send(It.IsAny<AccountLevyStatusCommand>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Test]
+        public async Task Then_AddProviderDetailsFromInvitationCommand_IsCalled_If_UserHas_CorrelationId()
+        {
+            _user.CorrelationId = Guid.NewGuid().ToString();
+
+            //Arrange
+            var createAccountCommand = new CreateAccountCommand
+            {
+                PayeReference = "123/abc,456/123", AccessToken = "123rd", RefreshToken = "45YT",
+                ExternalUserId = _user.Ref.ToString()
+            };
+
+            //Act
+            await _handler.Handle(createAccountCommand, CancellationToken.None);
+
+            //Assert
+            _mediator.Verify(x => x.Send(It.IsAny<AddProviderDetailsFromInvitationCommand>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task Then_AddProviderDetailsFromInvitationCommand_IsNotCalled_If_UserHasNo_CorrelationId()
+        {
+            _user.CorrelationId = string.Empty;
+
+            //Arrange
+            var createAccountCommand = new CreateAccountCommand
+            {
+                PayeReference = "123/abc,456/123",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                ExternalUserId = _user.Ref.ToString()
+            };
+
+            //Act
+            await _handler.Handle(createAccountCommand, CancellationToken.None);
+
+            //Assert
+            _mediator.Verify(x => x.Send(It.IsAny<AddProviderDetailsFromInvitationCommand>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
     }
