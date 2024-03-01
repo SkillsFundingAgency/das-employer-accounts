@@ -23,7 +23,7 @@ namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.UserAccounts
 
         public string PostUrl => $"accountusers/{UserId}/add-provider-details-from-invitation";
 
-        private class AddProviderDetailsRequestData
+        private sealed class AddProviderDetailsRequestData
         {
             public long AccountId { get; set; }
             public string CorrelationId { get; set; }
