@@ -13,7 +13,6 @@ using SFA.DAS.EmployerAccounts.Commands.CreateLegalEntity;
 using SFA.DAS.EmployerAccounts.Commands.CreateOrganisationAddress;
 using SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
 using SFA.DAS.EmployerAccounts.Commands.DeleteInvitation;
-using SFA.DAS.EmployerAccounts.Commands.DismissMonthlyTaskReminder;
 using SFA.DAS.EmployerAccounts.Commands.RemoveLegalEntity;
 using SFA.DAS.EmployerAccounts.Commands.RemoveTeamMember;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
@@ -31,7 +30,6 @@ using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntity;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntityRemove;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountStats;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountTasks;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetApprenticeship;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
@@ -53,6 +51,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetProviderInvitation;
 using SFA.DAS.EmployerAccounts.Queries.GetReservations;
 using SFA.DAS.EmployerAccounts.Queries.GetSignedEmployerAgreementPdf;
 using SFA.DAS.EmployerAccounts.Queries.GetSingleCohort;
+using SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUnsignedEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Queries.GetUser;
@@ -79,7 +78,6 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(SearchOrganisationOrchestrator))]
     [TestCase(typeof(SearchPensionRegulatorOrchestrator))]
     [TestCase(typeof(SupportErrorOrchestrator))]
-    [TestCase(typeof(TaskOrchestrator))]
     [TestCase(typeof(UserSettingsOrchestrator))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Orchestrators(Type toResolve)
     {
@@ -106,7 +104,6 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<UpdateTermAndConditionsAcceptedOnCommand>))]
     [TestCase(typeof(IRequestHandler<AcceptInvitationCommand>))]
     [TestCase(typeof(IRequestHandler<UpdateOrganisationDetailsCommand>))]
-    [TestCase(typeof(IRequestHandler<DismissMonthlyTaskReminderCommand>))]
     [TestCase(typeof(IRequestHandler<UpdateUserNotificationSettingsCommand>))]
     [TestCase(typeof(IRequestHandler<UnsubscribeNotificationCommand>))]
     [TestCase(typeof(IRequestHandler<SendAccountTaskListCompleteNotificationCommand>))]
@@ -135,7 +132,7 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<GetAccountStatsQuery, GetAccountStatsResponse>))]
     [TestCase(typeof(IRequestHandler<GetAccountEmployerAgreementsRequest, GetAccountEmployerAgreementsResponse>))]
     [TestCase(typeof(IRequestHandler<GetUserByRefQuery, GetUserByRefResponse>))]
-    [TestCase(typeof(IRequestHandler<GetAccountTasksQuery, GetAccountTasksResponse>))]
+    [TestCase(typeof(IRequestHandler<GetTaskSummaryQuery, GetTaskSummaryResponse>))]
     [TestCase(typeof(IRequestHandler<GetInvitationRequest, GetInvitationResponse>))]
     [TestCase(typeof(IRequestHandler<GetAccountTeamMembersQuery, GetAccountTeamMembersResponse>))]
     [TestCase(typeof(IRequestHandler<GetUserQuery, GetUserResponse>))]

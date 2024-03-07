@@ -12,7 +12,7 @@ public class AccountDashboardViewModel
     public int RequiresAgreementSigning { get; set; }
     public bool ShowAcademicYearBanner { get; set; }
     public bool ShowWizard { get; set; }
-    public ICollection<AccountTask> Tasks { get; set; }
+    public TaskSummary TaskSummary { get; set; }
     public int TeamMemberCount { get; set; }
     public int TeamMembersInvited { get; set; }
     public string UserFirstName { get; set; }

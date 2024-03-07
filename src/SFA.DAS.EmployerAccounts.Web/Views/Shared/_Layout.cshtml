@@ -3,17 +3,19 @@
 @using SFA.DAS.Employer.Shared.UI.Models;
 @using SFA.DAS.EmployerAccounts.Web.Helpers
 @using SFA.DAS.EmployerAccounts.Web.ViewComponents
-
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @inject IHtmlHelpers HtmlHelpers;
-
 
 @{
     ViewBag.HideHeaderBorder = true;
-    string hashedAccountId =  ViewBag.ShowNav ?? true ? (string)this.ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] ?? string.Empty : string.Empty;
+    string hashedAccountId = ViewBag.ShowNav ?? true ?
+    (string)this.ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] ?? string.Empty : string.Empty;
     var footerModel = new FooterModel { AccountId = hashedAccountId, UsePrivacyV2 = true };
 }
 <!DOCTYPE html>
 <html lang="en" class="govuk-template ">
+
 <head>
     <!-- Google Tag Manager -->
     <script>
@@ -36,30 +38,22 @@
     <!-- End Google Tag Manager -->
     <meta charset="utf-8" />
     <title>@ViewBag.Title - Manage apprentices</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0b0c0c">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     @if (!string.IsNullOrWhiteSpace(ViewBag.MetaDesc))
     {
         <meta name="description" content="@ViewBag.MetaDesc">
     }
 
-    <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/x-icon" />
-    <link rel="mask-icon" href="assets/images/govuk-mask-icon.svg" color="#0b0c0c"/>
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/govuk-apple-touch-icon-180x180.png"/>
-    <link rel="apple-touch-icon" sizes="167x167" href="assets/images/govuk-apple-touch-icon-167x167.png"/>
-    <link rel="apple-touch-icon" sizes="152x152" href="assets/images/govuk-apple-touch-icon-152x152.png"/>
-    <link rel="apple-touch-icon" href="assets/images/govuk-apple-touch-icon.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0c0c" />
+    <link rel="icon" sizes="48x48" href="/assets/images/favicon.ico" />
+    <link rel="icon" sizes="any" href="/assets/images/favicon.svg" type="image/svg+xml" />
+    <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#0b0c0c" />
+    <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png" />
 
-    <!--[if !IE 8]><!-->
     <link href="css/main.css" rel="stylesheet" />
     <link href="/css/app.css?v=1" rel="stylesheet" no-cdn />
 
     @RenderSection("styles", required: false)
-
-    <!--<![endif]-->
-
-    <meta property="og:image" content="assets/images/govuk-opengraph-image.png">
 
     @await Html.PartialAsync("GoogleAnalyticsInfo")
     <!-- This is from individual pages -->
@@ -99,16 +93,18 @@
     @await Html.PartialAsync("_ZenDeskWidget")
     @await Html.PartialAsync("_ZenDeskApiPush")
 </head>
+
 <body id="@ViewBag.PageID" class="govuk-template__body">
 
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWQBWGJ" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWQBWGJ" height="0" width="0"
+            style="display: none; visibility: hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
     <script>
-        document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+        document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
     </script>
-    
+
     <partial name="_CookieBanner"></partial>
 
     <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
@@ -145,19 +141,25 @@
         </p>
     }
 
+    <script type="module" src="/libs/govuk-frontend/govuk-frontend.min.js"></script>
+    <script type="module">
+        import {
+            initAll
+        } from '@Configuration["cdn:url"]/libs/govuk-frontend/govuk-frontend.min.js'
+        initAll()
+    </script>
+
     <script src="/libs/jquery/jquery.min.js"></script>
-    <script src="/libs/govuk-frontend/all.js"></script>
     <script src="/js/das-all.min.js"></script>
     <script src="/js/app.min.js"></script>
-    
+
     @await RenderSectionAsync("pageSpecificJS", required: false)
 
     <script src="/js/app.js" no-cdn></script>
-
     <script>
-        window.GOVUKFrontend.initAll();
         window.DASFrontend.initAll();
     </script>
 
 </body>
+
 </html>

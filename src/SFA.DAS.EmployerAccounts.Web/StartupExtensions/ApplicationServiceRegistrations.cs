@@ -8,7 +8,6 @@ using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Infrastructure.AzureTokenService;
 using SFA.DAS.EmployerAccounts.Policies.Hmrc;
 using SFA.DAS.EmployerAccounts.Services;
-using SFA.DAS.EmployerAccounts.TasksApi;
 using SFA.DAS.Encoding;
 using SFA.DAS.GovUK.Auth.Services;
 using SFA.DAS.NServiceBus.Services;
@@ -23,7 +22,7 @@ public static class ApplicationServiceRegistrations
 
         services.AddSingleton<IAccountEventFactory, AccountEventFactory>();
         services.AddSingleton<IPdfService, PdfService>();
-        
+
         services.AddScoped<IHtmlHelpers, HtmlHelpers>();
         services.AddTransient<IHttpServiceFactory, HttpServiceFactory>();
         services.AddTransient<IUserAornPayeLockService, UserAornPayeLockService>();
@@ -43,8 +42,6 @@ public static class ApplicationServiceRegistrations
 
         services.AddScoped<IAccountApiClient, AccountApiClient>();
 
-        services.AddHttpClient<ITaskApiClient, TaskApiClient>();
-        services.AddTransient<ITaskService, TaskService>();
         services.AddTransient<IPensionRegulatorService, PensionRegulatorService>();
 
         services.AddTransient<IDateTimeService, DateTimeService>();
@@ -70,7 +67,7 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IPayeSchemesService, PayeSchemesService>();
 
         services.AddTransient<IStubAuthenticationService, StubAuthenticationService>();//TODO remove once gov login live
-        
+
         return services;
     }
 }

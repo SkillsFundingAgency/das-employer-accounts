@@ -4,7 +4,6 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.Api.Client;
 using SFA.DAS.EmployerAccounts.Interfaces.Hmrc;
 using SFA.DAS.EmployerAccounts.ReadStore.Configuration;
-using SFA.DAS.EmployerAccounts.TasksApi;
 using SFA.DAS.Encoding;
 using SFA.DAS.TokenService.Api.Client;
 
