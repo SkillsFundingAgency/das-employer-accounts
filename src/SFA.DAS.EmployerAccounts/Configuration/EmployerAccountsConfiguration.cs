@@ -60,6 +60,4 @@ public class EmployerAccountsConfiguration
     public DateTime? LastTermsAndConditionsUpdate { get; set; }
     public bool UseGovSignIn { get; set; }
     public string DataProtectionKeysDatabase { get; set; }
-    public ReferenceDataApiClientConfiguration ReferenceDataApi { get; set; }
-
 }

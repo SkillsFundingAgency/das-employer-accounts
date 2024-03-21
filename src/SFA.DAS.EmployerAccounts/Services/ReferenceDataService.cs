@@ -1,73 +1,34 @@
 ﻿using System.Text.RegularExpressions;
-using AutoMapper;
 using SFA.DAS.Caches;
 using SFA.DAS.EmployerAccounts.Extensions;
+using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.SearchOrganisation;
+using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Models.ReferenceData;
-using SFA.DAS.ReferenceData.Api.Client;
 using SFA.DAS.ReferenceData.Types.DTO;
 using Address = SFA.DAS.EmployerAccounts.Models.Organisation.Address;
-using Charity = SFA.DAS.EmployerAccounts.Models.ReferenceData.Charity;
 using CommonOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 using OrganisationSubType = SFA.DAS.Common.Domain.Types.OrganisationSubType;
-using PublicSectorOrganisation = SFA.DAS.EmployerAccounts.Models.ReferenceData.PublicSectorOrganisation;
 using ReferenceDataOrganisationType = SFA.DAS.ReferenceData.Types.DTO.OrganisationType;
-
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
 public class ReferenceDataService : IReferenceDataService
 {
-    private const int DefaultPageSize = 100;
-
     private readonly Lazy<Task<CommonOrganisationType[]>> _identifiableOrganisationTypes;
-    private readonly IReferenceDataApiClient _client;
-    private readonly IMapper _mapper;
+    private readonly IOuterApiClient _outerApiClient;
     private readonly IInProcessCache _inProcessCache;
 
     private readonly List<string> _termsToRemove = new List<string> { "ltd", "ltd.", "limited", "plc", "plc." };
 
     public ReferenceDataService(
-        IReferenceDataApiClient client, 
-        IMapper mapper, 
-        IInProcessCache inProcessCache
+        IInProcessCache inProcessCache,
+        IOuterApiClient outerApiClient
         )
     {
-        _client = client;
-        _mapper = mapper;
         _inProcessCache = inProcessCache;
         _identifiableOrganisationTypes = new Lazy<Task<CommonOrganisationType[]>>(InitialiseOrganisationTypes);
-    }
-
-    public async Task<Charity> GetCharity(int registrationNumber)
-    {
-        var dto = await _client.GetCharity(registrationNumber);
-        var result = _mapper.Map<ReferenceData.Types.DTO.Charity, Charity>(dto);
-        return result;
-    }
-
-    public Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm)
-    {
-        return SearchPublicSectorOrganisation(searchTerm, 1, DefaultPageSize);
-    }
-
-    public Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm, int pageNumber)
-    {
-        return SearchPublicSectorOrganisation(searchTerm, pageNumber, DefaultPageSize);
-    }
-
-    public async Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm, int pageNumber, int pageSize)
-    {
-        var dto = await _client.SearchPublicSectorOrganisation(searchTerm, pageNumber, pageSize);
-
-        var orgainsations = dto.Data.Select(x => _mapper.Map<PublicSectorOrganisation>(x)).ToList();
-
-        return new PagedResponse<PublicSectorOrganisation>
-        {
-            Data = orgainsations,
-            PageNumber = dto.PageNumber,
-            TotalPages = dto.TotalPages
-        };
-    }
+        _outerApiClient = outerApiClient;
+    }    
 
     public async Task<PagedResponse<OrganisationName>> SearchOrganisations(string searchTerm, int pageNumber = 1, int pageSize = 25, CommonOrganisationType? organisationType = null)
     {
@@ -77,18 +38,18 @@ public class ReferenceDataService : IReferenceDataService
         {
             return new PagedResponse<OrganisationName>();
         }
-            
+
         if (organisationType != null)
         {
             result = FilterOrganisationsByType(result, organisationType.Value);
         }
-            
+
         return CreatePagedOrganisationResponse(pageNumber, pageSize, result);
     }
 
-    public Task<Organisation> GetLatestDetails(CommonOrganisationType organisationType, string identifier)
+    public async Task<Organisation> GetLatestDetails(CommonOrganisationType organisationType, string identifier)
     {
-        return _client.GetLatestDetails(organisationType.ToReferenceDataOrganisationType(), identifier);
+        return await _outerApiClient.Get<Organisation>(new GetLatestDetailsRequest(organisationType.ToReferenceDataOrganisationType(), identifier));
     }
 
     public async Task<bool> IsIdentifiableOrganisationType(CommonOrganisationType organisationType)
@@ -105,7 +66,7 @@ public class ReferenceDataService : IReferenceDataService
 
     private async Task<CommonOrganisationType[]> InitialiseOrganisationTypes()
     {
-        var result = await _client.GetIdentifiableOrganisationTypes();
+        var result = await _outerApiClient.Get<ReferenceDataOrganisationType[]>(new GetIdentifiableOrganisationTypesRequest());
 
         var filteredOrganisationTypes = result
                     .Select(referenceDataOrganisationType => referenceDataOrganisationType.ToCommonOrganisationType())
@@ -236,7 +197,7 @@ public class ReferenceDataService : IReferenceDataService
         var result = _inProcessCache.Get<List<OrganisationName>>(cacheKey);
         if (result != null && result.Any()) return result;
 
-        var orgs = await _client.SearchOrganisations(searchTerm);
+        var orgs = await _outerApiClient.Get<IEnumerable<Organisation>>(new SearchOrganisationRequest(searchTerm));
 
         if (orgs == null) return new List<OrganisationName>();
 
@@ -259,8 +220,8 @@ public class ReferenceDataService : IReferenceDataService
     {
         return new PagedResponse<OrganisationName>
         {
-            Data = result.Skip((pageNumber-1)*pageSize).Take(pageSize).ToList(),
-            TotalPages = (int)Math.Ceiling(((decimal) result.Count / pageSize)),
+            Data = result.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList(),
+            TotalPages = (int)Math.Ceiling(((decimal)result.Count / pageSize)),
             PageNumber = pageNumber,
             TotalResults = result.Count
         };

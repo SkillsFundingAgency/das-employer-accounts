@@ -1,26 +1,11 @@
 ﻿using SFA.DAS.EmployerAccounts.Models.ReferenceData;
 using SFA.DAS.ReferenceData.Types.DTO;
-using Charity = SFA.DAS.EmployerAccounts.Models.ReferenceData.Charity;
 using CommonOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
-using PublicSectorOrganisation = SFA.DAS.EmployerAccounts.Models.ReferenceData.PublicSectorOrganisation;
 
 namespace SFA.DAS.EmployerAccounts.Interfaces;
 
 public interface IReferenceDataService
-{
-    Task<Charity> GetCharity(int registrationNumber);
-
-    Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(string searchTerm);
-
-    Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(
-        string searchTerm,
-        int pageNumber);
-
-    Task<PagedResponse<PublicSectorOrganisation>> SearchPublicSectorOrganisation(
-        string searchTerm,
-        int pageNumber,
-        int pageSize);
-
+{   
     Task<PagedResponse<OrganisationName>> SearchOrganisations(
         string searchTerm, 
         int pageNumber = 1, 
