@@ -27,7 +27,20 @@ public class OuterApiClient : IOuterApiClient
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         return JsonConvert.DeserializeObject<TResponse>(json);
     }
-    
+
+    public async Task Post(IPostApiRequest request)
+    {
+        var stringContent = new StringContent(JsonConvert.SerializeObject(request.Data), System.Text.Encoding.UTF8, "application/json");
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, request.PostUrl)
+        {
+            Content = stringContent,
+        };
+
+        AddAuthenticationHeader(requestMessage);
+        var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+    }
+
     private void AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
         httpRequestMessage.Headers.Add("Ocp-Apim-Subscription-Key", _configuration.Key);
