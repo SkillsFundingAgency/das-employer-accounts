@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +8,7 @@ using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerUsers.WebClientComponents;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
+using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 
@@ -43,10 +43,12 @@ public class HomeController : BaseController
 
     [Route("~/")]
     [Route("Index")]
-    public async Task<IActionResult> Index(GaQueryData queryData)
+    public async Task<IActionResult> Index(
+        GaQueryData gaQueryData, 
+        [FromQuery(Name = "redirectUri")] string redirectUri)
     {
         // check if the GovSignIn is enabled
-      if (_configuration.UseGovSignIn)
+        if (_configuration.UseGovSignIn)
         {
             if (User.Identities.FirstOrDefault() != null && User.Identities.FirstOrDefault()!.IsAuthenticated)
             {
@@ -56,7 +58,7 @@ public class HomeController : BaseController
                 
                 if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
                 {
-                    return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={queryData._ga}&_gl={queryData._gl}&utm_source={queryData.utm_source}&utm_campaign={queryData.utm_campaign}&utm_medium={queryData.utm_medium}&utm_keywords={queryData.utm_keywords}&utm_content={queryData.utm_content}");    
+                    return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");    
                 }
             }
         }
@@ -83,7 +85,12 @@ public class HomeController : BaseController
                 await _homeOrchestrator.SaveUpdatedIdentityAttributes(userRef, email, firstName, lastName);
             }
 
-            accounts = await _homeOrchestrator.GetUserAccounts(userIdClaim.Value, _configuration.LastTermsAndConditionsUpdate);
+            accounts = await _homeOrchestrator.GetUserAccounts(
+                userIdClaim.Value,
+                gaQueryData,
+                redirectUri != null ? Uri.UnescapeDataString(redirectUri) : null,
+                _configuration.ValidRedirectUris,
+                _configuration.LastTermsAndConditionsUpdate);
         }
         else
         {
@@ -104,10 +111,11 @@ public class HomeController : BaseController
         
         if (accounts.Data.Invitations > 0)
         {
-            return RedirectToAction(ControllerConstants.InvitationIndexName, ControllerConstants.InvitationControllerName,queryData);
+            return RedirectToAction(ControllerConstants.InvitationIndexName, ControllerConstants.InvitationControllerName, gaQueryData);
         }
 
-        // condition to check if the user has only one account, then redirect to home page/dashboard.
+        // condition to check if the user has only one account, then redirect to the given
+        // redirectUri if valid or redirect to home page/dashboard.
         if (accounts.Data.Accounts.AccountList.Count == 1)
         {
             var account = accounts.Data.Accounts.AccountList.FirstOrDefault();
@@ -116,16 +124,23 @@ public class HomeController : BaseController
             {
                 if (account.AddTrainingProviderAcknowledged ?? true)
                 {
+                    // the redirectUri is validated against configuration during model setup
+                    var redirectUriWithHashedAccountId = accounts.Data.RedirectUriWithHashedAccountId(account);
+                    if (!string.IsNullOrEmpty(redirectUriWithHashedAccountId))
+                    {
+                        return Redirect(redirectUriWithHashedAccountId);
+                    }
+
                     return RedirectToRoute(RouteNames.EmployerTeamIndex, new
                     {
                         HashedAccountId = account.HashedId,
-                        queryData._ga,
-                        queryData._gl,
-                        queryData.utm_source,
-                        queryData.utm_campaign,
-                        queryData.utm_medium,
-                        queryData.utm_keywords,
-                        queryData.utm_content
+                        gaQueryData._ga,
+                        gaQueryData._gl,
+                        gaQueryData.utm_source,
+                        gaQueryData.utm_campaign,
+                        gaQueryData.utm_medium,
+                        gaQueryData.utm_keywords,
+                        gaQueryData.utm_content
                     });
                 } 
                 else
@@ -142,13 +157,13 @@ public class HomeController : BaseController
             accounts.FlashMessage = flashMessage;
         }
 
-        // condition to check if the user has more than one account, then redirect to accounts page.
+        // condition to check if the user has more than one account, then show the accounts page.
         if (accounts.Data.Accounts.AccountList.Count > 1)
         {
             return View(accounts);
         }
 
-        return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, queryData);
+        return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, gaQueryData);
     }
 
     [Authorize]

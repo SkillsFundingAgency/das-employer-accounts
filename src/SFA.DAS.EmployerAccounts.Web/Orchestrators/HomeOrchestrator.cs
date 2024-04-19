@@ -1,9 +1,9 @@
 using SFA.DAS.EmployerAccounts.Commands.UnsubscribeProviderEmail;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetUserInvitations;
+using SFA.DAS.EmployerAccounts.Web.Extensions;
 
 namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
@@ -21,26 +21,38 @@ public class HomeOrchestrator
         _mediator = mediator;
     }
 
-    public virtual async Task<OrchestratorResponse<UserAccountsViewModel>> GetUserAccounts(string userId, DateTime? LastTermsAndConditionsUpdate = null)
+    public virtual async Task<OrchestratorResponse<UserAccountsViewModel>> GetUserAccounts(
+        string userId,
+        GaQueryData gaQueryData = null,
+        string redirectUri = null, 
+        List<RedirectUriConfiguration> validRedirectUris = null,
+        DateTime? LastTermsAndConditionsUpdate = null)
     {
         var getUserAccountsQueryResponse = await _mediator.Send(new GetUserAccountsQuery
         {
             UserRef = userId
         });
+        
         var getUserInvitationsResponse = await _mediator.Send(new GetNumberOfUserInvitationsQuery
         {
             UserId = userId
         });
+        
         var getUserQueryResponse = await _mediator.Send(new GetUserByRefQuery
         {
             UserRef = userId
         });
-        
+
+        var validatedRedirectUri = ValidateRedirectUri(redirectUri, validRedirectUris);
+
         return new OrchestratorResponse<UserAccountsViewModel>
         {
             Data = new UserAccountsViewModel
             {
                 Accounts = getUserAccountsQueryResponse.Accounts,
+                RedirectUri = validatedRedirectUri.RedirectUri,
+                RedirectDescription = validatedRedirectUri.Description,
+                GaQueryData = gaQueryData,
                 Invitations = getUserInvitationsResponse.NumberOfInvites,
                 TermAndConditionsAcceptedOn = getUserQueryResponse.User.TermAndConditionsAcceptedOn,
                 LastTermsAndConditionsUpdate = LastTermsAndConditionsUpdate
@@ -116,5 +128,18 @@ public class HomeOrchestrator
         {
             return null;
         }
+    }
+
+    private static (string RedirectUri, string Description) ValidateRedirectUri(string redirectUri, List<RedirectUriConfiguration> validRedirectUris)
+    {
+        Uri uri = new Uri(redirectUri);
+        
+        var validRedirectUri = validRedirectUris.Find(p => p.Uri == uri.WithoutQuery());
+        if (validRedirectUri == null)
+        {
+            return new(null, null);
+        }
+
+        return (redirectUri, validRedirectUri.Description);
     }
 }

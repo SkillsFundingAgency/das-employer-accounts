@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -11,22 +10,23 @@ using SFA.DAS.Authentication;
 using SFA.DAS.EmployerAccounts.Dtos;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
+using SFA.DAS.EmployerAccounts.Web.Extensions;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.GovUK.Auth.Services;
+using System.Net.Http;
+using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests;
 
 public class WhenIViewTheHomePage : ControllerTestBase
 {
     private UserAccountsViewModel _userAccountsViewModel;
-    private EmployerAgreementListViewModel _singleEmployerAgreement;
     private HomeController _homeController;
     private Mock<HomeOrchestrator> _homeOrchestrator;
     private EmployerAccountsConfiguration _configuration;
     private const string ExpectedUserId = "123ABC";
-    private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
     private UrlActionHelper _urlActionHelper;
-    private GaQueryData _queryData;
+    private GaQueryData _gaQueryData;
     private Mock<IConfiguration> _mockRootConfig;
 
     [SetUp]
@@ -35,44 +35,10 @@ public class WhenIViewTheHomePage : ControllerTestBase
         base.Arrange();
 
         _homeOrchestrator = new Mock<HomeOrchestrator>();
-        _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
         _homeOrchestrator = new Mock<HomeOrchestrator>();
         _mockRootConfig = new Mock<IConfiguration>();
         var fixture = new Fixture();
-        _queryData = fixture.Create<GaQueryData>();
-
-        _userAccountsViewModel = SetupUserAccountsViewModel();
-
-        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, null)).ReturnsAsync(
-            new OrchestratorResponse<UserAccountsViewModel>
-            {
-                Data = _userAccountsViewModel
-            });
-
-        _singleEmployerAgreement = new EmployerAgreementListViewModel
-        {
-            EmployerAgreementsData = new GetAccountEmployerAgreementsResponse
-            {
-                EmployerAgreements = new List<EmployerAgreementStatusDto>
-                {
-                    new()
-                    {
-                        Pending = new EmployerAgreementDetailsDto
-                        {
-                            Acknowledged = true
-                        }
-                    }
-                }
-            }
-        };
-        
-        // _homeOrchestrator
-        //     .Setup(x => x.GetEmployerAccountAgreements(_userAccountsViewModel.Accounts.AccountList[0].Id, ExpectedUserId))
-        //     .ReturnsAsync(new OrchestratorResponse<EmployerAgreementListViewModel>
-        //     {
-        //         Data = _singleEmployerAgreement,
-        //         Status = HttpStatusCode.OK
-        //     });
+        _gaQueryData = fixture.Create<GaQueryData>();
 
         _configuration = new EmployerAccountsConfiguration
         {
@@ -83,8 +49,32 @@ public class WhenIViewTheHomePage : ControllerTestBase
                 ChangeEmailLink = "123",
                 ClaimIdentifierConfiguration = new ClaimIdentifierConfiguration { ClaimsBaseUrl = "http://claims.test/" }
             },
-            EmployerPortalBaseUrl = "https://localhost"
+            EmployerPortalBaseUrl = "https://localhost",
+            ValidRedirectUris = new List<RedirectUriConfiguration>
+            {
+                new RedirectUriConfiguration
+                {
+                    Uri = "https://somewhereovertherainbow",
+                    Description = "land of oz"
+                }
+            }
         };
+
+        _userAccountsViewModel = SetupUserAccountsViewModel();
+
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            null, null, _configuration.ValidRedirectUris, null)).ReturnsAsync(
+            new OrchestratorResponse<UserAccountsViewModel>
+            {
+                Data = _userAccountsViewModel
+            });
+
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            _gaQueryData, null, _configuration.ValidRedirectUris, null)).ReturnsAsync(
+            new OrchestratorResponse<UserAccountsViewModel>
+            {
+                Data = _userAccountsViewModel
+            });
 
         _mockRootConfig.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
         _urlActionHelper = new UrlActionHelper(_configuration, Mock.Of<IHttpContextAccessor>(), _mockRootConfig.Object);
@@ -105,20 +95,22 @@ public class WhenIViewTheHomePage : ControllerTestBase
     [Test]
     public async Task ThenTheAccountsAreNotReturnedWhenYouAreNotAuthenticated()
     {
-        //Arrange
+        // Arrange
         AddEmptyUserToContext();
 
-        //Act
-        await _homeController.Index(null);
+        // Act
+        await _homeController.Index(null, null);
 
-        //Assert
-        _homeOrchestrator.Verify(x => x.GetUserAccounts(It.Is<string>(c => c.Equals(string.Empty)), It.IsAny<DateTime?>()), Times.Never);
+        // Asssert
+        _homeOrchestrator.Verify(x => x.GetUserAccounts(It.Is<string>(c => c.Equals(string.Empty)),
+            null, null, null,
+            It.IsAny<DateTime?>()), Times.Never);
     }
 
     [Test]
     public async Task ThenIfMyAccountIsAuthenticatedButNotActivated()
     {
-        //Arrange
+        // Arrange
         ConfigurationFactory.Current = new IdentityServerConfigurationFactory(
             new EmployerAccountsConfiguration
             {
@@ -126,20 +118,19 @@ public class WhenIViewTheHomePage : ControllerTestBase
             });
         AddUserToContext(new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId), new Claim(DasClaimTypes.RequiresVerification, "true"));
 
-        //Act
-        var actual = await _homeController.Index(null);
+        // Act
+        var actual = await _homeController.Index(null, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
-        var actualRedirect = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirect);
-        Assert.AreEqual("http://test.local/confirm", actualRedirect.Url);
+        // Asssert
+        var actualRedirectResult = actual as RedirectResult;
+        Assert.IsNotNull(actualRedirectResult);
+        Assert.AreEqual("http://test.local/confirm", actualRedirectResult.Url);
     }
 
     [Test]
     public async Task ThenIfMyAccountIsAuthenticatedButNotActivatedForGovThenIgnoredAndGoesToIndex()
     {
-        //Arrange
+        // Arrange
         _configuration.UseGovSignIn = true;
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty, new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId), new Claim(DasClaimTypes.RequiresVerification, "true"));
         _homeOrchestrator.Setup(x => x.GetUser(ExpectedUserId)).ReturnsAsync(new User
@@ -148,31 +139,33 @@ public class WhenIViewTheHomePage : ControllerTestBase
             LastName = "Tester"
         });
         
-        //Act
-        var actual = await _homeController.Index(_queryData);
+        // Act
+        var actual = await _homeController.Index(_gaQueryData, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
-        var actualRedirect = actual as RedirectToRouteResult;
-        Assert.IsNotNull(actualRedirect);
-        Assert.AreEqual("employer-team-index", actualRedirect.RouteName);
+        // Asssert
+        var actualRedirectToRouteResult = actual as RedirectToRouteResult;
+        Assert.IsNotNull(actualRedirectToRouteResult);
+        Assert.AreEqual("employer-team-index", actualRedirectToRouteResult.RouteName);
     }
     
     [Test]
     public async Task ThenTheAccountsAreReturnedForThatUserWhenAuthenticated()
     {
-        //Arrange
-
+        // Arrange
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
             new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        //Act
-        await _homeController.Index(_queryData);
+        _userAccountsViewModel.GaQueryData = _gaQueryData;
 
-        //Assert
-        _homeOrchestrator.Verify(x => x.GetUserAccounts(ExpectedUserId, It.IsAny<DateTime?>()), Times.Once);
+        // Act
+        await _homeController.Index(_gaQueryData, null);
+
+        // Asssert
+        _homeOrchestrator.Verify(x => x.GetUserAccounts(ExpectedUserId,
+            _gaQueryData, null, _configuration.ValidRedirectUris,
+            It.IsAny<DateTime?>()), Times.Once);
     }
 
     [Test]
@@ -195,14 +188,13 @@ public class WhenIViewTheHomePage : ControllerTestBase
     [Test]
     public async Task ThenTheUnauthenticatedViewIsReturnedWhenNoUserIsLoggedIn()
     {
-        //Arrange
+        // Arrange
         AddEmptyUserToContext();
 
-        //Act
-        var actual = await _homeController.Index(null);
+        // Act
+        var actual = await _homeController.Index(null, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
+        // Asssert
         var actualViewResult = actual as ViewResult;
         Assert.IsNotNull(actualViewResult);
         Assert.AreEqual("ServiceStartPage", actualViewResult.ViewName);
@@ -211,44 +203,114 @@ public class WhenIViewTheHomePage : ControllerTestBase
     [Test]
     public async Task ThenTheUnauthenticatedInProd_RedirectedToGovUk_WhenNoUserIsLoggedIn()
     {
-        //Arrange
+        // Arrange
         _mockRootConfig.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
         _configuration.GovUkSignInToASAccountUrl = "http://gov.uk/account";
         AddEmptyUserToContext();
 
-        //Act
-        var actual = await _homeController.Index(null);
+        // Act
+        var actual = await _homeController.Index(null, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
-        var actualViewResult = actual as RedirectResult;
-        Assert.IsNotNull(actualViewResult);
-        Assert.AreEqual(_configuration.GovUkSignInToASAccountUrl, actualViewResult.Url);
+        // Asssert
+        var acutalRedirectResult = actual as RedirectResult;
+        Assert.IsNotNull(acutalRedirectResult);
+        Assert.AreEqual(_configuration.GovUkSignInToASAccountUrl, acutalRedirectResult.Url);
     }
 
     [Test]
     public async Task ThenIfIHave_OneAccount_IAmRedirectedToTheEmployerTeamsIndexPage()
     {
-        //Arrange
+        // Arrange
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
             new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        //Act
-        var actual = await _homeController.Index(_queryData);
+        // Act
+        var actual = await _homeController.Index(_gaQueryData, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
-        var actualViewResult = actual as RedirectToRouteResult;
-        Assert.IsNotNull(actualViewResult);
-        Assert.AreEqual(RouteNames.EmployerTeamIndex, actualViewResult.RouteName);
+        // Asssert
+        var actualRedirectToRouteResult = actual as RedirectToRouteResult;
+        Assert.IsNotNull(actualRedirectToRouteResult);
+        Assert.AreEqual(RouteNames.EmployerTeamIndex, actualRedirectToRouteResult.RouteName);
+    }
+
+    [Test]
+    public async Task ThenIfIHave_OneAccount_IAmRedirectedToTheSpecifiedValidRedirectUri()
+    {
+        // Arrange
+        AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
+            new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
+            new Claim(DasClaimTypes.RequiresVerification, "false")
+        );
+
+        var redirectUri = new Uri("https://somewhereovertherainbow?param=1&otherparam=2");
+        var redirectDescription = "land of oz";
+        var userAccountsViewModel = SetupUserAccountsViewModel(redirectUri.ToString(), redirectDescription);
+
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, null,
+            redirectUri.ToString(), _configuration.ValidRedirectUris,
+            It.IsAny<DateTime?>())).ReturnsAsync(
+                new OrchestratorResponse<UserAccountsViewModel>
+                {
+                    Data = userAccountsViewModel
+                });
+
+        // Act
+        var actual = await _homeController.Index(null, redirectUri.ToString());
+
+        // Assert
+        var actualRedirectResult = actual as RedirectResult;
+        Assert.IsNotNull(actualRedirectResult);
+
+        var actualRedirectResultUriBuilder = new Uri(actualRedirectResult.Url);
+        Assert.AreEqual(redirectUri.WithoutQuery(), actualRedirectResultUriBuilder.WithoutQuery());
+
+        var query = actualRedirectResultUriBuilder.ParseQueryString();
+        Assert.That(query.AllKeys, Has.Length.EqualTo(3));
+        Assert.That(query.AllKeys, Contains.Item("hashedAccountId"));
+        Assert.That(query["hashedAccountId"], Is.EqualTo(userAccountsViewModel.Accounts.AccountList[0].HashedId));
+
+        Assert.That(query.AllKeys, Contains.Item("param"));
+        Assert.That(query["param"], Is.EqualTo("1"));
+
+        Assert.That(query.AllKeys, Contains.Item("otherparam"));
+        Assert.That(query["otherparam"], Is.EqualTo("2"));
+    }
+
+    [Test]
+    public async Task ThenIfIHave_OneAccount_IAmNotRedirectedToTheSpecifiedInvalidRedirectUri()
+    {
+        // Arrange
+        AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
+            new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
+            new Claim(DasClaimTypes.RequiresVerification, "false")
+        );
+
+        var redirectUri = new Uri("https://singingintherain?param=1&otherparam=2");
+        var userAccountsViewModel = SetupUserAccountsViewModel(null, null);
+
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, _gaQueryData,
+            redirectUri.ToString(), _configuration.ValidRedirectUris,
+            It.IsAny<DateTime?>())).ReturnsAsync(
+                new OrchestratorResponse<UserAccountsViewModel>
+                {
+                    Data = userAccountsViewModel
+                });
+
+        // Act
+        var actual = await _homeController.Index(_gaQueryData, redirectUri.ToString());
+
+        // Assert
+        var actualRedirectToRouteResult = actual as RedirectToRouteResult;
+        Assert.IsNotNull(actualRedirectToRouteResult);
+        Assert.AreEqual(RouteNames.EmployerTeamIndex, actualRedirectToRouteResult.RouteName);
     }
 
     [Test]
     public async Task ThenIfIHave_OneIncompleteAccount_IAmRedirectedToTheContinueTaskListPage()
     {
-        //Arrange
+        // Arrange
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
             new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
             new Claim(DasClaimTypes.RequiresVerification, "false")
@@ -256,26 +318,27 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         _userAccountsViewModel.Accounts.AccountList[0].AddTrainingProviderAcknowledged = false;
 
-        //Act
-        var actual = await _homeController.Index(_queryData);
+        // Act
+        var actual = await _homeController.Index(_gaQueryData, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
-        var actualViewResult = actual as RedirectToRouteResult;
-        Assert.IsNotNull(actualViewResult);
-        Assert.AreEqual(RouteNames.ContinueNewEmployerAccountTaskList, actualViewResult.RouteName);
+        // Asssert
+        var actualRedirectToRouteResult = actual as RedirectToRouteResult;
+        Assert.IsNotNull(actualRedirectToRouteResult);
+        Assert.AreEqual(RouteNames.ContinueNewEmployerAccountTaskList, actualRedirectToRouteResult.RouteName);
     }
 
     [Test]
     public async Task ThenIfIHaveMoreThanOneAccountIAmRedirectedToTheAccountsIndexPage()
     {
-        //Arrange
+        // Arrange
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
             new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, It.IsAny<DateTime?>())).ReturnsAsync(
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            null, null, _configuration.ValidRedirectUris,
+            It.IsAny<DateTime?>())).ReturnsAsync(
             new OrchestratorResponse<UserAccountsViewModel>
             {
                 Data = new UserAccountsViewModel
@@ -287,11 +350,10 @@ public class WhenIViewTheHomePage : ControllerTestBase
                 }
             });
 
-        //Act
-        var actual = await _homeController.Index(null);
+        // Act
+        var actual = await _homeController.Index(null, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
+        // Asssert
         var actualViewResult = actual as ViewResult;
         Assert.IsNotNull(actualViewResult);
         Assert.AreEqual(null, actualViewResult.ViewName);
@@ -300,13 +362,15 @@ public class WhenIViewTheHomePage : ControllerTestBase
     [Test]
     public async Task ThenIfIHaveMoreThanOneAccountIAmRedirectedToTheAccountsIndexPage_WithTermsAndConditionBannerDisplayed()
     {
-        //Arrange
+        // Arrange
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
             new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, It.IsAny<DateTime?>())).ReturnsAsync(
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            null, null, _configuration.ValidRedirectUris,
+            It.IsAny<DateTime?>())).ReturnsAsync(
             new OrchestratorResponse<UserAccountsViewModel>
             {
                 Data = new UserAccountsViewModel
@@ -321,11 +385,10 @@ public class WhenIViewTheHomePage : ControllerTestBase
                 }
             });
 
-        //Act
-        var actual = await _homeController.Index(null);
+        // Act
+        var actual = await _homeController.Index(null, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
+        // Asssert
         var actualViewResult = actual as ViewResult;
         Assert.IsNotNull(actualViewResult);
 
@@ -339,13 +402,15 @@ public class WhenIViewTheHomePage : ControllerTestBase
     [Test]
     public async Task ThenIfIHaveMoreThanOneAccountIAmRedirectedToTheAccountsIndexPage_WithTermsAndConditionBannerNotDisplayed()
     {
-        //Arrange
+        // Arrange
         AddUserToContext(ExpectedUserId, string.Empty, string.Empty,
             new Claim(ControllerConstants.UserRefClaimKeyName, ExpectedUserId),
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, It.IsAny<DateTime?>())).ReturnsAsync(
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            null, null, _configuration.ValidRedirectUris,
+            It.IsAny<DateTime?>())).ReturnsAsync(
             new OrchestratorResponse<UserAccountsViewModel>
             {
                 Data = new UserAccountsViewModel
@@ -360,11 +425,10 @@ public class WhenIViewTheHomePage : ControllerTestBase
                 }
             });
 
-        //Act
-        var actual = await _homeController.Index(null);
+        // Act
+        var actual = await _homeController.Index(null, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
+        // Asssert
         var actualViewResult = actual as ViewResult;
         Assert.IsNotNull(actualViewResult);
 
@@ -378,13 +442,15 @@ public class WhenIViewTheHomePage : ControllerTestBase
     [Test]
     public async Task ThenIfIAmAuthenticatedWithNoProfileInformation()
     {
-        //Arrange
+        // Arrange
         var userId = Guid.NewGuid().ToString();
         _configuration.UseGovSignIn = true;
         AddNewGovUserToContext(userId);
 
 
-        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, It.IsAny<DateTime?>())).ReturnsAsync(
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            null, null, null,
+            It.IsAny<DateTime?>())).ReturnsAsync(
             new OrchestratorResponse<UserAccountsViewModel>
             {
                 Data = new UserAccountsViewModel
@@ -394,24 +460,25 @@ public class WhenIViewTheHomePage : ControllerTestBase
             });
         _homeOrchestrator.Setup(x => x.GetUser(userId)).ReturnsAsync(new User());
 
-        //Act
-        var actual = await _homeController.Index(_queryData);
+        // Act
+        var actual = await _homeController.Index(_gaQueryData, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
+        // Asssert
         var actualViewResult = actual as RedirectResult;
-        Assert.AreEqual($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_queryData._ga}&_gl={_queryData._gl}&utm_source={_queryData.utm_source}&utm_campaign={_queryData.utm_campaign}&utm_medium={_queryData.utm_medium}&utm_keywords={_queryData.utm_keywords}&utm_content={_queryData.utm_content}", actualViewResult.Url);
+        Assert.AreEqual($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}", actualViewResult.Url);
     }
     [Test]
     public async Task ThenIfIAmAuthenticatedWithNoUserInformation()
     {
-        //Arrange
+        // Arrange
         var userId = Guid.NewGuid().ToString();
         _configuration.UseGovSignIn = true;
         AddNewGovUserToContext(userId);
 
 
-        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, It.IsAny<DateTime?>())).ReturnsAsync(
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            null, null, null,
+            It.IsAny<DateTime?>())).ReturnsAsync(
             new OrchestratorResponse<UserAccountsViewModel>
             {
                 Data = new UserAccountsViewModel
@@ -421,19 +488,18 @@ public class WhenIViewTheHomePage : ControllerTestBase
             });
         _homeOrchestrator.Setup(x => x.GetUser(userId)).ReturnsAsync((User)null);
 
-        //Act
-        var actual = await _homeController.Index(_queryData);
+        // Act
+        var actual = await _homeController.Index(_gaQueryData, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
+        // Asssert
         var actualViewResult = actual as RedirectResult;
-        Assert.AreEqual($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_queryData._ga}&_gl={_queryData._gl}&utm_source={_queryData.utm_source}&utm_campaign={_queryData.utm_campaign}&utm_medium={_queryData.utm_medium}&utm_keywords={_queryData.utm_keywords}&utm_content={_queryData.utm_content}", actualViewResult.Url);
+        Assert.AreEqual($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}", actualViewResult.Url);
     }
 
     [Test]
     public async Task ThenIfIHaveEmployerUserProfile_ButNoEmployerAccountsAndGovSignInTrueIAmRedirectedToTheProfilePage()
     {
-        //Arrange
+        // Arrange
         _configuration.UseGovSignIn = true;
         AddNewGovUserToContext(ExpectedUserId);
         _homeOrchestrator.Setup(x => x.GetUser(ExpectedUserId)).ReturnsAsync(new User
@@ -442,7 +508,9 @@ public class WhenIViewTheHomePage : ControllerTestBase
             LastName = "Tester"
         });
 
-        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, It.IsAny<DateTime?>())).ReturnsAsync(
+        _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId,
+            _gaQueryData, null, _configuration.ValidRedirectUris,
+            It.IsAny<DateTime?>())).ReturnsAsync(
             new OrchestratorResponse<UserAccountsViewModel>
             {
                 Data = new UserAccountsViewModel
@@ -454,24 +522,26 @@ public class WhenIViewTheHomePage : ControllerTestBase
                 }
             });
 
-        //Act
-        var actual = await _homeController.Index(_queryData);
+        // Act
+        var actual = await _homeController.Index(_gaQueryData, null);
 
-        //Assert
-        Assert.IsNotNull(actual);
+        // Asssert
         var actualViewResult = actual as RedirectToRouteResult;
         Assert.AreEqual(RouteNames.NewEmployerAccountTaskList, actualViewResult.RouteName);
     }
 
-    private static UserAccountsViewModel SetupUserAccountsViewModel()
+    private static UserAccountsViewModel SetupUserAccountsViewModel(string redirectUri = null, string redirectDescription = null)
     {
         return new UserAccountsViewModel
         {
+            RedirectUri = redirectUri,
+            RedirectDescription = redirectDescription,
             Accounts = new Accounts<Account>
             {
                 AccountList = new List<Account> {
                             new Account
                             {
+                                HashedId = "ABC123",
                                 NameConfirmed = true,
                                 AccountHistory = new List<AccountHistory>
                                 {
