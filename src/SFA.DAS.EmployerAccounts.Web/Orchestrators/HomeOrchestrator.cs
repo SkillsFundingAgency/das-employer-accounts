@@ -7,14 +7,9 @@ using SFA.DAS.EmployerAccounts.Web.Extensions;
 
 namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
-public class HomeOrchestrator
+public class HomeOrchestrator : IHomeOrchestrator
 {
     private readonly IMediator _mediator;
-
-    //Required for running tests
-    public HomeOrchestrator()
-    {
-    }
 
     public HomeOrchestrator(IMediator mediator)
     {
@@ -24,7 +19,7 @@ public class HomeOrchestrator
     public virtual async Task<OrchestratorResponse<UserAccountsViewModel>> GetUserAccounts(
         string userId,
         GaQueryData gaQueryData = null,
-        string redirectUri = null, 
+        string redirectUri = null,
         List<RedirectUriConfiguration> validRedirectUris = null,
         DateTime? LastTermsAndConditionsUpdate = null)
     {
@@ -32,12 +27,12 @@ public class HomeOrchestrator
         {
             UserRef = userId
         });
-        
+
         var getUserInvitationsResponse = await _mediator.Send(new GetNumberOfUserInvitationsQuery
         {
             UserId = userId
         });
-        
+
         var getUserQueryResponse = await _mediator.Send(new GetUserByRefQuery
         {
             UserRef = userId
@@ -105,7 +100,7 @@ public class HomeOrchestrator
             CorrelationId = correlationId
         });
     }
-    
+
     public virtual async Task UpdateTermAndConditionsAcceptedOn(string userRef)
     {
         await _mediator.Send(new UpdateTermAndConditionsAcceptedOnCommand
@@ -132,14 +127,15 @@ public class HomeOrchestrator
 
     private static (string RedirectUri, string Description) ValidateRedirectUri(string redirectUri, List<RedirectUriConfiguration> validRedirectUris)
     {
-        Uri uri = new Uri(redirectUri);
-        
-        var validRedirectUri = validRedirectUris.Find(p => p.Uri == uri.WithoutQuery());
-        if (validRedirectUri == null)
+        if (validRedirectUris != null && Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri uri))
         {
-            return new(null, null);
+            var validRedirectUri = validRedirectUris.Find(p => p.Uri == uri.WithoutQuery());
+            if (validRedirectUri != null)
+            {
+                return (redirectUri, validRedirectUri.Description);
+            }
         }
 
-        return (redirectUri, validRedirectUri.Description);
+        return (null, null);
     }
 }

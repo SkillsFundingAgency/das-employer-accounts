@@ -22,7 +22,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
 {
     private UserAccountsViewModel _userAccountsViewModel;
     private HomeController _homeController;
-    private Mock<HomeOrchestrator> _homeOrchestrator;
+    private Mock<IHomeOrchestrator> _homeOrchestrator;
     private EmployerAccountsConfiguration _configuration;
     private const string ExpectedUserId = "123ABC";
     private UrlActionHelper _urlActionHelper;
@@ -34,8 +34,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
     {
         base.Arrange();
 
-        _homeOrchestrator = new Mock<HomeOrchestrator>();
-        _homeOrchestrator = new Mock<HomeOrchestrator>();
+        _homeOrchestrator = new Mock<IHomeOrchestrator>();
         _mockRootConfig = new Mock<IConfiguration>();
         var fixture = new Fixture();
         _gaQueryData = fixture.Create<GaQueryData>();

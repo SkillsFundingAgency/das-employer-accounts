@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 [Route("service")]
 public class HomeController : BaseController
 {
-    private readonly HomeOrchestrator _homeOrchestrator;
+    private readonly IHomeOrchestrator _homeOrchestrator;
     private readonly EmployerAccountsConfiguration _configuration;
     private readonly ILogger<HomeController> _logger;
     private readonly IConfiguration _config;
@@ -25,7 +25,7 @@ public class HomeController : BaseController
     public const string ReturnUrlCookieName = "SFA.DAS.EmployerAccounts.Web.Controllers.ReturnUrlCookie";
 
     public HomeController(
-        HomeOrchestrator homeOrchestrator,
+        IHomeOrchestrator homeOrchestrator,
         EmployerAccountsConfiguration configuration,
         ICookieStorageService<FlashMessageViewModel> flashMessage,
         ILogger<HomeController> logger,
