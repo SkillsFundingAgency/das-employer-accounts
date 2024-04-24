@@ -10,10 +10,12 @@ namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
 public class HomeOrchestrator : IHomeOrchestrator
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<HomeOrchestrator> _logger;
 
-    public HomeOrchestrator(IMediator mediator)
+    public HomeOrchestrator(IMediator mediator, ILogger<HomeOrchestrator> logger)
     {
         _mediator = mediator;
+        _logger = logger;
     }
 
     public virtual async Task<OrchestratorResponse<UserAccountsViewModel>> GetUserAccounts(
@@ -125,13 +127,14 @@ public class HomeOrchestrator : IHomeOrchestrator
         }
     }
 
-    private static (string RedirectUri, string Description) ValidateRedirectUri(string redirectUri, List<RedirectUriConfiguration> validRedirectUris)
+    private (string RedirectUri, string Description) ValidateRedirectUri(string redirectUri, List<RedirectUriConfiguration> validRedirectUris)
     {
         if (validRedirectUris != null && Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri uri))
         {
             var validRedirectUri = validRedirectUris.Find(p => p.Uri == uri.RemoveQuery());
             if (validRedirectUri != null)
             {
+                _logger.LogInformation($"redirectUri: {redirectUri} matched with validRedirectUri: {validRedirectUri.Uri}");
                 return (redirectUri, validRedirectUri.Description);
             }
         }

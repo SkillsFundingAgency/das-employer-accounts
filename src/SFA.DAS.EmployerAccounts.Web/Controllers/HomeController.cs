@@ -128,9 +128,11 @@ public class HomeController : BaseController
                     var redirectUriWithHashedAccountId = accounts.Data.RedirectUriWithHashedAccountId(account);
                     if (!string.IsNullOrEmpty(redirectUriWithHashedAccountId))
                     {
+                        _logger.LogInformation($"Redirecting to {redirectUriWithHashedAccountId}");
                         return Redirect(redirectUriWithHashedAccountId);
                     }
 
+                    _logger.LogInformation($"Redirecting to {RouteNames.EmployerTeamIndex}");
                     return RedirectToRoute(RouteNames.EmployerTeamIndex, new
                     {
                         HashedAccountId = account.HashedId,
@@ -145,6 +147,7 @@ public class HomeController : BaseController
                 } 
                 else
                 {
+                    _logger.LogInformation($"Redirecting to {RouteNames.ContinueNewEmployerAccountTaskList}");
                     return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId = account.HashedId });
                 }
             }
@@ -163,6 +166,7 @@ public class HomeController : BaseController
             return View(accounts);
         }
 
+        _logger.LogInformation($"Redirecting to {RouteNames.NewEmployerAccountTaskList}");
         return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, gaQueryData);
     }
 
