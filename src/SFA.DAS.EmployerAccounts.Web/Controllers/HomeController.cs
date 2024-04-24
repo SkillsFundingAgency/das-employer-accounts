@@ -88,7 +88,7 @@ public class HomeController : BaseController
             accounts = await _homeOrchestrator.GetUserAccounts(
                 userIdClaim.Value,
                 gaQueryData,
-                redirectUri != null ? Uri.UnescapeDataString(redirectUri) : null,
+                redirectUri,
                 _configuration.ValidRedirectUris,
                 _configuration.LastTermsAndConditionsUpdate);
         }
