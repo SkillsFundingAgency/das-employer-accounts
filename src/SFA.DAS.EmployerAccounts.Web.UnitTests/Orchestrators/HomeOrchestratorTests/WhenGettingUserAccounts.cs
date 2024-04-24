@@ -58,7 +58,7 @@ public class WhenGettingUserAccounts
             {
                 new RedirectUriConfiguration
                 {
-                    Uri = redirectUri.WithoutQuery(),
+                    Uri = redirectUri.RemoveQuery(),
                     Description = redirectDescription
                 }
             }, null);

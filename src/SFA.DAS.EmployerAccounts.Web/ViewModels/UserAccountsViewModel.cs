@@ -1,4 +1,4 @@
-﻿using System.Web;
+﻿using SFA.DAS.EmployerAccounts.Web.Extensions;
 
 namespace SFA.DAS.EmployerAccounts.Web.ViewModels;
 
@@ -19,17 +19,16 @@ public class UserAccountsViewModel
     {
         if (!string.IsNullOrEmpty(RedirectUri))
         {
-            var uriBuilder = new UriBuilder(RedirectUri);
-            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-            query["hashedAccountId"] = account.HashedId;
-            uriBuilder.Query = query.ToString();
-            return uriBuilder.ToString();
+            var redirectUri = new Uri(RedirectUri);
+            return redirectUri.ReplaceHashedAccountId(account.HashedId);
         }
 
         return null;
     }
 
-    public bool ShowTermsAndConditionBanner { get 
+    public bool ShowTermsAndConditionBanner
+    {
+        get
         {
             if (!LastTermsAndConditionsUpdate.HasValue)
             {
@@ -37,6 +36,6 @@ public class UserAccountsViewModel
             }
 
             return !TermAndConditionsAcceptedOn.HasValue || TermAndConditionsAcceptedOn.Value < LastTermsAndConditionsUpdate.Value;
-        } 
+        }
     }
 }

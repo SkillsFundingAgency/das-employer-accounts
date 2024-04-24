@@ -129,7 +129,7 @@ public class HomeOrchestrator : IHomeOrchestrator
     {
         if (validRedirectUris != null && Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri uri))
         {
-            var validRedirectUri = validRedirectUris.Find(p => p.Uri == uri.WithoutQuery());
+            var validRedirectUri = validRedirectUris.Find(p => p.Uri == uri.RemoveQuery());
             if (validRedirectUri != null)
             {
                 return (redirectUri, validRedirectUri.Description);

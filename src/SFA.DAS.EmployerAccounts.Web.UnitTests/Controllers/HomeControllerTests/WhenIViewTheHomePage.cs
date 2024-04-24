@@ -7,13 +7,10 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authentication;
-using SFA.DAS.EmployerAccounts.Dtos;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.EmployerAccounts.Web.Extensions;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.GovUK.Auth.Services;
-using System.Net.Http;
 using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests;
@@ -53,7 +50,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             {
                 new RedirectUriConfiguration
                 {
-                    Uri = "https://somewhereovertherainbow",
+                    Uri = "https://somewhereovertherainbow/{{hashedAccountId}}/",
                     Description = "land of oz"
                 }
             }
@@ -243,7 +240,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        var redirectUri = new Uri("https://somewhereovertherainbow?param=1&otherparam=2");
+        var redirectUri = new Uri("https://somewhereovertherainbow/{{hashedAccountId}}/?param=1&otherparam=2");
         var redirectDescription = "land of oz";
         var userAccountsViewModel = SetupUserAccountsViewModel(redirectUri.ToString(), redirectDescription);
 
@@ -263,18 +260,9 @@ public class WhenIViewTheHomePage : ControllerTestBase
         Assert.IsNotNull(actualRedirectResult);
 
         var actualRedirectResultUriBuilder = new Uri(actualRedirectResult.Url);
-        Assert.AreEqual(redirectUri.WithoutQuery(), actualRedirectResultUriBuilder.WithoutQuery());
-
-        var query = actualRedirectResultUriBuilder.ParseQueryString();
-        Assert.That(query.AllKeys, Has.Length.EqualTo(3));
-        Assert.That(query.AllKeys, Contains.Item("hashedAccountId"));
-        Assert.That(query["hashedAccountId"], Is.EqualTo(userAccountsViewModel.Accounts.AccountList[0].HashedId));
-
-        Assert.That(query.AllKeys, Contains.Item("param"));
-        Assert.That(query["param"], Is.EqualTo("1"));
-
-        Assert.That(query.AllKeys, Contains.Item("otherparam"));
-        Assert.That(query["otherparam"], Is.EqualTo("2"));
+        Assert.AreEqual(
+            redirectUri.ReplaceHashedAccountId(userAccountsViewModel.Accounts.AccountList[0].HashedId), 
+            actualRedirectResultUriBuilder.ToString());
     }
 
     [Test]
@@ -286,7 +274,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             new Claim(DasClaimTypes.RequiresVerification, "false")
         );
 
-        var redirectUri = new Uri("https://singingintherain?param=1&otherparam=2");
+        var redirectUri = new Uri("https://singingintherain/{{hashedAccountId}}/?param=1&otherparam=2");
         var userAccountsViewModel = SetupUserAccountsViewModel(null, null);
 
         _homeOrchestrator.Setup(x => x.GetUserAccounts(ExpectedUserId, _gaQueryData,
