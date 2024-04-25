@@ -171,9 +171,11 @@ public class HomeController : BaseController
     }
 
     [Authorize]
-    public IActionResult GovSignIn(GaQueryData queryData)
+    public IActionResult GovSignIn(
+        GaQueryData gaQueryData,
+        [FromQuery(Name = "redirectUri")] string redirectUri)
     {
-        return RedirectToAction(ControllerConstants.IndexActionName, "Home", queryData);
+        return RedirectToAction(ControllerConstants.IndexActionName, "Home", new { gaQueryData, redirectUri });
     }
 
     [HttpGet]
