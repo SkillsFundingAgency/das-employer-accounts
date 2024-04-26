@@ -7,16 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Api.Controllers;
-using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Models;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerUserControllerTests;
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerTeamController;
 
 public class WhenICallTheChangeRoleEndpoint
 {
-    private EmployerUserController _controller;
+    private Api.Controllers.EmployerTeamController _controller;
     private Mock<IMediator> _mediator;
     private ChangeTeamMemberRoleCommand _command;
 
@@ -33,7 +31,7 @@ public class WhenICallTheChangeRoleEndpoint
             Role = Role.Owner,
         };
 
-        _controller = new EmployerUserController(Mock.Of<IUsersOrchestrator>(), _mediator.Object, Mock.Of<ILogger<EmployerUserController>>());
+        _controller = new Api.Controllers.EmployerTeamController( _mediator.Object, Mock.Of<ILogger<Api.Controllers.EmployerTeamController>>());
     }
 
     [Test]
