@@ -23,7 +23,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string hashedAccountId,
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-            GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetEmployerAccountDetailByIdResponse accountDetailResponse,
             GetUserByRefResponse userByRefResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
@@ -55,7 +55,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
 
             mediatorMock
                 .Setup(m => m.Send(
-                    It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId),
+                    It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
 

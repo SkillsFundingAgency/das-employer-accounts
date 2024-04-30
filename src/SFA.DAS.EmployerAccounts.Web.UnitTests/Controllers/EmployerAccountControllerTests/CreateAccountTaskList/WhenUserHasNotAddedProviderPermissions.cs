@@ -46,7 +46,7 @@ public class WhenUserHasNotAddedProviderPermissions
         string userId,
         GetUserByRefResponse userByRefResponse,
         [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-        GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+        GetEmployerAccountDetailByIdResponse accountDetailResponse,
         [Frozen] Mock<IUrlActionHelper> urlHelperMock,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [Frozen] Mock<IMediator> mediatorMock,
@@ -78,7 +78,7 @@ public class WhenUserHasNotAddedProviderPermissions
 
         mediatorMock
             .Setup(m => m.Send(
-                It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId),
+                It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(accountDetailResponse);
 
@@ -102,7 +102,7 @@ public class WhenUserHasNotAddedProviderPermissions
         string userId,
         GetUserByRefResponse userByRefResponse,
         [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-        GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+        GetEmployerAccountDetailByIdResponse accountDetailResponse,
         [Frozen] Mock<IUrlActionHelper> urlHelperMock,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [Frozen] Mock<IMediator> mediatorMock,
@@ -136,7 +136,7 @@ public class WhenUserHasNotAddedProviderPermissions
 
         mediatorMock
             .Setup(m => m.Send(
-                It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId),
+                It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(accountDetailResponse);
 

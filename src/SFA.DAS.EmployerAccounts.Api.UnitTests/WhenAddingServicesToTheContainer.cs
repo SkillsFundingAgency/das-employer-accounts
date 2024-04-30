@@ -55,7 +55,7 @@ public class WhenAddingServicesToTheContainer
     }
 
     [TestCase(typeof(IRequestHandler<GetPayeSchemeByRefQuery, GetPayeSchemeByRefResponse>))]
-    [TestCase(typeof(IRequestHandler<GetEmployerAccountDetailByHashedIdQuery, GetEmployerAccountDetailByHashedIdResponse>))]
+    [TestCase(typeof(IRequestHandler<GetEmployerAccountDetailByIdQuery, GetEmployerAccountDetailByIdResponse>))]
     [TestCase(typeof(IRequestHandler<GetPagedEmployerAccountsQuery, GetPagedEmployerAccountsResponse>))]
     [TestCase(typeof(IRequestHandler<GetTeamMembersRequest, GetTeamMembersResponse>))]
     [TestCase(typeof(IRequestHandler<GetTeamMembersWhichReceiveNotificationsQuery, GetTeamMembersWhichReceiveNotificationsQueryResponse>))]

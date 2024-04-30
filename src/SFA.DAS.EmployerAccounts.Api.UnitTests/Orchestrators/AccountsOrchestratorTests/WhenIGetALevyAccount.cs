@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
           
             _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>(), Mock.Of<IEncodingService>());
 
-            var response = new GetEmployerAccountDetailByHashedIdResponse
+            var response = new GetEmployerAccountDetailByIdResponse
             {
                 Account = new AccountDetail
                 {
@@ -41,7 +41,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             };
 
             _mediator
-                .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByHashedIdQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response)
                 .Verifiable("Get account was not called");
         }
@@ -51,10 +51,10 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
         {
             //Arrange
             AgreementType agreementType = AgreementType.Levy;
-            const string hashedAgreementId = "ABC123";
+            const long accountId = 999;
 
             //Act
-            var result = await _orchestrator.GetAccount(hashedAgreementId);
+            var result = await _orchestrator.GetAccount(accountId);
 
             //Assert
             Assert.AreEqual(agreementType.ToString(), result.AccountAgreementType.ToString());

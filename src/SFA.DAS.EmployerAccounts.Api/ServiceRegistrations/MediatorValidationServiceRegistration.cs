@@ -22,7 +22,7 @@ public static class MediatorValidationServiceRegistration
     public static IServiceCollection AddMediatorValidators(this IServiceCollection services)
     {
         services.AddTransient<IValidator<GetPayeSchemeByRefQuery>, GetPayeSchemeByRefValidator>();
-        services.AddTransient<IValidator<GetEmployerAccountDetailByHashedIdQuery>, GetEmployerAccountDetailByHashedIdValidator>();
+        services.AddTransient<IValidator<GetEmployerAccountDetailByIdQuery>, GetEmployerAccountDetailByHashedIdValidator>();
         services.AddTransient<IValidator<GetPagedEmployerAccountsQuery>, GetPagedEmployerAccountsValidator>();
         services.AddTransient<IValidator<GetTeamMembersRequest>, GetTeamMembersRequestValidator>();
         services.AddTransient<IValidator<GetTeamMembersWhichReceiveNotificationsQuery>, GetTeamMembersWhichReceiveNotificationsQueryValidator>();

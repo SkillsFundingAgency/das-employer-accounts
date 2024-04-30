@@ -161,12 +161,11 @@ public class EmployerAccountPayeOrchestrator : EmployerVerificationOrchestratorB
                 UserId = model.UserId
             });
 
-        var payeResponse = await
-            Mediator.Send(new GetPayeSchemeByRefQuery
-            {
-                HashedAccountId = model.HashedAccountId,
-                Ref = model.PayeRef
-            });
+        var payeResponse = await Mediator.Send(new GetPayeSchemeByRefQuery
+        {
+            AccountId = accountId,
+            Ref = model.PayeRef
+        });
 
         model.AccountName = accountResponse.Account.Name;
         model.PayeSchemeName = payeResponse.PayeScheme.Name;
@@ -177,12 +176,13 @@ public class EmployerAccountPayeOrchestrator : EmployerVerificationOrchestratorB
     //TODO: The message gets mutated by the method. Message needs to be made immutable
     public virtual async Task<OrchestratorResponse<RemovePayeSchemeViewModel>> RemoveSchemeFromAccount(RemovePayeSchemeViewModel model)
     {
+        var accountId = _encodingService.Decode(model.HashedAccountId, EncodingType.AccountId);
         var response = new OrchestratorResponse<RemovePayeSchemeViewModel> { Data = model };
         try
         {
             var result = await Mediator.Send(new GetPayeSchemeByRefQuery
             {
-                HashedAccountId = model.HashedAccountId,
+                AccountId = accountId,
                 Ref = model.PayeRef,
             });
 
@@ -190,7 +190,6 @@ public class EmployerAccountPayeOrchestrator : EmployerVerificationOrchestratorB
 
             await Mediator.Send(new RemovePayeFromAccountCommand(model.HashedAccountId,
                 model.PayeRef, model.UserId, model.RemoveScheme == 2, model.PayeSchemeName));
-
 
             response.Data = model;
         }
@@ -209,6 +208,7 @@ public class EmployerAccountPayeOrchestrator : EmployerVerificationOrchestratorB
 
     public async Task<OrchestratorResponse<PayeSchemeDetailViewModel>> GetPayeDetails(string empRef, string hashedAccountId, string userId)
     {
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
         var response = new OrchestratorResponse<PayeSchemeDetailViewModel>();
         try
         {
@@ -221,7 +221,7 @@ public class EmployerAccountPayeOrchestrator : EmployerVerificationOrchestratorB
 
             var payeSchemeResult = await Mediator.Send(new GetPayeSchemeByRefQuery
             {
-                HashedAccountId = hashedAccountId,
+                AccountId = accountId,
                 Ref = empRef
             });
 

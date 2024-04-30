@@ -33,6 +33,7 @@ public class WhenIGetAPayeScheme
         [Frozen] Mock<IUrlHelper> urlHelperMock,
         [NoAutoProperties] AccountPayeSchemesController sut)
     {
+        // Arrange
         accountResponse.PayeSchemes.RemoveAt(2);
 
         sut.Url = urlHelperMock.Object;
@@ -57,35 +58,34 @@ public class WhenIGetAPayeScheme
                             c.RouteName == "GetPayeScheme" &&
                             c.Values.IsEquivalentTo(new
                             {
-                                hashedAccountId,
+                                accountId,
                                 payeSchemeRef = Uri.EscapeDataString(scheme.Ref)
                             })))
-                ).Returns($"/api/accounts/{hashedAccountId}/payeschemes/scheme?payeSchemeRef={scheme.Ref.Replace(@"/", "%2f")}");
+                ).Returns($"/api/accounts/{accountId}/payeschemes/scheme?payeSchemeRef={scheme.Ref.Replace(@"/", "%2f")}");
         }
 
-        var response = await sut.GetPayeSchemes(hashedAccountId);
-
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<OkObjectResult>(response);
-
-        var model = ((OkObjectResult)response).Value as ResourceList;
-
+        // Act
+        var response = await sut.GetPayeSchemes(accountId);
+        
+        // Assert
+        var result = response.Should().BeAssignableTo<OkObjectResult>();
+        var model = result.Subject.Value as ResourceList;
         model.Should().NotBeNull();
 
         foreach (var payeScheme in accountResponse.PayeSchemes)
         {
             var matchedScheme = model.Single(x => x.Id == payeScheme.Ref);
             matchedScheme?.Href.Should()
-                .Be($"/api/accounts/{hashedAccountId}/payeschemes/scheme?payeSchemeRef={payeScheme.Ref.Replace(@"/", "%2f")}");
+                .Be($"/api/accounts/{accountId}/payeschemes/scheme?payeSchemeRef={payeScheme.Ref.Replace(@"/", "%2f")}");
         }
     }
 
     [Test, MoqAutoData]
     public async Task AndTheAccountDoesNotExistThenItIsNotReturned(
-        string hashedAccountId,
+        long accountId,
         [NoAutoProperties] AccountPayeSchemesController sut)
     {
-        var response = await sut.GetPayeSchemes(hashedAccountId);
+        var response = await sut.GetPayeSchemes(accountId);
 
         Assert.IsNotNull(response);
         Assert.IsInstanceOf<NotFoundResult>(response);
@@ -93,32 +93,31 @@ public class WhenIGetAPayeScheme
 
     [Test, MoqAutoData]
     public async Task ThenTheAccountIsReturned(
-        string hashedAccountId,
+        long accountId,
         string payeSchemeRef,
         GetPayeSchemeByRefResponse payeSchemeResponse,
         [Frozen] Mock<IMediator> mediatorMock,
         [NoAutoProperties] AccountPayeSchemesController sut)
     {
-        mediatorMock.Setup(x =>
-            x.Send(
-                It.Is<GetPayeSchemeByRefQuery>(q => q.Ref == payeSchemeRef && q.HashedAccountId == hashedAccountId),
-                It.IsAny<CancellationToken>())).ReturnsAsync(payeSchemeResponse);
+        mediatorMock
+            .Setup(x => x.Send(
+                It.Is<GetPayeSchemeByRefQuery>(q => q.Ref == payeSchemeRef && q.AccountId == accountId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(payeSchemeResponse);
 
-        var response = await sut.GetPayeScheme(hashedAccountId, payeSchemeRef.Replace("/", "%2f")) as OkObjectResult;
+        var response = await sut.GetPayeScheme(accountId, payeSchemeRef.Replace("/", "%2f")) as OkObjectResult;
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<OkObjectResult>(response);
-
-        var model = response.Value as PayeScheme;
+        var result = response.Should().BeAssignableTo<OkObjectResult>();
+        var model = result.Subject.Value as PayeScheme;
 
         model.Should().NotBeNull();
         model.Should().BeEquivalentTo(payeSchemeResponse.PayeScheme);
-        model?.DasAccountId.Should().Be(hashedAccountId);
+        model?.AccountId.Should().Be(accountId);
     }
 
     [Test, MoqAutoData]
     public async Task AndThePayeSchemeDoesNotExistThenItIsNotReturned(
-        string hashedAccountId,
+        long accountId,
         string payeSchemeRef,
         GetPayeSchemeByRefResponse payeSchemeResponse,
         [Frozen] Mock<IMediator> mediatorMock,
@@ -128,13 +127,12 @@ public class WhenIGetAPayeScheme
 
         mediatorMock
             .Setup(x => x.Send(
-                It.Is<GetPayeSchemeByRefQuery>(q => q.Ref == payeSchemeRef && q.HashedAccountId == hashedAccountId),
+                It.Is<GetPayeSchemeByRefQuery>(q => q.Ref == payeSchemeRef && q.AccountId == accountId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payeSchemeResponse);
 
-        var response = await sut.GetPayeScheme(hashedAccountId, payeSchemeRef);
+        var response = await sut.GetPayeScheme(accountId, payeSchemeRef);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<NotFoundResult>(response);
+        response.Should().BeAssignableTo<NotFoundResult>();
     }
 }

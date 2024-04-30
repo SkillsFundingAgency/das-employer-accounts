@@ -11,7 +11,7 @@ using SFA.DAS.EmployerAccounts.Api.Types;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
-[Route("api/accounts/{hashedAccountId}/payeschemes")]
+[Route("api/accounts/{accountId}/payeschemes")]
 public class AccountPayeSchemesController : ControllerBase
 {
     private readonly AccountsOrchestrator _orchestrator;
@@ -26,9 +26,9 @@ public class AccountPayeSchemesController : ControllerBase
     [Route("", Name = "GetPayeSchemes")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
-    public async Task<IActionResult> GetPayeSchemes([FromRoute] string hashedAccountId)
+    public async Task<IActionResult> GetPayeSchemes([FromRoute] long accountId)
     {
-        var result = await _orchestrator.GetPayeSchemesForAccount(hashedAccountId);
+        var result = await _orchestrator.GetPayeSchemesForAccount(accountId);
 
         if (result == null)
         {
@@ -38,25 +38,21 @@ public class AccountPayeSchemesController : ControllerBase
         return Ok(new ResourceList(result.Select(pv => new Resource
         {
             Id = pv.Ref,
-            Href = Url.RouteUrl("GetPayeScheme", new { hashedAccountId, payeSchemeRef = Uri.EscapeDataString(pv.Ref) })
+            Href = Url.RouteUrl("GetPayeScheme", new { accountId = accountId, payeSchemeRef = Uri.EscapeDataString(pv.Ref) })
         })));
     }
 
     [Route("scheme", Name = "GetPayeScheme")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
-    public async Task<IActionResult> GetPayeScheme([FromRoute] string hashedAccountId, [FromQuery] string payeSchemeRef)
+    public async Task<IActionResult> GetPayeScheme([FromRoute] long accountId, [FromQuery] string payeSchemeRef)
     {
         var decodedPayeSchemeRef = Uri.UnescapeDataString(payeSchemeRef);
+        var result = await _orchestrator.GetPayeScheme(accountId, decodedPayeSchemeRef);
 
-        var result = await _orchestrator.GetPayeScheme(hashedAccountId, decodedPayeSchemeRef);
-
-        if (result == null)
-        {
-            _logger.LogDebug("The PAYE scheme {PayeScheme} was not found.", decodedPayeSchemeRef);
-            return NotFound();
-        }
-
-        return Ok(result);
+        if (result != null) return Ok(result);
+        
+        _logger.LogDebug("The PAYE scheme {PayeScheme} was not found.", decodedPayeSchemeRef);
+        return NotFound();
     }
 }
