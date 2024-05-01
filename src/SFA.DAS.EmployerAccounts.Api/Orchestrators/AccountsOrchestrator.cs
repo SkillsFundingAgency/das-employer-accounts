@@ -171,7 +171,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
         {
             var agreementTypeGroup = agreementTypes?.GroupBy(x => x).OrderByDescending(x => x.Key);
 
-            if (agreementTypeGroup == null || !agreementTypeGroup.Any())
+            if (agreementTypeGroup == null || !agreementTypeGroup.Any() || agreementTypes[0] is AgreementType.NonLevyExpressionOfInterest)
             {
                 return AccountAgreementType.Unknown;
             }
