@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamController> logger) : ControllerBase
 {
     [HttpPut]
-    [Route("change-role", Name = RouteNames.EmployerTeamChangeRole)]
+    [Route("change-role", Name = RouteNames.EmployerTeam.ChangeRole)]
     [Authorize(Policy = ApiRoles.ReadUserAccounts)]
     public async Task<IActionResult> ChangeRole([FromBody] ChangeTeamMemberRoleCommand command)
     {
@@ -32,7 +32,7 @@ public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamCont
     }
 
     [HttpPost]
-    [Route("resend", Name = RouteNames.EmployerTeamResendInvitation)]
+    [Route("resend", Name = RouteNames.EmployerTeam.ResendInvitation)]
     [Authorize(Policy = ApiRoles.ReadUserAccounts)]
     public async Task<IActionResult> ResendInvitation([FromBody] ResendInvitationCommand command)
     {

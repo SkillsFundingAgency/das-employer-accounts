@@ -2,6 +2,9 @@
 
 public static class RouteNames
 {
-    public const string EmployerTeamChangeRole = nameof(EmployerTeamChangeRole);
-    public const string EmployerTeamResendInvitation = nameof(EmployerTeamResendInvitation);
+    public static class EmployerTeam
+    {
+        public const string ChangeRole = nameof(ChangeRole);
+        public const string ResendInvitation = nameof(ResendInvitation);
+    }
 }
