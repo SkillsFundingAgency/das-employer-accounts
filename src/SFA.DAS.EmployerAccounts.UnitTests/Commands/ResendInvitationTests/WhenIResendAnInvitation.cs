@@ -39,7 +39,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ResendInvitationTests
             _command = new ResendInvitationCommand
             {
                 Email = "test.user@test.local",
-                AccountId = ExpectedHashedId,
+                HashedAccountId = ExpectedHashedId,
                 ExternalUserId = Guid.NewGuid().ToString(),
             };
             

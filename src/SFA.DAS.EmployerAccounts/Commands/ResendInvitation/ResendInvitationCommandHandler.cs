@@ -36,7 +36,7 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         if (!validationResult.IsValid())
             throw new InvalidRequestException(validationResult.ValidationDictionary);
 
-        var owner = await _membershipRepository.GetCaller(message.AccountId, message.ExternalUserId);
+        var owner = await _membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
 
         if (owner == null || owner.Role != Role.Owner)
             throw new InvalidRequestException(new Dictionary<string, string> { { "Membership", "User is not an Owner" } });
