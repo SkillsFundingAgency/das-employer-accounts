@@ -13,7 +13,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetLegalEntity;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
-[Route("api/accounts/{hashedAccountId}/legalentities")]
+[Route("api/accounts/{accountId}/legalentities")]
 [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
 public class LegalEntitiesController : ControllerBase
 {
@@ -26,7 +26,7 @@ public class LegalEntitiesController : ControllerBase
 
     [Route("", Name = "GetLegalEntities")]
     [HttpGet]
-    public async Task<IActionResult> GetLegalEntities(string hashedAccountId, bool includeDetails = false)
+    public async Task<IActionResult> GetLegalEntities(string accountId, bool includeDetails = false)
     {
         GetAccountLegalEntitiesByHashedAccountIdResponse result;
 
@@ -35,7 +35,7 @@ public class LegalEntitiesController : ControllerBase
             result = await _mediator.Send(
                 new GetAccountLegalEntitiesByHashedAccountIdRequest
                 {
-                    HashedAccountId = hashedAccountId
+                    HashedAccountId = accountId
                 });
         }
         catch (InvalidRequestException)
@@ -60,7 +60,7 @@ public class LegalEntitiesController : ControllerBase
                         {
                             Id = legalEntity.LegalEntityId.ToString(),
                             Href = Url.RouteUrl("GetLegalEntity",
-                                new { hashedAccountId, legalEntityId = legalEntity.LegalEntityId })
+                                new { hashedAccountId = accountId, legalEntityId = legalEntity.LegalEntityId })
                         });
             }
 
@@ -76,9 +76,9 @@ public class LegalEntitiesController : ControllerBase
 
     [HttpGet]
     [Route("{legalEntityId}", Name = "GetLegalEntity")]
-    public async Task<IActionResult> GetLegalEntity(string hashedAccountId, long legalEntityId, bool includeAllAgreements = false)
+    public async Task<IActionResult> GetLegalEntity(long accountId, long legalEntityId, bool includeAllAgreements = false)
     {
-        var response = await _mediator.Send(request: new GetLegalEntityQuery(hashedAccountId, legalEntityId));
+        var response = await _mediator.Send(request: new GetLegalEntityQuery(accountId, legalEntityId));
 
         var model = LegalEntityMapping.MapFromAccountLegalEntity(response.LegalEntity, response.LatestAgreement,
             includeAllAgreements);
