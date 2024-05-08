@@ -31,13 +31,13 @@ public class EmployerAccountsController : ControllerBase
 
         foreach (var account in result.Data)
         {
-            account.Href = Url.RouteUrl("GetAccount", new { hashedAccountId = account.AccountHashId });
+            account.Href = Url.RouteUrl("GetAccountById", new { accountId = account.AccountId });
         }
 
         return Ok(result);
     }
 
-    [Route("{accountId:long}", Name = "GetAccountById")]
+    [Route("{accountId}", Name = "GetAccountById")]
     [Authorize(Policy = ApiRoles.ReadAllAccountUsers)]
     [HttpGet]
     public async Task<IActionResult> GetAccount(long accountId)
