@@ -45,7 +45,7 @@ public class AccountPayeSchemesController : ControllerBase
     [Route("scheme", Name = "GetPayeScheme")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
-    public async Task<IActionResult> GetPayeScheme([FromRoute] long accountId, [FromQuery] string payeSchemeRef)
+    public async Task<IActionResult> GetPayeScheme([FromRoute] long accountId, [FromQuery(Name = "ref")] string payeSchemeRef)
     {
         var decodedPayeSchemeRef = Uri.UnescapeDataString(payeSchemeRef);
         var result = await _orchestrator.GetPayeScheme(accountId, decodedPayeSchemeRef);

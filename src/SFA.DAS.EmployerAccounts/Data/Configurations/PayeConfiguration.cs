@@ -10,5 +10,15 @@ public class PayeConfiguration: IEntityTypeConfiguration<Paye>
     {
         builder.ToTable("Paye");
         builder.Ignore(a => a.AccountId);
+        
+        // Primary Key
+        builder.HasKey(e => e.EmpRef);
+        
+        // Column mappings
+        builder.Property(e => e.EmpRef).HasColumnName("Ref").HasMaxLength(16).IsRequired();
+        builder.Property(e => e.AccessToken).HasColumnName("AccessToken").HasMaxLength(50);
+        builder.Property(e => e.RefreshToken).HasColumnName("RefreshToken").HasMaxLength(50);
+        builder.Property(e => e.RefName).HasColumnName("Name").HasMaxLength(500);
+        builder.Property(e => e.Aorn).HasColumnName("Aorn").HasMaxLength(25);
     }
 }
