@@ -78,7 +78,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
                 {
                     AccountId = account.Id,
                     AccountName = account.Name,
-                    AccountHashId = account.HashedId,
+                    HashedAccountId = account.HashedId,
                     PublicAccountHashId = account.PublicHashedId,
                     ApprenticeshipEmployerType = (ApprenticeshipEmployerType)account.ApprenticeshipEmployerType,
                     AccountAgreementType = GetAgreementType(account.AccountLegalEntities.SelectMany(x => x.Agreements.Where(y => y.SignedDate.HasValue)).Select(x => x.Template.AgreementType).Distinct().ToList())
