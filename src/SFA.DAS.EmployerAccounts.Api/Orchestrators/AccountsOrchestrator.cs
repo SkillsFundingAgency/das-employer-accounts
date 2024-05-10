@@ -169,14 +169,20 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
 
         private static AccountAgreementType GetAgreementType(List<AgreementType> agreementTypes)
         {
-            var agreementTypeGroup = agreementTypes?.GroupBy(x => x).OrderByDescending(x => x.Key);
-
-            if (agreementTypeGroup == null || !agreementTypeGroup.Any() || agreementTypes[0] is AgreementType.NonLevyExpressionOfInterest)
-            {
+            if (agreementTypes is null || agreementTypes.Count == 0)
                 return AccountAgreementType.Unknown;
-            }
 
-            return (AccountAgreementType)Enum.Parse(typeof(AccountAgreementType), agreementTypeGroup.FirstOrDefault()?.Key.ToString());
+            bool hasLevy = agreementTypes.Contains(AgreementType.Levy);
+            bool hasNonLevyExpressionOfInterest = agreementTypes.Contains(AgreementType.NonLevyExpressionOfInterest);
+            bool hasCombined = agreementTypes.Contains(AgreementType.Combined);
+
+            return (hasLevy, hasNonLevyExpressionOfInterest, hasCombined) switch
+            {
+                (true, true, _) => AccountAgreementType.Combined,
+                (_, _, true) => AccountAgreementType.Combined,
+                (true, _, _) => AccountAgreementType.Levy,
+                _ => AccountAgreementType.Unknown
+            };
         }
     }
 }
