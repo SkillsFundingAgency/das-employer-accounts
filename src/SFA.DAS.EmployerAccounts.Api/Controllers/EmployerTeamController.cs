@@ -12,11 +12,11 @@ using SFA.DAS.EmployerAccounts.Commands.ResendInvitation;
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
 [Route("api/team")]
+[Authorize(Policy = ApiRoles.ReadUserAccounts)]
 public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamController> logger) : ControllerBase
 {
     [HttpPut]
     [Route("change-role", Name = RouteNames.EmployerTeam.ChangeRole)]
-    [Authorize(Policy = ApiRoles.ReadUserAccounts)]
     public async Task<IActionResult> ChangeRole([FromBody] ChangeTeamMemberRoleCommand command)
     {
         try
@@ -33,7 +33,6 @@ public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamCont
 
     [HttpPost]
     [Route("resend-invitation", Name = RouteNames.EmployerTeam.ResendInvitation)]
-    [Authorize(Policy = ApiRoles.ReadUserAccounts)]
     public async Task<IActionResult> ResendInvitation([FromBody] ResendInvitationCommand command)
     {
         command.Email = WebUtility.HtmlDecode(command.Email);
