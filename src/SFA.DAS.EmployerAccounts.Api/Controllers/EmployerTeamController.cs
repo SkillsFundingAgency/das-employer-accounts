@@ -32,10 +32,12 @@ public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamCont
     }
 
     [HttpPost]
-    [Route("resend", Name = RouteNames.EmployerTeam.ResendInvitation)]
+    [Route("resend-invitation", Name = RouteNames.EmployerTeam.ResendInvitation)]
     [Authorize(Policy = ApiRoles.ReadUserAccounts)]
     public async Task<IActionResult> ResendInvitation([FromBody] ResendInvitationCommand command)
     {
+        command.Email = WebUtility.HtmlDecode(command.Email);
+        
         try
         {
             await mediator.Send(command);

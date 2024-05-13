@@ -42,7 +42,7 @@ public class WhenICallTheResendInvitationEndpoint
 
         _mediator.Verify(x => x.Send(_command, new CancellationToken()), Times.Once);
     }
-
+    
     [Test]
     public async Task ThenInternalServerErrorIsReturnedWhenThereIsAnException()
     {
