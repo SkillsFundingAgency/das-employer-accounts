@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 [Authorize(Policy = ApiRoles.ReadUserAccounts)]
 public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamController> logger) : ControllerBase
 {
-    [HttpPut]
+    [HttpPost]
     [Route("change-role", Name = RouteNames.EmployerTeam.ChangeRole)]
     public async Task<IActionResult> ChangeRole([FromBody] ChangeTeamMemberRoleCommand command)
     {
