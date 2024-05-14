@@ -84,6 +84,8 @@ public class Startup
 
         services.AddAutoMapper(typeof(AccountMappings), typeof(Startup));
 
+        services.AddAuditServices();
+
         services.AddMediatorValidators();
         services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetPayeSchemeByRefQuery).Assembly));
         services.AddNotifications(_configuration);
