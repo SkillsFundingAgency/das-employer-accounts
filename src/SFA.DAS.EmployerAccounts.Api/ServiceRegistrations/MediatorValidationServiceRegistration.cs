@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
+using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesByHashedAccountId;
@@ -37,6 +38,7 @@ public static class MediatorValidationServiceRegistration
         services.AddTransient<IValidator<UpsertRegisteredUserCommand>, UpsertRegisteredUserCommandValidator>();
         services.AddTransient<IValidator<GetAccountByIdQuery>, GetAccountByIdValidator>();
         services.AddTransient<IValidator<CreateAuditCommand>, CreateAuditCommandValidator>();
+        services.AddTransient<IValidator<ChangeTeamMemberRoleCommand>, ChangeTeamMemberRoleCommandValidator>();
         
         return services;
     }
