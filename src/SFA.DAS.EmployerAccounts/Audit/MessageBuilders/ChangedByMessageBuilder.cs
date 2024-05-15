@@ -39,7 +39,8 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
             return;
         }
 
-        _logger.LogWarning($"ChangedByMessageBuilder.SetUserIdAndEmail, UserClaims: {JsonConvert.SerializeObject(user.Claims.ToDictionary(x => x.Type, y => y.Value))}.");
+        var claims = user.Claims.OrderBy(x => x.Type).Select(x => new { x.Type, x.Value });
+        _logger.LogWarning("ChangedByMessageBuilder.SetUserIdAndEmail, UserClaims: {Claims}", JsonConvert.SerializeObject(claims));
 
         var isSupportUser = user.HasClaim(x => x.Type == EmployerClaims.IsSupportUser);
 
