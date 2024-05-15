@@ -12,7 +12,8 @@ namespace SFA.DAS.EmployerAccounts.Web.Extensions
 
         public static string ReplaceHashedAccountId(this Uri uri, string hashedAccountId)
         {
-            return Regex.Replace(uri.OriginalString, Regex.Escape("{{hashedAccountId}}"), hashedAccountId);
+            return Regex.Replace(uri.OriginalString, Regex.Escape("{{hashedAccountId}}"), 
+                hashedAccountId, RegexOptions.None, TimeSpan.FromSeconds(1));
         }
     }
 }

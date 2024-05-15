@@ -121,7 +121,7 @@ public class HomeOrchestrator : IHomeOrchestrator
             });
             return user.User;
         }
-        catch (InvalidRequestException e)
+        catch (InvalidRequestException)
         {
             return null;
         }
@@ -134,7 +134,7 @@ public class HomeOrchestrator : IHomeOrchestrator
             var validRedirectUri = validRedirectUris.Find(p => p.Uri == uri.RemoveQuery());
             if (validRedirectUri != null)
             {
-                _logger.LogInformation($"redirectUri: {redirectUri} matched with validRedirectUri: {validRedirectUri.Uri}");
+                _logger.LogInformation($"Redirect URI matched with a valid redirect URI.");
                 return (redirectUri, validRedirectUri.Description);
             }
         }
