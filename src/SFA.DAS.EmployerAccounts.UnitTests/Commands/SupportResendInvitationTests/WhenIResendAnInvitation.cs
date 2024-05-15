@@ -19,7 +19,6 @@ using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SupportResendInvitationTests;
 
-//TODO Refactor, lots of CTRL C CTRL V
 [TestFixture]
 public class WhenIResendAnInvitation
 {
