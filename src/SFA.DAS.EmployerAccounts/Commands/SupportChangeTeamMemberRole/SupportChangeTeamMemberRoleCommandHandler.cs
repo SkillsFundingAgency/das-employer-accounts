@@ -49,6 +49,7 @@ public class SupportChangeTeamMemberRoleCommandHandler : IRequestHandler<Support
         {
             EasAuditMessage = new AuditMessage
             {
+                SupportUserEmail = message.SupportUserEmail,
                 Category = "UPDATED",
                 Description = $"Member {message.Email} on account {accountId} role has changed to {message.Role}",
                 ChangedProperties = new List<PropertyUpdate>

@@ -66,6 +66,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         {
             EasAuditMessage = new AuditMessage
             {
+                SupportUserEmail = message.SupportUserEmail,
                 Category = "INVITATION_RESENT",
                 Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
                 ChangedProperties = new List<PropertyUpdate>

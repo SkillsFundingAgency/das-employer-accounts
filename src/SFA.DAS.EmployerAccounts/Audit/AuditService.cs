@@ -23,7 +23,7 @@ public class AuditService : IAuditService
         {
             foreach (var builder in _builders)
             {
-                builder.Build(message);
+                await builder.Build(message);
             }
 
             // ?

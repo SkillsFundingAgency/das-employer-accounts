@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 
@@ -9,19 +7,19 @@ namespace SFA.DAS.EmployerAccounts.Audit.MessageBuilders;
 public class ChangedByMessageBuilder : IAuditMessageBuilder
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ILogger<ChangedByMessageBuilder> _logger;
+    private readonly IUserRepository _userRepository;
 
-    public ChangedByMessageBuilder(IHttpContextAccessor httpContextAccessor, ILogger<ChangedByMessageBuilder> logger)
+    public ChangedByMessageBuilder(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
     {
         _httpContextAccessor = httpContextAccessor;
-        _logger = logger;
+        _userRepository = userRepository;
     }
 
-    public void Build(AuditMessage message)
+    public async Task Build(AuditMessage message)
     {
         message.ChangedBy = new Actor();
         SetOriginIpAddess(message.ChangedBy);
-        SetUserIdAndEmail(message.ChangedBy);
+        await SetUserIdAndEmail(message.ChangedBy, message);
     }
 
     private void SetOriginIpAddess(Actor actor)
@@ -31,24 +29,24 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
             : _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
     }
 
-    private void SetUserIdAndEmail(Actor actor)
+    private async Task SetUserIdAndEmail(Actor actor, AuditMessage message)
     {
+        if (message.IsSupportRequest)
+        {
+            var supportUser = await _userRepository.GetByEmailAddress(message.SupportUserEmail);
+            
+            actor.Id = supportUser.Ref.ToString();
+            actor.EmailAddress = supportUser.Email;
+
+            return;
+        }
+
         var user = _httpContextAccessor.HttpContext?.User;
         if (user == null || user.Identity == null || !user.Identity.IsAuthenticated)
         {
             return;
         }
-
-        var claims = user.Claims.OrderBy(x => x.Type).Select(x => new { x.Type, x.Value });
-        _logger.LogWarning("ChangedByMessageBuilder.SetUserIdAndEmail, UserClaims: {Claims}", JsonConvert.SerializeObject(claims));
-
-        var isSupportUser = user.HasClaim(x => x.Type == EmployerClaims.IsSupportUser);
-
-        if (isSupportUser)
-        {
-            return;
-        }
-
+        
         var userIdClaim = user.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier, StringComparison.CurrentCultureIgnoreCase));
         if (userIdClaim == null)
         {
