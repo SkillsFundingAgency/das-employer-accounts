@@ -26,7 +26,6 @@
         <ProjectReference Include="..\SFA.DAS.EmployerAccounts\SFA.DAS.EmployerAccounts.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Commands\SupportChangeTeamMemberTests\" />
         <Folder Include="Queries\GetAccountLegalEntitiesByHashedAccountId\" />
         <Folder Include="Queries\GetLegalEntityQueryTests\" />
         <Folder Include="Queries\GetEmployerAgreementByIdTests\" />

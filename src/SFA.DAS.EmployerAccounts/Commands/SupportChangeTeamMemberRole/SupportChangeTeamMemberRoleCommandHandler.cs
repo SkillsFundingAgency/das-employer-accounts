@@ -30,7 +30,9 @@ public class SupportChangeTeamMemberRoleCommandHandler : IRequestHandler<Support
         var validationResult = _validator.Validate(message);
 
         if (!validationResult.IsValid())
+        {
             throw new InvalidRequestException(validationResult.ValidationDictionary);
+        }
 
         var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
 
