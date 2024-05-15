@@ -20,13 +20,13 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.LegalEntitiesContro
 [TestFixture]
 public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
 {
-    private string _hashedAccountId;
+    private long _accountId;
     private GetAccountLegalEntitiesByHashedAccountIdResponse _response;
 
     [Test]
     public async Task ThenTheLegalEntitiesAreReturned()
     {
-        _hashedAccountId = "ABC123";
+        _accountId = 5513;
         _response = new GetAccountLegalEntitiesByHashedAccountIdResponse
         {
             LegalEntities =
@@ -46,13 +46,13 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
         };
 
         Mediator.Setup(x =>
-            x.Send(It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.HashedAccountId == _hashedAccountId),
+            x.Send(It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.AccountId == _accountId),
                 It.IsAny<CancellationToken>())).ReturnsAsync(_response);
 
         SetupUrlHelperForAccountLegalEntityOne();
         SetupUrlHelperForAccountLegalEntityTwo();
 
-        var response = await Controller.GetLegalEntities(_hashedAccountId);
+        var response = await Controller.GetLegalEntities(_accountId);
 
         Assert.IsNotNull(response);
         Assert.IsInstanceOf<OkObjectResult>(response);
@@ -64,7 +64,7 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
         {
             var matchedEntity = model.Single(x => x.Id == legalEntity.LegalEntityId.ToString());
             matchedEntity.Href.Should()
-                .Be($"/api/accounts/{_hashedAccountId}/legalentities/{legalEntity.LegalEntityId}");
+                .Be($"/api/accounts/{_accountId}/legalentities/{legalEntity.LegalEntityId}");
         }
     }
 
@@ -74,20 +74,20 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
     {
         var expectedModel = legalEntities.Select(c => LegalEntityMapping.MapFromAccountLegalEntity(c, null, false))
             .ToList();
-        _hashedAccountId = "ABC123";
+        _accountId = 661;
         _response = new GetAccountLegalEntitiesByHashedAccountIdResponse
         {
             LegalEntities = legalEntities
         };
 
         Mediator.Setup(x =>
-            x.Send(It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.HashedAccountId == _hashedAccountId),
+            x.Send(It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.AccountId == _accountId),
                 It.IsAny<CancellationToken>())).ReturnsAsync(_response);
 
         SetupUrlHelperForAccountLegalEntityOne();
         SetupUrlHelperForAccountLegalEntityTwo();
 
-        var response = await Controller.GetLegalEntities(_hashedAccountId, true);
+        var response = await Controller.GetLegalEntities(_accountId, true);
 
         Assert.IsNotNull(response);
         Assert.IsInstanceOf<OkObjectResult>(response);
@@ -101,11 +101,11 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
     {
         Mediator.Setup(
                 x => x.Send(
-                    It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.HashedAccountId == _hashedAccountId),
+                    It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.AccountId == _accountId),
                     It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidRequestException(new Dictionary<string, string>()));
 
-        var response = await Controller.GetLegalEntities(_hashedAccountId);
+        var response = await Controller.GetLegalEntities(_accountId);
 
         Assert.IsNotNull(response);
         Assert.IsInstanceOf<NotFoundResult>(response);
@@ -116,7 +116,7 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
     {
         Mediator.Setup(
                 x => x.Send(
-                    It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.HashedAccountId == _hashedAccountId),
+                    It.Is<GetAccountLegalEntitiesByHashedAccountIdRequest>(q => q.AccountId == _accountId),
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new GetAccountLegalEntitiesByHashedAccountIdResponse
@@ -124,7 +124,7 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
                     LegalEntities = new List<AccountLegalEntity>(0)
                 });
 
-        var response = await Controller.GetLegalEntities(_hashedAccountId);
+        var response = await Controller.GetLegalEntities(_accountId);
 
         Assert.IsNotNull(response);
         Assert.IsInstanceOf<NotFoundResult>(response);
@@ -136,10 +136,10 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
                 x => x.RouteUrl(
                     It.Is<UrlRouteContext>(c => c.RouteName == "GetLegalEntity" && c.Values.IsEquivalentTo(new
                     {
-                        hashedAccountId =_hashedAccountId,
+                        hashedAccountId =_accountId,
                         legalEntityId = _response.LegalEntities[0].LegalEntityId
                     }))))
-            .Returns($"/api/accounts/{_hashedAccountId}/legalentities/{_response.LegalEntities[0].LegalEntityId}");
+            .Returns($"/api/accounts/{_accountId}/legalentities/{_response.LegalEntities[0].LegalEntityId}");
     }
 
     private void SetupUrlHelperForAccountLegalEntityTwo()
@@ -148,9 +148,9 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
                 x => x.RouteUrl(
                     It.Is<UrlRouteContext>(c => c.RouteName == "GetLegalEntity" && c.Values.IsEquivalentTo(new
                     {
-                        hashedAccountId =_hashedAccountId,
+                        hashedAccountId =_accountId,
                         legalEntityId = _response.LegalEntities[1].LegalEntityId
                     }))))
-            .Returns($"/api/accounts/{_hashedAccountId}/legalentities/{_response.LegalEntities[1].LegalEntityId}");
+            .Returns($"/api/accounts/{_accountId}/legalentities/{_response.LegalEntities[1].LegalEntityId}");
     }
 }

@@ -23,10 +23,10 @@ public class LegalEntitiesController : ControllerBase
     {
         _mediator = mediator;
     }
-
+    
     [Route("", Name = "GetLegalEntities")]
     [HttpGet]
-    public async Task<IActionResult> GetLegalEntities(string accountId, bool includeDetails = false)
+    public async Task<IActionResult> GetLegalEntities(long accountId, bool includeDetails = false)
     {
         GetAccountLegalEntitiesByHashedAccountIdResponse result;
 
@@ -35,7 +35,7 @@ public class LegalEntitiesController : ControllerBase
             result = await _mediator.Send(
                 new GetAccountLegalEntitiesByHashedAccountIdRequest
                 {
-                    HashedAccountId = accountId
+                    AccountId = accountId
                 });
         }
         catch (InvalidRequestException)

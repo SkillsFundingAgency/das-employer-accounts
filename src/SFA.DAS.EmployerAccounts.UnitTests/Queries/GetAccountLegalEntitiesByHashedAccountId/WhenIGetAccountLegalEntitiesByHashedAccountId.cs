@@ -16,26 +16,26 @@ public class WhenIGetAccountLegalEntitiesByHashedAccountId : QueryBaseTest<GetAc
     public override GetAccountLegalEntitiesByHashedAccountIdQueryHandler RequestHandler { get; set; }
     public override Mock<IValidator<GetAccountLegalEntitiesByHashedAccountIdRequest>> RequestValidator { get; set; }
 
-    private const string ExpectedHashedId = "123";
+    private const long ExpectedAccountId = 44221;
     private List<AccountLegalEntity> _legalEntities;
     private Mock<IAccountLegalEntityRepository> _accountLegalEntityRepository;
         
     [SetUp]
     public void Arrange()
     {
-        base.SetUp();
+        SetUp();
 
         _legalEntities = GetListOfLegalEntities();
         _accountLegalEntityRepository = new Mock<IAccountLegalEntityRepository>();
 
         Query = new GetAccountLegalEntitiesByHashedAccountIdRequest
         {
-            HashedAccountId = ExpectedHashedId
+            AccountId = ExpectedAccountId
         };
 
         _accountLegalEntityRepository.Setup(
                 x => x.GetAccountLegalEntities(
-                    ExpectedHashedId))
+                    ExpectedAccountId))
             .ReturnsAsync(_legalEntities);
 
         RequestHandler = new GetAccountLegalEntitiesByHashedAccountIdQueryHandler(_accountLegalEntityRepository.Object, RequestValidator.Object);
@@ -48,7 +48,7 @@ public class WhenIGetAccountLegalEntitiesByHashedAccountId : QueryBaseTest<GetAc
         await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        _accountLegalEntityRepository.Verify(x => x.GetAccountLegalEntities(ExpectedHashedId), Times.Once);
+        _accountLegalEntityRepository.Verify(x => x.GetAccountLegalEntities(ExpectedAccountId), Times.Once);
     }
 
     [Test]
