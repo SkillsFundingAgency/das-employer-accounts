@@ -29,13 +29,20 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
 
     private void SetUserIdAndEmail(Actor actor)
     {
-        var user = _httpContextAccessor.HttpContext.User;
+        var user = _httpContextAccessor.HttpContext?.User;
         if (user == null || user.Identity == null || !user.Identity.IsAuthenticated)
         {
             return;
         }
 
-        var userIdClaim = user.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier, System.StringComparison.CurrentCultureIgnoreCase));
+        var isSupportUser = user.HasClaim(x => x.Type == EmployerClaims.IsSupportUser);
+
+        if (isSupportUser)
+        {
+            return;
+        }
+
+        var userIdClaim = user.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier, StringComparison.CurrentCultureIgnoreCase));
         if (userIdClaim == null)
         {
             throw new InvalidContextException($"User does not have claim {EmployerClaims.IdamsUserIdClaimTypeIdentifier} to populate AuditMessage.ChangedBy.Id");
@@ -43,8 +50,7 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
 
         actor.Id = userIdClaim.Value;
 
-
-        var userEmailClaim = user.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, System.StringComparison.CurrentCultureIgnoreCase));
+        var userEmailClaim = user.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, StringComparison.CurrentCultureIgnoreCase));
         if (userEmailClaim == null)
         {
             throw new InvalidContextException($"User does not have claim {EmployerClaims.IdamsUserEmailClaimTypeIdentifier} to populate AuditMessage.ChangedBy.EmailAddress");
