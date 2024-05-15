@@ -15,7 +15,10 @@ public class AccountLegalEntityRepository :  IAccountLegalEntityRepository
 
     public async Task<List<AccountLegalEntity>> GetAccountLegalEntities(long accountId)
     {
-        var accountLegalEntities = await _db.Value.AccountLegalEntities.Where(l =>
+        var accountLegalEntities = await _db.Value.AccountLegalEntities
+            .Include(x => x.LegalEntity)
+            .Include(x => x.Agreements)
+            .Where(l =>
                  l.Account.Id == accountId &&
                  (l.PendingAgreementId != null || l.SignedAgreementId != null) &&
                  l.Deleted == null).ToListAsync();
