@@ -57,6 +57,13 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
 
         var existingUser = await _userRepository.Get(message.Email);
 
+        await AddAuditEntry(message, cancellationToken, existing);
+
+        await SendNotification(message, cancellationToken, existingUser, owner, expiryDate);
+    }
+
+    private async Task AddAuditEntry(ResendInvitationCommand message, CancellationToken cancellationToken, Invitation existing)
+    {
         await _mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
@@ -72,7 +79,10 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
                 AffectedEntity = new AuditEntity { Type = "Invitation", Id = existing.Id.ToString() }
             }
         }, cancellationToken);
+    }
 
+    private async Task SendNotification(ResendInvitationCommand message, CancellationToken cancellationToken, User existingUser, MembershipView owner, DateTime expiryDate)
+    {
         await _mediator.Send(new SendNotificationCommand
         {
             Email = new Email

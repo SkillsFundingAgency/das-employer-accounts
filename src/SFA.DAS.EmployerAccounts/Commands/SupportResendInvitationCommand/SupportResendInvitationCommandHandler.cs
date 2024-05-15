@@ -4,6 +4,7 @@ using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
+using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Api.Types;
 using SFA.DAS.TimeProvider;
@@ -38,47 +39,54 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
 
     public async Task Handle(SupportResendInvitationCommand message, CancellationToken cancellationToken)
     {
-        var validationResult = _validator.Validate(message);
-
-        if (!validationResult.IsValid())
-            throw new InvalidRequestException(validationResult.ValidationDictionary);
+        ValidateRequest(message);
 
         var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
         var account = await _accountRepository.GetAccountById(accountId);
 
         var existingInvitation = await _invitationRepository.Get(accountId, message.Email);
-        
-        if (existingInvitation == null)
-            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Invitation not found" } });
 
-        if (existingInvitation.Status == InvitationStatus.Accepted)
-            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Accepted invitations cannot be resent" } });
+        ValidateExistingInvitation(existingInvitation);
 
         existingInvitation.Status = InvitationStatus.Pending;
+        
         var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
         existingInvitation.ExpiryDate = expiryDate;
 
         await _invitationRepository.Resend(existingInvitation);
+        
+        await AddAuditEntry(message, cancellationToken, existingInvitation);
 
         var existingUser = await _userRepository.Get(message.Email);
+        
+        await SendNotification(message, cancellationToken, existingUser, account, expiryDate);
+    }
 
-        await _mediator.Send(new CreateAuditCommand
+    private static void ValidateExistingInvitation(Invitation existingInvitation)
+    {
+        if (existingInvitation == null)
         {
-            EasAuditMessage = new AuditMessage
-            {
-                SupportUserEmail = message.SupportUserEmail,
-                Category = "INVITATION_RESENT",
-                Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
-                ChangedProperties = new List<PropertyUpdate>
-                {
-                    new PropertyUpdate {PropertyName = "Status",NewValue = existingInvitation.Status.ToString()},
-                    new PropertyUpdate {PropertyName = "ExpiryDate",NewValue = existingInvitation.ExpiryDate.ToString()}
-                },
-                RelatedEntities = new List<AuditEntity> { new AuditEntity { Id = existingInvitation.AccountId.ToString(), Type = "Account" } },
-                AffectedEntity = new AuditEntity { Type = "Invitation", Id = existingInvitation.Id.ToString() }
-            }
-        }, cancellationToken);
+            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Invitation not found" } });
+        }
 
+        if (existingInvitation.Status == InvitationStatus.Accepted)
+        {
+            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Accepted invitations cannot be resent" } });
+        }
+    }
+
+    private void ValidateRequest(SupportResendInvitationCommand message)
+    {
+        var validationResult = _validator.Validate(message);
+
+        if (!validationResult.IsValid())
+        {
+            throw new InvalidRequestException(validationResult.ValidationDictionary);
+        }
+    }
+
+    private async Task SendNotification(SupportResendInvitationCommand message, CancellationToken cancellationToken, User existingUser, Account account, DateTime expiryDate)
+    {
         await _mediator.Send(new SendNotificationCommand
         {
             Email = new Email
@@ -95,6 +103,26 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
                     { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
                     { "expiry_date", expiryDate.ToString("dd MMM yyy")}
                 }
+            }
+        }, cancellationToken);
+    }
+
+    private async Task AddAuditEntry(SupportResendInvitationCommand message, CancellationToken cancellationToken, Invitation existingInvitation)
+    {
+        await _mediator.Send(new CreateAuditCommand
+        {
+            EasAuditMessage = new AuditMessage
+            {
+                SupportUserEmail = message.SupportUserEmail,
+                Category = "INVITATION_RESENT",
+                Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
+                ChangedProperties = new List<PropertyUpdate>
+                {
+                    new() {PropertyName = "Status",NewValue = existingInvitation.Status.ToString()},
+                    new() {PropertyName = "ExpiryDate",NewValue = existingInvitation.ExpiryDate.ToString()}
+                },
+                RelatedEntities = new List<AuditEntity> { new() { Id = existingInvitation.AccountId.ToString(), Type = "Account" } },
+                AffectedEntity = new AuditEntity { Type = "Invitation", Id = existingInvitation.Id.ToString() }
             }
         }, cancellationToken);
     }
