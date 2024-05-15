@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 
@@ -7,10 +9,12 @@ namespace SFA.DAS.EmployerAccounts.Audit.MessageBuilders;
 public class ChangedByMessageBuilder : IAuditMessageBuilder
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<ChangedByMessageBuilder> _logger;
 
-    public ChangedByMessageBuilder(IHttpContextAccessor httpContextAccessor)
+    public ChangedByMessageBuilder(IHttpContextAccessor httpContextAccessor, ILogger<ChangedByMessageBuilder> logger)
     {
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     public void Build(AuditMessage message)
@@ -34,6 +38,8 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
         {
             return;
         }
+
+        _logger.LogWarning($"ChangedByMessageBuilder.SetUserIdAndEmail, UserClaims: {JsonConvert.SerializeObject(user.Claims.ToDictionary(x => x.Type, y => y.Value))}.");
 
         var isSupportUser = user.HasClaim(x => x.Type == EmployerClaims.IsSupportUser);
 
