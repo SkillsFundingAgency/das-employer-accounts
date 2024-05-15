@@ -81,7 +81,7 @@ public class Startup
         services.AddDatabaseRegistration();
         services.AddDataRepositories();
         services.AddExecutionPolicies();
-
+        
         services.AddAutoMapper(typeof(AccountMappings), typeof(Startup));
 
         services.AddAuditServices();

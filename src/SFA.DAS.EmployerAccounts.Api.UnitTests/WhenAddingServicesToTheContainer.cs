@@ -9,6 +9,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
+using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
+using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesByHashedAccountId;
@@ -70,6 +72,8 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<GetUserByEmailQuery, GetUserByEmailResponse>))]
     [TestCase(typeof(IRequestHandler<UpdateUserAornLockRequest>))]
     [TestCase(typeof(IRequestHandler<RemovePayeFromAccountCommand>))]
+    [TestCase(typeof(IRequestHandler<SupportResendInvitationCommand>))]
+    [TestCase(typeof(IRequestHandler<SupportChangeTeamMemberRoleCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Handlers(Type toResolve)
     {
         var mockHostingEnvironment = new Mock<IWebHostEnvironment>();

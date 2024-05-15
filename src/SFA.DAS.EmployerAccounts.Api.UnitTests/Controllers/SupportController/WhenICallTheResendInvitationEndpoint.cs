@@ -7,30 +7,29 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Commands.ResendInvitation;
+using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerTeamController;
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.SupportController;
 
 public class WhenICallTheResendInvitationEndpoint
 {
-    private Api.Controllers.EmployerTeamController _controller;
+    private Api.Controllers.SupportController _controller;
     private Mock<IMediator> _mediator;
-    private ResendInvitationCommand _command;
+    private SupportResendInvitationCommand _command;
 
     [SetUp]
     public void Setup()
     {
         _mediator = new Mock<IMediator>();
 
-        _command = new ResendInvitationCommand
+        _command = new SupportResendInvitationCommand
         {
             HashedAccountId = "ABC123",
             Email = "test@email.test",
-            ExternalUserId = Guid.NewGuid().ToString(),
             FirstName = "User",
             };
 
-        _controller = new Api.Controllers.EmployerTeamController(_mediator.Object, Mock.Of<ILogger<Api.Controllers.EmployerTeamController>>());
+        _controller = new Api.Controllers.SupportController(_mediator.Object, Mock.Of<ILogger<Api.Controllers.SupportController>>());
     }
 
     [Test]
@@ -46,7 +45,7 @@ public class WhenICallTheResendInvitationEndpoint
     [Test]
     public async Task ThenInternalServerErrorIsReturnedWhenThereIsAnException()
     {
-        _mediator.Setup(x => x.Send(It.Is<ResendInvitationCommand>(y => y == _command), new CancellationToken())).Throws<Exception>();
+        _mediator.Setup(x => x.Send(It.Is<SupportResendInvitationCommand>(y => y == _command), new CancellationToken())).Throws<Exception>();
 
         var response = await _controller.ResendInvitation(_command);
 

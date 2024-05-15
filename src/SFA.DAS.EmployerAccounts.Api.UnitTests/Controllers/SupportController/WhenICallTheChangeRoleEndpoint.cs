@@ -8,30 +8,30 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
+using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Models;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerTeamController;
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.SupportController;
 
 public class WhenICallTheChangeRoleEndpoint
 {
-    private Api.Controllers.EmployerTeamController _controller;
+    private Api.Controllers.SupportController _controller;
     private Mock<IMediator> _mediator;
-    private ChangeTeamMemberRoleCommand _command;
+    private SupportChangeTeamMemberRoleCommand _command;
 
     [SetUp]
     public void Setup()
     {
         _mediator = new Mock<IMediator>();
 
-        _command = new ChangeTeamMemberRoleCommand
+        _command = new SupportChangeTeamMemberRoleCommand
         {
             HashedAccountId = "ABC123",
             Email = "test@email.test",
-            ExternalUserId = Guid.NewGuid().ToString(),
             Role = Role.Owner,
         };
 
-        _controller = new Api.Controllers.EmployerTeamController( _mediator.Object, Mock.Of<ILogger<Api.Controllers.EmployerTeamController>>());
+        _controller = new Api.Controllers.SupportController( _mediator.Object, Mock.Of<ILogger<Api.Controllers.SupportController>>());
     }
 
     [Test]
@@ -47,7 +47,7 @@ public class WhenICallTheChangeRoleEndpoint
     [Test]
     public async Task ThenInternalServerErrorIsReturnedWhenThereIsAnException()
     {
-        _mediator.Setup(x => x.Send(It.Is<ChangeTeamMemberRoleCommand>(y => y == _command), new CancellationToken())).Throws<Exception>();
+        _mediator.Setup(x => x.Send(It.Is<SupportChangeTeamMemberRoleCommand>(y => y == _command), new CancellationToken())).Throws<Exception>();
 
         var response = await _controller.ChangeRole(_command);
         

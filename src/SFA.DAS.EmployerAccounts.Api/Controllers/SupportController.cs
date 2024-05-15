@@ -6,18 +6,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
-using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
-using SFA.DAS.EmployerAccounts.Commands.ResendInvitation;
+using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
+using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
-[Route("api/team")]
+[Route("api/support")]
 [Authorize(Policy = ApiRoles.ReadUserAccounts)]
-public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamController> logger) : ControllerBase
+public class SupportController(IMediator mediator, ILogger<SupportController> logger) : ControllerBase
 {
     [HttpPost]
     [Route("change-role", Name = RouteNames.EmployerTeam.ChangeRole)]
-    public async Task<IActionResult> ChangeRole([FromBody] ChangeTeamMemberRoleCommand command)
+    public async Task<IActionResult> ChangeRole([FromBody] SupportChangeTeamMemberRoleCommand command)
     {
         try
         {
@@ -33,7 +33,7 @@ public class EmployerTeamController(IMediator mediator, ILogger<EmployerTeamCont
 
     [HttpPost]
     [Route("resend-invitation", Name = RouteNames.EmployerTeam.ResendInvitation)]
-    public async Task<IActionResult> ResendInvitation([FromBody] ResendInvitationCommand command)
+    public async Task<IActionResult> ResendInvitation([FromBody] SupportResendInvitationCommand command)
     {
         command.Email = WebUtility.HtmlDecode(command.Email);
         
