@@ -121,6 +121,7 @@ public class WhenAddingServicesToTheContainer
         InitialData = new List<KeyValuePair<string, string>>
             {
                 new($"{ConfigurationKeys.EncodingConfig}", "{\"Encodings\": [{\"EncodingType\": \"AccountId\",\"Salt\": \"and vinegar\",\"MinHashLength\": 32,\"Alphabet\": \"46789BCDFGHJKLMNPRSTVWXY\"}]}"),
+                    
                 new($"{ConfigurationKeys.EmployerAccounts}:DatabaseConnectionString", "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;"),
                 new($"{ConfigurationKeys.EmployerAccounts}:AccountApiConfiguration:ApiBaseUrl", "https://localhost:1"),
                 new($"{ConfigurationKeys.EmployerAccounts}:OuterApiApiBaseUri", "https://localhost:1"),
@@ -136,6 +137,7 @@ public class WhenAddingServicesToTheContainer
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticUsername", "test"),
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticPassword", "test"),
                 new($"{ConfigurationKeys.NotificationsApiClient}:ApiBaseUrl", "https://test.test/"),
+                
                 new($"{ConfigurationKeys.NotificationsApiClient}:ClientToken", "ABVCJKDS"),
             }
         };
