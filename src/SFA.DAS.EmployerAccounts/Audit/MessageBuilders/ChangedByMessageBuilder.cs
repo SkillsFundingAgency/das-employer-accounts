@@ -34,6 +34,11 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
         if (message.IsSupportRequest)
         {
             var supportUser = await _userRepository.GetByEmailAddress(message.SupportUserEmail);
+
+            if (supportUser == null)
+            {
+                throw new NullReferenceException($"Unable to find the support user with the email '{message.SupportUserEmail}' to populate AuditMessage.");
+            }
             
             actor.Id = supportUser.Ref.ToString();
             actor.EmailAddress = supportUser.Email;
