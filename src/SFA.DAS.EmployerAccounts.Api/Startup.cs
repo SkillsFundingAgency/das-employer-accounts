@@ -49,7 +49,7 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        var employerAccountsConfiguration = _configuration.Get<EmployerAccountsConfiguration>();
+        var employerAccountsConfiguration = _configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
         var isDevelopment = _configuration.IsDevOrLocal();
 
         services
@@ -81,7 +81,7 @@ public class Startup
         services.AddDatabaseRegistration();
         services.AddDataRepositories();
         services.AddExecutionPolicies();
-        
+
         services.AddAutoMapper(typeof(AccountMappings), typeof(Startup));
 
         services.AddAuditServices();
@@ -147,11 +147,11 @@ public class Startup
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             })
-          .UseSwagger()
-          .UseSwaggerUI(opt =>
-          {
-              opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Employer Accounts API");
-              opt.RoutePrefix = string.Empty;
-          });
+            .UseSwagger()
+            .UseSwaggerUI(opt =>
+            {
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Employer Accounts API");
+                opt.RoutePrefix = string.Empty;
+            });
     }
 }
