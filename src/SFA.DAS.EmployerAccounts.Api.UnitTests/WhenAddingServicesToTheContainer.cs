@@ -136,8 +136,8 @@ public class WhenAddingServicesToTheContainer
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticUrl", "test"),
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticUsername", "test"),
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticPassword", "test"),
-                new($"{ConfigurationKeys.NotificationsApiClient}:ApiBaseUrl", "https://test.test/"),
                 
+                new($"{ConfigurationKeys.NotificationsApiClient}:ApiBaseUrl", "https://test.test/"),
                 new($"{ConfigurationKeys.NotificationsApiClient}:ClientToken", "ABVCJKDS"),
             }
         };
