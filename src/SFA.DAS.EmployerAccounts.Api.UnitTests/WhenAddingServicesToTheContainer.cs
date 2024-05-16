@@ -11,6 +11,7 @@ using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
+using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesByHashedAccountId;
@@ -28,6 +29,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserByEmail;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;
 using SFA.DAS.EmployerAccounts.Queries.UpdateUserAornLock;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
+using SFA.DAS.Notifications.Api.Client;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests;
@@ -39,20 +41,11 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(UsersOrchestrator))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Orchestrators(Type toResolve)
     {
-        var mockHostingEnvironment = new Mock<IWebHostEnvironment>();
-        mockHostingEnvironment.Setup(x => x.EnvironmentName).Returns("Test");
-
-        var config = GenerateConfiguration();
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(mockHostingEnvironment.Object);
-        serviceCollection.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetUserAccountsQuery).Assembly));
-        serviceCollection.AddAutoMapper(typeof(Startup).Assembly);
-        serviceCollection.AddApplicationServices();
-        serviceCollection.AddApiConfigurationSections(config);
-        serviceCollection.AddOrchestrators();
-        serviceCollection.AddLogging();
+        var serviceCollection = BuildServiceCollection();
         var provider = serviceCollection.BuildServiceProvider();
+        
         var type = provider.GetService(toResolve);
+        
         Assert.IsNotNull(type);
     }
 
@@ -76,6 +69,27 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<SupportChangeTeamMemberRoleCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Handlers(Type toResolve)
     {
+        var serviceCollection = BuildServiceCollection();
+        var provider = serviceCollection.BuildServiceProvider();
+
+        var type = provider.GetService(toResolve);
+        
+        Assert.IsNotNull(type);
+    }
+    
+    [TestCase(typeof(INotificationsApi))]
+    public void Then_The_Dependencies_Are_Correctly_Resolved_For_Apis(Type toResolve)
+    {
+        var serviceCollection = BuildServiceCollection();
+        var provider = serviceCollection.BuildServiceProvider();
+
+        var type = provider.GetService(toResolve);
+        
+        Assert.IsNotNull(type);
+    }
+
+    private static ServiceCollection BuildServiceCollection()
+    {
         var mockHostingEnvironment = new Mock<IWebHostEnvironment>();
         mockHostingEnvironment.Setup(x => x.EnvironmentName).Returns("Test");
 
@@ -89,18 +103,17 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddSingleton(Mock.Of<IEventPublisher>());
         serviceCollection.AddDatabaseRegistration();
         serviceCollection.AddDataRepositories();
+        serviceCollection.AddOrchestrators();
+        serviceCollection.AddAutoMapper(typeof(Startup).Assembly);
         serviceCollection.AddApplicationServices();
         serviceCollection.AddApiConfigurationSections(config);
+        serviceCollection.AddNotifications(config);
         serviceCollection.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetAccountPayeSchemesQuery).Assembly));
         serviceCollection.AddMediatorValidators();
         serviceCollection.AddLogging();
-
-        var provider = serviceCollection.BuildServiceProvider();
-
-        var type = provider.GetService(toResolve);
-        Assert.IsNotNull(type);
+        return serviceCollection;
     }
-    
+
     private static IConfigurationRoot GenerateConfiguration()
     {
     var configSource = new MemoryConfigurationSource
@@ -122,6 +135,8 @@ public class WhenAddingServicesToTheContainer
                 new("ElasticUrl", "test"),
                 new("ElasticUsername", "test"),
                 new("ElasticPassword", "test"),
+                new($"{ConfigurationKeys.NotificationsApiClient}:ApiBaseUrl", "https://test.test/"),
+                new($"{ConfigurationKeys.NotificationsApiClient}:ClientToken", "ABVCJKDS"),
             }
         };
 
