@@ -31,8 +31,8 @@ public static class ConfigurationExtensions
                 options.PreFixConfigurationKeys = false;
                 options.ConfigurationKeysRawJsonResult = new[] { ConfigurationKeys.EncodingConfig };
             }
-        ); 
-        
+        );
+
         return config.Build();
     }
 }
