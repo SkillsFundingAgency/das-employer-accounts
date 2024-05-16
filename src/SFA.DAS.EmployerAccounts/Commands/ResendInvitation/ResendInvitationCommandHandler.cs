@@ -57,12 +57,12 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
 
         var existingUser = await _userRepository.Get(message.Email);
 
-        await AddAuditEntry(message, cancellationToken, existing);
+        await AddAuditEntry(message, existing, cancellationToken);
 
-        await SendNotification(message, cancellationToken, existingUser, owner, expiryDate);
+        await SendNotification(message, existingUser, owner, expiryDate, cancellationToken);
     }
 
-    private async Task AddAuditEntry(ResendInvitationCommand message, CancellationToken cancellationToken, Invitation existing)
+    private async Task AddAuditEntry(ResendInvitationCommand message, Invitation existing, CancellationToken cancellationToken)
     {
         await _mediator.Send(new CreateAuditCommand
         {
@@ -81,7 +81,7 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         }, cancellationToken);
     }
 
-    private async Task SendNotification(ResendInvitationCommand message, CancellationToken cancellationToken, User existingUser, MembershipView owner, DateTime expiryDate)
+    private async Task SendNotification(ResendInvitationCommand message, User existingUser, MembershipView owner, DateTime expiryDate, CancellationToken cancellationToken)
     {
         await _mediator.Send(new SendNotificationCommand
         {

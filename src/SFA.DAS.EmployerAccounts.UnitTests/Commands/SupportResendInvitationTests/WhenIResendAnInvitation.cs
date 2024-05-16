@@ -50,7 +50,7 @@ public class WhenIResendAnInvitation
         _employerAccountRepository = new Mock<IEmployerAccountRepository>();
         _encodingService = new Mock<IEncodingService>();
 
-        _userRepository.Setup(x => x.Get(ExpectedExistingUserEmail)).ReturnsAsync(new User { Email = ExpectedExistingUserEmail, UserRef = Guid.NewGuid().ToString() });
+        _userRepository.Setup(x => x.Get(ExpectedExistingUserEmail)).ReturnsAsync(new User { Email = ExpectedExistingUserEmail, Ref = Guid.NewGuid() });
         _encodingService.Setup(x => x.Decode(ExpectedHashedId, EncodingType.AccountId)).Returns(ExpectedAccountId);
         _employerAccountRepository.Setup(x => x.GetAccountById(ExpectedAccountId)).ReturnsAsync(new Account { Id = ExpectedAccountId, Name = AccountName });
         
