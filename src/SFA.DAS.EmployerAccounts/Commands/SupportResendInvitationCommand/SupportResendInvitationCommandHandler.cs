@@ -55,11 +55,11 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
 
         await _invitationRepository.Resend(existingInvitation);
         
-        await AddAuditEntry(message, cancellationToken, existingInvitation);
+        await AddAuditEntry(message, existingInvitation, cancellationToken);
 
         var existingUser = await _userRepository.Get(message.Email);
         
-        await SendNotification(message, cancellationToken, existingUser, account, expiryDate);
+        await SendNotification(message, existingUser, account, expiryDate, cancellationToken);
     }
 
     private static void ValidateExistingInvitation(Invitation existingInvitation)
@@ -85,7 +85,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         }
     }
 
-    private async Task SendNotification(SupportResendInvitationCommand message, CancellationToken cancellationToken, User existingUser, Account account, DateTime expiryDate)
+    private async Task SendNotification(SupportResendInvitationCommand message, User existingUser, Account account, DateTime expiryDate, CancellationToken cancellationToken)
     {
         await _mediator.Send(new SendNotificationCommand
         {
@@ -107,7 +107,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         }, cancellationToken);
     }
 
-    private async Task AddAuditEntry(SupportResendInvitationCommand message, CancellationToken cancellationToken, Invitation existingInvitation)
+    private async Task AddAuditEntry(SupportResendInvitationCommand message, Invitation existingInvitation, CancellationToken cancellationToken)
     {
         await _mediator.Send(new CreateAuditCommand
         {
