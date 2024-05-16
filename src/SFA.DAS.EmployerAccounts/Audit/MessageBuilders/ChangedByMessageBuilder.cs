@@ -37,7 +37,7 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
 
             if (supportUser == null)
             {
-                throw new NullReferenceException($"Unable to find the support user with the email '{message.SupportUserEmail}' to populate AuditMessage.");
+                throw new InvalidContextException($"Unable to find the support user with the email '{message.SupportUserEmail}' to populate AuditMessage.");
             }
             
             actor.Id = supportUser.Ref.ToString();

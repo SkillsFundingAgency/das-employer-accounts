@@ -92,7 +92,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
             Email = new Email
             {
                 RecipientsAddress = message.Email,
-                TemplateId = existingUser?.UserRef != null ? "InvitationExistingUser" : "InvitationNewUser",
+                TemplateId = existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser",
                 ReplyToAddress = "noreply@sfa.gov.uk",
                 Subject = "x",
                 SystemId = "x",
