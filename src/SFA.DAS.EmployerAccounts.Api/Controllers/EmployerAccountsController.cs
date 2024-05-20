@@ -56,6 +56,13 @@ public class EmployerAccountsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAccountById(long accountId)
     {
+        var isDecoded = _encodingService.TryDecode(accountId.ToString(), EncodingType.AccountId, out _);
+
+        if (isDecoded)
+        {
+            return await GetAccount(accountId.ToString());
+        }
+
         var result = await _orchestrator.GetAccountById(accountId);
         return Ok(result);
     }
