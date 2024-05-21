@@ -26,7 +26,6 @@ public class WhenICallTheResendInvitationEndpoint
         {
             HashedAccountId = "ABC123",
             Email = "test@email.test",
-            FirstName = "User",
             };
 
         _controller = new Api.Controllers.SupportController(_mediator.Object, Mock.Of<ILogger<Api.Controllers.SupportController>>());

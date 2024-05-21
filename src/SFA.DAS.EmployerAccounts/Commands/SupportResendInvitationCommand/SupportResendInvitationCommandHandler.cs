@@ -98,7 +98,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
                 SystemId = "x",
                 Tokens = new Dictionary<string, string> {
                     { "account_name", account.Name },
-                    { "first_name", message.FirstName },
+                    { "first_name", existingUser != null ? existingUser.FirstName : message.Email },
                     { "inviter_name", "Apprenticeship Service Support"},
                     { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
                     { "expiry_date", expiryDate.ToString("dd MMM yyy")}
