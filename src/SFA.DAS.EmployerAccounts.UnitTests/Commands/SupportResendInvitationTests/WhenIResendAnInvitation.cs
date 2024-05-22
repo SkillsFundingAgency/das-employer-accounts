@@ -6,6 +6,7 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
+using SFA.DAS.EmployerAccounts.Commands.SendEmail;
 using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 using SFA.DAS.EmployerAccounts.Configuration;
@@ -45,7 +46,7 @@ public class WhenIResendAnInvitation
             HashedAccountId = ExpectedHashedId,
             SupportUserEmail = SupportUserEmail,
         };
-        
+
         _userRepository = new Mock<IUserAccountRepository>();
         _employerAccountRepository = new Mock<IEmployerAccountRepository>();
         _encodingService = new Mock<IEncodingService>();
@@ -53,7 +54,7 @@ public class WhenIResendAnInvitation
         _userRepository.Setup(x => x.Get(ExpectedExistingUserEmail)).ReturnsAsync(new User { Email = ExpectedExistingUserEmail, Ref = Guid.NewGuid() });
         _encodingService.Setup(x => x.Decode(ExpectedHashedId, EncodingType.AccountId)).Returns(ExpectedAccountId);
         _employerAccountRepository.Setup(x => x.GetAccountById(ExpectedAccountId)).ReturnsAsync(new Account { Id = ExpectedAccountId, Name = AccountName });
-        
+
         _invitationRepository = new Mock<IInvitationRepository>();
         _mediator = new Mock<IMediator>();
 
@@ -150,7 +151,7 @@ public class WhenIResendAnInvitation
             ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1),
             Email = ExpectedExistingUserEmail
         };
-        
+
         _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.Email)).ReturnsAsync(invitation);
 
         //Act
@@ -158,8 +159,8 @@ public class WhenIResendAnInvitation
 
         //Assert
         _invitationRepository.Verify(x => x.Resend(It.Is<Invitation>(c => c.Id == invitationId && c.Status == InvitationStatus.Pending && c.ExpiryDate == DateTimeProvider.Current.UtcNow.Date.AddDays(8))), Times.Once);
-        _encodingService.Verify(x=> x.Decode(ExpectedHashedId, EncodingType.AccountId), Times.Once);
-        _employerAccountRepository.Verify(x=> x.GetAccountById(ExpectedAccountId), Times.Once);
+        _encodingService.Verify(x => x.Decode(ExpectedHashedId, EncodingType.AccountId), Times.Once);
+        _employerAccountRepository.Verify(x => x.GetAccountById(ExpectedAccountId), Times.Once);
     }
 
     [Test]
@@ -179,11 +180,8 @@ public class WhenIResendAnInvitation
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        _mediator.Verify(x => x.Send(It.Is<SendNotificationCommand>(c => c.Email.RecipientsAddress.Equals(_command.Email)
-                                                                         && c.Email.ReplyToAddress.Equals("noreply@sfa.gov.uk")
-                                                                         && c.Email.SystemId.Equals("x")
-                                                                         && c.Email.Subject.Equals("x")
-                                                                         && c.Email.TemplateId.Equals("InvitationNewUser")), It.IsAny<CancellationToken>()));
+        _mediator.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress.Equals(_command.Email)
+                                                                  && c.TemplateId.Equals("InvitationNewUser")), It.IsAny<CancellationToken>()));
     }
 
     [Test]
@@ -227,11 +225,8 @@ public class WhenIResendAnInvitation
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        _mediator.Verify(x => x.Send(It.Is<SendNotificationCommand>(c => 
-                                c.Email.RecipientsAddress.Equals(ExpectedExistingUserEmail)
-                                && c.Email.ReplyToAddress.Equals("noreply@sfa.gov.uk")
-                                && c.Email.SystemId.Equals("x")
-                                && c.Email.TemplateId.Equals("InvitationExistingUser")
-                                && c.Email.Subject.Equals("x")), CancellationToken.None));
+        _mediator.Verify(x => x.Send(It.Is<SendEmailCommand>(c =>
+            c.RecipientsAddress.Equals(ExpectedExistingUserEmail)
+            && c.TemplateId.Equals("InvitationExistingUser")), CancellationToken.None));
     }
 }

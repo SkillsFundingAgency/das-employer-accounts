@@ -1,12 +1,11 @@
 ﻿using System.Threading;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.SendNotification;
+using SFA.DAS.EmployerAccounts.Commands.SendEmail;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.Encoding;
-using SFA.DAS.Notifications.Api.Types;
 using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
@@ -21,9 +20,9 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
     private readonly IEncodingService _encodingService;
     private readonly SupportResendInvitationCommandValidator _validator;
 
-    public SupportResendInvitationCommandHandler(IInvitationRepository invitationRepository, 
-        IMediator mediator, 
-        EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration, 
+    public SupportResendInvitationCommandHandler(IInvitationRepository invitationRepository,
+        IMediator mediator,
+        EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
         IUserAccountRepository userRepository,
         IEmployerAccountRepository accountRepository,
         IEncodingService encodingService)
@@ -49,16 +48,16 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         ValidateExistingInvitation(existingInvitation);
 
         existingInvitation.Status = InvitationStatus.Pending;
-        
+
         var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
         existingInvitation.ExpiryDate = expiryDate;
 
         await _invitationRepository.Resend(existingInvitation);
-        
+
         await AddAuditEntry(message, existingInvitation, cancellationToken);
 
         var existingUser = await _userRepository.Get(message.Email);
-        
+
         await SendNotification(message, existingUser, account, expiryDate, cancellationToken);
     }
 
@@ -87,24 +86,18 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
 
     private async Task SendNotification(SupportResendInvitationCommand message, User existingUser, Account account, DateTime expiryDate, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new SendNotificationCommand
+        var tokens = new Dictionary<string, string>
         {
-            Email = new Email
-            {
-                RecipientsAddress = message.Email,
-                TemplateId = existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser",
-                ReplyToAddress = "noreply@sfa.gov.uk",
-                Subject = "x",
-                SystemId = "x",
-                Tokens = new Dictionary<string, string> {
-                    { "account_name", account.Name },
-                    { "first_name", existingUser != null ? existingUser.FirstName : message.Email },
-                    { "inviter_name", "Apprenticeship Service Support"},
-                    { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
-                    { "expiry_date", expiryDate.ToString("dd MMM yyy")}
-                }
-            }
-        }, cancellationToken);
+            { "account_name", account.Name },
+            { "first_name", existingUser != null ? existingUser.FirstName : message.Email },
+            { "inviter_name", "Apprenticeship Service Support" },
+            { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
+            { "expiry_date", expiryDate.ToString("dd MMM yyy") }
+        };
+        
+        var command = new SendEmailCommand(existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser", message.Email, tokens);
+
+        await _mediator.Send(command, cancellationToken);
     }
 
     private async Task AddAuditEntry(SupportResendInvitationCommand message, Invitation existingInvitation, CancellationToken cancellationToken)
@@ -118,8 +111,8 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
                 Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
                 ChangedProperties = new List<PropertyUpdate>
                 {
-                    new() {PropertyName = "Status",NewValue = existingInvitation.Status.ToString()},
-                    new() {PropertyName = "ExpiryDate",NewValue = existingInvitation.ExpiryDate.ToString()}
+                    new() { PropertyName = "Status", NewValue = existingInvitation.Status.ToString() },
+                    new() { PropertyName = "ExpiryDate", NewValue = existingInvitation.ExpiryDate.ToString() }
                 },
                 RelatedEntities = new List<AuditEntity> { new() { Id = existingInvitation.AccountId.ToString(), Type = "Account" } },
                 AffectedEntity = new AuditEntity { Type = "Invitation", Id = existingInvitation.Id.ToString() }

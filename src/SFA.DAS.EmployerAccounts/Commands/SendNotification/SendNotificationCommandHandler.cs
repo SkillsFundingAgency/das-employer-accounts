@@ -1,6 +1,8 @@
 ﻿using System.Threading;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.Notifications.Api.Client;
+using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.EmployerAccounts.Commands.SendNotification;
 
