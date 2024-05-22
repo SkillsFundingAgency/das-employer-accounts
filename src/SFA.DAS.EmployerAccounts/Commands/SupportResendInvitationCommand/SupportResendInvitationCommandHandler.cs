@@ -1,11 +1,12 @@
 ﻿using System.Threading;
+using NServiceBus;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.SendEmail;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.Encoding;
+using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
@@ -19,13 +20,14 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
     private readonly IEmployerAccountRepository _accountRepository;
     private readonly IEncodingService _encodingService;
     private readonly SupportResendInvitationCommandValidator _validator;
+    private readonly IMessageSession _publisher;
 
     public SupportResendInvitationCommandHandler(IInvitationRepository invitationRepository,
         IMediator mediator,
         EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
         IUserAccountRepository userRepository,
         IEmployerAccountRepository accountRepository,
-        IEncodingService encodingService)
+        IEncodingService encodingService, IMessageSession publisher)
     {
         _invitationRepository = invitationRepository ?? throw new ArgumentNullException(nameof(invitationRepository));
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -33,6 +35,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         _userRepository = userRepository;
         _accountRepository = accountRepository;
         _encodingService = encodingService;
+        _publisher = publisher;
         _validator = new SupportResendInvitationCommandValidator();
     }
 
@@ -94,10 +97,10 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
             { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
             { "expiry_date", expiryDate.ToString("dd MMM yyy") }
         };
-        
-        var command = new SendEmailCommand(existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser", message.Email, tokens);
 
-        await _mediator.Send(command, cancellationToken);
+        var templateId = existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser";
+        
+        await _publisher.Send(new SendEmailCommand(templateId, message.Email, tokens));
     }
 
     private async Task AddAuditEntry(SupportResendInvitationCommand message, Invitation existingInvitation, CancellationToken cancellationToken)
