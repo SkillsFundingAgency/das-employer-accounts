@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
@@ -31,6 +32,7 @@ using SFA.DAS.EmployerAccounts.Queries.UpdateUserAornLock;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
 using SFA.DAS.Notifications.Api.Client;
 using SFA.DAS.NServiceBus.Services;
+using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests;
 
@@ -101,6 +103,7 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddSingleton(Mock.Of<IGenericEventFactory>());
         serviceCollection.AddSingleton(Mock.Of<IPayeSchemeEventFactory>());
         serviceCollection.AddSingleton(Mock.Of<IEventPublisher>());
+        serviceCollection.AddSingleton(Mock.Of<IMessageSession>());
         serviceCollection.AddDatabaseRegistration();
         serviceCollection.AddDataRepositories();
         serviceCollection.AddOrchestrators();
