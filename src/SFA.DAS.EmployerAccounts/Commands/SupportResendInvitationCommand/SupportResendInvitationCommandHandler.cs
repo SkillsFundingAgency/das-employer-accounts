@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using NServiceBus;
 using SFA.DAS.EmployerAccounts.Audit.Types;
-using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.Account;
@@ -14,28 +13,29 @@ namespace SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 public class SupportResendInvitationCommandHandler : IRequestHandler<SupportResendInvitationCommand>
 {
     private readonly IInvitationRepository _invitationRepository;
-    private readonly IMediator _mediator;
     private readonly EmployerAccountsConfiguration _employerApprenticeshipsServiceConfiguration;
     private readonly IUserAccountRepository _userRepository;
     private readonly IEmployerAccountRepository _accountRepository;
     private readonly IEncodingService _encodingService;
     private readonly SupportResendInvitationCommandValidator _validator;
     private readonly IMessageSession _publisher;
+    private readonly IAuditService _auditService;
 
     public SupportResendInvitationCommandHandler(IInvitationRepository invitationRepository,
-        IMediator mediator,
         EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
         IUserAccountRepository userRepository,
         IEmployerAccountRepository accountRepository,
-        IEncodingService encodingService, IMessageSession publisher)
+        IEncodingService encodingService,
+        IMessageSession publisher,
+        IAuditService auditService)
     {
         _invitationRepository = invitationRepository ?? throw new ArgumentNullException(nameof(invitationRepository));
-        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _employerApprenticeshipsServiceConfiguration = employerApprenticeshipsServiceConfiguration ?? throw new ArgumentNullException(nameof(employerApprenticeshipsServiceConfiguration));
         _userRepository = userRepository;
         _accountRepository = accountRepository;
         _encodingService = encodingService;
         _publisher = publisher;
+        _auditService = auditService;
         _validator = new SupportResendInvitationCommandValidator();
     }
 
@@ -57,7 +57,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
 
         await _invitationRepository.Resend(existingInvitation);
 
-        await AddAuditEntry(message, existingInvitation, cancellationToken);
+        await AddAuditEntry(message, existingInvitation);
 
         var existingUser = await _userRepository.Get(message.Email);
 
@@ -103,23 +103,22 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         await _publisher.Send(new SendEmailCommand(templateId, message.Email, tokens));
     }
 
-    private async Task AddAuditEntry(SupportResendInvitationCommand message, Invitation existingInvitation, CancellationToken cancellationToken)
+    private async Task AddAuditEntry(SupportResendInvitationCommand message, Invitation existingInvitation)
     {
-        await _mediator.Send(new CreateAuditCommand
+        var auditMessage = new AuditMessage
         {
-            EasAuditMessage = new AuditMessage
+            SupportUserEmail = message.SupportUserEmail,
+            Category = "INVITATION_RESENT",
+            Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
+            ChangedProperties = new List<PropertyUpdate>
             {
-                SupportUserEmail = message.SupportUserEmail,
-                Category = "INVITATION_RESENT",
-                Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
-                ChangedProperties = new List<PropertyUpdate>
-                {
-                    new() { PropertyName = "Status", NewValue = existingInvitation.Status.ToString() },
-                    new() { PropertyName = "ExpiryDate", NewValue = existingInvitation.ExpiryDate.ToString() }
-                },
-                RelatedEntities = new List<AuditEntity> { new() { Id = existingInvitation.AccountId.ToString(), Type = "Account" } },
-                AffectedEntity = new AuditEntity { Type = "Invitation", Id = existingInvitation.Id.ToString() }
-            }
-        }, cancellationToken);
+                new() { PropertyName = "Status", NewValue = existingInvitation.Status.ToString() },
+                new() { PropertyName = "ExpiryDate", NewValue = existingInvitation.ExpiryDate.ToString() }
+            },
+            RelatedEntities = new List<AuditEntity> { new() { Id = existingInvitation.AccountId.ToString(), Type = "Account" } },
+            AffectedEntity = new AuditEntity { Type = "Invitation", Id = existingInvitation.Id.ToString() }
+        };
+
+        await _auditService.SendAuditMessage(auditMessage);
     }
 }

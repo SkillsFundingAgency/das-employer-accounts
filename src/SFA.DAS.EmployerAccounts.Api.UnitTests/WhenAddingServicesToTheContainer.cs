@@ -103,9 +103,11 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddSingleton(Mock.Of<IPayeSchemeEventFactory>());
         serviceCollection.AddSingleton(Mock.Of<IEventPublisher>());
         serviceCollection.AddSingleton(Mock.Of<IMessageSession>());
+        serviceCollection.AddHttpContextAccessor();
         serviceCollection.AddDatabaseRegistration();
         serviceCollection.AddDataRepositories();
         serviceCollection.AddOrchestrators();
+        serviceCollection.AddAuditServices();
         serviceCollection.AddAutoMapper(typeof(Startup).Assembly);
         serviceCollection.AddApplicationServices();
         serviceCollection.AddApiConfigurationSections(config);

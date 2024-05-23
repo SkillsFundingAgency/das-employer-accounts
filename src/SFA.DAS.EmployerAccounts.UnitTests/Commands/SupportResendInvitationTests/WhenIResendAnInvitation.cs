@@ -6,10 +6,12 @@ using MediatR;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
+using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
@@ -26,7 +28,7 @@ public class WhenIResendAnInvitation
     private Mock<IInvitationRepository> _invitationRepository;
     private Mock<IMessageSession> _publisher;
     private SupportResendInvitationCommandHandler _handler;
-    private Mock<IMediator> _mediator;
+    private Mock<IAuditService> _auditService;
     private EmployerAccountsConfiguration _config;
     private SupportResendInvitationCommand _command;
     private Mock<IUserAccountRepository> _userRepository;
@@ -58,18 +60,18 @@ public class WhenIResendAnInvitation
         _employerAccountRepository.Setup(x => x.GetAccountById(ExpectedAccountId)).ReturnsAsync(new Account { Id = ExpectedAccountId, Name = AccountName });
 
         _invitationRepository = new Mock<IInvitationRepository>();
-        _mediator = new Mock<IMediator>();
+        _auditService = new Mock<IAuditService>();
 
         _config = new EmployerAccountsConfiguration();
 
         _handler = new SupportResendInvitationCommandHandler(
             _invitationRepository.Object,
-            _mediator.Object,
             _config,
             _userRepository.Object,
             _employerAccountRepository.Object,
             _encodingService.Object,
-            _publisher.Object
+            _publisher.Object,
+            _auditService.Object
         );
     }
 
@@ -203,11 +205,11 @@ public class WhenIResendAnInvitation
         //Act
         await _handler.Handle(_command, CancellationToken.None);
 
-        _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-            c.EasAuditMessage.SupportUserEmail == SupportUserEmail &&
-            c.EasAuditMessage.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Status") && y.NewValue.Equals(InvitationStatus.Pending.ToString())) != null &&
-            c.EasAuditMessage.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("ExpiryDate") && y.NewValue.Equals(DateTimeProvider.Current.UtcNow.Date.AddDays(8).ToString())) != null
-        ), It.IsAny<CancellationToken>()));
+        _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
+            c.SupportUserEmail == SupportUserEmail &&
+            c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Status") && y.NewValue.Equals(InvitationStatus.Pending.ToString())) != null &&
+            c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("ExpiryDate") && y.NewValue.Equals(DateTimeProvider.Current.UtcNow.Date.AddDays(8).ToString())) != null
+        )));
     }
 
     [Test]
