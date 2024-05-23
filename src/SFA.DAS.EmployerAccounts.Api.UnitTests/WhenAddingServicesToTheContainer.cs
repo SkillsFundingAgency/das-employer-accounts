@@ -32,7 +32,6 @@ using SFA.DAS.EmployerAccounts.Queries.UpdateUserAornLock;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
 using SFA.DAS.Notifications.Api.Client;
 using SFA.DAS.NServiceBus.Services;
-using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests;
 
