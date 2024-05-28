@@ -1,8 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
+using SFA.DAS.EmployerAccounts.Commands.SendNotification;
+using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
+using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesByHashedAccountId;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementById;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
@@ -35,6 +39,10 @@ public static class MediatorValidationServiceRegistration
         services.AddTransient<IValidator<GetUserByEmailQuery>, GetUserByEmailQueryValidator>();
         services.AddTransient<IValidator<UpsertRegisteredUserCommand>, UpsertRegisteredUserCommandValidator>();
         services.AddTransient<IValidator<GetAccountByIdQuery>, GetAccountByIdValidator>();
+        services.AddTransient<IValidator<CreateAuditCommand>, CreateAuditCommandValidator>();
+        services.AddTransient<IValidator<SupportChangeTeamMemberRoleCommand>, SupportChangeTeamMemberRoleCommandValidator>();
+        services.AddTransient<IValidator<SupportResendInvitationCommand>, SupportResendInvitationCommandValidator>();
+        services.AddTransient<IValidator<SendNotificationCommand>, SendNotificationCommandValidator>();
         
         return services;
     }

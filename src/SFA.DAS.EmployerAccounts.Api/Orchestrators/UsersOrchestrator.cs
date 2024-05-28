@@ -9,7 +9,12 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 
 namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
 {
-    public class UsersOrchestrator
+    public interface IUsersOrchestrator
+    {
+        Task<ICollection<AccountDetail>> GetUserAccounts(string userRef);
+    }
+
+    public class UsersOrchestrator : IUsersOrchestrator
     {
         private readonly IMediator _mediator;
         private readonly ILogger<UsersOrchestrator> _logger;

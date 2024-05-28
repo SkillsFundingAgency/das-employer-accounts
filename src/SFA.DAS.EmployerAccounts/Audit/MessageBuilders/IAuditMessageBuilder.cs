@@ -3,5 +3,5 @@
 namespace SFA.DAS.EmployerAccounts.Audit.MessageBuilders;
 public interface IAuditMessageBuilder
 {
-    void Build(AuditMessage message);
+    Task Build(AuditMessage message);
 }
