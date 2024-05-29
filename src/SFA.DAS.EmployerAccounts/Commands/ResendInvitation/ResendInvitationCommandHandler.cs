@@ -36,7 +36,7 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         if (!validationResult.IsValid())
             throw new InvalidRequestException(validationResult.ValidationDictionary);
 
-        var owner = await _membershipRepository.GetCaller(message.AccountId, message.ExternalUserId);
+        var owner = await _membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
 
         if (owner == null || owner.Role != Role.Owner)
             throw new InvalidRequestException(new Dictionary<string, string> { { "Membership", "User is not an Owner" } });
@@ -57,6 +57,13 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
 
         var existingUser = await _userRepository.Get(message.Email);
 
+        await AddAuditEntry(message, existing, cancellationToken);
+
+        await SendNotification(message, existingUser, owner, expiryDate, cancellationToken);
+    }
+
+    private async Task AddAuditEntry(ResendInvitationCommand message, Invitation existing, CancellationToken cancellationToken)
+    {
         await _mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
@@ -72,7 +79,10 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
                 AffectedEntity = new AuditEntity { Type = "Invitation", Id = existing.Id.ToString() }
             }
         }, cancellationToken);
+    }
 
+    private async Task SendNotification(ResendInvitationCommand message, User existingUser, MembershipView owner, DateTime expiryDate, CancellationToken cancellationToken)
+    {
         await _mediator.Send(new SendNotificationCommand
         {
             Email = new Email

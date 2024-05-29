@@ -494,7 +494,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             await _mediator.Send(new ResendInvitationCommand
             {
                 Email = email,
-                AccountId = hashedId,
+                HashedAccountId = hashedId,
                 FirstName = name,
                 ExternalUserId = externalUserId
             });

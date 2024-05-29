@@ -9,6 +9,7 @@ public static class OrchestratorsServiceRegistrations
     {
         services.AddTransient<AccountsOrchestrator>();
         services.AddTransient<AgreementOrchestrator>();
+        services.AddTransient<IUsersOrchestrator, UsersOrchestrator>();
         services.AddTransient<UsersOrchestrator>();
 
         return services;

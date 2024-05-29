@@ -4,8 +4,10 @@ namespace SFA.DAS.EmployerAccounts.Audit.MessageBuilders;
 
 public class BaseAuditMessageBuilder : IAuditMessageBuilder
 {
-    public void Build(AuditMessage message)
+    public Task Build(AuditMessage message)
     {
         message.ChangeAt = DateTime.UtcNow;
+        
+        return Task.CompletedTask;
     }
 }
