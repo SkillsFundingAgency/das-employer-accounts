@@ -32,7 +32,8 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
         IEventPublisher eventPublisher,
         IUserAccountRepository userAccountRepository,
         IConfiguration configuration,
-        IEmployerAccountRepository accountRepository)
+        IEmployerAccountRepository accountRepository,
+        IMessageSession publisher)
     {
         _validator = validator;
         _invitationRepository = invitationRepository;
@@ -42,14 +43,15 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
         _eventPublisher = eventPublisher;
         _userAccountRepository = userAccountRepository;
         _accountRepository = accountRepository;
+        _publisher = publisher;
 
         _isProdEnvironment = configuration["ResourceEnvironmentName"]
             .Equals("prd", StringComparison.CurrentCultureIgnoreCase);
     }
 
-    public async Task Handle(SupportCreateInvitationCommand message, CancellationToken cancellationToken)
+    public async Task Handle(SupportCreateInvitationCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(message);
+        var validationResult = await _validator.ValidateAsync(request);
 
         if (!validationResult.IsValid())
         {
@@ -61,13 +63,13 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
             throw new UnauthorizedAccessException();
         }
 
-        var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
+        var accountId = _encodingService.Decode(request.HashedAccountId, EncodingType.AccountId);
 
-        ////Verify the email is not used by an existing invitation for the account
-        var existingInvitation = await _invitationRepository.Get(accountId, message.EmailOfPersonBeingInvited);
+        //Verify the email is not used by an existing invitation for the account
+        var existingInvitation = await _invitationRepository.Get(accountId, request.EmailOfPersonBeingInvited);
 
         if (existingInvitation != null && existingInvitation.Status != InvitationStatus.Deleted && existingInvitation.Status != InvitationStatus.Accepted)
-            throw new InvalidRequestException(new Dictionary<string, string> { { "ExistingMember", $"{message.EmailOfPersonBeingInvited} is already invited" } });
+            throw new InvalidRequestException(new Dictionary<string, string> { { "ExistingMember", $"{request.EmailOfPersonBeingInvited} is already invited" } });
 
         var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
 
@@ -78,17 +80,17 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
             invitationId = await _invitationRepository.Create(new Invitation
             {
                 AccountId = accountId,
-                Email = message.EmailOfPersonBeingInvited,
-                Name = message.NameOfPersonBeingInvited,
-                Role = message.RoleOfPersonBeingInvited,
+                Email = request.EmailOfPersonBeingInvited,
+                Name = request.NameOfPersonBeingInvited,
+                Role = request.RoleOfPersonBeingInvited,
                 Status = InvitationStatus.Pending,
                 ExpiryDate = expiryDate
             });
         }
         else
         {
-            existingInvitation.Name = message.NameOfPersonBeingInvited;
-            existingInvitation.Role = message.RoleOfPersonBeingInvited;
+            existingInvitation.Name = request.NameOfPersonBeingInvited;
+            existingInvitation.Role = request.RoleOfPersonBeingInvited;
             existingInvitation.Status = InvitationStatus.Pending;
             existingInvitation.ExpiryDate = expiryDate;
 
@@ -97,16 +99,16 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
             invitationId = existingInvitation.Id;
         }
 
-        await AddAuditEntry(message, accountId, expiryDate, invitationId);
+        await AddAuditEntry(request, accountId, expiryDate, invitationId);
 
-        await SendInvitation(message, cancellationToken, expiryDate, accountId);
+        await SendInvitation(request, expiryDate, accountId);
 
-        var supportUser = await _userAccountRepository.Get(message.SupportUserEmail);
+        var supportUser = await _userAccountRepository.Get(request.SupportUserEmail);
 
-        await PublishUserInvitedEvent(accountId, message.NameOfPersonBeingInvited, message.SupportUserEmail, supportUser.Ref);
+        await PublishUserInvitedEvent(accountId, request.NameOfPersonBeingInvited, request.SupportUserEmail, supportUser.Ref);
     }
 
-    private async Task SendInvitation(SupportCreateInvitationCommand message, CancellationToken cancellationToken, DateTime expiryDate, long accountId)
+    private async Task SendInvitation(SupportCreateInvitationCommand message, DateTime expiryDate, long accountId)
     {
         var govLoginExistingUser = "11cb4eb4-c22a-47c7-aa26-1074da25ff4d"; //test ---- 3c285db3-164c-4258-9180-f2d42723e155 prod
         var existingUser = await _userAccountRepository.Get(message.EmailOfPersonBeingInvited);
