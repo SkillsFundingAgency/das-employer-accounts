@@ -61,7 +61,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
 
         var existingUser = await _userRepository.Get(message.Email);
 
-        await SendNotification(message, existingUser, account, expiryDate, cancellationToken);
+        await SendNotification(message, existingUser, account, expiryDate);
     }
 
     private static void ValidateExistingInvitation(Invitation existingInvitation)
@@ -87,7 +87,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         }
     }
 
-    private async Task SendNotification(SupportResendInvitationCommand message, User existingUser, Account account, DateTime expiryDate, CancellationToken cancellationToken)
+    private async Task SendNotification(SupportResendInvitationCommand message, User existingUser, Account account, DateTime expiryDate)
     {
         var tokens = new Dictionary<string, string>
         {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
+using SFA.DAS.EmployerAccounts.Commands.SupportCreateInvitation;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
@@ -16,7 +17,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 public class SupportController(IMediator mediator, ILogger<SupportController> logger) : ControllerBase
 {
     [HttpPost]
-    [Route("change-role", Name = RouteNames.EmployerTeam.ChangeRole)]
+    [Route("change-role", Name = RouteNames.Support.ChangeRole)]
     public async Task<IActionResult> ChangeRole([FromBody] SupportChangeTeamMemberRoleCommand command)
     {
         try
@@ -26,13 +27,29 @@ public class SupportController(IMediator mediator, ILogger<SupportController> lo
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Error in {Controller}.{Action}", nameof(EmployerUserController), nameof(ChangeRole));
+            logger.LogError(exception, "Error in {Controller}.{Action}", nameof(SupportController), nameof(ChangeRole));
             return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
         }
     }
-
+    
     [HttpPost]
-    [Route("resend-invitation", Name = RouteNames.EmployerTeam.ResendInvitation)]
+    [Route("send-invitation", Name = RouteNames.Support.SendInvitation)]
+    public async Task<IActionResult> SendInvitation([FromBody] SupportCreateInvitationCommand command)
+    {
+        try
+        {
+            await mediator.Send(command);
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Error in {Controller}.{Action}", nameof(SupportController), nameof(SendInvitation));
+            return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+        }
+    }
+ 
+    [HttpPost]
+    [Route("resend-invitation", Name = RouteNames.Support.ResendInvitation)]
     public async Task<IActionResult> ResendInvitation([FromBody] SupportResendInvitationCommand command)
     {
         command.Email = WebUtility.UrlDecode(command.Email);
@@ -44,7 +61,7 @@ public class SupportController(IMediator mediator, ILogger<SupportController> lo
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Error in {Controller}.{Action}", nameof(EmployerUserController), nameof(ResendInvitation));
+            logger.LogError(exception, "Error in {Controller}.{Action}", nameof(SupportController), nameof(ResendInvitation));
             return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
         }
     }
