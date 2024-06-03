@@ -421,32 +421,40 @@ public class HomeController : BaseController
     
     [HttpGet]
     [Route("SignIn-Stub")]
-    public IActionResult SigninStub()
+    public IActionResult SigninStub(string returnUrl)
     {
-        return View("SigninStub", new List<string>{_config["StubId"],_config["StubEmail"]});
+        var model = new SignInStubViewModel
+        {
+            StubId = _config["StubId"],
+            StubEmail = _config["StubEmail"],
+            ReturnUrl = returnUrl
+        };
+
+        return View("SigninStub", model);
     }
+
     [HttpPost]
     [Route("SignIn-Stub")]
-    public async Task<IActionResult> SigninStubPost()
+    public async Task<IActionResult> SigninStubPost(SignInStubViewModel model)
     {
         var claims = await _stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
         {
-            Email = _config["StubEmail"],
-            Id = _config["StubId"]
+            Email = model.StubEmail,
+            Id = model.StubId
         });
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
             new AuthenticationProperties());
 
-        return RedirectToRoute("Signed-in-stub");
+        return RedirectToRoute("Signed-in-stub", new { model.ReturnUrl });
     }
 
     [Authorize]
     [HttpGet]
     [Route("signed-in-stub", Name = "Signed-in-stub")]
-    public IActionResult SignedInStub()
+    public IActionResult SignedInStub(string returnUrl)
     {
-        return View();
+        return View(new SignedInStubViewModel(HttpContext, returnUrl));
     }
 #endif
 }
