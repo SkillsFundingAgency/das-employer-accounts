@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +31,9 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserByEmail;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;
 using SFA.DAS.EmployerAccounts.Queries.UpdateUserAornLock;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
+using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Api.Client;
+using SFA.DAS.Notifications.Api.Client.Configuration;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests;
@@ -42,12 +45,7 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(UsersOrchestrator))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Orchestrators(Type toResolve)
     {
-        var serviceCollection = BuildServiceCollection();
-        var provider = serviceCollection.BuildServiceProvider();
-        
-        var type = provider.GetService(toResolve);
-        
-        Assert.IsNotNull(type);
+        RunTestForType(toResolve);
     }
 
     [TestCase(typeof(IRequestHandler<GetPayeSchemeByRefQuery, GetPayeSchemeByRefResponse>))]
@@ -70,23 +68,31 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<SupportChangeTeamMemberRoleCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Handlers(Type toResolve)
     {
-        var serviceCollection = BuildServiceCollection();
-        var provider = serviceCollection.BuildServiceProvider();
-
-        var type = provider.GetService(toResolve);
-        
-        Assert.IsNotNull(type);
+        RunTestForType(toResolve);
     }
     
     [TestCase(typeof(INotificationsApi))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Apis(Type toResolve)
     {
+       RunTestForType(toResolve);
+    }
+    
+    [TestCase(typeof(IConfiguration))]
+    [TestCase(typeof(EmployerAccountsConfiguration))]
+    [TestCase(typeof(EncodingConfig))]
+    public void Then_The_Dependencies_Are_Correctly_Resolved_For_Configuration(Type toResolve)
+    {
+        RunTestForType(toResolve);
+    }
+
+    private static void RunTestForType(Type toResolve)
+    {
         var serviceCollection = BuildServiceCollection();
         var provider = serviceCollection.BuildServiceProvider();
 
         var type = provider.GetService(toResolve);
-        
-        Assert.IsNotNull(type);
+
+        type.Should().NotBeNull();
     }
 
     private static ServiceCollection BuildServiceCollection()
@@ -96,6 +102,7 @@ public class WhenAddingServicesToTheContainer
 
         var config = GenerateConfiguration();
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton((IConfiguration)config);
         serviceCollection.AddSingleton(mockHostingEnvironment.Object);
         serviceCollection.AddSingleton(Mock.Of<IPayeSchemesService>());
         serviceCollection.AddSingleton(Mock.Of<IUserAornPayeLockService>());
