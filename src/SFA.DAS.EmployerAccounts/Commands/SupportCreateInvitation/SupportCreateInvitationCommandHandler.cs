@@ -45,8 +45,8 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
         _accountRepository = accountRepository;
         _publisher = publisher;
 
-        _isProdEnvironment = !string.IsNullOrEmpty(configuration["ResourceEnvironmentName"])
-                             && configuration["ResourceEnvironmentName"].Equals("prd", StringComparison.CurrentCultureIgnoreCase);
+        _isProdEnvironment = !string.IsNullOrEmpty(configuration["EnvironmentName"])
+                             && configuration["EnvironmentName"].Equals("PROD", StringComparison.CurrentCultureIgnoreCase);
     }
 
     public async Task Handle(SupportCreateInvitationCommand request, CancellationToken cancellationToken)
@@ -110,7 +110,6 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
 
     private async Task SendInvitation(SupportCreateInvitationCommand message, DateTime expiryDate, long accountId)
     {
-        var govLoginExistingUser = "11cb4eb4-c22a-47c7-aa26-1074da25ff4d"; //test ---- 3c285db3-164c-4258-9180-f2d42723e155 prod
         var existingUser = await _userAccountRepository.Get(message.EmailOfPersonBeingInvited);
 
         var templateId = existingUser?.UserRef != null
