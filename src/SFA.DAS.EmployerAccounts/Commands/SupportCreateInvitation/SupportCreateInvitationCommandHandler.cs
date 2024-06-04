@@ -45,8 +45,8 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
         _accountRepository = accountRepository;
         _publisher = publisher;
 
-        _isProdEnvironment = configuration["ResourceEnvironmentName"]
-            .Equals("prd", StringComparison.CurrentCultureIgnoreCase);
+        _isProdEnvironment = !string.IsNullOrEmpty(configuration["ResourceEnvironmentName"])
+                             && configuration["ResourceEnvironmentName"].Equals("prd", StringComparison.CurrentCultureIgnoreCase);
     }
 
     public async Task Handle(SupportCreateInvitationCommand request, CancellationToken cancellationToken)
