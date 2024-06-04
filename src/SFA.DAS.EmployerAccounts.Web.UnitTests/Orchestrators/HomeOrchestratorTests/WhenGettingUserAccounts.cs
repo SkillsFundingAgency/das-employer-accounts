@@ -1,10 +1,10 @@
 ﻿using AutoFixture.NUnit3;
+using FluentAssertions;
 using MediatR;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.Queries.GetUserInvitations;
 using SFA.DAS.EmployerAccounts.TestCommon.AutoFixture;
-using SFA.DAS.EmployerAccounts.Web.Controllers;
 using SFA.DAS.EmployerAccounts.Web.Extensions;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.HomeOrchestratorTests;
@@ -64,9 +64,9 @@ public class WhenGettingUserAccounts
             }, null);
 
         // Assert
-        Assert.IsNotNull(result.Data);
-        Assert.AreEqual(redirectUri, result.Data.RedirectUri);
-        Assert.AreEqual(redirectDescription, result.Data.RedirectDescription);
+        result.Data.Should().NotBeNull();
+        result.Data.RedirectUri.Should().Be(redirectUri.ToString());
+        result.Data.RedirectDescription.Should().Be(redirectDescription);
     }
 
     [Test, DomainAutoData]
@@ -98,11 +98,11 @@ public class WhenGettingUserAccounts
                     Description = configuredRedirectDescription
                 }
             }, null);
-        
+
         // Assert
-        Assert.IsNotNull(result.Data);
-        Assert.IsNull(result.Data.RedirectUri);
-        Assert.IsNull(result.Data.RedirectDescription);
+        result.Data.Should().NotBeNull();
+        result.Data.RedirectUri.Should().BeNull();
+        result.Data.RedirectDescription.Should().BeNull();
     }
 
     [Test, DomainAutoData]
@@ -127,9 +127,9 @@ public class WhenGettingUserAccounts
             new List<RedirectUriConfiguration> { }, null);
 
         // Assert
-        Assert.IsNotNull(result.Data);
-        Assert.IsNull(result.Data.RedirectUri);
-        Assert.IsNull(result.Data.RedirectDescription);
+        result.Data.Should().NotBeNull();
+        result.Data.RedirectUri.Should().BeNull();
+        result.Data.RedirectDescription.Should().BeNull();
     }
 
     [Test, DomainAutoData]
@@ -154,8 +154,8 @@ public class WhenGettingUserAccounts
             null, null);
 
         // Assert
-        Assert.IsNotNull(result.Data);
-        Assert.IsNull(result.Data.RedirectUri);
-        Assert.IsNull(result.Data.RedirectDescription);
+        result.Data.Should().NotBeNull();
+        result.Data.RedirectUri.Should().BeNull();
+        result.Data.RedirectDescription.Should().BeNull();
     }
 }
