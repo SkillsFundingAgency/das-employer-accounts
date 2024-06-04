@@ -86,7 +86,6 @@ public class WhenICallSupportSendInvitation
             _employerAccountsConfig, 
             _eventPublisher.Object,
             _userAccountRepository.Object,
-            _config.Object,
             _employerAccountRepository.Object,
             _publisher.Object
             );

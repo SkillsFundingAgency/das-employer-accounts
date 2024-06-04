@@ -1,5 +1,4 @@
 using System.Threading;
-using Microsoft.Extensions.Configuration;
 using NServiceBus;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Configuration;
@@ -22,7 +21,6 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IEmployerAccountRepository _accountRepository;
     private readonly IMessageSession _publisher;
-    private readonly bool _isProdEnvironment;
 
     public SupportCreateInvitationCommandHandler(IValidator<SupportCreateInvitationCommand> validator,
         IInvitationRepository invitationRepository,
@@ -31,7 +29,6 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
         EmployerAccountsConfiguration employerAccountsConfiguration,
         IEventPublisher eventPublisher,
         IUserAccountRepository userAccountRepository,
-        IConfiguration configuration,
         IEmployerAccountRepository accountRepository,
         IMessageSession publisher)
     {
@@ -44,9 +41,6 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
         _userAccountRepository = userAccountRepository;
         _accountRepository = accountRepository;
         _publisher = publisher;
-
-        _isProdEnvironment = !string.IsNullOrEmpty(configuration["EnvironmentName"])
-                             && configuration["EnvironmentName"].Equals("PROD", StringComparison.CurrentCultureIgnoreCase);
     }
 
     public async Task Handle(SupportCreateInvitationCommand request, CancellationToken cancellationToken)
@@ -111,28 +105,10 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
     private async Task SendInvitation(SupportCreateInvitationCommand message, DateTime expiryDate, long accountId)
     {
         var existingUser = await _userAccountRepository.Get(message.EmailOfPersonBeingInvited);
-
-        var templateId = existingUser?.UserRef != null
-            ? "InvitationExistingUser"
-            : "InvitationNewUser";
-
-        if (_employerAccountsConfiguration.UseGovSignIn)
-        {
-            if (_isProdEnvironment)
-            {
-                templateId = existingUser?.UserRef != null
-                    ? "3c285db3-164c-4258-9180-f2d42723e155"
-                    : "6b6b46cc-4a5f-4985-8626-ed239af11d71";
-            }
-            else
-            {
-                templateId = existingUser?.UserRef != null
-                    ? "11cb4eb4-c22a-47c7-aa26-1074da25ff4d"
-                    : "2bb7da99-2542-4536-9c15-4eb3466a99e3";
-            }
-        }
-
+        
         var account = await _accountRepository.GetAccountById(accountId);
+        
+        var templateId = existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser";
 
         var tokens = new Dictionary<string, string>
         {
