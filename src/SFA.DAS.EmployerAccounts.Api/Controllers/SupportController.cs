@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 public class SupportController(IMediator mediator, ILogger<SupportController> logger) : ControllerBase
 {
     [HttpPost]
-    [Route("change-role", Name = RouteNames.Support.ChangeRole)]
+    [Route("change-role")]
     public async Task<IActionResult> ChangeRole([FromBody] SupportChangeTeamMemberRoleCommand command)
     {
         try
@@ -33,7 +33,7 @@ public class SupportController(IMediator mediator, ILogger<SupportController> lo
     }
     
     [HttpPost]
-    [Route("send-invitation", Name = RouteNames.Support.SendInvitation)]
+    [Route("send-invitation")]
     public async Task<IActionResult> SendInvitation([FromBody] SupportCreateInvitationCommand command)
     {
         try
@@ -49,7 +49,7 @@ public class SupportController(IMediator mediator, ILogger<SupportController> lo
     }
  
     [HttpPost]
-    [Route("resend-invitation", Name = RouteNames.Support.ResendInvitation)]
+    [Route("resend-invitation")]
     public async Task<IActionResult> ResendInvitation([FromBody] SupportResendInvitationCommand command)
     {
         command.Email = WebUtility.UrlDecode(command.Email);
