@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.SupportCreateInvitation;
@@ -47,7 +48,7 @@ public class WhenIValidateSupportCreateInvitation
         var result = await _validator.ValidateAsync(_createInvitationCommand);
 
         //Assert
-        Assert.IsTrue(result.IsValid());
+        result.IsValid().Should().BeTrue();
     }
 
     [Test]
@@ -57,11 +58,11 @@ public class WhenIValidateSupportCreateInvitation
         var result = await _validator.ValidateAsync(new SupportCreateInvitationCommand());
 
         //Assert
-        Assert.IsFalse(result.IsValid());
-        Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter email address"), result.ValidationDictionary);
-        Assert.Contains(new KeyValuePair<string, string>("HashedAccountId", "No HashedAccountId supplied"), result.ValidationDictionary);
-        Assert.Contains(new KeyValuePair<string, string>("NameOfPersonBeingInvited", "Enter name"), result.ValidationDictionary);
-        Assert.Contains(new KeyValuePair<string, string>("SupportUserEmail", "Specify support user email"), result.ValidationDictionary);
+        result.IsValid().Should().BeFalse();
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter email address"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("HashedAccountId", "No HashedAccountId supplied"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("NameOfPersonBeingInvited", "Enter name"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("SupportUserEmail", "Specify support user email"));
     }
 
     [TestCase("notvalid")]
@@ -80,10 +81,10 @@ public class WhenIValidateSupportCreateInvitation
         });
 
         //Assert
-        Assert.IsFalse(result.IsValid());
-        Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter a valid email address"), result.ValidationDictionary);
+        result.IsValid().Should().BeFalse();
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter a valid email address"));
     }
-    
+
     [Test]
     public async Task ThenFalseIsReturnedIfTheEmailIsAlreadyInUse()
     {
@@ -94,7 +95,7 @@ public class WhenIValidateSupportCreateInvitation
         var result = await _validator.ValidateAsync(_createInvitationCommand);
 
         //Assert
-        Assert.IsFalse(result.IsValid());
-        Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", $"{_createInvitationCommand.EmailOfPersonBeingInvited} is already invited"), result.ValidationDictionary);
+        result.IsValid().Should().BeFalse();
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", $"{_createInvitationCommand.EmailOfPersonBeingInvited} is already invited"));
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -101,11 +102,11 @@ public class WhenICallChangeTeamMemberRole
 
         var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(3));
+        exception.ErrorMessages.Count.Should().Be(3);
 
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "AccountId"), Is.Not.Null);
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Email"), Is.Not.Null);
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "ExternalUserId"), Is.Not.Null);
+        exception.ErrorMessages.FirstOrDefault(x => x.Key == "AccountId").Should().NotBeNull();
+        exception.ErrorMessages.FirstOrDefault(x => x.Key == "Email").Should().NotBeNull();
+        exception.ErrorMessages.FirstOrDefault(x => x.Key == "ExternalUserId").Should().NotBeNull();
     }
 
     [Test]
