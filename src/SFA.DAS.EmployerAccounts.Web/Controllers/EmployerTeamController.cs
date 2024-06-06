@@ -197,7 +197,7 @@ public class EmployerTeamController : BaseController
     public async Task<IActionResult> Resend(string hashedAccountId, string email, string name)
     {
         var response = await _employerTeamOrchestrator.Resend(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName), name);
-
+        
         return View(ControllerConstants.ViewTeamViewName, response);
     }
 

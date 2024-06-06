@@ -16,13 +16,13 @@ public static class AuthenticationExtensions
         if (isDevelopment)
         {
             services.AddAuthentication("BasicAuthentication")
-                   .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
         }
         else
         {
             var azureAdConfiguration = config
-                   .GetSection(ConfigurationKeys.AzureActiveDirectoryApiConfiguration)
-                   .Get<AzureActiveDirectoryConfiguration>();
+                .GetSection($"{ConfigurationKeys.ServiceName}:{ConfigurationKeys.AzureActiveDirectoryApiConfiguration}")
+                .Get<AzureActiveDirectoryConfiguration>();
 
             var policies = new Dictionary<string, string> { { PolicyNames.Default, RoleNames.Default } };
             services.AddAuthentication(azureAdConfiguration, policies);

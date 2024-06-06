@@ -63,11 +63,28 @@
                             @RoleStrings.GetRoleDescription(account.RoleName)
                         </td>
                         <td class="govuk-table__cell govuk-table__cell--numeric">
-                            <a class="govuk-link govuk-link--no-visited-state"
-                               asp-route="@RouteNames.EmployerTeamIndex"
-                               asp-route-hashedAccountId="@account.HashedId">
-                                Open<span class="govuk-visually-hidden"> @account.Name account homepage</span>
-                            </a>
+                            @if(string.IsNullOrEmpty(Model.Data.RedirectUri))
+                            {
+                                <a class="govuk-link govuk-link--no-visited-state"
+                                       asp-route="@RouteNames.EmployerTeamIndex"
+                                       asp-route-hashedAccountId="@account.HashedId"
+                                       asp-route-._ga="@Model.Data.GaQueryData?._ga"
+                                       asp-route-._gl="@Model.Data.GaQueryData?._gl"
+                                       asp-route-.utm_source="@Model.Data.GaQueryData?.utm_source"
+                                       asp-route-.utm_campaign="@Model.Data.GaQueryData?.utm_campaign"
+                                       asp-route-.utm_medium="@Model.Data.GaQueryData?.utm_medium"
+                                       asp-route-.utm_keywords="@Model.Data.GaQueryData?.utm_keywords"
+                                       asp-route-.utm_content="@Model.Data.GaQueryData?.utm_content">
+                                    Open<span class="govuk-visually-hidden">@account.Name account homepage</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="govuk-link govuk-link--no-visited-state"
+                                    href="@Model.Data.RedirectUriWithHashedAccountId(account)">
+                                    Open<span class="govuk-visually-hidden">@account.Name @Model.Data.RedirectDescription</span>
+                                </a>
+                            }
                         </td>
                     </tr>
                 }

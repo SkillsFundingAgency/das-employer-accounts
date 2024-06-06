@@ -1,4 +1,4 @@
-@model List<string>
+@model SignInStubViewModel
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
@@ -13,10 +13,14 @@
 
         <form method="POST">
             <h2 class="govuk-heading-l">Authenticate as:</h2>
-            <p><b>Id:</b> @Model.First()</p>
-            <p><b>Email:</b> @Model.Last()</p>
+            <p><b>Id:</b> @Model.StubId</p>
+            <p><b>Email:</b> @Model.StubEmail</p>
+            
+            @Html.HiddenFor(model => model.StubId)
+            @Html.HiddenFor(model => model.StubEmail)
+            @Html.HiddenFor(model => model.ReturnUrl)
+            
             <div class="govuk-button-group">
-
                 <button class="govuk-button" type="submit">Authenticate</button>
             </div>
         </form>
