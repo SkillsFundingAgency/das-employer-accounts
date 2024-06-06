@@ -72,7 +72,7 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(EmployerAgreementOrchestrator))]
     [TestCase(typeof(EmployerTeamOrchestrator))]
     [TestCase(typeof(EmployerTeamOrchestratorWithCallToAction))]
-    [TestCase(typeof(HomeOrchestrator))]
+    [TestCase(typeof(IHomeOrchestrator))]
     [TestCase(typeof(InvitationOrchestrator))]
     [TestCase(typeof(OrganisationOrchestrator))]
     [TestCase(typeof(SearchOrganisationOrchestrator))]

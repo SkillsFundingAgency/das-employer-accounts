@@ -4,7 +4,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests
 
 public class WhenILoginAUser
 {
-    private Mock<HomeOrchestrator> _homeOrchestrator;
+    private Mock<IHomeOrchestrator> _homeOrchestrator;
     private Mock<EmployerAccountsConfiguration> _configuration;
     private HomeController _homeController;    
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
@@ -13,7 +13,7 @@ public class WhenILoginAUser
     [SetUp]
     public void Arrange()
     {
-        _homeOrchestrator = new Mock<HomeOrchestrator>();
+        _homeOrchestrator = new Mock<IHomeOrchestrator>();
         _configuration = new Mock<EmployerAccountsConfiguration>();          
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
         _urlActionHelper = new Mock<IUrlActionHelper>();
@@ -47,7 +47,7 @@ public class WhenILoginAUser
     public void When_Route_To_PreAuth_ThenTheUserIsRedirectedToIndex()
     {
         //Act
-        var actual = _homeController.GovSignIn(null);
+        var actual = _homeController.GovSignIn(null, null);
 
         //Assert
         Assert.IsNotNull(actual);
