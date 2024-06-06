@@ -45,7 +45,7 @@ public class WhenIResendAnInvitation
     [SetUp]
     public void Setup()
     {
-        _command = new SupportResendInvitationCommand()
+        _command = new SupportResendInvitationCommand
         {
             Email = "test.user@test.local",
             HashedAccountId = HashedId,

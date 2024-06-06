@@ -51,6 +51,8 @@ public class Startup
     {
         var employerAccountsConfiguration = _configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
         var isDevelopment = _configuration.IsDevOrLocal();
+        
+        services.AddSingleton(_configuration);
 
         services
             .AddApiAuthentication(_configuration, isDevelopment)
