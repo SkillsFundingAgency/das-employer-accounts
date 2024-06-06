@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
-using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Commands.SupportCreateInvitation;
 using SFA.DAS.EmployerAccounts.Models;
 
@@ -31,7 +29,6 @@ public class WhenICallTheSendInvitationEndpoint
             EmailOfPersonBeingInvited = "test@email.test",
             NameOfPersonBeingInvited = "Test User",
             RoleOfPersonBeingInvited = Role.Owner,
-            SupportUserEmail = "support@user.test"
         };
 
         _controller = new Api.Controllers.SupportController( _mediator.Object, Mock.Of<ILogger<Api.Controllers.SupportController>>());

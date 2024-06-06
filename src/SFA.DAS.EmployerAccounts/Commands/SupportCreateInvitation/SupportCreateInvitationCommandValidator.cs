@@ -43,11 +43,6 @@ public class SupportCreateInvitationCommandValidator : IValidator<SupportCreateI
             validationResult.AddError(nameof(item.NameOfPersonBeingInvited), "Enter name");
         }
         
-        if (string.IsNullOrWhiteSpace(item.SupportUserEmail))
-        {
-            validationResult.AddError(nameof(item.SupportUserEmail), "Specify support user email");
-        }
-
         if (!validationResult.IsValid())
         {
             return validationResult;

@@ -9,6 +9,6 @@ public sealed class AuditMessage
     public DateTime ChangeAt { get; set; }
     public Actor ChangedBy { get; set; }
     public List<AuditEntity> RelatedEntities { get; set; }
-    public string SupportUserEmail { get; set; }
-    public bool IsSupportRequest => !string.IsNullOrEmpty(SupportUserEmail);
+    public string ImpersonatedUserEmail { get; set; }
+    public bool IsImpersonatedRequest => !string.IsNullOrEmpty(ImpersonatedUserEmail);
 }

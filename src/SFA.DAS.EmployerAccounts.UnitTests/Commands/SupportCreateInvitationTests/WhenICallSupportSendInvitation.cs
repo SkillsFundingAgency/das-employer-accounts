@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ public class WhenICallSupportSendInvitation
 
     private const int AccountId = 14546;
     private const string HashedId = "111DEDW";
-    private const string SupportUserEmail = "support@local.test";
+    private const string AccountOwnerEmail = "owner@local.test";
     private const string Email = "user@local.test";
     private const string UserFullName = "Test User";
     private const string AccountName = "Test Account";
@@ -55,7 +56,6 @@ public class WhenICallSupportSendInvitation
         {
             EmailOfPersonBeingInvited = Email,
             HashedAccountId = HashedId,
-            SupportUserEmail = SupportUserEmail,
             NameOfPersonBeingInvited = UserFullName,
             RoleOfPersonBeingInvited = Role.Owner,
         };
@@ -71,10 +71,12 @@ public class WhenICallSupportSendInvitation
         _eventPublisher = new Mock<IEventPublisher>();
         _config = new Mock<IConfiguration>();
 
-        _config.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
-        _userAccountRepository.Setup(x => x.Get(SupportUserEmail)).ReturnsAsync(new User { Email = Email, Ref = _supportUserRef });
+        _employerAccountsConfig.DashboardUrl = "https://url.test/";
+        _userAccountRepository.Setup(x => x.Get(Email)).ReturnsAsync(new User { Email = Email, Ref = Guid.NewGuid(), FirstName = "Test", LastName = "User" });
         _encodingService.Setup(x => x.Decode(HashedId, EncodingType.AccountId)).Returns(AccountId);
-        _employerAccountRepository.Setup(x => x.GetAccountById(AccountId)).ReturnsAsync(new Account { Id = AccountId, Name = AccountName });
+
+        var memberships = new List<Membership> { new() { AccountId = AccountId, User = new User { Email = AccountOwnerEmail, Ref = Guid.NewGuid() }, Role = Role.Owner } };
+        _employerAccountRepository.Setup(x => x.GetAccountById(AccountId)).ReturnsAsync(new Account { Id = AccountId, Name = AccountName, Memberships = memberships });
         _validator.Setup(x => x.ValidateAsync(It.IsAny<SupportCreateInvitationCommand>())).ReturnsAsync(new ValidationResult());
 
         DateTimeProvider.Current = new FakeTimeProvider(DateTime.UtcNow);
@@ -125,9 +127,10 @@ public class WhenICallSupportSendInvitation
         });
 
         var action = () => _handler.Handle(_command, CancellationToken.None);
-        
+
         action.Should().ThrowAsync<InvalidRequestException>()
-              .Where(x => x.Message != null);
+            .Where(x => x.Message != null
+                        && x.ErrorMessages.Count == 1);
     }
 
     [Test]
@@ -136,7 +139,7 @@ public class WhenICallSupportSendInvitation
         await _handler.Handle(_command, CancellationToken.None);
 
         _publisher.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress.Equals(_command.EmailOfPersonBeingInvited)
-                                                                   && c.TemplateId.Equals("InvitationNewUser")), It.IsAny<SendOptions>()));
+                                                                   && c.TemplateId.Equals("InvitationExistingUser")), It.IsAny<SendOptions>()));
     }
 
     [Test]
@@ -145,7 +148,7 @@ public class WhenICallSupportSendInvitation
         await _handler.Handle(_command, CancellationToken.None);
 
         _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
-            c.SupportUserEmail == SupportUserEmail
+            c.ImpersonatedUserEmail == AccountOwnerEmail
             && c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("AccountId") && y.NewValue.Equals(AccountId.ToString())) != null
             && c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Status") && y.NewValue.Equals(InvitationStatus.Pending.ToString())) != null
             && c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Email") && y.NewValue.Equals(_command.EmailOfPersonBeingInvited)) != null

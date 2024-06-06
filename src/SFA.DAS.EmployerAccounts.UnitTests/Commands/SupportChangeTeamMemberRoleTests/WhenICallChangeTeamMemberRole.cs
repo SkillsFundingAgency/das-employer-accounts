@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
+using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
+using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Models;
+using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
+using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Types.Models;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
@@ -21,18 +24,19 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SupportChangeTeamMemberRol
 [TestFixture]
 public class WhenICallChangeTeamMemberRole
 {
-    private const int ExpectedAccountId = 2;
-    private const string SupportUserEmail = "support@test.local";
-    private const string HashedAccountId = "AJDS8HH";
-
     private Mock<IMembershipRepository> _membershipRepository;
     private SupportChangeTeamMemberRoleCommandHandler _handler;
     private SupportChangeTeamMemberRoleCommand _command;
     private MembershipView _callerMembership;
     private TeamMember _userMembership;
-    private Mock<IMediator> _mediator;
     private Mock<IEventPublisher> _eventPublisher;
     private Mock<IEncodingService> _encodingService;
+    private Mock<IEmployerAccountRepository> _employerAccountRepository;
+    private Mock<IAuditService> _auditService;
+
+    private const int AccountId = 2;
+    private const string AccountOwnerEmail = "support@test.local";
+    private const string HashedAccountId = "AJDS8HH";
 
     [SetUp]
     public void Setup()
@@ -42,12 +46,11 @@ public class WhenICallChangeTeamMemberRole
             HashedAccountId = HashedAccountId,
             Email = "test.user@test.local",
             Role = Role.Owner,
-            SupportUserEmail = SupportUserEmail,
         };
 
         _callerMembership = new MembershipView
         {
-            AccountId = ExpectedAccountId,
+            AccountId = AccountId,
             UserRef = Guid.NewGuid(),
             UserId = 1,
             Role = Role.Owner
@@ -64,22 +67,30 @@ public class WhenICallChangeTeamMemberRole
         _membershipRepository = new Mock<IMembershipRepository>();
         _membershipRepository.Setup(x => x.Get(_callerMembership.AccountId, _command.Email)).ReturnsAsync(_userMembership);
 
+        var memberships = new List<Membership> { new() { AccountId = AccountId, User = new User { Email = AccountOwnerEmail }, Role = Role.Owner } };
+        _employerAccountRepository = new Mock<IEmployerAccountRepository>();
+        _employerAccountRepository.Setup(x => x.GetAccountById(AccountId)).ReturnsAsync(new Account { Id = AccountId, Memberships = memberships });
+
         _encodingService = new Mock<IEncodingService>();
-        _encodingService.Setup(x => x.Decode(HashedAccountId, EncodingType.AccountId)).Returns(ExpectedAccountId);
+        _encodingService.Setup(x => x.Decode(HashedAccountId, EncodingType.AccountId)).Returns(AccountId);
 
-        _mediator = new Mock<IMediator>();
         _eventPublisher = new Mock<IEventPublisher>();
-
-        _handler = new SupportChangeTeamMemberRoleCommandHandler(_membershipRepository.Object, _mediator.Object, _eventPublisher.Object, _encodingService.Object);
+        _auditService = new Mock<IAuditService>();
+        _handler = new SupportChangeTeamMemberRoleCommandHandler(
+            _membershipRepository.Object,
+            _eventPublisher.Object,
+            _encodingService.Object,
+            _employerAccountRepository.Object,
+            _auditService.Object);
     }
-    
+
     [Test]
     public async Task WillChangeMembershipRole()
     {
         await _handler.Handle(_command, CancellationToken.None);
 
         _membershipRepository.Verify(x => x.ChangeRole(_userMembership.Id, _callerMembership.AccountId, _command.Role), Times.Once);
-        _encodingService.Verify(x=> x.Decode(HashedAccountId, EncodingType.AccountId), Times.Once);
+        _encodingService.Verify(x => x.Decode(HashedAccountId, EncodingType.AccountId), Times.Once);
     }
 
     [Test]
@@ -101,11 +112,10 @@ public class WhenICallChangeTeamMemberRole
 
         var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
-        exception.ErrorMessages.Count.Should().Be(3);
+        exception.ErrorMessages.Count.Should().Be(2);
 
         exception.ErrorMessages.FirstOrDefault(x => x.Key == "AccountId").Should().NotBeNull();
         exception.ErrorMessages.FirstOrDefault(x => x.Key == "Email").Should().NotBeNull();
-        exception.ErrorMessages.FirstOrDefault(x => x.Key == "ExternalUserId").Should().NotBeNull();
     }
 
     [Test]
@@ -115,21 +125,21 @@ public class WhenICallChangeTeamMemberRole
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-            c.EasAuditMessage.SupportUserEmail.Equals(SupportUserEmail) &&
-            c.EasAuditMessage.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Role") && y.NewValue.Equals(_command.Role.ToString())) != null
-        ), It.IsAny<CancellationToken>()));
-        
-        _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-            c.EasAuditMessage.Description.Equals($"Member {_command.Email} on account {ExpectedAccountId} role has changed to {_command.Role.ToString()}")), It.IsAny<CancellationToken>()));
-        
-        _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-            c.EasAuditMessage.RelatedEntities.SingleOrDefault(y => y.Id.Equals(ExpectedAccountId.ToString()) && y.Type.Equals("Account")) != null
-        ), It.IsAny<CancellationToken>()));
-        
-        _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-            c.EasAuditMessage.AffectedEntity.Id.Equals(_userMembership.Id.ToString()) &&
-            c.EasAuditMessage.AffectedEntity.Type.Equals("Membership")
-        ), It.IsAny<CancellationToken>()));
+        _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
+            c.ImpersonatedUserEmail == AccountOwnerEmail &&
+            c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Role") && y.NewValue.Equals(_command.Role.ToString())) != null
+        )));
+
+        _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
+            c.Description.Equals($"Member {_command.Email} on account {AccountId} role has changed to {_command.Role.ToString()}"))));
+
+        _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
+            c.RelatedEntities.SingleOrDefault(y => y.Id.Equals(AccountId.ToString()) && y.Type.Equals("Account")) != null
+        )));
+
+        _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
+            c.AffectedEntity.Id.Equals(_userMembership.Id.ToString()) &&
+            c.AffectedEntity.Type.Equals("Membership")
+        )));
     }
 }

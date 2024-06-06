@@ -25,7 +25,6 @@ public class WhenIValidateSupportCreateInvitation
         _createInvitationCommand = new SupportCreateInvitationCommand
         {
             EmailOfPersonBeingInvited = "so'me@email.com",
-            SupportUserEmail = "support@email.test",
             HashedAccountId = "123dfg",
             NameOfPersonBeingInvited = "Test",
             RoleOfPersonBeingInvited = Role.Owner
@@ -59,10 +58,9 @@ public class WhenIValidateSupportCreateInvitation
 
         //Assert
         result.IsValid().Should().BeFalse();
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter email address"));
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("HashedAccountId", "No HashedAccountId supplied"));
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("NameOfPersonBeingInvited", "Enter name"));
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("SupportUserEmail", "Specify support user email"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>(nameof(SupportCreateInvitationCommand.EmailOfPersonBeingInvited), "Enter email address"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>(nameof(SupportCreateInvitationCommand.HashedAccountId), "No HashedAccountId supplied"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>(nameof(SupportCreateInvitationCommand.NameOfPersonBeingInvited), "Enter name"));
     }
 
     [TestCase("notvalid")]
@@ -74,7 +72,6 @@ public class WhenIValidateSupportCreateInvitation
         var result = await _validator.ValidateAsync(new SupportCreateInvitationCommand
         {
             EmailOfPersonBeingInvited = email,
-            SupportUserEmail = "support@email.test",
             HashedAccountId = "123dfg",
             NameOfPersonBeingInvited = "Test",
             RoleOfPersonBeingInvited = Role.Owner
@@ -82,7 +79,7 @@ public class WhenIValidateSupportCreateInvitation
 
         //Assert
         result.IsValid().Should().BeFalse();
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter a valid email address"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>(nameof(SupportCreateInvitationCommand.EmailOfPersonBeingInvited), "Enter a valid email address"));
     }
 
     [Test]
@@ -96,6 +93,6 @@ public class WhenIValidateSupportCreateInvitation
 
         //Assert
         result.IsValid().Should().BeFalse();
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", $"{_createInvitationCommand.EmailOfPersonBeingInvited} is already invited"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>(nameof(SupportCreateInvitationCommand.EmailOfPersonBeingInvited), $"{_createInvitationCommand.EmailOfPersonBeingInvited} is already invited"));
     }
 }

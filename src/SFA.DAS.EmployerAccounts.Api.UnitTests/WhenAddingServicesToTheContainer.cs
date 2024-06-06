@@ -40,12 +40,22 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests;
 
 public class WhenAddingServicesToTheContainer
 {
+    private static void RunTestForType(Type toResolve)
+    {
+        var serviceCollection = BuildServiceCollection();
+        var provider = serviceCollection.BuildServiceProvider();
+
+        var type = provider.GetService(toResolve);
+
+        type.Should().NotBeNull();
+    }
+    
     [TestCase(typeof(AccountsOrchestrator))]
     [TestCase(typeof(AgreementOrchestrator))]
     [TestCase(typeof(UsersOrchestrator))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Orchestrators(Type toResolve)
     {
-        RunTestForType(toResolve);
+       RunTestForType(toResolve);
     }
 
     [TestCase(typeof(IRequestHandler<GetPayeSchemeByRefQuery, GetPayeSchemeByRefResponse>))]
@@ -70,29 +80,11 @@ public class WhenAddingServicesToTheContainer
     {
         RunTestForType(toResolve);
     }
-    
+
     [TestCase(typeof(INotificationsApi))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Apis(Type toResolve)
     {
-       RunTestForType(toResolve);
-    }
-    
-    [TestCase(typeof(IConfiguration))]
-    [TestCase(typeof(EmployerAccountsConfiguration))]
-    [TestCase(typeof(EncodingConfig))]
-    public void Then_The_Dependencies_Are_Correctly_Resolved_For_Configuration(Type toResolve)
-    {
         RunTestForType(toResolve);
-    }
-
-    private static void RunTestForType(Type toResolve)
-    {
-        var serviceCollection = BuildServiceCollection();
-        var provider = serviceCollection.BuildServiceProvider();
-
-        var type = provider.GetService(toResolve);
-
-        type.Should().NotBeNull();
     }
 
     private static ServiceCollection BuildServiceCollection()
@@ -110,6 +102,7 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddSingleton(Mock.Of<IPayeSchemeEventFactory>());
         serviceCollection.AddSingleton(Mock.Of<IEventPublisher>());
         serviceCollection.AddSingleton(Mock.Of<IMessageSession>());
+        serviceCollection.AddSingleton((IConfiguration)config);
         serviceCollection.AddHttpContextAccessor();
         serviceCollection.AddDatabaseRegistration();
         serviceCollection.AddDataRepositories();

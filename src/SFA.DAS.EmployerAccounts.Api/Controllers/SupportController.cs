@@ -33,22 +33,6 @@ public class SupportController(IMediator mediator, ILogger<SupportController> lo
     }
     
     [HttpPost]
-    [Route("send-invitation")]
-    public async Task<IActionResult> SendInvitation([FromBody] SupportCreateInvitationCommand command)
-    {
-        try
-        {
-            await mediator.Send(command);
-            return Ok();
-        }
-        catch (Exception exception)
-        {
-            logger.LogError(exception, "Error in {Controller}.{Action}", nameof(SupportController), nameof(SendInvitation));
-            return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
-        }
-    }
- 
-    [HttpPost]
     [Route("resend-invitation")]
     public async Task<IActionResult> ResendInvitation([FromBody] SupportResendInvitationCommand command)
     {
@@ -62,6 +46,22 @@ public class SupportController(IMediator mediator, ILogger<SupportController> lo
         catch (Exception exception)
         {
             logger.LogError(exception, "Error in {Controller}.{Action}", nameof(SupportController), nameof(ResendInvitation));
+            return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+        }
+    }
+    
+    [HttpPost]
+    [Route("send-invitation")]
+    public async Task<IActionResult> SendInvitation([FromBody] SupportCreateInvitationCommand command)
+    {
+        try
+        {
+            await mediator.Send(command);
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Error in {Controller}.{Action}", nameof(SupportController), nameof(SendInvitation));
             return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
         }
     }
