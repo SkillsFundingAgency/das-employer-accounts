@@ -1,12 +1,24 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture.NUnit3;
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Configuration;
+using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Interfaces;
+using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetContent;
 using SFA.DAS.Testing.AutoFixture;
+using ValidationResult = SFA.DAS.EmployerAccounts.Validation.ValidationResult;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetContentBanner;
 
@@ -16,13 +28,15 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
     public override GetContentRequestHandler RequestHandler { get; set; }
     public override Mock<IValidator<GetContentRequest>> RequestValidator { get; set; }
 
-    public Mock<ICacheStorageService> MockCacheStorageService;
     private Mock<IContentApiClient> _contentBannerService;
     private string _contentType;
     private string _clientId;
     private Mock<ILogger<GetContentRequestHandler>> _logger;
     public string ContentBanner;
     public EmployerAccountsConfiguration EmployerAccountsConfiguration;
+    public Mock<IHttpContextAccessor> HttpContextAccessor;
+    public string AccountId = "AAASG232";
+    public string UserId;
 
     [SetUp]
     public void Arrange()
@@ -34,9 +48,8 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
             DefaultCacheExpirationInMinutes = 1
         };
         ContentBanner = "<p>find out how you can pause your apprenticeships<p>";
-        MockCacheStorageService = new Mock<ICacheStorageService>();
         _contentType = "banner";
-        _clientId = "eas-acc";
+        _clientId = "eas-acc-Levy";
         _logger = new Mock<ILogger<GetContentRequestHandler>>();
         _contentBannerService = new Mock<IContentApiClient>();
         _contentBannerService
@@ -48,7 +61,64 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
             ContentType = "banner"
         };
 
-        RequestHandler = new GetContentRequestHandler(RequestValidator.Object, _logger.Object, _contentBannerService.Object, EmployerAccountsConfiguration);
+        UserId = Guid.NewGuid().ToString();
+        var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, UserId);
+        var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
+        {
+            {
+                AccountId, new EmployerUserAccountItem
+                {
+                    AccountId = AccountId,
+                    ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy
+                }
+            }
+        };
+
+        var accountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerUserAccountItems));
+        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { userClaim, accountsClaim }) });
+        var httpContext = new DefaultHttpContext(new FeatureCollection())
+        {
+            User = claimsPrinciple
+        };
+        httpContext.Request.RouteValues.Add("HashedAccountId", AccountId.ToUpper());
+        HttpContextAccessor = new Mock<IHttpContextAccessor>();
+        HttpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
+
+        RequestHandler = new GetContentRequestHandler(RequestValidator.Object, _logger.Object, _contentBannerService.Object, EmployerAccountsConfiguration, HttpContextAccessor.Object);
+    }
+
+    [Test, MoqAutoData]
+    public async Task TEstINg(
+        Mock<IValidator<GetContentRequest>> validator,
+        Mock<IContentApiClient> contentApiClient,
+        EmployerAccountsConfiguration configuration,
+        [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
+        GetContentRequest request,
+        Mock<ILogger<GetContentRequestHandler>> logger
+        )
+    {
+        var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
+        {
+            {
+                AccountId, new EmployerUserAccountItem
+                {
+                    AccountId = AccountId,
+                    ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy
+                }
+            }
+        };
+        
+        var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, UserId);
+        var accountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerUserAccountItems));
+        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { userClaim, accountsClaim }) });
+        var httpContext = new DefaultHttpContext(new FeatureCollection()) { User = claimsPrinciple };
+        httpContext.Request.RouteValues.Add("HashedAccountId", AccountId.ToUpper());
+        HttpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
+        validator.Setup(x => x.Validate(request)).Returns(new ValidationResult());
+        
+        var sut = new GetContentRequestHandler(validator.Object, logger.Object, contentApiClient.Object, configuration, httpContextAccessor.Object);
+
+        var result = await sut.Handle(request, CancellationToken.None);
     }
 
     [Test]
@@ -67,7 +137,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(ContentBanner, response.Content);
+        response.Content.Should().Be(ContentBanner);
     }
 
     [Test, RecursiveMoqAutoData]
@@ -79,7 +149,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         Mock<IContentApiClient> MockContentService)
     {
         //Arrange
-        var key = EmployerAccountsConfiguration.ApplicationId;
+        var key = EmployerAccountsConfiguration.ApplicationId + "Levy";
         query1.ContentType = "Banner";
         query1.UseLegacyStyles = false;
 
@@ -93,12 +163,12 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         MockContentService.Setup(c => c.Get(query1.ContentType, key))
             .ReturnsAsync(contentBanner1);
 
-        requestHandler1 = new GetContentRequestHandler(requestValidator1.Object, logger.Object, MockContentService.Object, EmployerAccountsConfiguration);
+        requestHandler1 = new GetContentRequestHandler(requestValidator1.Object, logger.Object, MockContentService.Object, EmployerAccountsConfiguration, HttpContextAccessor.Object);
 
         //Act
         var result = await requestHandler1.Handle(query1, CancellationToken.None);
 
         //assert
-        Assert.AreEqual(result.Content, contentBanner1);
+        result.Content.Should().Be(contentBanner1);
     }
 }

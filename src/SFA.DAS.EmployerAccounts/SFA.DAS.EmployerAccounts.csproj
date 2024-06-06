@@ -2,6 +2,7 @@
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Models\Commitments\**" />
