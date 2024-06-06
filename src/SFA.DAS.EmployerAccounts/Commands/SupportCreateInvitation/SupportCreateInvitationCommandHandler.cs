@@ -117,7 +117,7 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
         var tokens = new Dictionary<string, string>
         {
             { "account_name", account.Name },
-            { "first_name", existingUser != null ? existingUser.FirstName : message.EmailOfPersonBeingInvited },
+            { "first_name", existingUser != null ? existingUser.FirstName : message.NameOfPersonBeingInvited },
             { "inviter_name", "Apprenticeship Service Support" },
             { "base_url", _employerAccountsConfiguration.DashboardUrl },
             { "expiry_date", expiryDate.ToString("dd MMM yyy") }
