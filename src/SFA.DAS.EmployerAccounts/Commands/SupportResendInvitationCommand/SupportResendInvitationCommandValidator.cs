@@ -16,11 +16,6 @@ public partial class SupportResendInvitationCommandValidator : IValidator<Suppor
             validationResult.AddError("HashedId", "No HashedId supplied");
         }
 
-        if (string.IsNullOrWhiteSpace(item.SupportUserEmail))
-        {
-            validationResult.AddError("SupportUserEmail", "No SupportUserEmail supplied");
-        }
-
         return validationResult;
     }
 
