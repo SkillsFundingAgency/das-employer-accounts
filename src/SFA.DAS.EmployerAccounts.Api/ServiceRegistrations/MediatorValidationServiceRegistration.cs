@@ -2,6 +2,7 @@
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
+using SFA.DAS.EmployerAccounts.Commands.SupportCreateInvitation;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
@@ -43,6 +44,7 @@ public static class MediatorValidationServiceRegistration
         services.AddTransient<IValidator<SupportChangeTeamMemberRoleCommand>, SupportChangeTeamMemberRoleCommandValidator>();
         services.AddTransient<IValidator<SupportResendInvitationCommand>, SupportResendInvitationCommandValidator>();
         services.AddTransient<IValidator<SendNotificationCommand>, SendNotificationCommandValidator>();
+        services.AddTransient<IValidator<SupportCreateInvitationCommand>, SupportCreateInvitationCommandValidator>();
         
         return services;
     }

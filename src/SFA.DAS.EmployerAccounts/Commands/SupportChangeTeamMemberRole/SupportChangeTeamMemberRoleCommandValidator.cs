@@ -17,12 +17,7 @@ public class SupportChangeTeamMemberRoleCommandValidator : IValidator<SupportCha
         {
             validationResult.AddError("Email", "No Email supplied");
         }
-
-        if (string.IsNullOrWhiteSpace(item.SupportUserEmail))
-        {
-            validationResult.AddError("SupportUserEmail", "No SupportUserEmail supplied");
-        }
-
+        
         return validationResult;
     }
 
