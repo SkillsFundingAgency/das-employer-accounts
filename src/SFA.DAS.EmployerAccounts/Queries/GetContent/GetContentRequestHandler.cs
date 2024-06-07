@@ -45,6 +45,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
 
         if (string.IsNullOrEmpty(hashedAccountId))
         {
+            _logger.LogInformation("GetContentRequestHandler HashedAccountId not found on route.");
             return new GetContentResponse();
         }
         
@@ -53,10 +54,14 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
         var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}";
 
         var applicationId = message.UseLegacyStyles ? $"{applicationIdWithLevyStatus}-legacy" : applicationIdWithLevyStatus;
+        
+        _logger.LogInformation("GetContentRequestHandler Fetching ContentBanner for applicationId: '{ApplicationId}'.", applicationId);
 
         try
         {
             var contentBanner = await _contentApiClient.Get(message.ContentType, applicationId);
+            
+            _logger.LogInformation("GetContentRequestHandler ContentBanner data: '{ContentBanner}'.", contentBanner);
 
             return new GetContentResponse
             {
@@ -65,7 +70,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get Content {ContentType} for {ApplicationId}", message.ContentType, applicationId);
+            _logger.LogError(ex, "GetContentRequestHandler Failed to get Content {ContentType} for {ApplicationId}", message.ContentType, applicationId);
 
             return new GetContentResponse
             {
