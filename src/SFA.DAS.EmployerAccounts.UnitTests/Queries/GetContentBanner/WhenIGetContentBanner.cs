@@ -164,7 +164,8 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
             }
         };
 
-        var accountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerUserAccountItems));
+        var jsonAccountItems = JsonConvert.SerializeObject(employerUserAccountItems);
+        var accountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, jsonAccountItems);
         var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { accountsClaim }) });
 
         var httpContext = new DefaultHttpContext(new FeatureCollection()) { User = claimsPrinciple };
@@ -177,6 +178,6 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
 
         await sut.Handle(request, CancellationToken.None);
 
-        contentApiClient.Verify(x => x.Get(request.ContentType, $"{configuration.ApplicationId}-{levyStatus.ToString().ToLower()}"));
+        contentApiClient.Verify(x => x.Get(request.ContentType, $"{configuration.ApplicationId}-{levyStatus.ToString().ToLower()}"), Times.Once);
     }
 }

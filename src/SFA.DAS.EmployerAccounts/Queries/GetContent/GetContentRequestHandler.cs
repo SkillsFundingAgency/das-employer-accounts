@@ -21,7 +21,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
     public GetContentRequestHandler(
         IValidator<GetContentRequest> validator,
         ILogger<GetContentRequestHandler> logger,
-        IContentApiClient contentApiClient, 
+        IContentApiClient contentApiClient,
         EmployerAccountsConfiguration employerAccountsConfiguration,
         IHttpContextAccessor httpContextAccessor)
     {
@@ -40,10 +40,10 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
         {
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
-        
+
         var levyStatus = GetAccountLevyStatus();
 
-        var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}"; 
+        var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}";
 
         var applicationId = message.UseLegacyStyles ? $"{applicationIdWithLevyStatus}-legacy" : applicationIdWithLevyStatus;
 
@@ -60,7 +60,10 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
         {
             _logger.LogError(ex, "Failed to get Content {ContentType} for {ApplicationId}", message.ContentType, applicationId);
 
-            return new GetContentResponse { HasFailed = true };
+            return new GetContentResponse
+            {
+                HasFailed = true
+            };
         }
     }
 
@@ -68,21 +71,21 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
     {
         var accountIdFromUrl = _httpContextAccessor.HttpContext.Request.RouteValues["HashedAccountId"].ToString().ToUpper();
         var employerAccountClaim = _httpContextAccessor.HttpContext.User.FindFirst(EmployerClaims.AccountsClaimsTypeIdentifier);
- 
+
         Dictionary<string, EmployerUserAccountItem> employerAccounts;
 
         try
         {
             employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(employerAccountClaim.Value);
         }
-        catch (JsonSerializationException e)
+        catch (JsonSerializationException exception)
         {
-            _logger.LogError(e, "Could not deserialize employer account claim for user");
+            _logger.LogError(exception, "Could not deserialize employer account claim for user");
             throw;
         }
-        
+
         var employerAccount = employerAccounts.Single(x => x.Key == accountIdFromUrl).Value;
-        
+
         return employerAccount.ApprenticeshipEmployerType;
     }
 }

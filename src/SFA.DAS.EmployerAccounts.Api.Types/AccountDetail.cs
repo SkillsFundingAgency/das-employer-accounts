@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.Common.Domain.Types;
 
 namespace SFA.DAS.EmployerAccounts.Api.Types
