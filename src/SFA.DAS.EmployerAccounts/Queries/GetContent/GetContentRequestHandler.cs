@@ -84,6 +84,8 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
     private ApprenticeshipEmployerType GetAccountLevyStatus(string hashedAccountId)
     {
         var employerAccountClaim = _httpContextAccessor.HttpContext.User.FindFirst(EmployerClaims.AccountsClaimsTypeIdentifier);
+        
+        _logger.LogInformation("GetContentRequestHandler AccountsClaimsTypeIdentifier Claims: '{Accounts}'.", employerAccountClaim);
 
         Dictionary<string, EmployerUserAccountItem> employerAccounts;
 
@@ -97,7 +99,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
             throw;
         }
         
-        _logger.LogInformation("GetContentRequestHandler EmployerAccounts from Claims: '{Accounts}'.", JsonConvert.SerializeObject(employerAccounts));
+        _logger.LogInformation("GetContentRequestHandler EmployerAccounts: '{Accounts}'.", JsonConvert.SerializeObject(employerAccounts));
 
         var employerAccount = employerAccounts.Single(x => x.Key == hashedAccountId).Value;
 
