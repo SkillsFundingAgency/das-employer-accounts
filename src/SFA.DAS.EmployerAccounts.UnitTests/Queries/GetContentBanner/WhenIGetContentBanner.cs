@@ -180,4 +180,32 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
 
         contentApiClient.Verify(x => x.Get(request.ContentType, $"{configuration.ApplicationId}-{levyStatus.ToString().ToLower()}"), Times.Once);
     }
+
+    [Test, MoqAutoData]
+    public async Task ThenAnEmptyResponseIsReturnedWhenThereIsNoHashedAccountIdOnTheRoute(
+        Mock<IValidator<GetContentRequest>> validator,
+        Mock<IContentApiClient> contentApiClient,
+        EmployerAccountsConfiguration configuration,
+        [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
+        GetContentRequest request,
+        Mock<ILogger<GetContentRequestHandler>> logger,
+        string content,
+        ApprenticeshipEmployerType levyStatus
+    )
+    {
+        var httpContext = new DefaultHttpContext(new FeatureCollection());
+        httpContext.Request.RouteValues.Add("Nothing", string.Empty);
+        httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
+
+        validator.Setup(x => x.Validate(request)).Returns(new ValidationResult());
+
+        var sut = new GetContentRequestHandler(validator.Object, logger.Object, contentApiClient.Object, configuration, httpContextAccessor.Object);
+
+        var result = await sut.Handle(request, CancellationToken.None);
+
+        result.Content.Should().BeNullOrEmpty();
+        result.HasFailed.Should().BeFalse();
+        
+        contentApiClient.Verify(x => x.Get(request.ContentType, $"{configuration.ApplicationId}-{levyStatus.ToString().ToLower()}"), Times.Never);
+    }
 }

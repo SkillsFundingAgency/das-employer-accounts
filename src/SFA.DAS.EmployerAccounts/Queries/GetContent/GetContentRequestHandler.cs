@@ -41,7 +41,14 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        var levyStatus = GetAccountLevyStatus();
+        var accountIdFromUrl = _httpContextAccessor.HttpContext.Request.RouteValues["HashedAccountId"]?.ToString().ToUpper();
+
+        if (string.IsNullOrEmpty(accountIdFromUrl))
+        {
+            return new GetContentResponse();
+        }
+        
+        var levyStatus = GetAccountLevyStatus(accountIdFromUrl);
 
         var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}";
 
@@ -67,9 +74,8 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
         }
     }
 
-    private ApprenticeshipEmployerType GetAccountLevyStatus()
+    private ApprenticeshipEmployerType GetAccountLevyStatus(string accountIdFromUrl)
     {
-        var accountIdFromUrl = _httpContextAccessor.HttpContext.Request.RouteValues["HashedAccountId"].ToString().ToUpper();
         var employerAccountClaim = _httpContextAccessor.HttpContext.User.FindFirst(EmployerClaims.AccountsClaimsTypeIdentifier);
 
         Dictionary<string, EmployerUserAccountItem> employerAccounts;
