@@ -49,6 +49,8 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
             return new GetContentResponse();
         }
         
+        _logger.LogInformation("GetContentRequestHandler HashedAccountId: {Id}.", hashedAccountId);
+        
         var levyStatus = GetAccountLevyStatus(hashedAccountId);
 
         var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}";
@@ -94,6 +96,8 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
             _logger.LogError(exception, "Could not deserialize employer account claim for user");
             throw;
         }
+        
+        _logger.LogInformation("GetContentRequestHandler EmployerAccounts from Claims: '{Accounts}'.", JsonConvert.SerializeObject(employerAccounts));
 
         var employerAccount = employerAccounts.Single(x => x.Key == hashedAccountId).Value;
 
