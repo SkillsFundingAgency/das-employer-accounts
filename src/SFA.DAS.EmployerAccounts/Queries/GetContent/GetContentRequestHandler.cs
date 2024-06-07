@@ -41,14 +41,14 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        var accountIdFromUrl = _httpContextAccessor.HttpContext.Request.RouteValues["HashedAccountId"]?.ToString().ToUpper();
+        var hashedAccountId = _httpContextAccessor.HttpContext.Request.RouteValues["HashedAccountId"]?.ToString().ToUpper();
 
-        if (string.IsNullOrEmpty(accountIdFromUrl))
+        if (string.IsNullOrEmpty(hashedAccountId))
         {
             return new GetContentResponse();
         }
         
-        var levyStatus = GetAccountLevyStatus(accountIdFromUrl);
+        var levyStatus = GetAccountLevyStatus(hashedAccountId);
 
         var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}";
 
@@ -74,7 +74,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
         }
     }
 
-    private ApprenticeshipEmployerType GetAccountLevyStatus(string accountIdFromUrl)
+    private ApprenticeshipEmployerType GetAccountLevyStatus(string hashedAccountId)
     {
         var employerAccountClaim = _httpContextAccessor.HttpContext.User.FindFirst(EmployerClaims.AccountsClaimsTypeIdentifier);
 
@@ -90,7 +90,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
             throw;
         }
 
-        var employerAccount = employerAccounts.Single(x => x.Key == accountIdFromUrl).Value;
+        var employerAccount = employerAccounts.Single(x => x.Key == hashedAccountId).Value;
 
         return employerAccount.ApprenticeshipEmployerType;
     }
