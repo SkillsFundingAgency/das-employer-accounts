@@ -50,7 +50,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         };
         _contentBanner = "<p>find out how you can pause your apprenticeships<p>";
         _contentType = "banner";
-        _clientId = "eas-acc-Levy";
+        _clientId = "eas-acc-levy";
         _logger = new Mock<ILogger<GetContentRequestHandler>>();
         _contentBannerService = new Mock<IContentApiClient>();
         _contentBannerService
@@ -116,7 +116,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         Mock<IContentApiClient> MockContentService)
     {
         //Arrange
-        var key = _employerAccountsConfiguration.ApplicationId + "Levy";
+        var key = $"{_employerAccountsConfiguration.ApplicationId}-levy";
         query1.ContentType = "Banner";
         query1.UseLegacyStyles = false;
 
@@ -138,7 +138,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         //assert
         result.Content.Should().Be(contentBanner1);
     }
-    
+
     [Test, MoqAutoData]
     public async Task TheLevyStatusIsAppendedToApplicationIdFromUserClaims(
         Mock<IValidator<GetContentRequest>> validator,
@@ -152,7 +152,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
     )
     {
         request.UseLegacyStyles = false;
-        
+
         var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
         {
             {
@@ -172,12 +172,11 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
         validator.Setup(x => x.Validate(request)).Returns(new ValidationResult());
-        
+
         var sut = new GetContentRequestHandler(validator.Object, logger.Object, contentApiClient.Object, configuration, httpContextAccessor.Object);
 
         await sut.Handle(request, CancellationToken.None);
-        
-        contentApiClient.Verify(x=> x.Get(request.ContentType, $"{configuration.ApplicationId}-{levyStatus.ToString().ToLower()}"));
-    }
 
+        contentApiClient.Verify(x => x.Get(request.ContentType, $"{configuration.ApplicationId}-{levyStatus.ToString().ToLower()}"));
+    }
 }
