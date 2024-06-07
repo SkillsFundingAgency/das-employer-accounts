@@ -139,16 +139,18 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         result.Content.Should().Be(contentBanner1);
     }
 
-    [Test, MoqAutoData]
+    [Test]
+    [MoqInlineAutoData(ApprenticeshipEmployerType.Levy)]
+    [MoqInlineAutoData(ApprenticeshipEmployerType.NonLevy)]
     public async Task TheLevyStatusIsAppendedToApplicationIdFromUserClaims(
+        ApprenticeshipEmployerType levyStatus,
         Mock<IValidator<GetContentRequest>> validator,
         Mock<IContentApiClient> contentApiClient,
         EmployerAccountsConfiguration configuration,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         GetContentRequest request,
         Mock<ILogger<GetContentRequestHandler>> logger,
-        string content,
-        ApprenticeshipEmployerType levyStatus
+        string content
     )
     {
         request.UseLegacyStyles = false;
