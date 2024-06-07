@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
@@ -32,37 +33,37 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
     private string _contentType;
     private string _clientId;
     private Mock<ILogger<GetContentRequestHandler>> _logger;
-    public string ContentBanner;
-    public EmployerAccountsConfiguration EmployerAccountsConfiguration;
-    public Mock<IHttpContextAccessor> HttpContextAccessor;
-    public string AccountId = "AAASG232";
-    public string UserId;
+    private string _contentBanner;
+    private EmployerAccountsConfiguration _employerAccountsConfiguration;
+    private Mock<IHttpContextAccessor> _httpContextAccessor;
+    private const string AccountId = "AAASG232";
+    private string _userId;
 
     [SetUp]
     public void Arrange()
     {
         SetUp();
-        EmployerAccountsConfiguration = new EmployerAccountsConfiguration()
+        _employerAccountsConfiguration = new EmployerAccountsConfiguration()
         {
             ApplicationId = "eas-acc",
             DefaultCacheExpirationInMinutes = 1
         };
-        ContentBanner = "<p>find out how you can pause your apprenticeships<p>";
+        _contentBanner = "<p>find out how you can pause your apprenticeships<p>";
         _contentType = "banner";
         _clientId = "eas-acc-Levy";
         _logger = new Mock<ILogger<GetContentRequestHandler>>();
         _contentBannerService = new Mock<IContentApiClient>();
         _contentBannerService
             .Setup(cbs => cbs.Get(_contentType, _clientId))
-            .ReturnsAsync(ContentBanner);
+            .ReturnsAsync(_contentBanner);
 
         Query = new GetContentRequest
         {
             ContentType = "banner"
         };
 
-        UserId = Guid.NewGuid().ToString();
-        var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, UserId);
+        _userId = Guid.NewGuid().ToString();
+        var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, _userId);
         var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
         {
             {
@@ -81,44 +82,10 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
             User = claimsPrinciple
         };
         httpContext.Request.RouteValues.Add("HashedAccountId", AccountId.ToUpper());
-        HttpContextAccessor = new Mock<IHttpContextAccessor>();
-        HttpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
+        _httpContextAccessor = new Mock<IHttpContextAccessor>();
+        _httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
-        RequestHandler = new GetContentRequestHandler(RequestValidator.Object, _logger.Object, _contentBannerService.Object, EmployerAccountsConfiguration, HttpContextAccessor.Object);
-    }
-
-    [Test, MoqAutoData]
-    public async Task TEstINg(
-        Mock<IValidator<GetContentRequest>> validator,
-        Mock<IContentApiClient> contentApiClient,
-        EmployerAccountsConfiguration configuration,
-        [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        GetContentRequest request,
-        Mock<ILogger<GetContentRequestHandler>> logger
-        )
-    {
-        var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
-        {
-            {
-                AccountId, new EmployerUserAccountItem
-                {
-                    AccountId = AccountId,
-                    ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy
-                }
-            }
-        };
-        
-        var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, UserId);
-        var accountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerUserAccountItems));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { userClaim, accountsClaim }) });
-        var httpContext = new DefaultHttpContext(new FeatureCollection()) { User = claimsPrinciple };
-        httpContext.Request.RouteValues.Add("HashedAccountId", AccountId.ToUpper());
-        HttpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
-        validator.Setup(x => x.Validate(request)).Returns(new ValidationResult());
-        
-        var sut = new GetContentRequestHandler(validator.Object, logger.Object, contentApiClient.Object, configuration, httpContextAccessor.Object);
-
-        var result = await sut.Handle(request, CancellationToken.None);
+        RequestHandler = new GetContentRequestHandler(RequestValidator.Object, _logger.Object, _contentBannerService.Object, _employerAccountsConfiguration, _httpContextAccessor.Object);
     }
 
     [Test]
@@ -137,7 +104,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        response.Content.Should().Be(ContentBanner);
+        response.Content.Should().Be(_contentBanner);
     }
 
     [Test, RecursiveMoqAutoData]
@@ -149,7 +116,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         Mock<IContentApiClient> MockContentService)
     {
         //Arrange
-        var key = EmployerAccountsConfiguration.ApplicationId + "Levy";
+        var key = _employerAccountsConfiguration.ApplicationId + "Levy";
         query1.ContentType = "Banner";
         query1.UseLegacyStyles = false;
 
@@ -163,7 +130,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         MockContentService.Setup(c => c.Get(query1.ContentType, key))
             .ReturnsAsync(contentBanner1);
 
-        requestHandler1 = new GetContentRequestHandler(requestValidator1.Object, logger.Object, MockContentService.Object, EmployerAccountsConfiguration, HttpContextAccessor.Object);
+        requestHandler1 = new GetContentRequestHandler(requestValidator1.Object, logger.Object, MockContentService.Object, _employerAccountsConfiguration, _httpContextAccessor.Object);
 
         //Act
         var result = await requestHandler1.Handle(query1, CancellationToken.None);
@@ -171,4 +138,46 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         //assert
         result.Content.Should().Be(contentBanner1);
     }
+    
+    [Test, MoqAutoData]
+    public async Task TheLevyStatusIsAppendedToApplicationIdFromUserClaims(
+        Mock<IValidator<GetContentRequest>> validator,
+        Mock<IContentApiClient> contentApiClient,
+        EmployerAccountsConfiguration configuration,
+        [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
+        GetContentRequest request,
+        Mock<ILogger<GetContentRequestHandler>> logger,
+        string content,
+        ApprenticeshipEmployerType levyStatus
+    )
+    {
+        request.UseLegacyStyles = false;
+        
+        var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
+        {
+            {
+                AccountId, new EmployerUserAccountItem
+                {
+                    AccountId = AccountId,
+                    ApprenticeshipEmployerType = levyStatus
+                }
+            }
+        };
+
+        var accountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerUserAccountItems));
+        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { accountsClaim }) });
+
+        var httpContext = new DefaultHttpContext(new FeatureCollection()) { User = claimsPrinciple };
+        httpContext.Request.RouteValues.Add("HashedAccountId", AccountId.ToUpper());
+        httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
+
+        validator.Setup(x => x.Validate(request)).Returns(new ValidationResult());
+        
+        var sut = new GetContentRequestHandler(validator.Object, logger.Object, contentApiClient.Object, configuration, httpContextAccessor.Object);
+
+        await sut.Handle(request, CancellationToken.None);
+        
+        contentApiClient.Verify(x=> x.Get(request.ContentType, $"{configuration.ApplicationId}-{levyStatus.ToString().ToLower()}"));
+    }
+
 }

@@ -43,7 +43,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
         
         var levyStatus = GetAccountLevyStatus();
 
-        var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString()}"; 
+        var applicationIdWithLevyStatus = $"{_employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}"; 
 
         var applicationId = message.UseLegacyStyles ? $"{applicationIdWithLevyStatus}-legacy" : applicationIdWithLevyStatus;
 
@@ -67,7 +67,7 @@ public class GetContentRequestHandler : IRequestHandler<GetContentRequest, GetCo
     private ApprenticeshipEmployerType GetAccountLevyStatus()
     {
         var accountIdFromUrl = _httpContextAccessor.HttpContext.Request.RouteValues["HashedAccountId"].ToString().ToUpper();
-        var employerAccountClaim = _httpContextAccessor.HttpContext.User.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        var employerAccountClaim = _httpContextAccessor.HttpContext.User.FindFirst(EmployerClaims.AccountsClaimsTypeIdentifier);
  
         Dictionary<string, EmployerUserAccountItem> employerAccounts;
 
