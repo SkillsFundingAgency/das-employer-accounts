@@ -118,7 +118,6 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         //Arrange
         var key = $"{_employerAccountsConfiguration.ApplicationId}-levy";
         query1.ContentType = "Banner";
-        query1.UseLegacyStyles = false;
 
         requestValidator1.Setup(r => r.Validate(query1)).Returns(new ValidationResult());
 
@@ -153,8 +152,6 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         string content
     )
     {
-        request.UseLegacyStyles = false;
-
         var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
         {
             {
