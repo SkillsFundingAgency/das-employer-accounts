@@ -27,6 +27,6 @@ public class EmployerIdentifier
     public string EmployerName { get; set; }
     [JsonProperty("role")]
     public string Role { get; set; }
-    [JsonProperty("ApprenticeshipEmployerType")]
+    [JsonProperty("apprenticeshipEmployerType")]
     public ApprenticeshipEmployerType ApprenticeshipEmployerType { get; set; }
 }
