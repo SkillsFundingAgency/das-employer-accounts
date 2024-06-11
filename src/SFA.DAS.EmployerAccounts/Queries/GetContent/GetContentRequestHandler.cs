@@ -84,8 +84,8 @@ public class GetContentRequestHandler(
         
         logger.LogInformation("GetContentRequestHandler EmployerAccounts: '{Accounts}'.", JsonConvert.SerializeObject(employerAccounts));
 
-        var employerAccount = employerAccounts.Single(x => x.Key == hashedAccountId).Value;
+        var hasEmployerAccountsClaims = employerAccounts.TryGetValue(hashedAccountId, out var employerAccount);
 
-        return employerAccount.ApprenticeshipEmployerType;
+        return hasEmployerAccountsClaims ? employerAccount.ApprenticeshipEmployerType : ApprenticeshipEmployerType.Unknown;
     }
 }
