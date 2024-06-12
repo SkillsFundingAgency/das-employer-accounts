@@ -3,6 +3,7 @@ using NServiceBus;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
+using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Messages.Commands;
@@ -15,7 +16,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
     private readonly IInvitationRepository _invitationRepository;
     private readonly EmployerAccountsConfiguration _employerApprenticeshipsServiceConfiguration;
     private readonly IUserAccountRepository _userRepository;
-    private readonly IEmployerAccountRepository _accountRepository;
+    private readonly IEmployerAccountRepository _employerAccountRepository;
     private readonly IEncodingService _encodingService;
     private readonly SupportResendInvitationCommandValidator _validator;
     private readonly IMessageSession _publisher;
@@ -24,7 +25,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
     public SupportResendInvitationCommandHandler(IInvitationRepository invitationRepository,
         EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
         IUserAccountRepository userRepository,
-        IEmployerAccountRepository accountRepository,
+        IEmployerAccountRepository employerAccountRepository,
         IEncodingService encodingService,
         IMessageSession publisher,
         IAuditService auditService)
@@ -32,7 +33,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         _invitationRepository = invitationRepository ?? throw new ArgumentNullException(nameof(invitationRepository));
         _employerApprenticeshipsServiceConfiguration = employerApprenticeshipsServiceConfiguration ?? throw new ArgumentNullException(nameof(employerApprenticeshipsServiceConfiguration));
         _userRepository = userRepository;
-        _accountRepository = accountRepository;
+        _employerAccountRepository = employerAccountRepository;
         _encodingService = encodingService;
         _publisher = publisher;
         _auditService = auditService;
@@ -44,8 +45,8 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         ValidateRequest(message);
 
         var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
-        var account = await _accountRepository.GetAccountById(accountId);
-
+        var account = await _employerAccountRepository.GetAccountById(accountId);
+        
         var existingInvitation = await _invitationRepository.Get(accountId, message.Email);
 
         ValidateExistingInvitation(existingInvitation);
@@ -55,13 +56,15 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
         existingInvitation.ExpiryDate = expiryDate;
 
+        var accountOwner = account.Memberships.First(x => x.Role == Role.Owner).User;
+        
+        await AddAuditEntry(message, existingInvitation, accountOwner.Email);
+        
         await _invitationRepository.Resend(existingInvitation);
-
-        await AddAuditEntry(message, existingInvitation);
 
         var existingUser = await _userRepository.Get(message.Email);
 
-        await SendNotification(message, existingUser, account, expiryDate, cancellationToken);
+        await SendNotification(message, existingUser, account, expiryDate);
     }
 
     private static void ValidateExistingInvitation(Invitation existingInvitation)
@@ -76,7 +79,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
             throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Accepted invitations cannot be resent" } });
         }
     }
-
+    
     private void ValidateRequest(SupportResendInvitationCommand message)
     {
         var validationResult = _validator.Validate(message);
@@ -87,7 +90,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         }
     }
 
-    private async Task SendNotification(SupportResendInvitationCommand message, User existingUser, Account account, DateTime expiryDate, CancellationToken cancellationToken)
+    private async Task SendNotification(SupportResendInvitationCommand message, User existingUser, Account account, DateTime expiryDate)
     {
         var tokens = new Dictionary<string, string>
         {
@@ -103,11 +106,11 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         await _publisher.Send(new SendEmailCommand(templateId, message.Email, tokens));
     }
 
-    private async Task AddAuditEntry(SupportResendInvitationCommand message, Invitation existingInvitation)
+    private async Task AddAuditEntry(SupportResendInvitationCommand message, Invitation existingInvitation, string accountOwnerEmail)
     {
         var auditMessage = new AuditMessage
         {
-            SupportUserEmail = message.SupportUserEmail,
+            ImpersonatedUserEmail = accountOwnerEmail,
             Category = "INVITATION_RESENT",
             Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
             ChangedProperties = new List<PropertyUpdate>

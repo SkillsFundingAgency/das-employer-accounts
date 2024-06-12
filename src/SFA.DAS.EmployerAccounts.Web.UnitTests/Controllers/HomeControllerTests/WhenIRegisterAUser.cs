@@ -8,7 +8,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests
 
 public class WhenIRegisterAUser
 {
-    private Mock<HomeOrchestrator> _homeOrchestrator;
+    private Mock<IHomeOrchestrator> _homeOrchestrator;
     private Mock<EmployerAccountsConfiguration> _configuration;
     private HomeController _homeController;
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
@@ -25,7 +25,7 @@ public class WhenIRegisterAUser
         MockHttpContext.Setup(x => x.Request.Host).Returns(new HostString(Authority));
         MockHttpContext.Setup(x => x.Request.Scheme).Returns(Schema);
 
-        _homeOrchestrator = new Mock<HomeOrchestrator>();
+        _homeOrchestrator = new Mock<IHomeOrchestrator>();
         _configuration = new Mock<EmployerAccountsConfiguration>();
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
         _urlActionHelper = new Mock<IUrlActionHelper>();

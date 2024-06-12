@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -9,13 +8,14 @@ using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerUsers.WebClientComponents;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
+using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 
 [Route("service")]
 public class HomeController : BaseController
 {
-    private readonly HomeOrchestrator _homeOrchestrator;
+    private readonly IHomeOrchestrator _homeOrchestrator;
     private readonly EmployerAccountsConfiguration _configuration;
     private readonly ILogger<HomeController> _logger;
     private readonly IConfiguration _config;
@@ -25,7 +25,7 @@ public class HomeController : BaseController
     public const string ReturnUrlCookieName = "SFA.DAS.EmployerAccounts.Web.Controllers.ReturnUrlCookie";
 
     public HomeController(
-        HomeOrchestrator homeOrchestrator,
+        IHomeOrchestrator homeOrchestrator,
         EmployerAccountsConfiguration configuration,
         ICookieStorageService<FlashMessageViewModel> flashMessage,
         ILogger<HomeController> logger,
@@ -43,10 +43,12 @@ public class HomeController : BaseController
 
     [Route("~/")]
     [Route("Index")]
-    public async Task<IActionResult> Index(GaQueryData queryData)
+    public async Task<IActionResult> Index(
+        GaQueryData gaQueryData, 
+        [FromQuery(Name = "redirectUri")] string redirectUri)
     {
         // check if the GovSignIn is enabled
-      if (_configuration.UseGovSignIn)
+        if (_configuration.UseGovSignIn)
         {
             if (User.Identities.FirstOrDefault() != null && User.Identities.FirstOrDefault()!.IsAuthenticated)
             {
@@ -56,7 +58,7 @@ public class HomeController : BaseController
                 
                 if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
                 {
-                    return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={queryData._ga}&_gl={queryData._gl}&utm_source={queryData.utm_source}&utm_campaign={queryData.utm_campaign}&utm_medium={queryData.utm_medium}&utm_keywords={queryData.utm_keywords}&utm_content={queryData.utm_content}");    
+                    return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");    
                 }
             }
         }
@@ -83,7 +85,12 @@ public class HomeController : BaseController
                 await _homeOrchestrator.SaveUpdatedIdentityAttributes(userRef, email, firstName, lastName);
             }
 
-            accounts = await _homeOrchestrator.GetUserAccounts(userIdClaim.Value, _configuration.LastTermsAndConditionsUpdate);
+            accounts = await _homeOrchestrator.GetUserAccounts(
+                userIdClaim.Value,
+                gaQueryData,
+                redirectUri,
+                _configuration.ValidRedirectUris,
+                _configuration.LastTermsAndConditionsUpdate);
         }
         else
         {
@@ -104,10 +111,11 @@ public class HomeController : BaseController
         
         if (accounts.Data.Invitations > 0)
         {
-            return RedirectToAction(ControllerConstants.InvitationIndexName, ControllerConstants.InvitationControllerName,queryData);
+            return RedirectToAction(ControllerConstants.InvitationIndexName, ControllerConstants.InvitationControllerName, gaQueryData);
         }
 
-        // condition to check if the user has only one account, then redirect to home page/dashboard.
+        // condition to check if the user has only one account, then redirect to the given
+        // redirectUri if valid or redirect to home page/dashboard.
         if (accounts.Data.Accounts.AccountList.Count == 1)
         {
             var account = accounts.Data.Accounts.AccountList.FirstOrDefault();
@@ -116,20 +124,30 @@ public class HomeController : BaseController
             {
                 if (account.AddTrainingProviderAcknowledged ?? true)
                 {
+                    // the redirectUri is validated against configuration during model setup
+                    var redirectUriWithHashedAccountId = accounts.Data.RedirectUriWithHashedAccountId(account);
+                    if (!string.IsNullOrEmpty(redirectUriWithHashedAccountId))
+                    {
+                        _logger.LogInformation($"Redirecting to {redirectUriWithHashedAccountId}");
+                        return Redirect(redirectUriWithHashedAccountId);
+                    }
+
+                    _logger.LogInformation($"Redirecting to {RouteNames.EmployerTeamIndex}");
                     return RedirectToRoute(RouteNames.EmployerTeamIndex, new
                     {
                         HashedAccountId = account.HashedId,
-                        queryData._ga,
-                        queryData._gl,
-                        queryData.utm_source,
-                        queryData.utm_campaign,
-                        queryData.utm_medium,
-                        queryData.utm_keywords,
-                        queryData.utm_content
+                        gaQueryData._ga,
+                        gaQueryData._gl,
+                        gaQueryData.utm_source,
+                        gaQueryData.utm_campaign,
+                        gaQueryData.utm_medium,
+                        gaQueryData.utm_keywords,
+                        gaQueryData.utm_content
                     });
                 } 
                 else
                 {
+                    _logger.LogInformation($"Redirecting to {RouteNames.ContinueNewEmployerAccountTaskList}");
                     return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId = account.HashedId });
                 }
             }
@@ -142,19 +160,22 @@ public class HomeController : BaseController
             accounts.FlashMessage = flashMessage;
         }
 
-        // condition to check if the user has more than one account, then redirect to accounts page.
+        // condition to check if the user has more than one account, then show the accounts page.
         if (accounts.Data.Accounts.AccountList.Count > 1)
         {
             return View(accounts);
         }
 
-        return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, queryData);
+        _logger.LogInformation($"Redirecting to {RouteNames.NewEmployerAccountTaskList}");
+        return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, gaQueryData);
     }
 
     [Authorize]
-    public IActionResult GovSignIn(GaQueryData queryData)
+    public IActionResult GovSignIn(
+        GaQueryData gaQueryData,
+        [FromQuery(Name = "redirectUri")] string redirectUri)
     {
-        return RedirectToAction(ControllerConstants.IndexActionName, "Home", queryData);
+        return RedirectToAction(ControllerConstants.IndexActionName, "Home", new { gaQueryData, redirectUri });
     }
 
     [HttpGet]
@@ -400,32 +421,40 @@ public class HomeController : BaseController
     
     [HttpGet]
     [Route("SignIn-Stub")]
-    public IActionResult SigninStub()
+    public IActionResult SigninStub(string returnUrl)
     {
-        return View("SigninStub", new List<string>{_config["StubId"],_config["StubEmail"]});
+        var model = new SignInStubViewModel
+        {
+            StubId = _config["StubId"],
+            StubEmail = _config["StubEmail"],
+            ReturnUrl = returnUrl
+        };
+
+        return View("SigninStub", model);
     }
+
     [HttpPost]
     [Route("SignIn-Stub")]
-    public async Task<IActionResult> SigninStubPost()
+    public async Task<IActionResult> SigninStubPost(SignInStubViewModel model)
     {
         var claims = await _stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
         {
-            Email = _config["StubEmail"],
-            Id = _config["StubId"]
+            Email = model.StubEmail,
+            Id = model.StubId
         });
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
             new AuthenticationProperties());
 
-        return RedirectToRoute("Signed-in-stub");
+        return RedirectToRoute("Signed-in-stub", new { model.ReturnUrl });
     }
 
     [Authorize]
     [HttpGet]
     [Route("signed-in-stub", Name = "Signed-in-stub")]
-    public IActionResult SignedInStub()
+    public IActionResult SignedInStub(string returnUrl)
     {
-        return View();
+        return View(new SignedInStubViewModel(HttpContext, returnUrl));
     }
 #endif
 }

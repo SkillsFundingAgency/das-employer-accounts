@@ -31,17 +31,17 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
 
     private async Task SetUserIdAndEmail(Actor actor, AuditMessage message)
     {
-        if (message.IsSupportRequest)
+        if (message.IsImpersonatedRequest)
         {
-            var supportUser = await _userRepository.GetByEmailAddress(message.SupportUserEmail);
+            var impersonatedUser = await _userRepository.GetByEmailAddress(message.ImpersonatedUserEmail);
 
-            if (supportUser == null)
+            if (impersonatedUser == null)
             {
-                throw new InvalidContextException($"Unable to find the support user with the email '{message.SupportUserEmail}' to populate AuditMessage.");
+                throw new InvalidContextException($"Unable to find the impersonated user with the email '{message.ImpersonatedUserEmail}' to populate AuditMessage.");
             }
             
-            actor.Id = supportUser.Ref.ToString();
-            actor.EmailAddress = supportUser.Email;
+            actor.Id = impersonatedUser.Ref.ToString();
+            actor.EmailAddress = impersonatedUser.Email;
 
             return;
         }
