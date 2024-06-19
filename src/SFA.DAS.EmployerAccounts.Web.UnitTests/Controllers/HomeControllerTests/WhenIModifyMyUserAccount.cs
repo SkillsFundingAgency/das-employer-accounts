@@ -6,7 +6,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests
 public class WhenIModifyMyUserAccount : ControllerTestBase
 {
     private Mock<IAuthenticationService> _owinWrapper;
-    private Mock<HomeOrchestrator> _homeOrchestrator;
+    private Mock<IHomeOrchestrator> _homeOrchestrator;
     private EmployerAccountsConfiguration _configuration;      
     private HomeController _homeController;
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
@@ -18,7 +18,7 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         base.Arrange();
 
         _owinWrapper = new Mock<IAuthenticationService>();
-        _homeOrchestrator = new Mock<HomeOrchestrator>();          
+        _homeOrchestrator = new Mock<IHomeOrchestrator>();          
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
         _configuration = new EmployerAccountsConfiguration();
         _urlActionHelper = new Mock<IUrlActionHelper>();

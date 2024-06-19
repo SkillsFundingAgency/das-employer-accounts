@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using FluentAssertions;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Audit.Types;
-using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Interfaces;
+using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
@@ -34,20 +35,20 @@ public class WhenIResendAnInvitation
     private Mock<IUserAccountRepository> _userRepository;
     private Mock<IEmployerAccountRepository> _employerAccountRepository;
     private Mock<IEncodingService> _encodingService;
-    private const int ExpectedAccountId = 14546;
-    private const string ExpectedHashedId = "145AVF46";
-    private const string ExpectedExistingUserEmail = "testing.user@test.local";
-    private const string SupportUserEmail = "support@test.local";
+
+    private const int AccountId = 14546;
+    private const string HashedId = "145AVF46";
+    private const string ExistingUserEmail = "testing.user@test.local";
+    private const string AccountOwnerEmail = "owner@test.local";
     private const string AccountName = "Test Account";
 
     [SetUp]
     public void Setup()
     {
-        _command = new SupportResendInvitationCommand()
+        _command = new SupportResendInvitationCommand
         {
             Email = "test.user@test.local",
-            HashedAccountId = ExpectedHashedId,
-            SupportUserEmail = SupportUserEmail,
+            HashedAccountId = HashedId,
         };
 
         _userRepository = new Mock<IUserAccountRepository>();
@@ -55,9 +56,11 @@ public class WhenIResendAnInvitation
         _encodingService = new Mock<IEncodingService>();
         _publisher = new Mock<IMessageSession>();
 
-        _userRepository.Setup(x => x.Get(ExpectedExistingUserEmail)).ReturnsAsync(new User { Email = ExpectedExistingUserEmail, Ref = Guid.NewGuid() });
-        _encodingService.Setup(x => x.Decode(ExpectedHashedId, EncodingType.AccountId)).Returns(ExpectedAccountId);
-        _employerAccountRepository.Setup(x => x.GetAccountById(ExpectedAccountId)).ReturnsAsync(new Account { Id = ExpectedAccountId, Name = AccountName });
+        _userRepository.Setup(x => x.Get(ExistingUserEmail)).ReturnsAsync(new User { Email = ExistingUserEmail, Ref = Guid.NewGuid() });
+        _encodingService.Setup(x => x.Decode(HashedId, EncodingType.AccountId)).Returns(AccountId);
+
+        var memberships = new List<Membership> { new() { AccountId = AccountId, User = new User { Email = AccountOwnerEmail }, Role = Role.Owner } };
+        _employerAccountRepository.Setup(x => x.GetAccountById(AccountId)).ReturnsAsync(new Account { Id = AccountId, Name = AccountName, Memberships = memberships });
 
         _invitationRepository = new Mock<IInvitationRepository>();
         _auditService = new Mock<IAuditService>();
@@ -88,38 +91,46 @@ public class WhenIResendAnInvitation
         var command = new SupportResendInvitationCommand();
 
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
+        var action = () => _handler.Handle(command, CancellationToken.None);
 
         //Assert
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(3));
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Id"), Is.Not.Null);
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "AccountId"), Is.Not.Null);
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "SupportUserEmail"), Is.Not.Null);
+        action.Should()
+            .ThrowAsync<InvalidRequestException>()
+            .Where(x =>
+                x.ErrorMessages.Count == 2
+                && x.ErrorMessages.ContainsKey("Id")
+                && x.ErrorMessages.ContainsKey("AccountId"));
     }
 
     [Test]
     public void CallerIsNotAnAccountOwner()
     {
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () => await _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
+        action.Should()
+            .ThrowAsync<InvalidRequestException>()
+            .Where(x =>
+                x.ErrorMessages.Count == 1
+                && x.ErrorMessages.ContainsKey("Membership"));
     }
 
     [Test]
     public void InvitationDoesNotExist()
     {
         //Arrange
-        _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.Email)).ReturnsAsync(() => null);
+        _invitationRepository.Setup(x => x.Get(AccountId, _command.Email)).ReturnsAsync(() => null);
 
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () => await _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
 
-        //Act
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Invitation"), Is.Not.Null);
+        //Assert
+        action.Should()
+            .ThrowAsync<InvalidRequestException>()
+            .Where(x =>
+                x.ErrorMessages.Count == 1
+                && x.ErrorMessages.ContainsKey("Invitation"));
     }
 
     [Test]
@@ -132,14 +143,17 @@ public class WhenIResendAnInvitation
             AccountId = 1,
             Status = InvitationStatus.Accepted
         };
-        _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.Email)).ReturnsAsync(invitation);
+        _invitationRepository.Setup(x => x.Get(AccountId, _command.Email)).ReturnsAsync(invitation);
 
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () => await _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Invitation"), Is.Not.Null);
+        action.Should()
+            .ThrowAsync<InvalidRequestException>()
+            .Where(x =>
+                x.ErrorMessages.Count == 1
+                && x.ErrorMessages.ContainsKey("Invitation"));
     }
 
     [Test]
@@ -151,21 +165,21 @@ public class WhenIResendAnInvitation
         var invitation = new Invitation
         {
             Id = invitationId,
-            AccountId = ExpectedAccountId,
+            AccountId = AccountId,
             Status = InvitationStatus.Deleted,
             ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1),
-            Email = ExpectedExistingUserEmail
+            Email = ExistingUserEmail
         };
 
-        _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.Email)).ReturnsAsync(invitation);
+        _invitationRepository.Setup(x => x.Get(AccountId, _command.Email)).ReturnsAsync(invitation);
 
         //Act
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
         _invitationRepository.Verify(x => x.Resend(It.Is<Invitation>(c => c.Id == invitationId && c.Status == InvitationStatus.Pending && c.ExpiryDate == DateTimeProvider.Current.UtcNow.Date.AddDays(8))), Times.Once);
-        _encodingService.Verify(x => x.Decode(ExpectedHashedId, EncodingType.AccountId), Times.Once);
-        _employerAccountRepository.Verify(x => x.GetAccountById(ExpectedAccountId), Times.Once);
+        _encodingService.Verify(x => x.Decode(HashedId, EncodingType.AccountId), Times.Once);
+        _employerAccountRepository.Verify(x => x.GetAccountById(AccountId), Times.Once);
     }
 
     [Test]
@@ -179,14 +193,14 @@ public class WhenIResendAnInvitation
             AccountId = 1,
             ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1)
         };
-        _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.Email)).ReturnsAsync(invitation);
+        _invitationRepository.Setup(x => x.Get(AccountId, _command.Email)).ReturnsAsync(invitation);
 
         //Act
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
         _publisher.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress.Equals(_command.Email)
-                                                                  && c.TemplateId.Equals("InvitationNewUser")), It.IsAny<SendOptions>()));
+                                                                   && c.TemplateId.Equals("InvitationNewUser")), It.IsAny<SendOptions>()));
     }
 
     [Test]
@@ -200,13 +214,13 @@ public class WhenIResendAnInvitation
             AccountId = 1,
             ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1)
         };
-        _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.Email)).ReturnsAsync(invitation);
+        _invitationRepository.Setup(x => x.Get(AccountId, _command.Email)).ReturnsAsync(invitation);
 
         //Act
         await _handler.Handle(_command, CancellationToken.None);
 
         _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
-            c.SupportUserEmail == SupportUserEmail &&
+            c.ImpersonatedUserEmail == AccountOwnerEmail &&
             c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Status") && y.NewValue.Equals(InvitationStatus.Pending.ToString())) != null &&
             c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("ExpiryDate") && y.NewValue.Equals(DateTimeProvider.Current.UtcNow.Date.AddDays(8).ToString())) != null
         )));
@@ -216,23 +230,23 @@ public class WhenIResendAnInvitation
     public async Task ThenADifferentEmailIsSentIfTheEmailIsAlreadyRegisteredInTheSystem()
     {
         //Arrange
-        _command.Email = ExpectedExistingUserEmail;
+        _command.Email = ExistingUserEmail;
         var invitation = new Invitation
         {
             Id = 1,
-            Email = ExpectedExistingUserEmail,
+            Email = ExistingUserEmail,
             AccountId = 1,
             ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1)
         };
 
-        _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.Email)).ReturnsAsync(invitation);
+        _invitationRepository.Setup(x => x.Get(AccountId, _command.Email)).ReturnsAsync(invitation);
 
         //Act
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
         _publisher.Verify(x => x.Send(It.Is<SendEmailCommand>(c =>
-            c.RecipientsAddress.Equals(ExpectedExistingUserEmail)
+            c.RecipientsAddress.Equals(ExistingUserEmail)
             && c.TemplateId.Equals("InvitationExistingUser")), It.IsAny<SendOptions>()));
     }
 }

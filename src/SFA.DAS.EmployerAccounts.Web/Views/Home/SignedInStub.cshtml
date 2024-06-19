@@ -2,44 +2,41 @@
 @using Newtonsoft.Json
 @using SFA.DAS.EmployerAccounts.Infrastructure
 @using SFA.DAS.EmployerAccounts.Models.UserAccounts
+@model SignedInStubViewModel
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "You've signed in";
     Layout = "_Layout";
-    var accounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(
-        User.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier))?.Value)
-        .Select(c => c.Value)
-        .ToList();
 }
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">
-            You've signed in
+            @ViewBag.Title
         </h1>
 
-        <p>Id: @User.Claims.FirstOrDefault(c=>c.Type.Equals(ClaimTypes.NameIdentifier))?.Value</p>
-        <p>Email: @User.Claims.FirstOrDefault(c=>c.Type.Equals(ClaimTypes.Email))?.Value</p>
+        <p>Id: @Model.StubId</p>
+        <p>Email: @Model.StubEmail</p>
         <table class="govuk-table">
             <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Account ID</th>
-                <th scope="col" class="govuk-table__header">Role</th>
-                <th scope="col" class="govuk-table__header">Employer name</th>
-                <th scope="col" class="govuk-table__header">Apprenticeship employe type</th>
-            </tr>
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Account ID</th>
+                    <th scope="col" class="govuk-table__header">Role</th>
+                    <th scope="col" class="govuk-table__header">Employer name</th>
+                    <th scope="col" class="govuk-table__header"></th>
+                </tr>
             </thead>
             <tbody class="govuk-table__body">
-            @foreach (var account in accounts)
+            @foreach (var account in Model.GetAccounts())
             {
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">@account.AccountId</td>
                     <td class="govuk-table__cell">@account.Role</td>
                     <td class="govuk-table__cell">@account.EmployerName</td>
-                    <td class="govuk-table__cell">@account.ApprenticeshipEmployerType.ToString()</td>
                 </tr>
             }
             </tbody>
         </table>
+        <a class="govuk-button" id="continue" href="@Model.ReturnUrl">Continue</a>
     </div>
 </div>
