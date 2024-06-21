@@ -8,4 +8,5 @@ public class GatewayInformViewModel
     public string BreadcrumbUrl { get; set; }
     public string BreadcrumbDescription { get; set; }
     public bool ValidationFailed { get; set; }
+    public string HashedAccountId { get; set; }
 }
