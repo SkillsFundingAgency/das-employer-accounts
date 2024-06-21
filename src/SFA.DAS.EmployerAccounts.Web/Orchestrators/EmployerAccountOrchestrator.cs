@@ -359,6 +359,12 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 response.Data.HasSignedAgreement = agreement.SignedDate.HasValue;
                 response.Data.HasProviders = employerAccountTaskListResponse?.HasProviders ?? false;
                 response.Data.HasProviderPermissions = employerAccountTaskListResponse?.HasProviderPermissions ?? false;
+
+                if (!response.Data.AddTrainingProviderAcknowledged && response.Data.HasProviders &&
+                    response.Data.HasProviderPermissions)
+                {
+                    await Mediator.Send(new AcknowledgeTrainingProviderTaskCommand(accountId));
+                }
             }
         }
 
@@ -405,11 +411,12 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         var accountResponse = await Mediator.Send(new GetEmployerAccountByIdQuery { AccountId = accountId, UserId = externalUserId });
 
         await Mediator.Send(new AcknowledgeTrainingProviderTaskCommand(accountId));
-        
+
+        var publicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId);
         await Mediator.Send(new SendAccountTaskListCompleteNotificationCommand
         {
             AccountId = accountId,
-            PublicHashedAccountId = _encodingService.Encode(accountId, EncodingType.PublicAccountId),
+            PublicHashedAccountId = publicHashedAccountId,
             HashedAccountId = hashedAccountId,
             ExternalUserId = externalUserId,
             OrganisationName = accountResponse.Account.Name

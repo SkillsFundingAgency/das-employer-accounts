@@ -9,7 +9,7 @@ public static class OrchestratorsServiceRegistrations
         services.AddTransient<EmployerAgreementOrchestrator>();
         services.AddTransient<EmployerTeamOrchestrator>();
         services.AddTransient<EmployerTeamOrchestratorWithCallToAction>();
-        services.AddTransient<HomeOrchestrator>();
+        services.AddTransient<IHomeOrchestrator, HomeOrchestrator>();
         services.AddTransient<InvitationOrchestrator>();
         services.AddTransient<OrganisationOrchestrator>();
         services.AddTransient<SearchOrganisationOrchestrator>();

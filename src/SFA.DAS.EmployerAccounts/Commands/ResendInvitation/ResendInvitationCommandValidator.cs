@@ -9,7 +9,7 @@ public class ResendInvitationCommandValidator : IValidator<ResendInvitationComma
         if (string.IsNullOrWhiteSpace(item.Email))
             validationResult.AddError("Email", "No Email supplied");
 
-        if (string.IsNullOrEmpty(item.AccountId))
+        if (string.IsNullOrEmpty(item.HashedAccountId))
             validationResult.AddError("HashedId", "No HashedId supplied");
 
         if (string.IsNullOrWhiteSpace(item.ExternalUserId))

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.Encoding;
@@ -12,10 +13,8 @@ public static  class ConfigurationServiceRegistrations
     {
         services.AddOptions();
         services.Configure<EmployerAccountsConfiguration>(configuration.GetSection(ConfigurationKeys.EmployerAccounts));
-
-        var employerAccountsConfiguration = configuration.Get<EmployerAccountsConfiguration>();
-        services.AddSingleton(employerAccountsConfiguration);
-
+        services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountsConfiguration>>().Value);
+        
         var encodingConfigJson = configuration.GetSection(ConfigurationKeys.EncodingConfig).Value;
         var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
         services.AddSingleton(encodingConfig);

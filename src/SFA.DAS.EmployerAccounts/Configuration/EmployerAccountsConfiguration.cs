@@ -60,4 +60,5 @@ public class EmployerAccountsConfiguration
     public DateTime? LastTermsAndConditionsUpdate { get; set; }
     public bool UseGovSignIn { get; set; }
     public string DataProtectionKeysDatabase { get; set; }
+    public List<RedirectUriConfiguration> ValidRedirectUris { get; set; }
 }

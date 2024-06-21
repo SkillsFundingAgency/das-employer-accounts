@@ -4,7 +4,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests
 
 public class WhenIViewTermsAndCondition : ControllerTestBase
 {
-    private Mock<HomeOrchestrator> _homeOrchestrator;
+    private Mock<IHomeOrchestrator> _homeOrchestrator;
     private EmployerAccountsConfiguration _configuration;
     private HomeController _homeController;
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
@@ -17,7 +17,7 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
 
         AddUserToContext();
 
-        _homeOrchestrator = new Mock<HomeOrchestrator>();
+        _homeOrchestrator = new Mock<IHomeOrchestrator>();
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
         _configuration = new EmployerAccountsConfiguration();
         _urlActionHelper = new Mock<IUrlActionHelper>();
