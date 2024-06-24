@@ -56,7 +56,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
             var actual = await orchestrator.GetNextStepsViewModel(userId, hashedAccountId);
 
             //Assert
-            Assert.IsAssignableFrom<OrchestratorResponse<PayeSchemeNextStepsViewModel>>(actual);
+            Assert.That(actual, Is.AssignableFrom< OrchestratorResponse<PayeSchemeNextStepsViewModel>>());
             Assert.That(actual, Is.Not.Null);
             Assert.That(actual.Data.ShowWizard, Is.True);
 

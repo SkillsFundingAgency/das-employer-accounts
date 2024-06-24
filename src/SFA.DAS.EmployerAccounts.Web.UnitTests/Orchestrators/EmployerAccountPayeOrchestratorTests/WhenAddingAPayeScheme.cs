@@ -107,7 +107,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
             var actual = await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
 
             //act
-            Assert.IsAssignableFrom<OrchestratorResponse<GatewayInformViewModel>>(actual);
+            Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<GatewayInformViewModel>>());
             Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
         }
     }

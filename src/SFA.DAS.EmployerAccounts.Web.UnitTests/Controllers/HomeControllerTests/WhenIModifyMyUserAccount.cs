@@ -48,7 +48,7 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
 
         //Assert
         Assert.That(actual, Is.Not.Null);
-        Assert.IsAssignableFrom<RedirectToActionResult>(actual);
+        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
         var actualRedirect = actual as RedirectToActionResult;
         Assert.That(actualRedirect, Is.Not.Null);
         Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
@@ -84,7 +84,7 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
 
         //Assert
         Assert.That(actual, Is.Not.Null);
-        Assert.IsAssignableFrom<RedirectToActionResult>(actual);
+        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
         var actualRedirect = actual as RedirectToActionResult;
         Assert.That(actualRedirect, Is.Not.Null);
         Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
@@ -110,7 +110,7 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
 
         //Assert
         Assert.That(actual, Is.Not.Null);
-        Assert.IsAssignableFrom<RedirectToActionResult>(actual);
+        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
         var actualRedirect = actual as RedirectToActionResult;
         Assert.That(actualRedirect, Is.Not.Null);
         Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));

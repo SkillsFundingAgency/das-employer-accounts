@@ -47,7 +47,7 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
 
         //Assert
         Assert.That(actual, Is.Not.Null);
-        Assert.IsAssignableFrom<ViewResult>(actual);
+        Assert.That(actual, Is.AssignableFrom<ViewResult>());
     }
 
     [Test]

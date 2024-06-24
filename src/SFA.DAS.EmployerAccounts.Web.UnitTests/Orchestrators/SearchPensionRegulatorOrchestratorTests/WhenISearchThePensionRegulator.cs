@@ -60,7 +60,7 @@ public class WhenISearchThePensionRegulator
         var actual = await _orchestrator.SearchPensionRegulator(It.IsAny<string>());
 
         //Assert
-        Assert.IsAssignableFrom<OrchestratorResponse<SearchPensionRegulatorResultsViewModel>>(actual);
+        Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<SearchPensionRegulatorResultsViewModel>>());
     }
 
     [Test]

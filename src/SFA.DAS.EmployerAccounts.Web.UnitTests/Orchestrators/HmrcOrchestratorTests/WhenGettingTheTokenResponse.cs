@@ -53,7 +53,7 @@ public class WhenGettingTheTokenResponse
 
         //Assert
         _mediator.Verify(x => x.Send(It.Is<GetGatewayTokenQuery>(c => c.AccessCode.Equals(accessCode) && c.RedirectUrl.Equals(returnUrl)), It.IsAny<CancellationToken>()));
-        Assert.IsAssignableFrom<HmrcTokenResponse>(token.Data);
+        Assert.That(token.Data, Is.AssignableFrom<HmrcTokenResponse>());
     }
 
     [Test]
@@ -72,7 +72,7 @@ public class WhenGettingTheTokenResponse
         var actual = await _employerAccountOrchestrator.GetGatewayTokenResponse(string.Empty, string.Empty, queryCollection);
 
         //Assert
-        Assert.IsAssignableFrom<OrchestratorResponse<HmrcTokenResponse>>(actual);
+        Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<HmrcTokenResponse>>());
         Assert.That(actual.FlashMessage.Headline, Is.EqualTo("Account not added"));
         Assert.That(actual.FlashMessage.SeverityCssClass, Is.EqualTo("error-summary"));
         Assert.That(actual.FlashMessage.Severity, Is.EqualTo(FlashMessageSeverityLevel.Error));

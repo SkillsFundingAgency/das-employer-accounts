@@ -80,6 +80,6 @@ public class WhenICallTheHmrcServiceForAuthentication
 
         //Assert
         _httpClientWrapper.Verify(x => x.SendMessage(It.IsAny<object>(), "oauth/token"), Times.Once);
-        Assert.IsAssignableFrom<HmrcTokenResponse>(actual);
+        Assert.That(actual, Is.AssignableFrom<HmrcTokenResponse>());
     }
 }

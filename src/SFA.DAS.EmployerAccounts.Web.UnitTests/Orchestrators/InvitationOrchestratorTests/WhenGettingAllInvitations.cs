@@ -40,7 +40,7 @@ public class WhenGettingAllInvitations
 
         //Assert
         _mediator.Verify(x=>x.Send(It.Is<GetUserInvitationsRequest>(c=>c.UserId.Equals(userId)), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.IsAssignableFrom<UserInvitationsViewModel>(actual.Data);
+        Assert.That(actual.Data, Is.AssignableFrom<UserInvitationsViewModel>());
     }
 
     [TestCase(1, "Today")]

@@ -67,7 +67,7 @@ public class WhenISearchForAnOrganisation
         var actual = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, organisationType, null, null);
 
         //Assert
-        Assert.IsAssignableFrom<OrchestratorResponse<SearchOrganisationResultsViewModel>>(actual);
+        Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<SearchOrganisationResultsViewModel>>());
     }
 
     [Test]
