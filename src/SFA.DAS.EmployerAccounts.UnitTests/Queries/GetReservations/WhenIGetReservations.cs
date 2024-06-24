@@ -68,6 +68,6 @@ public class WhenIGetReservations : QueryBaseTest<GetReservationsRequestHandler,
 
     public override Task ThenIfTheMessageIsValidTheRepositoryIsCalled()
     {
-        throw new System.NotImplementedException();
+        return Task.CompletedTask;
     }
 }
