@@ -73,9 +73,9 @@ public class WhenGettingTheTokenResponse
 
         //Assert
         Assert.IsAssignableFrom<OrchestratorResponse<HmrcTokenResponse>>(actual);
-        Assert.AreEqual("Account not added", actual.FlashMessage.Headline);
-        Assert.AreEqual("error-summary", actual.FlashMessage.SeverityCssClass);
-        Assert.AreEqual(FlashMessageSeverityLevel.Error, actual.FlashMessage.Severity);
-        Assert.Contains(new KeyValuePair<string, string>("agree_and_continue", "Agree and continue"), actual.FlashMessage.ErrorMessages);
+        Assert.That(actual.FlashMessage.Headline, Is.EqualTo("Account not added"));
+        Assert.That(actual.FlashMessage.SeverityCssClass, Is.EqualTo("error-summary"));
+        Assert.That(actual.FlashMessage.Severity, Is.EqualTo(FlashMessageSeverityLevel.Error));
+        Assert.That(actual.FlashMessage.ErrorMessages, Does.Contain(new KeyValuePair<string, string>("agree_and_continue", "Agree and continue")));
     }
 }

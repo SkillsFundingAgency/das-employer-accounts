@@ -53,7 +53,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPensionRegulatorTests
             var actual = await RequestHandler.Handle(new GetPensionRegulatorRequest() { PayeRef = expectedPayeRef }, CancellationToken.None);
 
             //Assert
-            Assert.AreSame(expectedResponse, actual.Organisations);
+            Assert.That(actual.Organisations, Is.SameAs(expectedResponse));
         }
     }
 }

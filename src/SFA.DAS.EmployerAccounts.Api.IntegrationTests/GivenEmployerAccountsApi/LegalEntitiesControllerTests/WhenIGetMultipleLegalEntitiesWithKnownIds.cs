@@ -39,8 +39,8 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
         var resources = Response?.GetContent<ResourceList>();
 
         // Assert
-        Assert.IsNotNull(resources);
-        Assert.AreEqual(2, resources?.Count);
+        Assert.That(resources, Is.Not.Null);
+        Assert.That(resources?.Count, Is.EqualTo(2));
             
         var idsFromApi = resources.Select(a => long.Parse(a.Id, NumberStyles.None)).ToArray();
 
@@ -49,7 +49,7 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
             .Union(new[]{_employerAccount.AccountOutput.LegalEntityId})
             .ToArray();
 
-        Assert.AreEqual(2, idsFromDatabase.Length,
+        Assert.That(idsFromDatabase.Length, Is.EqualTo(2),
             "Not the correct number of legal entities created for this test");
 
         CheckThatApiReturnedAllLegalEntitiesInDatabase(idsFromDatabase, idsFromApi);
@@ -62,7 +62,7 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
             .Where(legalEntityId => !apiIds.Contains(legalEntityId))
             .ToArray();
 
-        Assert.AreEqual(0, legalEntitiesInDatabaseButNotApi.Length, "Expected legal entities not returned by API");
+        Assert.That(legalEntitiesInDatabaseButNotApi.Length, Is.EqualTo(0), "Expected legal entities not returned by API");
     }
 
     private static void CheckThatApiReturnedOnlyLegalEntitiesInTheDatabase(long[] databaseIds, long[] apiIds)
@@ -70,6 +70,6 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
         var legalEntitiesInApiButNotDatabase =
             apiIds.Where(id => !databaseIds.Contains(id)).ToArray();
 
-        Assert.AreEqual(0, legalEntitiesInApiButNotDatabase.Length, "Unexpected legal entities returned by API");
+        Assert.That(legalEntitiesInApiButNotDatabase.Length, Is.EqualTo(0), "Unexpected legal entities returned by API");
     }
 }

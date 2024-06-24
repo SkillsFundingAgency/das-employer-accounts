@@ -20,7 +20,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetTeamMembers
             var result = _validator.Validate(new GetTeamMembersRequest(123));
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetTeamMembers
             var result = _validator.Validate(new GetTeamMembersRequest(-999));
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetTeamMembers
             var result = _validator.Validate(new GetTeamMembersRequest(0));
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
     }
 }

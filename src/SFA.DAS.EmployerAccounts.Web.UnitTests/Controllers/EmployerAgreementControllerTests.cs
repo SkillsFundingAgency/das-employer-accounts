@@ -61,6 +61,12 @@ public class EmployerAgreementControllerTests
         _controller.ControllerContext = new ControllerContext { HttpContext = _httpContextMock.Object };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task WhenRequestingConfirmRemoveOrganisationPage_AndUserIsUnauthorised_ThenAccessDeniedIsReturned()
     {
@@ -78,7 +84,7 @@ public class EmployerAgreementControllerTests
 
         //Assert
         ViewResult viewResult = response as ViewResult;
-        Assert.AreEqual(ControllerConstants.AccessDeniedViewName, viewResult.ViewName);
+        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.AccessDeniedViewName));
     }
 
     [Test]
@@ -102,7 +108,7 @@ public class EmployerAgreementControllerTests
 
         //Assert
         ViewResult viewResult = response as ViewResult;
-        Assert.AreEqual(ControllerConstants.ConfirmRemoveOrganisationActionName, viewResult.ViewName);
+        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.ConfirmRemoveOrganisationActionName));
     }
 
     [Test]
@@ -126,7 +132,7 @@ public class EmployerAgreementControllerTests
 
         //Assert
         ViewResult viewResult = response as ViewResult;
-        Assert.AreEqual(ControllerConstants.CannotRemoveOrganisationViewName, viewResult.ViewName);
+        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.CannotRemoveOrganisationViewName));
     }
 
     [Test]
@@ -175,9 +181,9 @@ public class EmployerAgreementControllerTests
 
         //Assert
         var result = response as RedirectToActionResult;
-        Assert.IsNotNull(result);
-        Assert.AreEqual("AboutYourAgreement", result.ActionName);
-        Assert.AreEqual(HashedAgreementId, result.RouteValues["agreementId"]);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.ActionName, Is.EqualTo("AboutYourAgreement"));
+        Assert.That(result.RouteValues["agreementId"], Is.EqualTo(HashedAgreementId));
     }
 
     [Test, MoqAutoData]
@@ -219,7 +225,7 @@ public class EmployerAgreementControllerTests
         var actualResult = await _controller.AboutYourAgreement(HashedAccountId, HashedAgreementId);
 
         // Assert
-        Assert.IsNotNull(actualResult);
+        Assert.That(actualResult, Is.Not.Null);
         actualResult.Model.Should().BeOfType<OrchestratorResponse<EmployerAgreementViewModel>>();
         // Assert.That(actualResult.Model, Is.InstanceOf<OrchestratorResponse<EmployerAgreementViewModel>>());
     }
@@ -244,9 +250,9 @@ public class EmployerAgreementControllerTests
         var model = viewResult.Model as SignEmployerAgreementViewModel;
         var modelState = _controller.ModelState;
 
-        Assert.AreEqual(ControllerConstants.SignAgreementViewName, viewResult.ViewName);
-        Assert.AreEqual(model, viewModel);
-        Assert.IsTrue(modelState[nameof(model.Choice)].Errors.Count == 1);
+        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.SignAgreementViewName));
+        Assert.That(viewModel, Is.EqualTo(model));
+        Assert.That(modelState[nameof(model.Choice)].Errors.Count == 1, Is.True);
     }
 
     [Test]

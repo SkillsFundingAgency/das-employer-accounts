@@ -65,7 +65,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetApprenticeship
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert            
-            Assert.IsNotNull(response.Apprenticeships);
+            Assert.That(response.Apprenticeships, Is.Not.Null);
         }
     }
 }

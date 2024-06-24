@@ -26,6 +26,12 @@ public class WhenILoginAUser
             _urlActionHelper.Object);
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _homeController?.Dispose();
+    }
+
     [Test]
     public void When_GovSignIn_False_ThenTheUserIsRedirectedToIndex()
     {
@@ -34,12 +40,12 @@ public class WhenILoginAUser
 
         //Act
         var actual = _homeController.SignIn();
-            
+
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectToActionResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual(ControllerConstants.IndexActionName, actualRedirectResult.ActionName);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.ActionName, Is.EqualTo(ControllerConstants.IndexActionName));
     }
 
 
@@ -50,9 +56,9 @@ public class WhenILoginAUser
         var actual = _homeController.GovSignIn(null, null);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectToActionResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual("Index", actualRedirectResult.ActionName);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.ActionName, Is.EqualTo("Index"));
     }
 }

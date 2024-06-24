@@ -24,8 +24,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserNotificationSettings
             var result = _validator.Validate(query);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.IsTrue(result.ValidationDictionary.ContainsKey(nameof(query.UserRef)));
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary.ContainsKey(nameof(query.UserRef)), Is.True);
         }
     }
 }

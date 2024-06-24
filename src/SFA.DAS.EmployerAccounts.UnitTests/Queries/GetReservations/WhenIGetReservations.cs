@@ -63,7 +63,7 @@ public class WhenIGetReservations : QueryBaseTest<GetReservationsRequestHandler,
         var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        Assert.Contains(_reservation, (ICollection)response.Reservations);
+        Assert.That((ICollection)response.Reservations, Does.Contain(_reservation));
     }
 
     public override Task ThenIfTheMessageIsValidTheRepositoryIsCalled()

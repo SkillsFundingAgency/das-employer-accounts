@@ -68,6 +68,6 @@ public class WhenICallTheHmrcServiceForEmprefWithPrivilegedAccess
 
         //Assert
         Assert.IsAssignableFrom<EmpRefLevyInformation>(actual);
-        Assert.AreEqual(ExpectedName, actual.Employer.Name.EmprefAssociatedName);
+        Assert.That(actual.Employer.Name.EmprefAssociatedName, Is.EqualTo(ExpectedName));
     }
 }

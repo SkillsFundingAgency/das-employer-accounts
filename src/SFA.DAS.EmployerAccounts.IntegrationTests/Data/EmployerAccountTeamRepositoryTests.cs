@@ -42,8 +42,8 @@ public class EmployerAccountTeamRepositoryTests
         return fixtures.CheckEmployerAccountTeamRepository(async repo =>
         {
             var member = await repo.GetMember(hashedId, email, true);
-            Assert.IsNotNull(member);
-            Assert.AreEqual(email, member.Email);
+            Assert.That(member, Is.Not.Null);
+            Assert.That(member.Email, Is.EqualTo(email));
         });
     }
 
@@ -61,7 +61,7 @@ public class EmployerAccountTeamRepositoryTests
         return fixtures.CheckEmployerAccountTeamRepository(async repo =>
         {
             var member = await repo.GetMember(hashedId, email, true);
-            Assert.IsNull(member);
+            Assert.That(member, Is.Null);
         });
     }
 }

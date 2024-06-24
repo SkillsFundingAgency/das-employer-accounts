@@ -38,6 +38,6 @@ public class WhenGettingMinimumSignedAgreement
         var model = actual.Value as MinimumSignedAgreementResponse;
 
         //Assert
-        Assert.AreEqual(response.MinimumSignedAgreementVersion,model.MinimumSignedAgreementVersion);
+        Assert.That(model.MinimumSignedAgreementVersion, Is.EqualTo(response.MinimumSignedAgreementVersion));
     }
 }

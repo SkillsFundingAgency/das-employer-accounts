@@ -41,7 +41,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             var result = await _validator.ValidateAsync(_createInvitationCommand);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -51,10 +51,11 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             var result = await _validator.ValidateAsync(new CreateInvitationCommand());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter email address"), result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("HashedAccountId", "No HashedAccountId supplied"), result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("NameOfPersonBeingInvited", "Enter name"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter email address")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("HashedAccountId", "No HashedAccountId supplied")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("NameOfPersonBeingInvited", "Enter name")));
         }
 
         [TestCase("notvalid")]
@@ -73,8 +74,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter a valid email address"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", "Enter a valid email address")));
         }
 
         [Test]
@@ -87,9 +88,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             var result = await _validator.ValidateAsync(_createInvitationCommand);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.IsTrue(result.IsUnauthorized);
-            Assert.Contains(new KeyValuePair<string, string>("Membership", "User is not a member of this Account"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.IsUnauthorized, Is.True);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("Membership", "User is not a member of this Account")));
         }
 
         [Test]
@@ -102,9 +103,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             var result = await _validator.ValidateAsync(_createInvitationCommand);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.IsTrue(result.IsUnauthorized);
-            Assert.Contains(new KeyValuePair<string, string>("Membership", "User is not an Owner"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.IsUnauthorized, Is.True);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("Membership", "User is not an Owner")));
         }
 
         [Test]
@@ -117,8 +118,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             var result = await _validator.ValidateAsync(_createInvitationCommand);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", $"{_createInvitationCommand.EmailOfPersonBeingInvited} is already invited"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("EmailOfPersonBeingInvited", $"{_createInvitationCommand.EmailOfPersonBeingInvited} is already invited")));
         }
 
     }

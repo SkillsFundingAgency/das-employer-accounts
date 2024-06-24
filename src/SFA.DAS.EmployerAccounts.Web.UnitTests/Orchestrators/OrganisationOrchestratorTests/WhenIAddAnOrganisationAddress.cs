@@ -60,7 +60,7 @@ class WhenIAddAnOrganisationAddress
         //Assert
         _mapper.Verify(x => x.Map<CreateOrganisationAddressRequest>(_viewModel.Address), Times.Once);
         _mediator.Verify(x => x.Send(_request, CancellationToken.None), Times.Once);
-        Assert.AreEqual(_address, result.Data.Address);
+        Assert.That(result.Data.Address, Is.EqualTo(_address));
     }
 
     [Test]
@@ -79,7 +79,7 @@ class WhenIAddAnOrganisationAddress
         var result = _orchestrator.AddOrganisationAddress(_viewModel);
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.Status);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
 
@@ -93,6 +93,6 @@ class WhenIAddAnOrganisationAddress
         var actual = _orchestrator.AddOrganisationAddress(_viewModel);
 
         //Assert
-        Assert.AreEqual("", actual.Data.ReferenceNumber);
+        Assert.That(actual.Data.ReferenceNumber, Is.EqualTo(""));
     }
 }

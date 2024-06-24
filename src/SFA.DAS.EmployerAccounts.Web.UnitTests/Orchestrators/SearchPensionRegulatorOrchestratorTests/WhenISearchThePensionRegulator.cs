@@ -68,11 +68,10 @@ public class WhenISearchThePensionRegulator
     {
         var actual = await _orchestrator.SearchPensionRegulator(It.IsAny<string>());
 
-        Assert
-            .IsTrue(
+        Assert.That(
                 actual
                     .Data
                     .Results
-                    .All( organisation => organisation.Type == OrganisationType.PensionsRegulator));
+                    .All( organisation => organisation.Type == OrganisationType.PensionsRegulator), Is.True);
     }
 }

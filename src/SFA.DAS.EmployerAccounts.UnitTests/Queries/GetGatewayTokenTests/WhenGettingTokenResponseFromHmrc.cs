@@ -45,6 +45,6 @@ public class WhenGettingTokenResponseFromHmrc
 
         //Assert
         Assert.IsAssignableFrom<GetGatewayTokenQueryResponse>(actual);
-        Assert.AreEqual(_expectedAccessToken, actual.HmrcTokenResponse.AccessToken);
+        Assert.That(actual.HmrcTokenResponse.AccessToken, Is.EqualTo(_expectedAccessToken));
     }
 }

@@ -15,7 +15,7 @@ public class WhenIChooseIIfIKnowWhichCourseTheApprenticeWillTake
         var result = controller.TriageWhichCourseYourApprenticeWillTake(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.Yes }) as RedirectToRouteResult;
 
         //Assert
-        Assert.AreEqual(RouteNames.TriageChosenProvider, result.RouteName);
+        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageChosenProvider));
     }
 
     [Test, MoqAutoData]
@@ -27,6 +27,6 @@ public class WhenIChooseIIfIKnowWhichCourseTheApprenticeWillTake
         var result = controller.TriageWhichCourseYourApprenticeWillTake(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.No }) as RedirectToRouteResult;
 
         //Assert
-        Assert.AreEqual(RouteNames.TriageCannotSetupWithoutChosenCourseAndProvider, result.RouteName);
+        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageCannotSetupWithoutChosenCourseAndProvider));
     }
 }

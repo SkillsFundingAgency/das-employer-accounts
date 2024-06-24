@@ -63,7 +63,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
             var result = await _orchestrator.GetPayeDetails(EmpRef, AccountId, UserId);
 
             //Assert
-            Assert.AreEqual(SchemeName, result.Data.PayeSchemeName);
+            Assert.That(result.Data.PayeSchemeName, Is.EqualTo(SchemeName));
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
             var result = await _orchestrator.GetPayeDetails(EmpRef, AccountId, UserId);
 
             //Assert
-            Assert.IsEmpty(result.Data.PayeSchemeName);
+            Assert.That(result.Data.PayeSchemeName, Is.Empty);
         }
     }
 }

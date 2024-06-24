@@ -20,7 +20,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetReservations
             var result = _validator.Validate(new GetReservationsRequest { AccountId = 1876, ExternalUserId = "user123" });
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetReservations
             var result = _validator.Validate(new GetReservationsRequest { ExternalUserId = "user123" });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetReservations
             var result = _validator.Validate(new GetReservationsRequest { AccountId = 1231 });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetReservations
             var result = _validator.Validate(new GetReservationsRequest { AccountId = 0, ExternalUserId = "user123" });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetReservations
             var result = _validator.Validate(new GetReservationsRequest { AccountId = 1231, ExternalUserId = string.Empty });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,9 +81,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ResendInvitationTests
 
             //Assert
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(3));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Id"), Is.Not.Null);
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "AccountId"), Is.Not.Null);
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "ExternalUserId"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Email"), Is.EqualTo(1));
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "HashedId"), Is.EqualTo(1));
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "ExternalUserId"), Is.EqualTo(1));
         }
 
         [Test]
@@ -93,7 +94,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ResendInvitationTests
 
             //Assert
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ResendInvitationTests
 
             //Act
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Invitation"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Invitation"), Is.EqualTo(1));
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ResendInvitationTests
 
             //Assert
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Invitation"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Invitation"), Is.EqualTo(1));
         }
 
         [Test]

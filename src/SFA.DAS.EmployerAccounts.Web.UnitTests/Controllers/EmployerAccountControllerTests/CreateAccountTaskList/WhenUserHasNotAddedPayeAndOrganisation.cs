@@ -85,7 +85,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
 
             // Assert
-            Assert.IsNotNull(model);
+            Assert.That(model, Is.Not.Null);
             model.Data.HasPayeScheme.Should().BeFalse();
             model.Data.CompletedSections.Should().Be(1);
         }

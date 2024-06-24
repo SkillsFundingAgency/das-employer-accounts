@@ -21,7 +21,7 @@ public class WhenValidatingTheCommand
         var actual = _validator.Validate(new SendNotificationCommand());
 
         //Assert
-        Assert.IsFalse(actual.IsValid());
+        Assert.That(actual.IsValid(), Is.False);
     }
 
     [Test]
@@ -31,8 +31,8 @@ public class WhenValidatingTheCommand
         var actual = _validator.Validate(new SendNotificationCommand());
 
         //Assert
-        Assert.Contains(new KeyValuePair<string, string>("RecipientsAddress", "RecipientsAddress has not been supplied"), actual.ValidationDictionary);
-        Assert.Contains(new KeyValuePair<string, string>("TemplateId", "TemplateId has not been supplied"), actual.ValidationDictionary);
+        Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("RecipientsAddress", "RecipientsAddress has not been supplied")));
+        Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("TemplateId", "TemplateId has not been supplied")));
     }
 
     [Test]
@@ -42,6 +42,6 @@ public class WhenValidatingTheCommand
         var actual = _validator.Validate(new SendNotificationCommand { RecipientsAddress = "test", TemplateId = "test" });
 
         //Assert
-        Assert.IsTrue(actual.IsValid());
+        Assert.That(actual.IsValid(), Is.True);
     }
 }

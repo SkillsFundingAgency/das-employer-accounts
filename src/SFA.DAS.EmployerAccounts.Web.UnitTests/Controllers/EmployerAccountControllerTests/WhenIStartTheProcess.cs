@@ -38,6 +38,13 @@ public class WhenIStartTheProcess : ControllerTestBase
             Url = new UrlHelper(new ActionContext(MockHttpContext.Object, Routes, new ActionDescriptor()))
         };
     }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public async Task ThenIAmRedirectedToTheGovernmentGatewayWhenIConfirmIHaveGatewayCredentials()
     {
@@ -48,10 +55,10 @@ public class WhenIStartTheProcess : ControllerTestBase
         var actual = await _employerAccountController.Gateway();
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualResult = actual as RedirectResult;
-        Assert.IsNotNull(actualResult);
-        Assert.AreEqual(_expectedRedirectUrl, actualResult.Url);
+        Assert.That(actualResult, Is.Not.Null);
+        Assert.That(actualResult.Url, Is.EqualTo(_expectedRedirectUrl));
         actualResult.Url.Should().NotBeNull();
         actualResult.Url.Should().Be(_expectedRedirectUrl);
     }

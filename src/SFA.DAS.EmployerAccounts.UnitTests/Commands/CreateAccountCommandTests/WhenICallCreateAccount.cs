@@ -179,7 +179,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
 
             //Assert
             Assert.IsAssignableFrom<CreateAccountCommandResponse>(actual);
-            Assert.AreEqual(ExpectedHashString, actual.HashedAccountId);
+            Assert.That(actual.HashedAccountId, Is.EqualTo(ExpectedHashString));
         }
 
         [Test]

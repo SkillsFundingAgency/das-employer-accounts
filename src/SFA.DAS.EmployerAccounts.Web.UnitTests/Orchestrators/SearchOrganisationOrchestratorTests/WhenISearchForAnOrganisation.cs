@@ -81,7 +81,7 @@ public class WhenISearchForAnOrganisation
         var actual = await _orchestrator.SearchOrganisation("Test", 1, OrganisationType.Charities, null, null);
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest,actual.Status);
+        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
@@ -107,7 +107,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.IsFalse(result.Data.Results.Data.Single().AddedToAccount);
+        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.False);
     }
 
     [Test]
@@ -134,7 +134,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.IsTrue(result.Data.Results.Data.Single().AddedToAccount);
+        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
     }
 
     [Test]
@@ -161,7 +161,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.IsTrue(result.Data.Results.Data.Single().AddedToAccount);
+        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
     }
 
     [Test]
@@ -188,7 +188,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.IsTrue(result.Data.Results.Data.Single().AddedToAccount);
+        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
     }
 
     [Test]
@@ -215,7 +215,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.IsTrue(result.Data.Results.Data.Single().AddedToAccount);
+        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
     }
 
     [Test]
@@ -242,7 +242,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.IsTrue(result.Data.Results.Data.Single().AddedToAccount);
+        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
     }
 
     [Test]

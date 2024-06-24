@@ -61,7 +61,7 @@ public class WhenGettingAllInvitations
         var actual = await _invitationOrchestrator.GetAllInvitationsForUser("123abc");
 
         //Assert
-        Assert.AreEqual(expectedValue, actual.Data.Invitations.FirstOrDefault().ExpiryDays());
+        Assert.That(actual.Data.Invitations.FirstOrDefault().ExpiryDays(), Is.EqualTo(expectedValue));
     }
 
     [Test]
@@ -74,7 +74,7 @@ public class WhenGettingAllInvitations
         var actual = await _invitationOrchestrator.GetAllInvitationsForUser("test");
 
         //Assert
-        Assert.IsNull(actual.Data);
+        Assert.That(actual.Data, Is.Null);
     }
 
     [Test]

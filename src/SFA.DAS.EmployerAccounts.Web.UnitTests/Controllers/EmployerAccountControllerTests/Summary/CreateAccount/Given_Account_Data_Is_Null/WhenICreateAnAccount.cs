@@ -44,6 +44,12 @@ class WhenICreateAnAccount : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public async Task Then_I_Should_Be_Redirected_To_Search_Organisatoin_Page()
     {
@@ -51,8 +57,8 @@ class WhenICreateAnAccount : ControllerTestBase
         var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectToActionResult;
 
         //Assert
-        Assert.AreEqual(ControllerConstants.SearchForOrganisationActionName, result.ActionName);
-        Assert.AreEqual(ControllerConstants.SearchOrganisationControllerName, result.ControllerName);
+        Assert.That(result.ActionName, Is.EqualTo(ControllerConstants.SearchForOrganisationActionName));
+        Assert.That(result.ControllerName, Is.EqualTo(ControllerConstants.SearchOrganisationControllerName));
     }
 
     [Test]

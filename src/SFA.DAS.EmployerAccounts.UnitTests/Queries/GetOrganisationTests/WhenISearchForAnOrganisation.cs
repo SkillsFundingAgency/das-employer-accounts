@@ -54,7 +54,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationTests
             var actual = await RequestHandler.Handle(new GetOrganisationsRequest { SearchTerm = expectedSearchTerm, PageNumber = 2 }, CancellationToken.None);
 
             //Assert
-            Assert.AreSame(expectedResponse, actual.Organisations);
+            Assert.That(actual.Organisations, Is.SameAs(expectedResponse));
         }
     }
 }
