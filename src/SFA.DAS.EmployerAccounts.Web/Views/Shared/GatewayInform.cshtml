@@ -40,9 +40,35 @@
         </div>
         
         <p>
-            CancelRoute: @Model.Data.CancelRoute
+            CancelRoute: @Model.Data.CancelRoute <br/>
             HashAccountId: @Model.Data.HashedAccountId
         </p>
+
+        <p>
+            CancelRoute: 
+            @if (string.IsNullOrWhiteSpace(Model.Data.CancelRoute))
+            {
+                <b>Is blank</b>
+            }
+            else
+            {
+                <b>Is NOT blank</b>
+            }
+            <br />
+            HashAccountId: 
+            @if (string.IsNullOrWhiteSpace(Model.Data.HashedAccountId))
+            {
+                <b>Is blank</b>
+            }
+            else
+            {
+                <b>Is NOT blank</b>
+            }
+        </p>
+
+        
+        
+        
 
     </div>
 </div>
