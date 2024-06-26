@@ -80,7 +80,7 @@ public class When_I_Call_GatewayInform_Without_HashedAccountId : ControllerTestB
 
         // Assert
         model.Data.CancelRoute.Should().Be(RouteNames.EmployerAccountPaye);
-        model.Data.HashedAccountId.Should().Be(hashedAccountId + "XX");
+        model.Data.HashedAccountId.Should().Be(hashedAccountId);
     }
 
     [Test]
@@ -93,7 +93,6 @@ public class When_I_Call_GatewayInform_Without_HashedAccountId : ControllerTestB
 
         // Assert
         model.Data.CancelRoute.Should().Be(RouteNames.NewEmployerAccountTaskList);
-        //model.Data.HashedAccountId.Should().BeNull();
-        model.Data.HashedAccountId.Should().Be("XX");
+        model.Data.HashedAccountId.Should().BeNull();
     }
 }

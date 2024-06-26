@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using FluentAssertions;
 using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Models;
@@ -7,6 +8,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntities;
 using SFA.DAS.EmployerAccounts.Queries.GetGatewayToken;
 using SFA.DAS.EmployerAccounts.Queries.GetHmrcEmployerInformation;
 using SFA.DAS.EmployerAccounts.Queries.GetMember;
+using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
 using EmpRefLevyInformation = HMRC.ESFA.Levy.Api.Types.EmpRefLevyInformation;
 using Name = HMRC.ESFA.Levy.Api.Types.Name;
@@ -95,6 +97,17 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
 
             //assert
             _mediator.Verify(x => x.Send(It.IsAny<GetMemberRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenTheLoggedInUserIsOwnerAndCancelRouteAndHashedAccountIdAreReturned()
+        {
+            //Act
+            var actual = await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
+
+            //assert
+            actual.Data.CancelRoute.Should().Be(RouteNames.EmployerAccountPaye);
+            actual.Data.HashedAccountId.Should().Be(ExpectedHashedId);
         }
 
         [Test]

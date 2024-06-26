@@ -97,8 +97,6 @@ public class EmployerAccountPayeController : BaseController
             Url.Action(ControllerConstants.IndexActionName, ControllerConstants.EmployerAccountPayeControllerName, new { hashedAccountId }),
             Url.Action(ControllerConstants.GetGatewayActionName, ControllerConstants.EmployerAccountPayeControllerName, new { hashedAccountId }));
 
-
-
         return View(response);
     }
 

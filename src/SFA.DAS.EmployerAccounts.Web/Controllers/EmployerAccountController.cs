@@ -191,7 +191,7 @@ public class EmployerAccountController : BaseController
                 BreadcrumbDescription = "Back to Your User Profile",
                 ConfirmUrl = _linkGenerator.GetUriByAction(HttpContext, ControllerConstants.GatewayViewName,
                     ControllerConstants.EmployerAccountControllerName),
-                HashedAccountId = hashedAccountId + "XX",
+                HashedAccountId = hashedAccountId,
                 CancelRoute = string.IsNullOrEmpty(hashedAccountId)
                     ? RouteNames.NewEmployerAccountTaskList
                     : RouteNames.EmployerAccountPaye,
