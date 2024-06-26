@@ -42,5 +42,5 @@
 </div>
 
 @section breadcrumb {
-    <div class="das-js-back-link"></div>
+    <a class="govuk-back-link" asp-route="@Model.Data.CancelRoute" asp-route-hashedAccountId="@Model.Data.HashedAccountId">Back</a>
 }
