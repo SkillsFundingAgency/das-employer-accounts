@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 
@@ -8,7 +9,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountDetailTes
     {
         private GetEmployerAccountDetailByHashedIdValidator _validator;
        
-        private const string ExpectedHashedId = "4567";  
+        private const long ExpectedAccountId = 4567;  
 
         [SetUp]
         public void Arrange()
@@ -20,32 +21,34 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountDetailTes
         public void ThenTheResultIsValidWhenAllFieldsArePopulatedAndTheUserIsPartOfTheAccount()
         {
             //Act
-            var result = _validator.Validate(new GetEmployerAccountDetailByHashedIdQuery { HashedAccountId = ExpectedHashedId });
+            var result = _validator.Validate(new GetEmployerAccountDetailByIdQuery { AccountId = ExpectedAccountId });
 
             //Assert
-            Assert.IsTrue(result.IsValid());
-            Assert.IsFalse(result.IsUnauthorized);
+            result.IsValid().Should().BeTrue();
+            result.IsUnauthorized.Should().BeFalse();
         }
 
         [Test]
         public void ThenTheUnauthorizedFlagIsSetWhenTheUserIsNotPartOfTheAccount()
         {
             //Act
-            var result = _validator.Validate(new GetEmployerAccountDetailByHashedIdQuery());
+            var result = _validator.Validate(new GetEmployerAccountDetailByIdQuery());
 
             //Assert
-            Assert.IsFalse(result.IsUnauthorized);
+            result.IsUnauthorized.Should().BeFalse();
         }
 
         [Test]
         public void ThenTheDictionaryIsPopulatedWithValidationErrors()
         {
             //Act
-            var result = _validator.Validate(new GetEmployerAccountDetailByHashedIdQuery());
+            var result = _validator.Validate(new GetEmployerAccountDetailByIdQuery());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("HashedAccountId", "HashedAccountId has not been supplied"), result.ValidationDictionary);
+            result.IsUnauthorized.Should().BeFalse();
+            result.ValidationDictionary
+                .Should().ContainKey("AccountId")
+                .WhoseValue.Should().Be("AccountId has not been supplied");
         }
     }
 }

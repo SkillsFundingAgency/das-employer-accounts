@@ -20,8 +20,9 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
         [Test]
         public async Task ThenAccountsAreReturnedWithTheirAUriToGetAccountDetails()
         {
-            var pageNumber = 123;
-            var pageSize = 9084;
+            // Arrange
+            var pageNumber = 12;
+            var pageSize = 50;
             var toDate = DateTime.Now.AddDays(-1).ToString("yyyyMMddHHmmss");
 
             var accountsResponse = new GetPagedEmployerAccountsResponse
@@ -29,8 +30,8 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
                 AccountsCount = 2,
                 Accounts = new List<Models.Account.Account>
                 {
-                    new Models.Account.Account { HashedId = "ABC123", Id = 123, Name = "Test 1" },
-                    new Models.Account.Account { HashedId = "ABC999", Id = 987, Name = "Test 2" }
+                    new() { HashedId = "ABC123", Id = 123, Name = "Test 1" },
+                    new() { HashedId = "ABC999", Id = 987, Name = "Test 2" }
                 }
             };
             Mediator
@@ -45,30 +46,32 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
                   .Setup(
                   x => x.RouteUrl(
                       It.Is<UrlRouteContext>(c =>
-                          c.RouteName == "GetAccount" && c.Values.IsEquivalentTo(new { hashedAccountId = accountsResponse.Accounts[0].HashedId })))
-                  ).Returns($"/api/accounts/{accountsResponse.Accounts[0].HashedId}");
+                          c.RouteName == "GetAccountById" && c.Values.IsEquivalentTo(new { accountId = accountsResponse.Accounts[0].Id })))
+                  ).Returns($"/api/accounts/{accountsResponse.Accounts[0].Id}");
 
             UrlTestHelper
                 .Setup(x =>
                     x.RouteUrl(It.Is<UrlRouteContext>(
-                        c => c.RouteName.Equals("GetAccount") && c.Values.IsEquivalentTo(new { hashedAccountId = accountsResponse.Accounts[1].HashedId })))
-                    ).Returns($"/api/accounts/{accountsResponse.Accounts[1].HashedId}");
+                        c => c.RouteName.Equals("GetAccountById") && c.Values.IsEquivalentTo(new { accountId = accountsResponse.Accounts[1].Id })))
+                    ).Returns($"/api/accounts/{accountsResponse.Accounts[1].Id}");
 
+            // Act
             var response = await Controller.GetAccounts(toDate, pageSize, pageNumber);
 
-            Assert.IsNotNull(response);
-            Assert.IsInstanceOf<OkObjectResult>(response);
-            var model = ((OkObjectResult)response).Value as PagedApiResponse<Account>;
+            // Assert
+            response.Should().NotBeNull();
+            var result = response.Should().BeAssignableTo<OkObjectResult>();
+            var model = result.Subject.Value.Should().BeAssignableTo<PagedApiResponse<Account>>();
 
-            model.Data.Should().NotBeNull();
-            model.Page.Should().Be(pageNumber);
-            model.Data.Should().HaveCount(accountsResponse.AccountsCount);
+            model.Subject.Data.Should().NotBeNull();
+            model.Subject.Page.Should().Be(pageNumber);
+            model.Subject.Data.Should().HaveCount(accountsResponse.AccountsCount);
 
             foreach (var expectedAccount in accountsResponse.Accounts)
             {
-                var returnedAccount = model.Data.SingleOrDefault(x => x.AccountId == expectedAccount.Id && x.AccountHashId == expectedAccount.HashedId && x.AccountName == expectedAccount.Name);
+                var returnedAccount = model.Subject.Data.SingleOrDefault(x => x.AccountId == expectedAccount.Id && x.HashedAccountId == expectedAccount.HashedId && x.AccountName == expectedAccount.Name);
                 returnedAccount.Should().NotBeNull();
-                returnedAccount?.Href.Should().Be($"/api/accounts/{returnedAccount.AccountHashId}");
+                returnedAccount?.Href.Should().Be($"/api/accounts/{returnedAccount.AccountId}");
             }
         }
 

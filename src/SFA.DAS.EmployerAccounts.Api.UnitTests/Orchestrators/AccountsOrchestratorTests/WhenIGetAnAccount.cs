@@ -26,8 +26,8 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>(), Mock.Of<IEncodingService>());
 
             _mediator
-                .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByHashedIdQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new GetEmployerAccountDetailByHashedIdResponse())
+                .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetEmployerAccountDetailByIdResponse())
                 .Verifiable("Get account was not called");
         }
 
@@ -35,10 +35,10 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
         public async Task TheARequestToGetAccountDetailsShouldBeMade()
         {
             //Arrange
-            const string hashedAgreementId = "ABC123";
+            const long accountId = 9911;
 
             //Act
-            await _orchestrator.GetAccount(hashedAgreementId);
+            await _orchestrator.GetAccount(accountId);
 
             //Assert
             _mediator.VerifyAll();

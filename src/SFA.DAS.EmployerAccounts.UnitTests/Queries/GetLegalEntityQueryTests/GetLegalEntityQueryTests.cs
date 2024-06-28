@@ -67,16 +67,16 @@ public class GetLegalEntityQueryTests : Testing.FluentTest<GetLegalEntityQueryTe
 
 public class GetLegalEntityQueryTestsFixture : FluentTestFixture
 {
-    public GetLegalEntityQueryHandler Handler { get; set; }
-    public Mock<EmployerAccountsDbContext> Db { get; set; }
-    public Account Account { get; private set; }
+    private GetLegalEntityQueryHandler Handler { get; set; }
+    private Mock<EmployerAccountsDbContext> Db { get; set; }
+    private Account Account { get; set; }
     public LegalEntity LegalEntity { get; set; }
-    public AccountLegalEntity AccountLegalEntity { get; set; }
-    public List<LegalEntity> LegalEntities { get; set; }
-    public List<AccountLegalEntity> AccountLegalEntities { get; set; }
+    private AccountLegalEntity AccountLegalEntity { get; set; }
+    private List<LegalEntity> LegalEntities { get; set; }
+    private List<AccountLegalEntity> AccountLegalEntities { get; set; }
     public User UserA { get; set; }
     public User UserB { get; set; }
-    public List<User> Users { get; set; }
+    private List<User> Users { get; set; }
     
 
     public GetLegalEntityQueryTestsFixture()
@@ -115,12 +115,12 @@ public class GetLegalEntityQueryTestsFixture : FluentTestFixture
     {
         return Handler.Handle(
             new GetLegalEntityQuery(
-                Account.HashedId,
+                Account.Id,
                 LegalEntity.Id
             ), CancellationToken.None);
     }
 
-    public GetLegalEntityQueryTestsFixture SetAccount()
+    private GetLegalEntityQueryTestsFixture SetAccount()
     {
         Account = new Account
         {
@@ -146,13 +146,8 @@ public class GetLegalEntityQueryTestsFixture : FluentTestFixture
         return this;
     }
 
-    public GetLegalEntityQueryTestsFixture EvaluateSignedAndPendingAgreementIdsForAllAccountLegalEntities()
+    private void EvaluateSignedAndPendingAgreementIdsForAllAccountLegalEntities()
     {
-        EmployerAgreement FindVersionToUse(AccountLegalEntity ale, EmployerAgreementStatus status)
-        {
-            return ale.Agreements.Where(a => a.StatusId == status).MaxBy(a => a.Template.VersionNumber);
-        }
-
         foreach (var accountLegalEntity in AccountLegalEntities)
         {
             var pending = FindVersionToUse(accountLegalEntity, EmployerAgreementStatus.Pending);
@@ -166,7 +161,12 @@ public class GetLegalEntityQueryTestsFixture : FluentTestFixture
             accountLegalEntity.SignedAgreementVersion = signed?.Template?.VersionNumber;
         }
 
-        return this;
+        return;
+
+        EmployerAgreement FindVersionToUse(AccountLegalEntity ale, EmployerAgreementStatus status)
+        {
+            return ale.Agreements.Where(a => a.StatusId == status).MaxBy(a => a.Template.VersionNumber);
+        }
     }
 
     private GetLegalEntityQueryTestsFixture SetLegalAccountLegalEntity()
@@ -200,11 +200,11 @@ public class GetLegalEntityQueryTestsFixture : FluentTestFixture
                 AgreementType = AgreementType.Levy
             },
             StatusId = status,
-            SignedById = signedUserId
+            SignedById = signedUserId,
+            AccountLegalEntity = AccountLegalEntity,
+            AccountLegalEntityId = AccountLegalEntity.Id
         };
 
-        newAgreement.AccountLegalEntity = AccountLegalEntity;
-        newAgreement.AccountLegalEntityId = AccountLegalEntity.Id;
         AccountLegalEntity.Agreements.Add(newAgreement);
 
         return this;

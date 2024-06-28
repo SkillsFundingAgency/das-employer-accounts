@@ -66,19 +66,24 @@ public class PayeRepository : IPayeRepository
             commandType: CommandType.StoredProcedure);
     }
 
-    public async Task<PayeSchemeView> GetPayeForAccountByRef(string hashedAccountId, string reference)
+    public async Task<PayeSchemeView> GetPayeForAccountByRef(long accountId, string reference)
     {
-        var parameters = new DynamicParameters();
+        var accountHistories = _db.Value.AccountHistory;
+        var payees = _db.Value.Payees;
+        var query = from payee in payees
+            join accountHistory in accountHistories
+                on payee.EmpRef equals accountHistory.PayeRef
+            where accountHistory.AccountId == accountId && payee.EmpRef == reference
+            select new PayeSchemeView
+            {
+                Ref = payee.EmpRef,
+                Name = payee.RefName,
+                AddedDate = accountHistory.AddedDate,
+                RemovedDate = accountHistory.RemovedDate
+            };
 
-        parameters.Add("@HashedAccountId", hashedAccountId, DbType.String);
-        parameters.Add("@Ref", reference, DbType.String);
+        var result = await query.FirstOrDefaultAsync();
 
-        var result = await _db.Value.Database.GetDbConnection().QueryAsync<PayeSchemeView>(
-            sql: "[employer_account].[GetPayeForAccount_ByRef]",
-            param: parameters,
-            transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
-            commandType: CommandType.StoredProcedure);
-
-        return result.SingleOrDefault();
+        return result;
     }
 }

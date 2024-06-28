@@ -33,9 +33,9 @@ internal class WhenIGetANonLevyAccount
     {
         //Arrange
         var agreementType = AgreementType.Combined;
-        const string hashedAgreementId = "ABC123";
+        const long accountId = 22334;
 
-        var response = new GetEmployerAccountDetailByHashedIdResponse
+        var response = new GetEmployerAccountDetailByIdResponse
         {
             Account = new AccountDetail
             {
@@ -48,14 +48,16 @@ internal class WhenIGetANonLevyAccount
         };
 
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByHashedIdQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response)
             .Verifiable("Get account was not called");
 
         //Act
-        var result = await _orchestrator.GetAccount(hashedAgreementId);
+        var result = await _orchestrator.GetAccount(accountId);
 
         //Assert
+        _mediator.Verify();
+        _mediator.VerifyNoOtherCalls();
         Assert.AreEqual(agreementType.ToString(), result.AccountAgreementType.ToString());
     }
 }

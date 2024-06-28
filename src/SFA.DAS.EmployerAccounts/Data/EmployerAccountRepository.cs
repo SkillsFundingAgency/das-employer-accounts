@@ -49,13 +49,14 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         };
     }
 
-    public async Task<AccountDetail> GetAccountDetailByHashedId(string hashedAccountId)
+    public async Task<AccountDetail> GetAccountDetailById(long accountId)
     {
         var account = await _db.Value.Accounts
             .Include(x => x.AccountLegalEntities)
             .ThenInclude(y => y.Agreements)
-            .ThenInclude(x=> x.Template)
-            .SingleOrDefaultAsync(x => x.HashedId == hashedAccountId);
+            .ThenInclude(x => x.Template).Include(account => account.AccountHistory)
+            .Include(account => account.Memberships).ThenInclude(membership => membership.User)
+            .SingleOrDefaultAsync(x => x.Id == accountId);
 
         if (account == null)
         {

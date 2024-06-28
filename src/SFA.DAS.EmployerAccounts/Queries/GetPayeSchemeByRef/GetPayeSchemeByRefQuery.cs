@@ -2,6 +2,6 @@
 
 public class GetPayeSchemeByRefQuery : IRequest<GetPayeSchemeByRefResponse>
 {
-    public string HashedAccountId { get; set; }
+    public long AccountId { get; set; }
     public string Ref { get; set; }
 }

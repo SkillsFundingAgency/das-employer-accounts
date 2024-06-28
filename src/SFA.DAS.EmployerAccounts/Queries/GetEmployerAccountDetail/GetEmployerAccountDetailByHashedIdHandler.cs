@@ -3,18 +3,18 @@ using SFA.DAS.EmployerAccounts.Data.Contracts;
 
 namespace SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 
-public class GetEmployerAccountDetailByHashedIdHandler : IRequestHandler<GetEmployerAccountDetailByHashedIdQuery, GetEmployerAccountDetailByHashedIdResponse>
+public class GetEmployerAccountDetailByHashedIdHandler : IRequestHandler<GetEmployerAccountDetailByIdQuery, GetEmployerAccountDetailByIdResponse>
 {
-    private readonly IValidator<GetEmployerAccountDetailByHashedIdQuery> _validator;
+    private readonly IValidator<GetEmployerAccountDetailByIdQuery> _validator;
     private readonly IEmployerAccountRepository _employerAccountRepository;
 
-    public GetEmployerAccountDetailByHashedIdHandler(IValidator<GetEmployerAccountDetailByHashedIdQuery> validator, IEmployerAccountRepository employerAccountRepository)
+    public GetEmployerAccountDetailByHashedIdHandler(IValidator<GetEmployerAccountDetailByIdQuery> validator, IEmployerAccountRepository employerAccountRepository)
     {
         _validator = validator;
         _employerAccountRepository = employerAccountRepository;
     }
 
-    public async Task<GetEmployerAccountDetailByHashedIdResponse> Handle(GetEmployerAccountDetailByHashedIdQuery message, CancellationToken cancellationToken)
+    public async Task<GetEmployerAccountDetailByIdResponse> Handle(GetEmployerAccountDetailByIdQuery message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
 
@@ -23,8 +23,8 @@ public class GetEmployerAccountDetailByHashedIdHandler : IRequestHandler<GetEmpl
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        var account = await _employerAccountRepository.GetAccountDetailByHashedId(message.HashedAccountId);
+        var account = await _employerAccountRepository.GetAccountDetailById(message.AccountId);
 
-        return new GetEmployerAccountDetailByHashedIdResponse { Account = account };
+        return new GetEmployerAccountDetailByIdResponse { Account = account };
     }
 }

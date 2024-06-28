@@ -24,7 +24,7 @@ public class GetAccountLegalEntitiesByHashedAccountIdQueryHandler : IRequestHand
             throw new InvalidRequestException(result.ValidationDictionary);
         }
 
-        var accountLegalEntities = await _accountLegalEntityRepository.GetAccountLegalEntities(message.HashedAccountId);
+        var accountLegalEntities = await _accountLegalEntityRepository.GetAccountLegalEntities(message.AccountId);
 
         return new GetAccountLegalEntitiesByHashedAccountIdResponse
         {

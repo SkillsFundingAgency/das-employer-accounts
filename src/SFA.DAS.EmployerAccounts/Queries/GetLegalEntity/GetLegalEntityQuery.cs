@@ -2,13 +2,13 @@
 
 public class GetLegalEntityQuery : IRequest<GetLegalEntityResponse>
 {
-    public GetLegalEntityQuery(string accountHashedId, long legalEntityId)
+    public GetLegalEntityQuery(long accountId, long legalEntityId)
     {
-        AccountHashedId = accountHashedId;
+        AccountId = accountId;
         LegalEntityId = legalEntityId;
     }
 
-    public string AccountHashedId { get; }
+    public long AccountId { get; }
 
     public long LegalEntityId { get; }
 }

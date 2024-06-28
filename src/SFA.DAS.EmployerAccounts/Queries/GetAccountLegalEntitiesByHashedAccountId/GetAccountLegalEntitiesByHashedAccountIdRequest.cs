@@ -2,5 +2,5 @@
 
 public class GetAccountLegalEntitiesByHashedAccountIdRequest : IRequest<GetAccountLegalEntitiesByHashedAccountIdResponse>
 {
-    public string HashedAccountId { get; set; }
+    public long AccountId { get; set; }
 }

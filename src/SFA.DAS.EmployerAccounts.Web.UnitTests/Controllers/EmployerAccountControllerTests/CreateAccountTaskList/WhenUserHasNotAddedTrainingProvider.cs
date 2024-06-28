@@ -64,7 +64,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string userId,
             GetUserByRefResponse userByRefResponse,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-            GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetEmployerAccountDetailByIdResponse accountDetailResponse,
             [Frozen] Mock<IEmployerAccountService> employerAccountServiceMock,
             [Frozen] Mock<IUrlActionHelper> urlHelperMock,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
@@ -94,7 +94,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             accountDetailResponse.Account.NameConfirmed = true;
 
             mediatorMock
-                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
 
             // Act
@@ -116,7 +116,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string userId,
             GetUserByRefResponse userByRefResponse,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-            GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetEmployerAccountDetailByIdResponse accountDetailResponse,
             [Frozen] Mock<IUrlActionHelper> urlHelperMock,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
@@ -146,7 +146,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             accountDetailResponse.Account.NameConfirmed = true;
 
             mediatorMock
-                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
 
             // Act

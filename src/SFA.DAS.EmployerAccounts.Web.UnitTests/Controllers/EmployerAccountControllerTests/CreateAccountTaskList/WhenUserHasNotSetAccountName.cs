@@ -22,19 +22,22 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
         [Test]
         [MoqAutoData]
         public async Task Then_GetCreateAccountTaskList_GetAccountWithId(
+            long accountId,
             string hashedAccountId,
             string userId,
+            [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
         {
             // Arrange
             SetControllerContextUserIdClaim(userId, controller);
+            encodingServiceMock.Setup(x => x.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
             // Act
             var result = await controller.CreateAccountTaskList(hashedAccountId);
 
             // Assert
-            mediatorMock.Verify(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()), Times.Once);
+            mediatorMock.Verify(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
@@ -68,7 +71,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
             GetUserByRefResponse userByRefResponse,
-            GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetEmployerAccountDetailByIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
@@ -83,7 +86,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             accountDetailResponse.Account.NameConfirmed = false;
             accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
             mediatorMock
-                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
             
             mediatorMock
@@ -124,7 +127,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
             GetUserByRefResponse userByRefResponse,
-            GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetEmployerAccountDetailByIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
@@ -139,7 +142,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             accountDetailResponse.Account.NameConfirmed = false;
             accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
             mediatorMock
-                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
             
             mediatorMock
@@ -163,7 +166,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string userId,
             GetUserByRefResponse userByRefResponse,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-            GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetEmployerAccountDetailByIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
@@ -178,7 +181,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             accountDetailResponse.Account.NameConfirmed = false;
             accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
             mediatorMock
-                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
             
             mediatorMock
@@ -202,7 +205,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             string userId,
             [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
             GetUserByRefResponse userByRefResponse,
-            GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+            GetEmployerAccountDetailByIdResponse accountDetailResponse,
             [Frozen] Mock<IEncodingService> encodingServiceMock,
             [Frozen] Mock<IMediator> mediatorMock,
             [NoAutoProperties] EmployerAccountController controller)
@@ -225,7 +228,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             accountDetailResponse.Account.NameConfirmed = false;
             accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
             mediatorMock
-                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountDetailResponse);
             
             mediatorMock

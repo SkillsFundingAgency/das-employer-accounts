@@ -8,13 +8,14 @@ using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountDetailTests
 {
-    public class WhenIGetEmployerAccountDetailsByHashedId : QueryBaseTest<GetEmployerAccountDetailByHashedIdHandler, GetEmployerAccountDetailByHashedIdQuery, GetEmployerAccountDetailByHashedIdResponse>
+    public class WhenIGetEmployerAccountDetailsByHashedId : QueryBaseTest<GetEmployerAccountDetailByHashedIdHandler, GetEmployerAccountDetailByIdQuery, GetEmployerAccountDetailByIdResponse>
     {
         private Mock<IEmployerAccountRepository> _employerAccountRepository;
-        public override GetEmployerAccountDetailByHashedIdQuery Query { get; set; }
+        public override GetEmployerAccountDetailByIdQuery Query { get; set; }
         public override GetEmployerAccountDetailByHashedIdHandler RequestHandler { get; set; }
-        public override Mock<IValidator<GetEmployerAccountDetailByHashedIdQuery>> RequestValidator { get; set; }
+        public override Mock<IValidator<GetEmployerAccountDetailByIdQuery>> RequestValidator { get; set; }
 
+        private const long ExpectedAccountId = 889299;
         private const string ExpectedHashedAccountId = "MNBGBD";
        
         [SetUp]
@@ -23,32 +24,34 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountDetailTes
             SetUp();
 
             _employerAccountRepository = new Mock<IEmployerAccountRepository>();
-            _employerAccountRepository.Setup(x => x.GetAccountDetailByHashedId(ExpectedHashedAccountId)).ReturnsAsync(new AccountDetail { HashedId = ExpectedHashedAccountId });
+            _employerAccountRepository
+                .Setup(x => x.GetAccountDetailById(ExpectedAccountId))
+                .ReturnsAsync(new AccountDetail { HashedId = ExpectedHashedAccountId });
 
             RequestHandler = new GetEmployerAccountDetailByHashedIdHandler(RequestValidator.Object, _employerAccountRepository.Object);
-            Query = new GetEmployerAccountDetailByHashedIdQuery();
+            Query = new GetEmployerAccountDetailByIdQuery();
         }
 
         [Test]
         public override async Task ThenIfTheMessageIsValidTheRepositoryIsCalled()
         {
             //Act
-            await RequestHandler.Handle(new GetEmployerAccountDetailByHashedIdQuery
+            await RequestHandler.Handle(new GetEmployerAccountDetailByIdQuery
             {
-                HashedAccountId = ExpectedHashedAccountId
+                AccountId = ExpectedAccountId
             }, CancellationToken.None);
 
             //Assert
-            _employerAccountRepository.Verify(x => x.GetAccountDetailByHashedId(ExpectedHashedAccountId));
+            _employerAccountRepository.Verify(x => x.GetAccountDetailById(ExpectedAccountId));
         }
 
         [Test]
         public override async Task ThenIfTheMessageIsValidTheValueIsReturnedInTheResponse()
         {
             //Act
-            var result = await RequestHandler.Handle(new GetEmployerAccountDetailByHashedIdQuery
+            var result = await RequestHandler.Handle(new GetEmployerAccountDetailByIdQuery
             {
-                HashedAccountId = ExpectedHashedAccountId
+                AccountId = ExpectedAccountId
             }, CancellationToken.None);
 
             //Assert

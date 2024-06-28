@@ -23,14 +23,14 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntitiesByHa
 
             //Assert
             Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("HashedAccountId", "HashedAccountId has not been supplied"),result.ValidationDictionary );
+            Assert.Contains(new KeyValuePair<string,string>("AccountId", "AccountId has not been supplied"),result.ValidationDictionary );
         }
 
         [Test]
         public void ThenTrueIsReturnedIfTheFieldsArePopulated()
         {
             //Act
-            var result = _validator.Validate(new GetAccountLegalEntitiesByHashedAccountIdRequest { HashedAccountId = "12345"});
+            var result = _validator.Validate(new GetAccountLegalEntitiesByHashedAccountIdRequest { AccountId = 12345});
 
             //Assert
             Assert.IsTrue(result.IsValid());
