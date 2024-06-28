@@ -71,7 +71,7 @@ public class WhenUserHasCompletedAllTasks
 
         mediatorMock
             .Setup(m => m.Send(
-                It.Is<GetEmployerAccountDetailByHashedIdQuery>(x => x.HashedAccountId == hashedAccountId),
+                It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(accountDetailResponse)
             .Verifiable();
@@ -94,7 +94,7 @@ public class WhenUserHasCompletedAllTasks
         string userId,
         GetUserByRefResponse userByRefResponse,
         [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-        GetEmployerAccountDetailByHashedIdResponse accountDetailResponse,
+        GetEmployerAccountDetailByIdResponse accountDetailResponse,
         [Frozen] Mock<IEmployerAccountService> employerAccountServiceMock,
         [Frozen] Mock<IUrlActionHelper> urlHelperMock,
         [Frozen] Mock<IEncodingService> encodingServiceMock,

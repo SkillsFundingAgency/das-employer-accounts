@@ -37,12 +37,34 @@ public class EmployerAccountsController : ControllerBase
         return Ok(result);
     }
 
-    [Route("{accountId}", Name = "GetAccountById")]
+    [Route("{accountId: long}", Name = "GetAccountById")]
     [Authorize(Policy = ApiRoles.ReadAllAccountUsers)]
     [HttpGet]
     public async Task<IActionResult> GetAccount(long accountId)
     {
+        var isDecoded = _encodingService.TryDecode(accountId.ToString(), EncodingType.AccountId, out _);
+
+        if (isDecoded)
+        {
+            return await GetAccount(accountId.ToString());
+        }
+        
         var result = await _orchestrator.GetAccount(accountId);
+        if (result == null) return NotFound();
+
+        result.LegalEntities.ForEach(x => CreateGetLegalEntityLink(accountId, x));
+        result.PayeSchemes.ForEach(x => CreateGetPayeSchemeLink(accountId, x));
+        return Ok(result);
+    }
+    
+    [Route("{hashedAccountId}", Name = "GetAccount")]
+    [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
+    [HttpGet]
+    public async Task<IActionResult> GetAccount(string hashedAccountId)
+    {
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var result = await _orchestrator.GetAccount(accountId);
+
         if (result == null) return NotFound();
 
         result.LegalEntities.ForEach(x => CreateGetLegalEntityLink(accountId, x));
