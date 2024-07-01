@@ -18,9 +18,7 @@ public class WhenWeRecordUserHasLoggedIn
     [SetUp]
     public void Arrange()
     {
-
         _userAccountRepository = new Mock<IUserAccountRepository>();
-
         _handler = new RecordUserLoggedInCommandHandler(_userAccountRepository.Object, Mock.Of<ILogger<RecordUserLoggedInCommandHandler>>());
 
         _command = new RecordUserLoggedInCommand
