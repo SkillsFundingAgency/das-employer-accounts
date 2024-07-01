@@ -36,6 +36,6 @@ public class WhenGetAccountWithKnownIds : GivenEmployerAccountsApi
     public void ThenTheStatusShouldBeFound_ByHashedAccountId()
     {
         Response.ExpectStatusCodes(HttpStatusCode.OK);
-        Assert.IsNotNull(Response.GetContent<AccountDetail>());
+        Assert.That(Response.GetContent<AccountDetail>(), Is.Not.Null);
     }
 }

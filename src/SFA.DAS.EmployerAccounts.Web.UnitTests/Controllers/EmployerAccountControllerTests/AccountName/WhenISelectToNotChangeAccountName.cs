@@ -52,6 +52,12 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
             };
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _employerAccountController?.Dispose();
+        }
+
         [Test, MoqAutoData]
         public async Task Then_Name_Is_Updated(string hashedAccountId, RenameEmployerAccountViewModel viewModel)
         {

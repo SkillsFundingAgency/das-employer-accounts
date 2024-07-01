@@ -74,7 +74,7 @@ public class WhenRemovingAPayeScheme
         var actual = await _employerAccountPayeOrchestrator.RemoveSchemeFromAccount(new RemovePayeSchemeViewModel());
 
         //Assert
-        Assert.AreEqual( HttpStatusCode.Unauthorized, actual.Status);
+        Assert.That( actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
 
     }
 
@@ -89,7 +89,7 @@ public class WhenRemovingAPayeScheme
         var actual = await _employerAccountPayeOrchestrator.RemoveSchemeFromAccount(new RemovePayeSchemeViewModel());
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, actual.Status);
+        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
 
     }
 
@@ -136,7 +136,7 @@ public class WhenRemovingAPayeScheme
         var actual = await _employerAccountPayeOrchestrator.GetRemovePayeSchemeModel(model);
 
         //Assert
-        Assert.AreEqual(SchemeName, actual.Data.PayeSchemeName);
+        Assert.That(actual.Data.PayeSchemeName, Is.EqualTo(SchemeName));
     }
 
     [Test]
@@ -162,7 +162,7 @@ public class WhenRemovingAPayeScheme
         var actual = await _employerAccountPayeOrchestrator.RemoveSchemeFromAccount(model);
 
         //Assert
-        Assert.AreEqual(SchemeName, actual.Data.PayeSchemeName);
+        Assert.That(actual.Data.PayeSchemeName, Is.EqualTo(SchemeName));
     }
 
 }

@@ -64,8 +64,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var result = await _commitmentsV2ServiceWithTimeout.GetApprenticeships(_accountId);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count().Equals(1));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count().Equals(1), Is.True);
         }
 
         [Test]
@@ -75,8 +75,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var result = await _commitmentsV2ServiceWithTimeout.GetCohorts(_accountId);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count().Equals(1));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count().Equals(1), Is.True);
         }
 
         [Test]
@@ -86,8 +86,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var result = await _commitmentsV2ServiceWithTimeout.GetDraftApprenticeships(_cohort);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count().Equals(1));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count().Equals(1), Is.True);
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var apprenticeshipsResult = await _commitmentsV2ServiceWithTimeout.GetApprenticeships(_accountId);
 
             // assert 
-            Assert.AreSame(apprenticeshipsResult, _apprenticeships);
+            Assert.That(_apprenticeships, Is.SameAs(apprenticeshipsResult));
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var cohortsResult = await _commitmentsV2ServiceWithTimeout.GetCohorts(_accountId);
 
             // assert 
-            Assert.AreSame(cohortsResult, _cohorts);
+            Assert.That(_cohorts, Is.SameAs(cohortsResult));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var apprenticeshipsResult = await _commitmentsV2ServiceWithTimeout.GetDraftApprenticeships(_cohort);
 
             // assert 
-            Assert.AreSame(apprenticeshipsResult, _apprenticeships);
+            Assert.That(_apprenticeships, Is.SameAs(apprenticeshipsResult));
         }
 
         [Test]
@@ -170,9 +170,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
                 actualException = e;
                 correctExceptionThrown = true;
             }
-            Assert.IsTrue(correctExceptionThrown);
-            Assert.AreEqual(actualException.InnerException?.Message, innerException);
-            Assert.AreEqual(actualException.Message, message);
+            Assert.That(correctExceptionThrown, Is.True);
+            Assert.That(innerException, Is.EqualTo(actualException.InnerException?.Message));
+            Assert.That(message, Is.EqualTo(actualException.Message));
         }
 
         [Test]
@@ -195,9 +195,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
                 actualException = e;
                 correctExceptionThrown = true;
             }
-            Assert.IsTrue(correctExceptionThrown);
-            Assert.AreEqual(actualException.InnerException?.Message, innerException);
-            Assert.AreEqual(actualException.Message, message);
+            Assert.That(correctExceptionThrown, Is.True);
+            Assert.That(innerException, Is.EqualTo(actualException.InnerException?.Message));
+            Assert.That(message, Is.EqualTo(actualException.Message));
         }
 
         [Test]
@@ -220,9 +220,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
                 actualException = e;
                 correctExceptionThrown = true;
             }
-            Assert.IsTrue(correctExceptionThrown);
-            Assert.AreEqual(actualException.InnerException?.Message, innerException);
-            Assert.AreEqual(actualException.Message, message);
+            Assert.That(correctExceptionThrown, Is.True);
+            Assert.That(innerException, Is.EqualTo(actualException.InnerException?.Message));
+            Assert.That(message, Is.EqualTo(actualException.Message));
         }
     }
 }

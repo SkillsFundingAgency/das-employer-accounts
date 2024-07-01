@@ -70,6 +70,12 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
                 .ReturnsAsync(_response);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _employerAccountController?.Dispose();
+        }
+
         //TODO add EmployerAccountOrganisationController tests when created
         //[Test]
         //public void ThenIShouldSaveTheSelectedEmployerDetailsToCookies()

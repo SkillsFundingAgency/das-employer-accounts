@@ -49,7 +49,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementQueryTe
                 act: fixtures => fixtures.Handle("ACC123", 1, Guid.NewGuid()),
                 assert: fixtures =>
                 {
-                    Assert.IsNull(fixtures.Response.EmployerAgreement);
+                    Assert.That(fixtures.Response.EmployerAgreement, Is.Null);
                 }
             );
         }
@@ -67,7 +67,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementQueryTe
                                         .WithAgreement(AccountId, LegalEntityId, AccountLegalEntityId, 2, EmployerAgreementStatus.Pending, out _)
                                         .WithUser(AccountId, "Buck", "Rogers", Role.Owner, out user),
                 act: fixtures => fixtures.Handle(HashedAccountId, expectedAgreement.Id, user.Ref),
-                assert: fixtures => Assert.AreEqual(expectedAgreement.Id, fixtures.Response.EmployerAgreement.Id));
+                assert: fixtures => Assert.That(fixtures.Response.EmployerAgreement.Id, Is.EqualTo(expectedAgreement.Id)));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementQueryTe
                                         .WithPendingAgreement(AccountId, LegalEntityId, AccountLegalEntityId, 2, out latestAgreement)
                                         .WithUser(AccountId, "Buck", "Rogers", Role.Owner, out user),
                 act: fixtures => fixtures.Handle(HashedAccountId, latestAgreement.Id, user.Ref),
-                assert: fixtures => Assert.AreEqual(user.FullName, fixtures.Response.EmployerAgreement.SignedByName));
+                assert: fixtures => Assert.That(fixtures.Response.EmployerAgreement.SignedByName, Is.EqualTo(user.FullName)));
         }
 
         [TestCase(Role.Transactor)]
@@ -100,7 +100,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementQueryTe
                     .WithSignedAgreement(AccountId, LegalEntityId, AccountLegalEntityId, 3, DateTime.Now.AddDays(-30), out signedAgreement)
                     .WithUser(AccountId, "Buck", "Rogers", role, out user),
                 act: fixtures => fixtures.Handle(HashedAccountId, signedAgreement.Id, user.Ref),
-                assert: fixtures => Assert.AreEqual(signedAgreement.Id, fixtures.Response.EmployerAgreement.Id));
+                assert: fixtures => Assert.That(fixtures.Response.EmployerAgreement.Id, Is.EqualTo(signedAgreement.Id)));
         }
     }
 

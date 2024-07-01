@@ -55,7 +55,7 @@ public class WhenAddingServicesToTheContainer
         var provider = services.BuildServiceProvider();
 
         var type = provider.GetService(toResolve);
-        Assert.IsNotNull(type);
+        Assert.That(type, Is.Not.Null);
     }
     
     [TestCase(typeof(IRequestHandler<CreateUserAccountCommand, CreateUserAccountCommandResponse>))]
@@ -74,7 +74,7 @@ public class WhenAddingServicesToTheContainer
         var provider = services.BuildServiceProvider();
 
         var type = provider.GetService(toResolve);
-        Assert.IsNotNull(type);
+        Assert.That(type, Is.Not.Null);
     }
 
     private static void SetupServiceCollection(IServiceCollection services)

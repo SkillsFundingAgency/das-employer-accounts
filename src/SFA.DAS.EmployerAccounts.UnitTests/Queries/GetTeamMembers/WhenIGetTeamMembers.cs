@@ -56,7 +56,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetTeamMembers
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.Contains(_teamMember, (ICollection) response.TeamMembers);
+            Assert.That((ICollection) response.TeamMembers, Does.Contain(_teamMember));
         }
     }
 }

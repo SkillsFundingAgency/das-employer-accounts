@@ -21,8 +21,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationsByAornTests
             var actual = _validator.Validate(new GetOrganisationsByAornRequest("aorn", "PayeRefTest"));
 
             //Assert
-            Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -32,8 +32,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationsByAornTests
             var actual = _validator.Validate(new GetOrganisationsByAornRequest("", "paye"));
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("Aorn","Aorn has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("Aorn","Aorn has not been supplied")));
         }
 
         [Test]
@@ -43,8 +43,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationsByAornTests
             var actual = _validator.Validate(new GetOrganisationsByAornRequest("aorn", ""));
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("PayeRef", "PayeRef has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("PayeRef", "PayeRef has not been supplied")));
         }
     }
 }

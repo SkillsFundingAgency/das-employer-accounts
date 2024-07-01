@@ -72,7 +72,7 @@ internal class WhenICallHmrcServiceForLastEnglishFractionUpdateDate
 
         //Assert
         _apprenticeshipLevyApiClient.Verify(x => x.GetLastEnglishFractionUpdate(ExpectedAccessCode), Times.Once);
-        Assert.AreEqual(updateDate, result);
+        Assert.That(result, Is.EqualTo(updateDate));
     }
 
 

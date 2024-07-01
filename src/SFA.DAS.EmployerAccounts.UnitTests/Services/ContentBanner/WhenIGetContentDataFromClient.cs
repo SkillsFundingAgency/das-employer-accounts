@@ -81,7 +81,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ContentBanner
             var content = await _sut.Get(type, applicationId);
 
             //assert
-            Assert.AreEqual(content,_testData);
+            Assert.That(_testData, Is.EqualTo(content));
         }
     }
 }

@@ -64,7 +64,7 @@ public class WhenICallTheHmrcServiceForEmpref
 
         //Act
         var actual = await _hmrcService.GetEmprefInformation(authToken, empRef);
-        Assert.IsAssignableFrom<EmpRefLevyInformation>(actual);
-        Assert.AreEqual(ExpectedName, actual.Employer.Name.EmprefAssociatedName);
+        Assert.That(actual, Is.AssignableFrom<EmpRefLevyInformation>());
+        Assert.That(actual.Employer.Name.EmprefAssociatedName, Is.EqualTo(ExpectedName));
     }
 }

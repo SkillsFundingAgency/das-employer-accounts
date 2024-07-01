@@ -22,9 +22,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntities
             var result = _validator.Validate(new GetAccountLegalEntitiesRequest());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("HashedLegalEntityId", "HashedLegalEntityId has not been supplied"),result.ValidationDictionary );
-            Assert.Contains(new KeyValuePair<string,string>("UserId","User Id has not been supplied"),result.ValidationDictionary );
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("HashedLegalEntityId", "HashedLegalEntityId has not been supplied")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("UserId","User Id has not been supplied")));
         }
 
         [Test]
@@ -34,8 +34,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntities
             var result = _validator.Validate(new GetAccountLegalEntitiesRequest {HashedLegalEntityId="12345",UserId = "12345"});
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("UserId", "User Id has not been supplied in the correct format"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("UserId", "User Id has not been supplied in the correct format")));
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntities
             var result = _validator.Validate(new GetAccountLegalEntitiesRequest { HashedLegalEntityId = "12345", UserId = Guid.NewGuid().ToString() });
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
     }
 }

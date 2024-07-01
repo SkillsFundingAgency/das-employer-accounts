@@ -42,6 +42,12 @@ public class WhenIManageMyNotificationSettings : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task ThenMySettingsAreRetrieved()
     {

@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UpdateShowAccountWizardTes
             var result = _validator.Validate(command);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -42,9 +42,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UpdateShowAccountWizardTes
             var result = _validator.Validate(command);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.IsTrue(result.ValidationDictionary.ContainsKey(nameof(command.HashedAccountId)));
-            Assert.IsTrue(result.ValidationDictionary.ContainsKey(nameof(command.ExternalUserId)));
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary.ContainsKey(nameof(command.HashedAccountId)), Is.True);
+            Assert.That(result.ValidationDictionary.ContainsKey(nameof(command.ExternalUserId)), Is.True);
         }
     }
 }

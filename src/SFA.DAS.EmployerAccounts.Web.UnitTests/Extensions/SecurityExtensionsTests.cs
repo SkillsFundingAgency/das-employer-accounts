@@ -35,7 +35,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
             var result = SecurityExtensions.HashedAccountId(mockClaimsIdentity.Object);
 
             //Assert            
-            Assert.AreEqual(HashedAccountId, result);
+            Assert.That(result, Is.EqualTo(HashedAccountId));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
             var result = SecurityExtensions.HashedAccountId(mockClaimsIdentity.Object);
 
             //Assert            
-            Assert.AreEqual(string.Empty, result);
+            Assert.That(result, Is.EqualTo(string.Empty));
 
         }
 

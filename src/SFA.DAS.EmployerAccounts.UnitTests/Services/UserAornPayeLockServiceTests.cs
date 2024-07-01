@@ -136,10 +136,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services
 
             var service = new UserAornPayeLockService(userRepo.Object, config, logger);
             var result = service.UserAornPayeStatus(userRef.ToString()).Result;
-          
-            Assert.AreEqual(result.RemainingAttempts, testData.Expected.RemainingAttempts);
-            Assert.AreEqual(result.IsLocked, testData.Expected.IsLocked);
-            Assert.AreEqual(result.RemainingLock, testData.Expected.RemainingLock);
+
+            Assert.That(testData.Expected.RemainingAttempts, Is.EqualTo(result.RemainingAttempts));
+            Assert.That(testData.Expected.IsLocked, Is.EqualTo(result.IsLocked));
+            Assert.That(testData.Expected.RemainingLock, Is.EqualTo(result.RemainingLock));
         }
     }
 }

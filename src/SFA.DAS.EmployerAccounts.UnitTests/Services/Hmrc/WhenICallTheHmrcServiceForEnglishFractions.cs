@@ -87,7 +87,7 @@ internal class WhenICallTheHmrcServiceForEnglishFractions
         _apprenticeshipLevyApiClient.Verify(
             x => x.GetEmployerFractionCalculations(ExpectedAuthToken, It.IsAny<string>(), It.IsAny<DateTime?>(),
                 It.IsAny<DateTime?>()), Times.Once);
-        Assert.AreEqual(englishFractions, result);
+        Assert.That(result, Is.EqualTo(englishFractions));
     }
 
     [Test]

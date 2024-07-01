@@ -19,6 +19,12 @@ class WhenISelectAnOrganisation
             Mock.Of<ICookieStorageService<HashedAccountIdModel>>());
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public void ThenTheCheckYourDetailsPageIsDisplayed()
     {
@@ -35,7 +41,7 @@ class WhenISelectAnOrganisation
         var response = _controller.SearchPensionRegulator(It.IsAny<string>(), viewModel).Result;
         var redirectResponse = (RedirectToActionResult) response;
 
-        Assert.AreEqual(ControllerConstants.SummaryActionName, redirectResponse.ActionName);
-        Assert.AreEqual(ControllerConstants.EmployerAccountControllerName, redirectResponse.ControllerName);
+        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SummaryActionName));
+        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
     }
 }

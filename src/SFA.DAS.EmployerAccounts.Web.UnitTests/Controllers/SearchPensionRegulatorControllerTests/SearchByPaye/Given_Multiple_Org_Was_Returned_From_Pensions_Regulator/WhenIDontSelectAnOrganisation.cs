@@ -19,6 +19,12 @@ class WhenIDontSelectAnOrganisation
             Mock.Of<ICookieStorageService<HashedAccountIdModel>>());
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public void ThenThePensionRegulatorResultsPageIsDisplayed()
     {
@@ -34,7 +40,7 @@ class WhenIDontSelectAnOrganisation
         var response = _controller.SearchPensionRegulator(It.IsAny<string>(), viewModel).Result;
         var viewResponse = (ViewResult)response;
 
-        Assert.AreEqual(ControllerConstants.SearchPensionRegulatorResultsViewName, viewResponse.ViewName);
-        Assert.AreEqual(true, viewResponse.ViewData["InError"]);
+        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchPensionRegulatorResultsViewName));
+        Assert.That(viewResponse.ViewData["InError"], Is.EqualTo(true));
     }
 }

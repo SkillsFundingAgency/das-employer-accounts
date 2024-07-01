@@ -26,7 +26,7 @@ public class PolicyRetryTest
 
         Assert.ThrowsAsync<ApiHttpException>(() => _policy.ExecuteAsync(runner.Execute));
 
-        Assert.AreEqual(6, runner.CallCount);
+        Assert.That(runner.CallCount, Is.EqualTo(6));
     }
 
     [Test]
@@ -36,7 +36,7 @@ public class PolicyRetryTest
 
         Assert.ThrowsAsync<ApiHttpException>(() => _policy.ExecuteAsync(runner.Execute));
 
-        Assert.AreEqual(6, runner.CallCount);
+        Assert.That(runner.CallCount, Is.EqualTo(6));
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class PolicyRetryTest
 
         await _policy.ExecuteAsync(runner.Execute);
 
-        Assert.AreEqual(runner.MaxCallCount, runner.CallCount);
+        Assert.That(runner.CallCount, Is.EqualTo(runner.MaxCallCount));
     }
 
     [Test]
@@ -56,7 +56,7 @@ public class PolicyRetryTest
 
         await _policy.ExecuteAsync(runner.Execute);
 
-        Assert.AreEqual(runner.MaxCallCount, runner.CallCount);
+        Assert.That(runner.CallCount, Is.EqualTo(runner.MaxCallCount));
     }
 
     private static ApiHttpException CreateTestException(int httpCode, string message)

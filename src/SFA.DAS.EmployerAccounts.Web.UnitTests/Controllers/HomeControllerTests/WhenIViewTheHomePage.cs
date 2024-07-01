@@ -88,6 +88,12 @@ public class WhenIViewTheHomePage : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _homeController?.Dispose();
+    }
+
     [Test]
     public async Task ThenTheAccountsAreNotReturnedWhenYouAreNotAuthenticated()
     {
@@ -119,8 +125,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual("http://test.local/confirm", actualRedirectResult.Url);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.Url, Is.EqualTo("http://test.local/confirm"));
     }
 
     [Test]
@@ -140,8 +146,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualRedirectToRouteResult = actual as RedirectToRouteResult;
-        Assert.IsNotNull(actualRedirectToRouteResult);
-        Assert.AreEqual("employer-team-index", actualRedirectToRouteResult.RouteName);
+        Assert.That(actualRedirectToRouteResult, Is.Not.Null);
+        Assert.That(actualRedirectToRouteResult.RouteName, Is.EqualTo("employer-team-index"));
     }
     
     [Test]
@@ -176,7 +182,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             foreach (var attribute in attributes)
             {
                 var actual = attribute as AuthorizeAttribute;
-                Assert.IsNull(actual);
+                Assert.That(actual, Is.Null);
             }
         }
     }
@@ -192,8 +198,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
-        Assert.AreEqual("ServiceStartPage", actualViewResult.ViewName);
+        Assert.That(actualViewResult, Is.Not.Null);
+        Assert.That(actualViewResult.ViewName, Is.EqualTo("ServiceStartPage"));
     }
 
     [Test]
@@ -209,8 +215,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var acutalRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(acutalRedirectResult);
-        Assert.AreEqual(_configuration.GovUkSignInToASAccountUrl, acutalRedirectResult.Url);
+        Assert.That(acutalRedirectResult, Is.Not.Null);
+        Assert.That(acutalRedirectResult.Url, Is.EqualTo(_configuration.GovUkSignInToASAccountUrl));
     }
 
     [Test]
@@ -227,8 +233,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualRedirectToRouteResult = actual as RedirectToRouteResult;
-        Assert.IsNotNull(actualRedirectToRouteResult);
-        Assert.AreEqual(RouteNames.EmployerTeamIndex, actualRedirectToRouteResult.RouteName);
+        Assert.That(actualRedirectToRouteResult, Is.Not.Null);
+        Assert.That(actualRedirectToRouteResult.RouteName, Is.EqualTo(RouteNames.EmployerTeamIndex));
     }
 
     [Test]
@@ -257,12 +263,11 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Assert
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
+        Assert.That(actualRedirectResult, Is.Not.Null);
 
         var actualRedirectResultUriBuilder = new Uri(actualRedirectResult.Url);
-        Assert.AreEqual(
-            redirectUri.ReplaceHashedAccountId(userAccountsViewModel.Accounts.AccountList[0].HashedId), 
-            actualRedirectResultUriBuilder.ToString());
+        Assert.That(
+            actualRedirectResultUriBuilder.ToString(), Is.EqualTo(redirectUri.ReplaceHashedAccountId(userAccountsViewModel.Accounts.AccountList[0].HashedId)));
     }
 
     [Test]
@@ -290,8 +295,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Assert
         var actualRedirectToRouteResult = actual as RedirectToRouteResult;
-        Assert.IsNotNull(actualRedirectToRouteResult);
-        Assert.AreEqual(RouteNames.EmployerTeamIndex, actualRedirectToRouteResult.RouteName);
+        Assert.That(actualRedirectToRouteResult, Is.Not.Null);
+        Assert.That(actualRedirectToRouteResult.RouteName, Is.EqualTo(RouteNames.EmployerTeamIndex));
     }
 
     [Test]
@@ -310,8 +315,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualRedirectToRouteResult = actual as RedirectToRouteResult;
-        Assert.IsNotNull(actualRedirectToRouteResult);
-        Assert.AreEqual(RouteNames.ContinueNewEmployerAccountTaskList, actualRedirectToRouteResult.RouteName);
+        Assert.That(actualRedirectToRouteResult, Is.Not.Null);
+        Assert.That(actualRedirectToRouteResult.RouteName, Is.EqualTo(RouteNames.ContinueNewEmployerAccountTaskList));
     }
 
     [Test]
@@ -342,8 +347,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
-        Assert.AreEqual(null, actualViewResult.ViewName);
+        Assert.That(actualViewResult, Is.Not.Null);
+        Assert.That(actualViewResult.ViewName, Is.EqualTo(null));
     }
 
     [Test]
@@ -377,13 +382,13 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        Assert.That(actualViewResult, Is.Not.Null);
 
         var viewModel = actualViewResult.Model;
-        Assert.IsInstanceOf<OrchestratorResponse<UserAccountsViewModel>>(viewModel);
+        Assert.That(viewModel, Is.InstanceOf<OrchestratorResponse<UserAccountsViewModel>>());
         var userAccountsViewModel = (OrchestratorResponse<UserAccountsViewModel>)viewModel;
 
-        Assert.AreEqual(true, userAccountsViewModel.Data.ShowTermsAndConditionBanner);
+        Assert.That(userAccountsViewModel.Data.ShowTermsAndConditionBanner, Is.EqualTo(true));
     }
 
     [Test]
@@ -417,13 +422,13 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        Assert.That(actualViewResult, Is.Not.Null);
 
         var viewModel = actualViewResult.Model;
-        Assert.IsInstanceOf<OrchestratorResponse<UserAccountsViewModel>>(viewModel);
+        Assert.That(viewModel, Is.InstanceOf<OrchestratorResponse<UserAccountsViewModel>>());
         var userAccountsViewModel = (OrchestratorResponse<UserAccountsViewModel>)viewModel;
 
-        Assert.AreEqual(false, userAccountsViewModel.Data.ShowTermsAndConditionBanner);
+        Assert.That(userAccountsViewModel.Data.ShowTermsAndConditionBanner, Is.EqualTo(false));
     }
 
     [Test]
@@ -452,7 +457,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as RedirectResult;
-        Assert.AreEqual($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}", actualViewResult.Url);
+        Assert.That(actualViewResult.Url, Is.EqualTo($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}"));
     }
     [Test]
     public async Task ThenIfIAmAuthenticatedWithNoUserInformation()
@@ -480,7 +485,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as RedirectResult;
-        Assert.AreEqual($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}", actualViewResult.Url);
+        Assert.That(actualViewResult.Url, Is.EqualTo($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}"));
     }
 
     [Test]
@@ -514,7 +519,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as RedirectToRouteResult;
-        Assert.AreEqual(RouteNames.NewEmployerAccountTaskList, actualViewResult.RouteName);
+        Assert.That(actualViewResult.RouteName, Is.EqualTo(RouteNames.NewEmployerAccountTaskList));
     }
 
     private static UserAccountsViewModel SetupUserAccountsViewModel(string redirectUri = null, string redirectDescription = null)

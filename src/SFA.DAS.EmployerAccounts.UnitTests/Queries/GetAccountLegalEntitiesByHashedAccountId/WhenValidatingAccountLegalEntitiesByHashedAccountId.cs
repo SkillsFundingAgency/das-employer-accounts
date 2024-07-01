@@ -22,8 +22,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntitiesByHa
             var result = _validator.Validate(new GetAccountLegalEntitiesByHashedAccountIdRequest());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("HashedAccountId", "HashedAccountId has not been supplied"),result.ValidationDictionary );
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("HashedAccountId", "HashedAccountId has not been supplied")));
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntitiesByHa
             var result = _validator.Validate(new GetAccountLegalEntitiesByHashedAccountIdRequest { HashedAccountId = "12345"});
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
     }
 }

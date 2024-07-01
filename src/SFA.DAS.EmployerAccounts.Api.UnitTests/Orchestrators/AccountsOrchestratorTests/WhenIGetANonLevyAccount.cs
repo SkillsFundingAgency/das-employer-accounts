@@ -56,7 +56,7 @@ internal class WhenIGetANonLevyAccount
         var result = await _orchestrator.GetAccount(hashedAgreementId);
 
         //Assert
-        Assert.AreEqual(agreementType.ToString(), result.AccountAgreementType.ToString());
+        Assert.That(result.AccountAgreementType.ToString(), Is.EqualTo(agreementType.ToString()));
     }
 }
 

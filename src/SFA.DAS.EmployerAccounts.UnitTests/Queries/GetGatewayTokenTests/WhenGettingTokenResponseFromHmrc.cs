@@ -44,7 +44,7 @@ public class WhenGettingTokenResponseFromHmrc
         var actual = await _getGatewayTokenHandler.Handle(new GetGatewayTokenQuery { AccessCode = "", RedirectUrl = "" }, CancellationToken.None);
 
         //Assert
-        Assert.IsAssignableFrom<GetGatewayTokenQueryResponse>(actual);
-        Assert.AreEqual(_expectedAccessToken, actual.HmrcTokenResponse.AccessToken);
+        Assert.That(actual, Is.AssignableFrom<GetGatewayTokenQueryResponse>());
+        Assert.That(actual.HmrcTokenResponse.AccessToken, Is.EqualTo(_expectedAccessToken));
     }
 }

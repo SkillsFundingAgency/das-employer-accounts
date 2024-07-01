@@ -36,7 +36,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserAornLockTests
             var result = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             _userAornPayeLockService.Verify(x => x.UserAornPayeStatus(Query.UserRef), Times.Once);
         }
     }

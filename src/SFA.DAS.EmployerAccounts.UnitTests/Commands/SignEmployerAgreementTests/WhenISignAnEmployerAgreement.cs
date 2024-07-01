@@ -183,8 +183,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementTests
                                   && c.SignedByName.Equals($"{_owner.FirstName} {_owner.LastName}")
                                 )));
 
-            Assert.AreEqual(OrganisationName, response.LegalEntityName);
-            Assert.AreEqual(AgreementType, response.AgreementType);
+            Assert.That(response.LegalEntityName, Is.EqualTo(OrganisationName));
+            Assert.That(response.AgreementType, Is.EqualTo(AgreementType));
         }
 
         [Test]

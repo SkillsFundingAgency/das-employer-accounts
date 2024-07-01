@@ -52,9 +52,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetSingleCohort
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert            
-            Assert.IsNotNull(response.Cohort);
-            Assert.IsTrue(response.Cohort.NumberOfDraftApprentices.Equals(1));
-            Assert.IsTrue(response.Cohort?.Apprenticeships.Count().Equals(1));
+            Assert.That(response.Cohort, Is.Not.Null);
+            Assert.That(response.Cohort.NumberOfDraftApprentices.Equals(1), Is.True);
+            Assert.That(response.Cohort?.Apprenticeships.Count().Equals(1), Is.True);
         }
 
 

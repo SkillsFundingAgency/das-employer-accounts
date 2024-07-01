@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetApprenticeship
             var result = _validator.Validate(new GetApprenticeshipsRequest { AccountId = 4567, ExternalUserId = "user123" });
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetApprenticeship
             var result = _validator.Validate(new GetApprenticeshipsRequest { ExternalUserId = "user123" });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetApprenticeship
             var result = _validator.Validate(new GetApprenticeshipsRequest { });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
     }    
 }

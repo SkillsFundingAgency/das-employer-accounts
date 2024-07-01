@@ -91,6 +91,12 @@ class WhenICreateAnAccount : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public async Task ThenIShouldGoToWhenDoYouWantToView()
     {
@@ -108,8 +114,8 @@ class WhenICreateAnAccount : ControllerTestBase
         var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectToRouteResult;
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HashedAccountId, result.RouteValues["HashedAccountId"]);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.RouteValues["HashedAccountId"], Is.EqualTo(HashedAccountId));
     }
 
     [Test]

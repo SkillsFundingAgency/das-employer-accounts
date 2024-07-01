@@ -54,8 +54,8 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.InviteTeamMember(request, "37648");
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.Status);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
             
     }
 
@@ -77,8 +77,8 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.InviteTeamMember(request, "37648");
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.Status);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -100,8 +100,8 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.InviteTeamMember(request, "37648");
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.Unauthorized, result.Status);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
         
@@ -124,6 +124,6 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.GetNewInvitation(hashAccountId, externalUserId);
 
         //Assert
-        Assert.AreEqual(status, result.Status);
+        Assert.That(result.Status, Is.EqualTo(status));
     }
 }

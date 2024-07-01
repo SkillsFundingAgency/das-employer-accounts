@@ -49,11 +49,11 @@ class WhenIChangeATeamMemberRole
         var result = await _orchestrator.ChangeRole("437675", email, role, "37648");
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.Status);
-        Assert.IsNotNull(result.FlashMessage);
-        Assert.AreEqual("Team member updated", result.FlashMessage.Headline);
-        Assert.AreEqual($"{email} can now {RoleStrings.GetRoleDescriptionToLower(role)}", result.FlashMessage.Message);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(result.FlashMessage, Is.Not.Null);
+        Assert.That(result.FlashMessage.Headline, Is.EqualTo("Team member updated"));
+        Assert.That(result.FlashMessage.Message, Is.EqualTo($"{email} can now {RoleStrings.GetRoleDescriptionToLower(role)}"));
     }
 
     [Test]
@@ -68,11 +68,11 @@ class WhenIChangeATeamMemberRole
            
         //Act
         var result = await _orchestrator.ChangeRole("437675", email, role, "37648");
-            
-            
+
+
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.Status);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -88,10 +88,10 @@ class WhenIChangeATeamMemberRole
 
         //Act
         var result = await _orchestrator.ChangeRole("437675", email, role, "37648");
-            
+
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.Unauthorized, result.Status);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -47,6 +47,12 @@ public class When_I_Call_GatewayInform_Without_HashedAccountId : ControllerTestB
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [TestCase("")]
     [TestCase(null)]
     [TestCase("                        ")]

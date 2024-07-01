@@ -15,7 +15,7 @@ public class RoleStringsTests
     {
         var actual = RoleStrings.GetRoleDescription(role);
 
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]

@@ -63,8 +63,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserByRefTests
             var result = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(_user, result.User);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.User, Is.EqualTo(_user));
             _repository.Verify(x => x.GetUserByRef(Query.UserRef), Times.Once);
         }
     }

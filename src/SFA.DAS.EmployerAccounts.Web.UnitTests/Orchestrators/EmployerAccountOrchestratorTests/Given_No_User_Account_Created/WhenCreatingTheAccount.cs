@@ -81,7 +81,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             var response = await _employerAccountOrchestrator.CreateOrUpdateAccount(new CreateAccountModel(), It.IsAny<HttpContext>());
 
             //Assert
-            Assert.AreEqual(hashedId, response.Data?.EmployerAgreement?.HashedAccountId);
+            Assert.That(response.Data?.EmployerAgreement?.HashedAccountId, Is.EqualTo(hashedId));
 
         }
 
@@ -116,12 +116,12 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             var model = _employerAccountOrchestrator.GetSummaryViewModel(context.Object);
 
             //Assert
-            Assert.AreEqual(employerAccountData.EmployerAccountOrganisationData.OrganisationName, model.Data.OrganisationName);
-            Assert.AreEqual(employerAccountData.EmployerAccountOrganisationData.OrganisationStatus, model.Data.OrganisationStatus);
-            Assert.AreEqual(employerAccountData.EmployerAccountOrganisationData.OrganisationReferenceNumber, model.Data.OrganisationReferenceNumber);
-            Assert.AreEqual(employerAccountData.EmployerAccountPayeRefData.PayeReference, model.Data.PayeReference);
-            Assert.AreEqual(employerAccountData.EmployerAccountPayeRefData.EmployerRefName, model.Data.EmployerRefName);
-            Assert.AreEqual(employerAccountData.EmployerAccountPayeRefData.EmpRefNotFound, model.Data.EmpRefNotFound);
+            Assert.That(model.Data.OrganisationName, Is.EqualTo(employerAccountData.EmployerAccountOrganisationData.OrganisationName));
+            Assert.That(model.Data.OrganisationStatus, Is.EqualTo(employerAccountData.EmployerAccountOrganisationData.OrganisationStatus));
+            Assert.That(model.Data.OrganisationReferenceNumber, Is.EqualTo(employerAccountData.EmployerAccountOrganisationData.OrganisationReferenceNumber));
+            Assert.That(model.Data.PayeReference, Is.EqualTo(employerAccountData.EmployerAccountPayeRefData.PayeReference));
+            Assert.That(model.Data.EmployerRefName, Is.EqualTo(employerAccountData.EmployerAccountPayeRefData.EmployerRefName));
+            Assert.That(model.Data.EmpRefNotFound, Is.EqualTo(employerAccountData.EmployerAccountPayeRefData.EmpRefNotFound));
 
         }
 

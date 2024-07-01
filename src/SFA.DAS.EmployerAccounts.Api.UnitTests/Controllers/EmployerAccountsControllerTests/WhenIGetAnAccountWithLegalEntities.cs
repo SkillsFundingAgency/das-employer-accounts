@@ -48,8 +48,8 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
              
             var response = await Controller.GetAccount(hashedAccountId);
 
-            Assert.IsNotNull(response);
-            Assert.IsInstanceOf<OkObjectResult>(response);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response, Is.InstanceOf<OkObjectResult>());
             var model = ((OkObjectResult)response).Value as AccountDetail;
 
             model.Should().NotBeNull();

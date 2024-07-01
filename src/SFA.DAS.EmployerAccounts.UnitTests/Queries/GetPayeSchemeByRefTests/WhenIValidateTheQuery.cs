@@ -21,9 +21,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             var actual = _validator.Validate(new GetPayeSchemeByRefQuery { Ref = "ABC/123" });
 
             //Assert
-            Assert.IsNotNull(actual);
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("HashedAccountId", "HashedAccountId has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("HashedAccountId", "HashedAccountId has not been supplied")));
         }
 
         [Test]
@@ -33,9 +33,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             var actual = _validator.Validate(new GetPayeSchemeByRefQuery { HashedAccountId = "ABC123" });
 
             //Assert
-            Assert.IsNotNull(actual);
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("Ref", "PayeSchemeRef has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("Ref", "PayeSchemeRef has not been supplied")));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             });
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
     }
 }

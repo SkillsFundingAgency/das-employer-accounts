@@ -91,8 +91,8 @@ public class WhenRequestingEmployerInformation
         var actual = await _getHmrcEmployerInformationHandler.Handle(new GetHmrcEmployerInformationQuery { AuthToken = ExpectedAuthToken }, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(ExpectedEmprefAssociatedName, actual.EmployerLevyInformation.Employer.Name.EmprefAssociatedName);
-        Assert.AreEqual(ExpectedEmpref, actual.Empref);
+        Assert.That(actual.EmployerLevyInformation.Employer.Name.EmprefAssociatedName, Is.EqualTo(ExpectedEmprefAssociatedName));
+        Assert.That(actual.Empref, Is.EqualTo(ExpectedEmpref));
     }
 
     [Test]
@@ -123,7 +123,7 @@ public class WhenRequestingEmployerInformation
         var actual = await _getHmrcEmployerInformationHandler.Handle(new GetHmrcEmployerInformationQuery { AuthToken = ExpectedAuthToken }, CancellationToken.None);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
     }
 
     [Test]

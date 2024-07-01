@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerTeamControllerTests;
+﻿using SFA.DAS.EmployerAccounts.Web.Controllers;
+
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerTeamControllerTests;
 
 public class WhenIChooseIIfIKnowApprenticeshipIsForExistingEmployee
 {
@@ -19,6 +21,12 @@ public class WhenIChooseIIfIKnowApprenticeshipIsForExistingEmployee
             Mock.Of<IUrlActionHelper>());
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public void IfIChooseYesIContinueTheJourney()
     {
@@ -33,6 +41,6 @@ public class WhenIChooseIIfIKnowApprenticeshipIsForExistingEmployee
         var result = _controller.TriageApprenticeForExistingEmployee(new TriageViewModel { TriageOption = TriageOptions.No }) as ViewResult;
 
         //Assert
-        Assert.AreEqual(ControllerConstants.TriageSetupApprenticeshipNewEmployeeViewName, result.ViewName);
+        Assert.That(result.ViewName, Is.EqualTo(ControllerConstants.TriageSetupApprenticeshipNewEmployeeViewName));
     }
 }

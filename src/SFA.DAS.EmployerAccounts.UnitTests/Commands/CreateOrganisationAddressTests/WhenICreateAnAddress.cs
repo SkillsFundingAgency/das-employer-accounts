@@ -46,7 +46,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
 
             //Assert
             _validator.Verify(x => x.Validate(_request), Times.Once);
-            Assert.AreEqual(expectedAddress, response.Address);
+            Assert.That(response.Address, Is.EqualTo(expectedAddress));
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var response = await _handler.Handle(_request, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(expectedAddress, response.Address);
+            Assert.That(response.Address, Is.EqualTo(expectedAddress));
         }
     }
 }

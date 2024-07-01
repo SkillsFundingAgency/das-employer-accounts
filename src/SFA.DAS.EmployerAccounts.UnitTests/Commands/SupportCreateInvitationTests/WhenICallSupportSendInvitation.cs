@@ -39,7 +39,6 @@ public class WhenICallSupportSendInvitation
     private Mock<IAuditService> _auditService;
     private Mock<IValidator<SupportCreateInvitationCommand>> _validator;
     private SupportCreateInvitationCommand _command;
-    private Mock<IConfiguration> _config;
 
     private const int AccountId = 14546;
     private const string HashedId = "111DEDW";
@@ -47,7 +46,6 @@ public class WhenICallSupportSendInvitation
     private const string Email = "user@local.test";
     private const string UserFullName = "Test User";
     private const string AccountName = "Test Account";
-    private readonly Guid _supportUserRef = Guid.NewGuid();
 
     [SetUp]
     public void Setup()
@@ -69,7 +67,7 @@ public class WhenICallSupportSendInvitation
         _auditService = new Mock<IAuditService>();
         _validator = new Mock<IValidator<SupportCreateInvitationCommand>>();
         _eventPublisher = new Mock<IEventPublisher>();
-        _config = new Mock<IConfiguration>();
+        new Mock<IConfiguration>();
 
         _employerAccountsConfig.DashboardUrl = "https://url.test/";
         _userAccountRepository.Setup(x => x.Get(Email)).ReturnsAsync(new User { Email = Email, Ref = Guid.NewGuid(), FirstName = "Test", LastName = "User" });

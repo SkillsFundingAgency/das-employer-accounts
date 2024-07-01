@@ -64,7 +64,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageLinkText(accountId);
 
         //Assert                       
-        Assert.AreEqual(expectedText, result);
+        Assert.That(result, Is.EqualTo(expectedText));
     }
 
     [Test]
@@ -84,7 +84,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageLinkText("12345");
 
         //Assert
-        Assert.IsNotNull("Back", result);
+        Assert.That("Back", Is.Not.Null, result);
     }
 
     [TestCase(false, null, "/")]
@@ -106,7 +106,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageLinkHref(accountId);
 
         //Assert                       
-        Assert.AreEqual(expectedLink, result);
+        Assert.That(result, Is.EqualTo(expectedLink));
     }
 
     [Test]
@@ -126,7 +126,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageLinkHref(null);
 
         //Assert
-        Assert.IsNotNull("/", result);
+        Assert.That("/", Is.Not.Null, result);
     }
 
     [TestCase(false, null, "Go back to the service home page")]
@@ -148,7 +148,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageButtonText(accountId);
 
         //Assert                       
-        Assert.AreEqual(expectedText, result);
+        Assert.That(result, Is.EqualTo(expectedText));
     }
 
 
@@ -169,7 +169,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageButtonText(null);
 
         //Assert
-        Assert.IsNotNull("Go back to the service home page", result);
+        Assert.That("Go back to the service home page", Is.Not.Null, result);
     }
 
 
@@ -192,7 +192,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageButtonHref(accountId);
 
         //Assert                       
-        Assert.AreEqual(expectedLink, result);
+        Assert.That(result, Is.EqualTo(expectedLink));
     }
 
 
@@ -213,7 +213,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnToHomePageButtonHref(null);
 
         //Assert
-        Assert.IsNotNull("/", result);
+        Assert.That("/", Is.Not.Null, result);
     }
 
     [TestCase(true, "You do not have permission to access this part of the service.")]
@@ -233,7 +233,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = htmlHelper.ReturnParagraphContent();
 
         //Assert
-        Assert.AreEqual(expectedContent, result);
+        Assert.That(result, Is.EqualTo(expectedContent));
     }
 
     [Test]
@@ -244,7 +244,7 @@ public class AccessDeniedViewRenderButtonTestsTier1
         var result = _mockClaimsIdentity.Object.HashedAccountId();
 
         //Assert
-        Assert.IsNotNull(result);
+        Assert.That(result, Is.Not.Null);
 
     }
 }

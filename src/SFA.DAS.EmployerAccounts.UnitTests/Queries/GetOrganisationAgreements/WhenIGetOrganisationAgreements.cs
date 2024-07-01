@@ -87,8 +87,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationAgreements
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(response.Agreements);
-            Assert.IsTrue(response.Agreements.Any());
+            Assert.That(response.Agreements, Is.Not.Null);
+            Assert.That(response.Agreements.Any(), Is.True);
         }        
     }
 }

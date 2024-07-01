@@ -67,7 +67,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(ContentBanner, response.Content);
+        Assert.That(response.Content, Is.EqualTo(ContentBanner));
     }
 
     [Test, RecursiveMoqAutoData]
@@ -99,6 +99,6 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         var result = await requestHandler1.Handle(query1, CancellationToken.None);
 
         //assert
-        Assert.AreEqual(result.Content, contentBanner1);
+        Assert.That(contentBanner1, Is.EqualTo(result.Content));
     }
 }

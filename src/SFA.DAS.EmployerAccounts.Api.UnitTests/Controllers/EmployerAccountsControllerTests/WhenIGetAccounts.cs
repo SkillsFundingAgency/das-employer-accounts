@@ -56,8 +56,8 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
 
             var response = await Controller.GetAccounts(toDate, pageSize, pageNumber);
 
-            Assert.IsNotNull(response);
-            Assert.IsInstanceOf<OkObjectResult>(response);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response, Is.InstanceOf<OkObjectResult>());
             var model = ((OkObjectResult)response).Value as PagedApiResponse<Account>;
 
             model.Data.Should().NotBeNull();

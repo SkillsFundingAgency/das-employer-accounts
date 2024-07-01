@@ -21,10 +21,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementsByAcco
 
             //Act
             var result = _validtor.Validate(request);
-            
+
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.AreEqual(1, result.ValidationDictionary.Count);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary.Count, Is.EqualTo(1));
         }
     }
 }

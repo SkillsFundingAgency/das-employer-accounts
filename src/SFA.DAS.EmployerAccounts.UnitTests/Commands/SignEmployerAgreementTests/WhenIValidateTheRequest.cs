@@ -44,7 +44,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementTests
 
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -55,10 +55,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementTests
             {
                 SignedDate = new DateTime(2016, 01, 01)
             });
-            
+
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.AreEqual(3,actual.ValidationDictionary.Count);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary.Count, Is.EqualTo(3));
         }
 
 
@@ -84,7 +84,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementTests
 
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.False);
         }
     }
 }

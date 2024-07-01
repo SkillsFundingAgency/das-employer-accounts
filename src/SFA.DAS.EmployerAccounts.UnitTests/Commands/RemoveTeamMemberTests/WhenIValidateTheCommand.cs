@@ -21,10 +21,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveTeamMemberTests
             var actual = _validator.Validate(new RemoveTeamMemberCommand());
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("UserId", "No UserId supplied"),actual.ValidationDictionary );
-            Assert.Contains(new KeyValuePair<string,string>("HashedAccountId", "No HashedAccountId supplied"),actual.ValidationDictionary );
-            Assert.Contains(new KeyValuePair<string,string>("ExternalUserId", "No ExternalUserId supplied"),actual.ValidationDictionary );
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("UserId", "No UserId supplied")));
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("HashedAccountId", "No HashedAccountId supplied")));
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("ExternalUserId", "No ExternalUserId supplied")));
             
 
         }

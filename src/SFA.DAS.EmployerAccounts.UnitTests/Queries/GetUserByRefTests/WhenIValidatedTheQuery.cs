@@ -20,7 +20,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserByRefTests
             var result = _queryValidator.Validate(new GetUserByRefQuery {UserRef = "123"});
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserByRefTests
             var result = _queryValidator.Validate(new GetUserByRefQuery());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
     }
 }

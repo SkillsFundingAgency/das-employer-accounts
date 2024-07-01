@@ -61,7 +61,7 @@ public class HttpCookieService<T> : ICookieService<T>
         {
             unprotect = _protector.Unprotect(base64EncodedBytes);
         }
-        catch (CryptographicException e)
+        catch (CryptographicException)
         {
             Delete(contextAccessor, name);
             return default(T);

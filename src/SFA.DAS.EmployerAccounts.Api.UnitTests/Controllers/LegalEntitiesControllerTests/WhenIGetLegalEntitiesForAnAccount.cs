@@ -54,8 +54,8 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
 
         var response = await Controller.GetLegalEntities(_hashedAccountId);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<OkObjectResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<OkObjectResult>());
         var model = ((OkObjectResult)response).Value as Types.ResourceList;
 
         model.Should().NotBeNull();
@@ -89,8 +89,8 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
 
         var response = await Controller.GetLegalEntities(_hashedAccountId, true);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<OkObjectResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<OkObjectResult>());
         var model = ((OkObjectResult)response).Value as List<Types.LegalEntity>;
         model.Should().NotBeNull();
         model.Should().BeEquivalentTo(expectedModel);
@@ -107,8 +107,8 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
 
         var response = await Controller.GetLegalEntities(_hashedAccountId);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<NotFoundResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<NotFoundResult>());
     }
 
     [Test]
@@ -126,8 +126,8 @@ public class WhenIGetLegalEntitiesForAnAccount : LegalEntitiesControllerTests
 
         var response = await Controller.GetLegalEntities(_hashedAccountId);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<NotFoundResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<NotFoundResult>());
     }
 
     private void SetupUrlHelperForAccountLegalEntityOne()

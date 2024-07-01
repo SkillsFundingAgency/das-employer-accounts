@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationAgreements
             var result = await _validator.ValidateAsync(new GetOrganisationAgreementsRequest { AccountLegalEntityHashedId = "Abc123" });
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationAgreements
             var result = await _validator.ValidateAsync(new GetOrganisationAgreementsRequest { AccountLegalEntityHashedId = string.Empty });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
 
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationAgreements
             var result = await _validator.ValidateAsync(new GetOrganisationAgreementsRequest { AccountLegalEntityHashedId = null });
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
     }
 }

@@ -46,7 +46,7 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
             await eventHandler.Handle(createdAccountEvent, messageHandlerContext.Object);
 
             // Assert
-            resultCommand.Email.RecipientsAddress.Should().Be(user.Email);
+            resultCommand.RecipientsAddress.Should().Be(user.Email);
         }
 
         [Test, MoqAutoData]
@@ -73,14 +73,13 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
                     resultCommand = request as SendNotificationCommand;
                 });
 
-
             // Act
             await eventHandler.Handle(createdAccountEvent, messageHandlerContext.Object);
 
             // Assert
-            resultCommand.Email.Tokens.Should().Contain(new KeyValuePair<string, string>("user_first_name", user.FirstName));
-            resultCommand.Email.Tokens.Should().Contain(new KeyValuePair<string, string>("employer_name", createdAccountEvent.Name));
-            resultCommand.Email.Tokens.Should().Contain(new KeyValuePair<string, string>("unsubscribe_url", accountBase + notificationPath));
+            resultCommand.Tokens.Should().Contain(new KeyValuePair<string, string>("user_first_name", user.FirstName));
+            resultCommand.Tokens.Should().Contain(new KeyValuePair<string, string>("employer_name", createdAccountEvent.Name));
+            resultCommand.Tokens.Should().Contain(new KeyValuePair<string, string>("unsubscribe_url", accountBase + notificationPath));
         }
     }
 }

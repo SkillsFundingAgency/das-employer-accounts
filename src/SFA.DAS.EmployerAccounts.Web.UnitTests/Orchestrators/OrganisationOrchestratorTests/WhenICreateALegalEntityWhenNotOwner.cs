@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.OrganisationOrche
 
             //Act & Assert
             var response = await _orchestrator.CreateLegalEntity(request);
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.Status);
+            Assert.That(response.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
         }
     }
 }

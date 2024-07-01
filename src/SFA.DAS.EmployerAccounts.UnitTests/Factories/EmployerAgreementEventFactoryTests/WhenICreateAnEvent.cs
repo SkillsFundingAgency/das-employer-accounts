@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Factories.EmployerAgreementEventFac
             var @event = _factory.CreateSignedEvent(hashedAccountId, hashedLegalEntityId, hashedAgreementId);
 
             //Assert
-            Assert.AreEqual(expectedApiUrlPostfix, @event.ResourceUrl);
+            Assert.That(@event.ResourceUrl, Is.EqualTo(expectedApiUrlPostfix));
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Factories.EmployerAgreementEventFac
             var actual = _factory.RemoveAgreementEvent(hashedAgreementId);
 
             //Assert
-            Assert.AreEqual(hashedAgreementId, actual.HashedAgreementId);
+            Assert.That(actual.HashedAgreementId, Is.EqualTo(hashedAgreementId));
 
         }
     }

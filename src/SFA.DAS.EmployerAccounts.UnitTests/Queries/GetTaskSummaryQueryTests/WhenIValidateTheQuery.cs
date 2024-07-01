@@ -21,8 +21,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetTaskSummaryQueryTests
             var actual = _validator.Validate(new GetTaskSummaryQuery());
 
             //Assety
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("AccountId", "Account id must be supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("AccountId", "Account id must be supplied")));
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetTaskSummaryQueryTests
             var actual = _validator.Validate(new GetTaskSummaryQuery { AccountId = 123 });
 
             //Assety
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
     }
 }

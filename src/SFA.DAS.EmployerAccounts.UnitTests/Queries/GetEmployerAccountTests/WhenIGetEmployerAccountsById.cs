@@ -53,8 +53,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountTests
             }, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Account);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Account, Is.Not.Null);
         }
 
         [Test]

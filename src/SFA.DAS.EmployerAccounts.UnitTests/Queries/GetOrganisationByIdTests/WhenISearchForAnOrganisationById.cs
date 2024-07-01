@@ -72,7 +72,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationByIdTests
             var actual = await _requestHandler.Handle(_query, CancellationToken.None);
 
             //Assert
-            Assert.AreSame(id, actual.Organisation.Name);
+            Assert.That(actual.Organisation.Name, Is.SameAs(id));
         }
     }
 }

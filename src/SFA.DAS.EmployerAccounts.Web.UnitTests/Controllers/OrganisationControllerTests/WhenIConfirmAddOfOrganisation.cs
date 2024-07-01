@@ -44,6 +44,12 @@ public class WhenIConfirmAddOfOrganisation : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task ThenIAmRedirectedToNextStepsViewIfSuccessful()
     {
@@ -51,8 +57,8 @@ public class WhenIConfirmAddOfOrganisation : ControllerTestBase
         var result = await _controller.Confirm("", "", "", "", null, "", OrganisationType.Other, 1, null, false) as RedirectToActionResult;
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("OrganisationAddedNextSteps", result.ActionName);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.ActionName, Is.EqualTo("OrganisationAddedNextSteps"));
     }
 
     [Test]
@@ -62,8 +68,8 @@ public class WhenIConfirmAddOfOrganisation : ControllerTestBase
         var result = await _controller.Confirm("", "", "", "", null, "", OrganisationType.Other, 1, null, true) as RedirectToActionResult;
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("OrganisationAddedNextStepsSearch", result.ActionName);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.ActionName, Is.EqualTo("OrganisationAddedNextStepsSearch"));
     }
 
     [Test]
@@ -73,7 +79,7 @@ public class WhenIConfirmAddOfOrganisation : ControllerTestBase
         var result = await _controller.Confirm("", "", "", "", null, "", OrganisationType.Other, 1, null, true) as RedirectToActionResult;
 
         //Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(TestHashedAgreementId, result.RouteValues["HashedAgreementId"]);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.RouteValues["HashedAgreementId"], Is.EqualTo(TestHashedAgreementId));
     }
 }

@@ -33,7 +33,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.LegalEntitiesContro
             
             var result = await controller.GetLegalEntity(hashedAccountId, legalEntityId, includeAllAgreements) as OkObjectResult;
 
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             var model = ((OkObjectResult)result).Value;
             model.Should().BeEquivalentTo(expectedModel);
         }

@@ -18,9 +18,9 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart
 
             //act
             await middleware.InvokeAsync(context);
-            
+
             // assert
-            Assert.AreEqual("text/plain", context.Response.ContentType);
+            Assert.That(context.Response.ContentType, Is.EqualTo("text/plain"));
             nextMock.Verify(n => n.Invoke(context), Times.Never);
         }
 

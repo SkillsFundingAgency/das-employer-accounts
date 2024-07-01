@@ -15,7 +15,7 @@ public static class HttpResponseMessageExtensions
 
     public static void ExpectStatusCodes(this HttpResponseMessage response, params HttpStatusCode[] statusCodes)
     {
-        Assert.IsTrue(statusCodes.Contains(response.StatusCode), $"Received response {response.StatusCode} " +
+        Assert.That(statusCodes.Contains(response.StatusCode), Is.True, $"Received response {response.StatusCode} " +
                                                                  $"when expected any of [{string.Join(",", statusCodes.Select(sc => sc))}]. " +
                                                                  $"Additional information sent to the client: {response.ReasonPhrase}. ");
     }

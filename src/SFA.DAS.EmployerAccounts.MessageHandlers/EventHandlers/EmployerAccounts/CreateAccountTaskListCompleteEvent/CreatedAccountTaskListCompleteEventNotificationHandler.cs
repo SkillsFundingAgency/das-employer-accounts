@@ -2,11 +2,11 @@
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Messages.Events;
-using SFA.DAS.Notifications.Api.Types;
 
 namespace SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
 
-public class CreatedAccountTaskListCompleteEventNotificationHandler : IHandleMessages<CreatedAccountTaskListCompleteEvent>
+public class
+    CreatedAccountTaskListCompleteEventNotificationHandler : IHandleMessages<CreatedAccountTaskListCompleteEvent>
 {
     private readonly ILogger<CreatedAccountTaskListCompleteEventNotificationHandler> _logger;
     private readonly IUserAccountRepository _userRepository;
@@ -28,24 +28,22 @@ public class CreatedAccountTaskListCompleteEventNotificationHandler : IHandleMes
 
     public async Task Handle(CreatedAccountTaskListCompleteEvent message, IMessageHandlerContext context)
     {
-        _logger.LogInformation($"Starting {nameof(CreatedAccountTaskListCompleteEventNotificationHandler)} handler for accountId: '{message.AccountId}'.");
+        _logger.LogInformation(
+            $"Starting {nameof(CreatedAccountTaskListCompleteEventNotificationHandler)} handler for accountId: '{message.AccountId}'.");
 
         var existingUser = await _userRepository.GetUserByRef(message.UserRef);
 
         await _mediator.Send(new SendNotificationCommand
         {
-            Email = new Email
+            RecipientsAddress = existingUser.Email,
+            TemplateId = EmployerAccountCreatedTemplateId,
+            Tokens = new Dictionary<string, string>
             {
-                RecipientsAddress = existingUser.Email,
-                TemplateId = EmployerAccountCreatedTemplateId,
-                Tokens = new Dictionary<string, string>
+                { "user_first_name", existingUser.FirstName },
+                { "employer_name", message.Name },
                 {
-                    { "user_first_name", existingUser.FirstName },
-                    { "employer_name", message.Name },
-                    {
-                        "unsubscribe_url",
-                        $"{_configuration.EmployerAccountsBaseUrl}/settings/notifications"
-                    }
+                    "unsubscribe_url",
+                    $"{_configuration.EmployerAccountsBaseUrl}/settings/notifications"
                 }
             }
         });

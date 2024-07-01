@@ -33,6 +33,12 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _homeController?.Dispose();
+    }
+
     [Test]
     public void ThenTheViewIsReturned()
     {
@@ -40,8 +46,8 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         var actual = _homeController.TermsAndConditions("returnUrl", "hashedId");
 
         //Assert
-        Assert.IsNotNull(actual);
-        Assert.IsAssignableFrom<ViewResult>(actual);
+        Assert.That(actual, Is.Not.Null);
+        Assert.That(actual, Is.AssignableFrom<ViewResult>());
     }
 
     [Test]
@@ -54,11 +60,11 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         var viewResult = (ViewResult)result;
         var viewModel = viewResult.Model;
 
-        Assert.IsInstanceOf<TermsAndConditionsNewViewModel>(viewModel);
+        Assert.That(viewModel, Is.InstanceOf<TermsAndConditionsNewViewModel>());
         var termsAndConditionViewModel = (TermsAndConditionsNewViewModel)viewModel;
 
-        Assert.AreEqual("returnUrl", termsAndConditionViewModel.ReturnUrl);
-        Assert.AreEqual("hashedId", termsAndConditionViewModel.HashedAccountId);
+        Assert.That(termsAndConditionViewModel.ReturnUrl, Is.EqualTo("returnUrl"));
+        Assert.That(termsAndConditionViewModel.HashedAccountId, Is.EqualTo("hashedId"));
     }
 
 
@@ -72,8 +78,8 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         //Assert
         var redirectResult = (RedirectToActionResult)result;
 
-        Assert.AreEqual("Index", redirectResult.ActionName);
-        Assert.AreEqual("EmployerTeam", redirectResult.ControllerName);
+        Assert.That(redirectResult.ActionName, Is.EqualTo("Index"));
+        Assert.That(redirectResult.ControllerName, Is.EqualTo("EmployerTeam"));
     }
 
     [Test]
@@ -86,6 +92,6 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         //Assert
         var redirectResult = (RedirectToActionResult)result;
 
-        Assert.AreEqual("Index", redirectResult.ActionName);
+        Assert.That(redirectResult.ActionName, Is.EqualTo("Index"));
     }
 }

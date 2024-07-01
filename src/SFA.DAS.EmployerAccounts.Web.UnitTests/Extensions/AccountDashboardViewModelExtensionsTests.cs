@@ -32,6 +32,6 @@ public class AccountDashboardViewModelExtensionsTests
         var result = AccountDashboardViewModelExtensions.ShowYourFundingReservationsLink(model);
 
         // Assert
-        Assert.AreEqual(expectedValue, result);
+        Assert.That(result, Is.EqualTo(expectedValue));
     }
 }

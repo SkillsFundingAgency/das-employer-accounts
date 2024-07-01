@@ -43,6 +43,12 @@ public class WhenIRegisterAUser
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _homeController?.Dispose();
+    }
+
     [Test, MoqAutoData]
     public async Task When_GovSignIn_False_CorrelationId_Is_Null_ThenTheUserIsRedirectedToIdams_RegisterLink(string baseUrl)
     {
@@ -55,10 +61,10 @@ public class WhenIRegisterAUser
         var actual = await _homeController.RegisterUser(null);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual($"{appConstants.RegisterLink()}{Schema}://{Authority}/service/register/new", actualRedirectResult.Url);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.Url, Is.EqualTo($"{appConstants.RegisterLink()}{Schema}://{Authority}/service/register/new"));
     }
 
     [Test, MoqAutoData]
@@ -80,10 +86,10 @@ public class WhenIRegisterAUser
         var actual = await _homeController.RegisterUser(correlationId);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual($"{appConstants.RegisterLink()}{Schema}://{Authority}/service/register/new", actualRedirectResult.Url);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.Url, Is.EqualTo($"{appConstants.RegisterLink()}{Schema}://{Authority}/service/register/new"));
     }
 
     [Test, MoqAutoData]
@@ -106,14 +112,13 @@ public class WhenIRegisterAUser
         var actual = await _homeController.RegisterUser(correlationId);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual($"{appConstants.RegisterLink()}{Schema}://{Authority}/service/register/new/{correlationId}" +
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.Url, Is.EqualTo($"{appConstants.RegisterLink()}{Schema}://{Authority}/service/register/new/{correlationId}" +
                         $"&firstname={WebUtility.UrlEncode(viewModel.EmployerFirstName)}" +
                         $"&lastname={WebUtility.UrlEncode(viewModel.EmployerLastName)}" +
-                        $"&email={WebUtility.UrlEncode(viewModel.EmployerEmail)}",
-            actualRedirectResult.Url);
+                        $"&email={WebUtility.UrlEncode(viewModel.EmployerEmail)}"));
     }
 
     [Test, AutoData]
@@ -130,10 +135,10 @@ public class WhenIRegisterAUser
         var actual = await _homeController.RegisterUser(null);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual(redirectUrl, actualRedirectResult.Url);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl));
     }
 
     [Test, MoqAutoData]
@@ -156,10 +161,10 @@ public class WhenIRegisterAUser
         var actual = await _homeController.RegisterUser(correlationId);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual(redirectUrl, actualRedirectResult.Url);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl));
     }
 
     [Test, MoqAutoData]
@@ -187,10 +192,10 @@ public class WhenIRegisterAUser
         var actual = await _homeController.RegisterUser(correlationId);
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual(redirectUrl + queryParams, actualRedirectResult.Url);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl + queryParams));
     }
     private IdentityServerConfiguration GetMockIdentityServerConfiguration(string baseUrl)
     {

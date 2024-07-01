@@ -30,7 +30,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetLastSignedAgreementQuery
             var result = await _validator.ValidateAsync(_query);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetLastSignedAgreementQuery
             var result = await _validator.ValidateAsync(_query);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
     }
 }

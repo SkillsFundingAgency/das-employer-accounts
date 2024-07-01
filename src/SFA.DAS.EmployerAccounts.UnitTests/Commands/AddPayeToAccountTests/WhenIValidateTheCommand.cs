@@ -35,7 +35,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AddPayeToAccountTests
             var actual = await _validator.ValidateAsync(new AddPayeToAccountCommand());
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.False);
             _membershiprepository.Verify(x => x.Get(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
@@ -63,8 +63,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AddPayeToAccountTests
 
             //Assert
             _membershiprepository.Verify(x => x.GetCaller(command.HashedAccountId, command.ExternalUserId), Times.Once);
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("member", "Unauthorised: User not connected to account"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("member", "Unauthorised: User not connected to account")));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AddPayeToAccountTests
 
             //Assert
             _membershiprepository.Verify(x => x.GetCaller(command.HashedAccountId, command.ExternalUserId), Times.Once);
-            Assert.IsTrue(actual.IsUnauthorized);
+            Assert.That(actual.IsUnauthorized, Is.True);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AddPayeToAccountTests
 
             //Assert
             _membershiprepository.Verify(x => x.GetCaller(command.HashedAccountId, command.ExternalUserId), Times.Once);
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
     }
 }

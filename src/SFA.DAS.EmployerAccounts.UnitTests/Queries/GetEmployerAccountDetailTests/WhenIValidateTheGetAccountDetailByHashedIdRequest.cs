@@ -23,8 +23,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountDetailTes
             var result = _validator.Validate(new GetEmployerAccountDetailByHashedIdQuery { HashedAccountId = ExpectedHashedId });
 
             //Assert
-            Assert.IsTrue(result.IsValid());
-            Assert.IsFalse(result.IsUnauthorized);
+            Assert.That(result.IsValid(), Is.True);
+            Assert.That(result.IsUnauthorized, Is.False);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountDetailTes
             var result = _validator.Validate(new GetEmployerAccountDetailByHashedIdQuery());
 
             //Assert
-            Assert.IsFalse(result.IsUnauthorized);
+            Assert.That(result.IsUnauthorized, Is.False);
         }
 
         [Test]
@@ -44,8 +44,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountDetailTes
             var result = _validator.Validate(new GetEmployerAccountDetailByHashedIdQuery());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("HashedAccountId", "HashedAccountId has not been supplied"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("HashedAccountId", "HashedAccountId has not been supplied")));
         }
     }
 }

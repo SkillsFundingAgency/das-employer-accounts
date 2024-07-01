@@ -55,6 +55,12 @@ public class WhenIRenameAnAccount : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test, MoqAutoData]
     public async Task ThenIMustConfirmTheRename(string hashedAccountId)
     {

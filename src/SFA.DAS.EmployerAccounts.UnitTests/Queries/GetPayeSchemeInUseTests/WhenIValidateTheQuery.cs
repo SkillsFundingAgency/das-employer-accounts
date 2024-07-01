@@ -21,8 +21,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeInUseTests
             var actual = _validator.Validate(new GetPayeSchemeInUseQuery());
 
             //Assety
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("Empref", "Empref has not been supplied"),actual.ValidationDictionary );
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("Empref", "Empref has not been supplied")));
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeInUseTests
             var actual = _validator.Validate(new GetPayeSchemeInUseQuery {Empref = "AFV123"});
 
             //Assety
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
     }
 }

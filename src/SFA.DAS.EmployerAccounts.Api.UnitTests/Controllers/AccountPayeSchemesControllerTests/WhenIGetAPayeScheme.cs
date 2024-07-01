@@ -65,8 +65,8 @@ public class WhenIGetAPayeScheme
 
         var response = await sut.GetPayeSchemes(hashedAccountId);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<OkObjectResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<OkObjectResult>());
 
         var model = ((OkObjectResult)response).Value as ResourceList;
 
@@ -87,8 +87,8 @@ public class WhenIGetAPayeScheme
     {
         var response = await sut.GetPayeSchemes(hashedAccountId);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<NotFoundResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<NotFoundResult>());
     }
 
     [Test, MoqAutoData]
@@ -106,8 +106,8 @@ public class WhenIGetAPayeScheme
 
         var response = await sut.GetPayeScheme(hashedAccountId, payeSchemeRef.Replace("/", "%2f")) as OkObjectResult;
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<OkObjectResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<OkObjectResult>());
 
         var model = response.Value as PayeScheme;
 
@@ -134,7 +134,7 @@ public class WhenIGetAPayeScheme
 
         var response = await sut.GetPayeScheme(hashedAccountId, payeSchemeRef);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<NotFoundResult>(response);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response, Is.InstanceOf<NotFoundResult>());
     }
 }

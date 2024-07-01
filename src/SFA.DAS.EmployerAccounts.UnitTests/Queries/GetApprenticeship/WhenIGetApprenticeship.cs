@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -8,11 +7,10 @@ using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
 using SFA.DAS.EmployerAccounts.Queries.GetApprenticeship;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetApprenticeship
 {
-    public class WhenIGetApprenticeship : QueryBaseTest<GetApprenticeshipsHandler, GetApprenticeshipsRequest, EmployerAccounts.Queries.GetApprenticeship.GetApprenticeshipsResponse>
+    public class WhenIGetApprenticeship : QueryBaseTest<GetApprenticeshipsHandler, GetApprenticeshipsRequest, GetApprenticeshipsResponse>
     {
         public override GetApprenticeshipsRequest Query { get; set; }
         public override GetApprenticeshipsHandler RequestHandler { get; set; }
@@ -42,10 +40,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetApprenticeship
             };
         }
 
-
         public override Task ThenIfTheMessageIsValidTheRepositoryIsCalled()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         [Test]
@@ -65,7 +62,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetApprenticeship
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert            
-            Assert.IsNotNull(response.Apprenticeships);
+            Assert.That(response.Apprenticeships, Is.Not.Null);
         }
     }
 }

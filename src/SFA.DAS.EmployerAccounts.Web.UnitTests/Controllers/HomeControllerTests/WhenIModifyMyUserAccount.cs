@@ -33,7 +33,13 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
             ControllerContext = ControllerContext
         };
     }
-        
+
+    [TearDown]
+    public void TearDown()
+    {
+        _homeController?.Dispose();
+    }
+
     [Test]
     public void ThenThePasswordChangedActionCreatsARedirectToActionResultToTheIndex()
     {
@@ -41,11 +47,11 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         var actual = _homeController.HandlePasswordChanged();
 
         //Assert
-        Assert.IsNotNull(actual);
-        Assert.IsAssignableFrom<RedirectToActionResult>(actual);
+        Assert.That(actual, Is.Not.Null);
+        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
         var actualRedirect = actual as RedirectToActionResult;
-        Assert.IsNotNull(actualRedirect);
-        Assert.AreEqual("Index", actualRedirect.ActionName);
+        Assert.That(actualRedirect, Is.Not.Null);
+        Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
     }
         
     [Test]
@@ -77,11 +83,11 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         var actual = await _homeController.HandleNewRegistration();
 
         //Assert
-        Assert.IsNotNull(actual);
-        Assert.IsAssignableFrom<RedirectToActionResult>(actual);
+        Assert.That(actual, Is.Not.Null);
+        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
         var actualRedirect = actual as RedirectToActionResult;
-        Assert.IsNotNull(actualRedirect);
-        Assert.AreEqual("Index", actualRedirect.ActionName);
+        Assert.That(actualRedirect, Is.Not.Null);
+        Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
     }
     
     [Test]
@@ -103,11 +109,11 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         var actual = await _homeController.HandleNewRegistration("123-345");
 
         //Assert
-        Assert.IsNotNull(actual);
-        Assert.IsAssignableFrom<RedirectToActionResult>(actual);
+        Assert.That(actual, Is.Not.Null);
+        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
         var actualRedirect = actual as RedirectToActionResult;
-        Assert.IsNotNull(actualRedirect);
-        Assert.AreEqual("Index", actualRedirect.ActionName);
+        Assert.That(actualRedirect, Is.Not.Null);
+        Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
         _homeOrchestrator.Verify(x=>x.SaveUpdatedIdentityAttributes(It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>()),Times.Never);
     }
 

@@ -22,6 +22,12 @@ class WhenIViewNextSteps : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public void ThenIShouldBeToldIfTheUserCanStillSeeTheUserWizard()
     {
@@ -43,8 +49,8 @@ class WhenIViewNextSteps : ControllerTestBase
         var model = result?.Model as OrchestratorResponse<OrganisationAddedNextStepsViewModel>;
 
         //Assert
-        Assert.IsNotNull(model);
-        Assert.IsTrue(model.Data.ShowWizard);
+        Assert.That(model, Is.Not.Null);
+        Assert.That(model.Data.ShowWizard, Is.True);
         _orchestrator.Verify(x => x.GetOrganisationAddedNextStepViewModel(It.IsAny<string>(), hashedAgreementId), Times.Once);
     }
 
@@ -69,8 +75,8 @@ class WhenIViewNextSteps : ControllerTestBase
         var model = result?.Model as OrchestratorResponse<OrganisationAddedNextStepsViewModel>;
 
         //Assert
-        Assert.IsNotNull(model);
-        Assert.IsTrue(model.Data.ShowWizard);
+        Assert.That(model, Is.Not.Null);
+        Assert.That(model.Data.ShowWizard, Is.True);
         _orchestrator.Verify(x => x.GetOrganisationAddedNextStepViewModel(It.IsAny<string>(), hashedAgreementId), Times.Once);
     }
 }

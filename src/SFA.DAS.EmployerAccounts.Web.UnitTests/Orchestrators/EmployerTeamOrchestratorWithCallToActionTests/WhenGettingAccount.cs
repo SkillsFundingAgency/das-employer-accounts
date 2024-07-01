@@ -317,9 +317,9 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             var actual = await _sut.GetAccount(HashedAccountId, UserId);
 
             //Assert
-            Assert.IsNotNull(actual.Data);
-            Assert.AreEqual(1, actual.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount);
-            Assert.AreEqual(expectedvacancy.Title, actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Title);
+            Assert.That(actual.Data, Is.Not.Null);
+            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount, Is.EqualTo(1));
+            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Title, Is.EqualTo(expectedvacancy.Title));
             _mockMapper.Verify(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyViewModel>>(vacancies), Times.Once);
         }
 
@@ -378,7 +378,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             var result = await _sut.GetAccount(HashedAccountId, UserId);
 
             //Assert
-            Assert.AreEqual(1, result.Data.CallToActionViewModel.ReservationsCount);
+            Assert.That(result.Data.CallToActionViewModel.ReservationsCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -443,7 +443,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             var result = await _sut.GetAccount(HashedAccountId, UserId);
 
             //Assert
-            Assert.IsTrue(result.Data.CallToActionViewModel.Apprenticeships.Count().Equals(1));
+            Assert.That(result.Data.CallToActionViewModel.Apprenticeships.Count().Equals(1), Is.True);
         }
 
         [Test]
@@ -511,7 +511,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             var result = await _sut.GetAccount(HashedAccountId, UserId);
 
             //Assert                    
-            Assert.AreEqual(1, result.Data.CallToActionViewModel.CohortsCount);
+            Assert.That(result.Data.CallToActionViewModel.CohortsCount, Is.EqualTo(1));
         }
     }
 }

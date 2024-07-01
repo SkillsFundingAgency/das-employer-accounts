@@ -22,8 +22,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationByIdTests
             var actual = _validator.Validate(new GetOrganisationByIdRequest { Identifier = "Test", OrganisationType = OrganisationType.Other});
 
             //Assert
-            Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -33,8 +33,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationByIdTests
             var actual = _validator.Validate(new GetOrganisationByIdRequest { Identifier = "" });
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("Identifier", "Identifier has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("Identifier", "Identifier has not been supplied")));
         }
     }
 }

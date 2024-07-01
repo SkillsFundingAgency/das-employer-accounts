@@ -29,13 +29,19 @@ public class WhenIAmendTheOrganisation
             Mock.Of<LinkGenerator>());
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public void ThenTheSearchOrganisationPageIsDisplayed()
     {
         var response =  _employerAccountController.AmendOrganisation();
         var redirectResponse = (RedirectToActionResult)response;
 
-        Assert.AreEqual(ControllerConstants.SearchForOrganisationActionName, redirectResponse.ActionName);
-        Assert.AreEqual(ControllerConstants.SearchOrganisationControllerName, redirectResponse.ControllerName);
+        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SearchForOrganisationActionName));
+        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.SearchOrganisationControllerName));
     }
 }

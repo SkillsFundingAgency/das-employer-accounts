@@ -38,7 +38,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries
             var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsAssignableFrom<TResponse>(actual);
+            Assert.That(actual, Is.AssignableFrom<TResponse>());
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries
             await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(1, _validationCallCount);
+            Assert.That(_validationCallCount, Is.EqualTo(1));
         }
 
         [Test]

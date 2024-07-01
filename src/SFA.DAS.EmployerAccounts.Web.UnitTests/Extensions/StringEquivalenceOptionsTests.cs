@@ -33,11 +33,11 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
             bool expectedValue)
         {
             var actualResult1 = s1.IsEquivalent(s2, options);
-            Assert.AreEqual(expectedValue, actualResult1, $"\"{s1}\".IsEquivalant(\"{s2}\", {options}) ");
+            Assert.That(actualResult1, Is.EqualTo(expectedValue), $"\"{s1}\".IsEquivalant(\"{s2}\", {options}) ");
 
             // the order of the strings shouldn't matter, so we'll switch them round and do the test the other way
             var actualResult2 = s2.IsEquivalent(s1, options);
-            Assert.AreEqual(expectedValue, actualResult2, $"\"{s2}\".IsEquivalant(\"{s1}\", {options}) ");
+            Assert.That(actualResult2, Is.EqualTo(expectedValue), $"\"{s2}\".IsEquivalant(\"{s1}\", {options}) ");
         }
     }
 }

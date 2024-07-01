@@ -11,7 +11,6 @@ using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
-using SFA.DAS.Notifications.Api.Client;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UnsubscribeNotificationTest
 {
@@ -23,9 +22,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UnsubscribeNotificationTes
         private UnsubscribeNotificationCommand _command;
         private Mock<IAccountRepository> _accountRepository;
         private Mock<IUserRepository> _userRepo;
-
-        private Mock<INotificationsApi> _notiApi;
-
+        
         [SetUp]
         public void SetUp()
         {
@@ -36,7 +33,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UnsubscribeNotificationTes
             };
 
             _mockValidator = new Mock<IValidator<UnsubscribeNotificationCommand>>();
-            _notiApi = new Mock<INotificationsApi>();
             _userRepo = new Mock<IUserRepository>();
             _accountRepository = new Mock<IAccountRepository>();
 

@@ -75,7 +75,7 @@ class WhenIGetAccountPayeSchemes : QueryBaseTest<GetAccountPayeSchemesQueryHandl
         var result = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(1, result.PayeSchemes.Count);
-        Assert.AreEqual(_payeView, result.PayeSchemes.First());
+        Assert.That(result.PayeSchemes.Count, Is.EqualTo(1));
+        Assert.That(result.PayeSchemes.First(), Is.EqualTo(_payeView));
     }
 }

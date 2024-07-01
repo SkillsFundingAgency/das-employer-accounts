@@ -94,6 +94,12 @@ public class WhenICreateAnAccount : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public async Task ThenIShouldGoToTheReturnUrl()
     {
@@ -101,6 +107,6 @@ public class WhenICreateAnAccount : ControllerTestBase
         var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectResult;
 
         //Assert
-        Assert.AreEqual(ExpectedReturnUrl, result.Url);
+        Assert.That(result.Url, Is.EqualTo(ExpectedReturnUrl));
     }
 }

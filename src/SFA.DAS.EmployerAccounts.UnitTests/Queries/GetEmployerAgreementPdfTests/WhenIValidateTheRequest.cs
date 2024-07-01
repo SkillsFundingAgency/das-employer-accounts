@@ -31,10 +31,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementPdfTest
             var actual = await _validator.ValidateAsync(new GetEmployerAgreementPdfRequest());
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("AccountId", "AccountId has not been supplied"), actual.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("LegalAgreementId", "LegalAgreementId has not been supplied"), actual.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("UserId", "UserId has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("AccountId", "AccountId has not been supplied")));
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("LegalAgreementId", "LegalAgreementId has not been supplied")));
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("UserId", "UserId has not been supplied")));
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementPdfTest
             var actual = await _validator.ValidateAsync(new GetEmployerAgreementPdfRequest { AccountId = 1234, LegalAgreementId = 1231, UserId = "User" });
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementPdfTest
             var actual = await _validator.ValidateAsync(new GetEmployerAgreementPdfRequest { AccountId = 1234, LegalAgreementId = 1231, UserId = "User" });
 
             //Act
-            Assert.IsTrue(actual.IsUnauthorized);
+            Assert.That(actual.IsUnauthorized, Is.True);
         }
 
         [TestCase(Role.None)]
@@ -72,7 +72,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementPdfTest
             var actual = await _validator.ValidateAsync(new GetEmployerAgreementPdfRequest { AccountId = 1234, LegalAgreementId = 1231, UserId = "User" });
 
             //Act
-            Assert.IsTrue(actual.IsUnauthorized);
+            Assert.That(actual.IsUnauthorized, Is.True);
         }
 
     }

@@ -40,8 +40,8 @@ public class WhenGetAccountUsersWithKnownIds : GivenEmployerAccountsApi
     {
         var teamMembers = Response?.GetContent<List<TeamMember>>();
         Response?.ExpectStatusCodes(HttpStatusCode.OK);
-        Assert.IsNotNull(teamMembers);
-        Assert.AreEqual(1, teamMembers?.Count);
-        Assert.AreEqual(_userRef, Guid.Parse(teamMembers?[0].UserRef));
+        Assert.That(teamMembers, Is.Not.Null);
+        Assert.That(teamMembers?.Count, Is.EqualTo(1));
+        Assert.That(Guid.Parse(teamMembers?[0].UserRef), Is.EqualTo(_userRef));
     }
 }

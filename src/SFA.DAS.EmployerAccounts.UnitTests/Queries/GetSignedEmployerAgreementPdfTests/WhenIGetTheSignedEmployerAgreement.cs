@@ -151,7 +151,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetSignedEmployerAgreementP
             var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(actual.FileStream);
+            Assert.That(actual.FileStream, Is.Not.Null);
         }
 
         [TestCase(EmployerAgreementStatus.Superseded)]
@@ -165,7 +165,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetSignedEmployerAgreementP
             var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(actual.FileStream);
+            Assert.That(actual.FileStream, Is.Not.Null);
         }
     }
 }
