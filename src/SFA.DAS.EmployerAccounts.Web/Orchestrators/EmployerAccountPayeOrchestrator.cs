@@ -6,6 +6,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetMember;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;
+using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
@@ -107,7 +108,9 @@ public class EmployerAccountPayeOrchestrator : EmployerVerificationOrchestratorB
             Data = new GatewayInformViewModel
             {
                 ConfirmUrl = confirmUrl,
-                BreadcrumbDescription = "Back to PAYE schemes"
+                BreadcrumbDescription = "Back to PAYE schemes",
+                CancelRoute = RouteNames.EmployerAccountPaye,
+                HashedAccountId = hashedAccountId
             },
             Status = status,
             FlashMessage = new FlashMessageViewModel

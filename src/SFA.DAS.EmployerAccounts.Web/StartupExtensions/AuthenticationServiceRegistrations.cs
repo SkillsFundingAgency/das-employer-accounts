@@ -29,7 +29,6 @@ public static class EmployerAuthenticationServiceRegistrations
         services.AddSingleton<IAuthorizationHandler, AccountActiveAuthorizationHandler>();//TODO remove after gov login enabled
         services.AddTransient<IUserAccountService, UserAccountService>();
 
-
         services.AddAuthorization(options =>
         {
             options.AddPolicy(
