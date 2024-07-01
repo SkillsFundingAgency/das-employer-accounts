@@ -30,7 +30,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
             var response = await Controller.GetAccountById(accountId) as OkObjectResult;
 
             response.Should().NotBeNull();
-            response.Value.Should().BeOfType<SFA.DAS.EmployerAccounts.Api.Types.AccountDetail>();
+            response.Value.Should().BeOfType<Types.AccountDetail>();
         }
     }
 }

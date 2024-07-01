@@ -188,8 +188,6 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
             var pendingAgreements = agreementsResponse.EmployerAgreements.Where(a => a.HasPendingAgreement && !a.HasSignedAgreement).Select(a => new PendingAgreementsViewModel { HashedAgreementId = a.Pending.HashedAgreementId }).ToList();
 
-            var showWizard = userResponse.User.ShowWizard && userRoleResponse.UserRole == Role.Owner;
-
             var viewModel = new AccountDashboardViewModel
             {
                 HashedAccountId = hashedAccountId,
