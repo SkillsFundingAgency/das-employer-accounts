@@ -1,3 +1,4 @@
+using SFA.DAS.EmployerAccounts.Commands.RecordUserLoggedIn;
 using SFA.DAS.EmployerAccounts.Commands.UnsubscribeProviderEmail;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
@@ -100,6 +101,14 @@ public class HomeOrchestrator : IHomeOrchestrator
             LastName = lastName,
             FirstName = firstName,
             CorrelationId = correlationId
+        });
+    }
+
+    public Task RecordUserLoggedIn(string userRef)
+    {
+        return _mediator.Send(new RecordUserLoggedInCommand
+        {
+            UserRef = userRef,
         });
     }
 

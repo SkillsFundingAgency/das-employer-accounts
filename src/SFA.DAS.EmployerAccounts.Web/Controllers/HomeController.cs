@@ -68,6 +68,8 @@ public class HomeController : BaseController
 
         if (userIdClaim != null)
         {
+            await _homeOrchestrator.RecordUserLoggedIn(userIdClaim.Value);
+
             if (!_configuration.UseGovSignIn)
             {
                 var partialLogin = HttpContext.User.FindFirstValue(DasClaimTypes.RequiresVerification);
