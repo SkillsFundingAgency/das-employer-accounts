@@ -10,4 +10,5 @@ public interface IHomeOrchestrator
     Task SaveUpdatedIdentityAttributes(string userRef, string email, string firstName, string lastName, string correlationId = null);
     Task Unsubscribe(Guid correlationId);
     Task UpdateTermAndConditionsAcceptedOn(string userRef);
+    Task RecordUserLoggedIn(string userRef);
 }

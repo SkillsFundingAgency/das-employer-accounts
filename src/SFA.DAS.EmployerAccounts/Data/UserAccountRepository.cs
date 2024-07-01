@@ -115,4 +115,19 @@ public class UserAccountRepository : IUserAccountRepository
             transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
             commandType: CommandType.Text);
     }
+
+    public Task RecordLogin(Guid userRef)
+    {
+        var parameters = new DynamicParameters();
+
+        parameters.Add("@userRef", userRef, DbType.Guid);
+
+        return _db.Value.Database.GetDbConnection().ExecuteAsync(
+            sql: @"UPDATE [employer_account].[User] SET
+                    [LastLogin] = GETDATE() 
+                    WHERE UserRef = @userRef",
+            param: parameters,
+            transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
+            commandType: CommandType.Text);
+    }
 }

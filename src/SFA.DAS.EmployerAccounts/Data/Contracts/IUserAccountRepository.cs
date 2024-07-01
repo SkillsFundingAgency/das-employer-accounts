@@ -10,4 +10,5 @@ public interface IUserAccountRepository
     Task<User> GetUserByRef(Guid @ref);
     Task Upsert(User user);
     Task<Accounts<Account>> GetAccounts();
+    Task RecordLogin(Guid userRef);
 }
