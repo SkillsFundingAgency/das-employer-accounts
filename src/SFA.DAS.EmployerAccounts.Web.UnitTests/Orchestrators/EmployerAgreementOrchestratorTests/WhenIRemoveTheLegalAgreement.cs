@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Commands.RemoveLegalEntity;
 using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.Encoding;
@@ -28,7 +29,13 @@ public class WhenIRemoveTheLegalAgreement
 
         _encodingServiceMock = new Mock<IEncodingService>();
 
-        _orchestrator = new EmployerAgreementOrchestrator(_mediator.Object, Mock.Of<IMapper>(), _referenceDataService.Object, _encodingServiceMock.Object);
+        _orchestrator = new EmployerAgreementOrchestrator(
+            _mediator.Object,
+            Mock.Of<IMapper>(),
+            _referenceDataService.Object, 
+            _encodingServiceMock.Object,
+            Mock.Of<ILogger<EmployerAgreementOrchestrator>>()
+            );
     }
         
     [Test]

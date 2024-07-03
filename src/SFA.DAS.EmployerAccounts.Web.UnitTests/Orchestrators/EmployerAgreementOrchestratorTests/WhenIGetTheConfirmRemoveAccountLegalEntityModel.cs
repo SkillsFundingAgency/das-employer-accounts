@@ -1,16 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
-using Moq;
-using NUnit.Framework;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Exceptions;
-using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntityRemove;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAgreementOrchestratorTests;
@@ -40,14 +32,18 @@ public class WhenIGetTheConfirmRemoveAccountLegalEntityModel
 
         _referenceDataService = new Mock<IReferenceDataService>();
 
-        _orchestrator =
-            new EmployerAgreementOrchestrator(_mediator.Object, Mock.Of<IMapper>(), _referenceDataService.Object, Mock.Of<IEncodingService>());
+        _orchestrator = new EmployerAgreementOrchestrator(
+            _mediator.Object,
+            Mock.Of<IMapper>(),
+            _referenceDataService.Object,
+            Mock.Of<IEncodingService>(),
+            Mock.Of<ILogger<EmployerAgreementOrchestrator>>()
+        );
     }
 
     [Test]
     public async Task ThenTheMediatorIsCalledToGetASingledOrgToRemove()
     {
-
         //Act
         await _orchestrator.GetConfirmRemoveOrganisationViewModel(ExpectedHashedAccountId, ExpectedHashedAccountLegalEntityId, ExpectedUserId);
 
