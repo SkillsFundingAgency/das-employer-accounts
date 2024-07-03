@@ -1,8 +1,17 @@
 ﻿CREATE PROCEDURE [employer_account].[GetAccounts_ByUserRef]
 	@userRef UNIQUEIDENTIFIER
 AS
-SELECT a.Id, a.Name, m.[Role], a.HashedId, a.PublicHashedId, a.NameConfirmed, a.AddTrainingProviderAcknowledged
-FROM [employer_account].[User] u 
+    
+SELECT
+    a.Id
+    ,a.[Name]
+    ,m.[Role]
+    ,a.HashedId
+    ,a.PublicHashedId
+    ,a.NameConfirmed
+    ,a.AddTrainingProviderAcknowledged
+    ,a.ApprenticeshipEmployerType
+FROM [employer_account].[User] u
 INNER JOIN [employer_account].[Membership] m ON m.UserId = u.Id
 INNER JOIN [employer_account].[Account]  a ON m.AccountId = a.Id
 WHERE u.UserRef = @userRef
