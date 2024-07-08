@@ -17,14 +17,20 @@ class WhenIDontProvideAValidAorn
             Mock.Of<ICookieStorageService<HashedAccountIdModel>>());
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task ThenAnErrorIsDisplayed()
     {
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = "SDCXDD", PayeRef = "000/EDDEFDS" });
         var viewResponse = (ViewResult)response;
 
-        Assert.AreEqual(ControllerConstants.SearchUsingAornViewName, viewResponse.ViewName);
+        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchUsingAornViewName));
         var viewModel = viewResponse.Model as SearchPensionRegulatorByAornViewModel;
-        Assert.AreEqual("Enter your Accounts Office reference in the correct format", viewModel.AornError);
+        Assert.That(viewModel.AornError, Is.EqualTo("Enter your Accounts Office reference in the correct format"));
     }
 }

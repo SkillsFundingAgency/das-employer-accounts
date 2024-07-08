@@ -59,7 +59,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             var result = await _orchestrator.GetAccount(accountId);
 
             //Assert
-            Assert.AreEqual(agreementType, result.AccountAgreementType);
+            Assert.That(result.AccountAgreementType, Is.EqualTo(agreementType));
         }        
     }
 }

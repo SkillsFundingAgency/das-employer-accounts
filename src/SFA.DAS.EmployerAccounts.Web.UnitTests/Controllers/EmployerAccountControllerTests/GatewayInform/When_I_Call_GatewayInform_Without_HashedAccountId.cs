@@ -47,6 +47,12 @@ public class When_I_Call_GatewayInform_Without_HashedAccountId : ControllerTestB
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [TestCase("")]
     [TestCase(null)]
     [TestCase("                        ")]
@@ -80,11 +86,12 @@ public class When_I_Call_GatewayInform_Without_HashedAccountId : ControllerTestB
 
         // Assert
         model.Data.CancelRoute.Should().Be(RouteNames.EmployerAccountPaye);
+        model.Data.HashedAccountId.Should().Be(hashedAccountId);
     }
 
     [Test]
     [MoqAutoData]
-    public void When_Within_Account_Then_Cancel_Returns_To_Task_List(string hashedAccountId)
+    public void When_Within_Account_Then_Cancel_Returns_To_Task_List()
     {
         // Act
         var result = _employerAccountController.GatewayInform(hashedAccountId: null) as ViewResult;
@@ -92,5 +99,6 @@ public class When_I_Call_GatewayInform_Without_HashedAccountId : ControllerTestB
 
         // Assert
         model.Data.CancelRoute.Should().Be(RouteNames.NewEmployerAccountTaskList);
+        model.Data.HashedAccountId.Should().BeNull();
     }
 }

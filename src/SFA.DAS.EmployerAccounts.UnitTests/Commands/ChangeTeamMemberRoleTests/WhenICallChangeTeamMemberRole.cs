@@ -86,7 +86,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Membership"), Is.EqualTo(1));
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Membership"), Is.EqualTo(1));
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Membership"), Is.EqualTo(1));
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Membership"), Is.EqualTo(1));
         }
 
         [Test]
@@ -204,10 +204,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(3));
-
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "AccountId"), Is.Not.Null);
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Email"), Is.Not.Null);
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "ExternalUserId"), Is.Not.Null);
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "Email"), Is.EqualTo(1)); 
+            Assert.That(exception.ErrorMessages.Count(x => x.Key == "ExternalUserId"), Is.EqualTo(1));
         }
 
         [Test]

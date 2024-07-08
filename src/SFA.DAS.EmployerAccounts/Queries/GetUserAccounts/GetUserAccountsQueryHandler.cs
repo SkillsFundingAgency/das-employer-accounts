@@ -4,15 +4,8 @@ using SFA.DAS.EmployerAccounts.Models.Account;
 
 namespace SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 
-public class GetUserAccountsQueryHandler : IRequestHandler<GetUserAccountsQuery, GetUserAccountsQueryResponse>
+public class GetUserAccountsQueryHandler(IUserAccountRepository userAcountRepository) : IRequestHandler<GetUserAccountsQuery, GetUserAccountsQueryResponse>
 {
-    private readonly IUserAccountRepository _userAccountsRepository;
-
-    public GetUserAccountsQueryHandler(IUserAccountRepository userAcountRepository)
-    {
-        _userAccountsRepository = userAcountRepository;
-    }
-
     public async Task<GetUserAccountsQueryResponse> Handle(GetUserAccountsQuery message, CancellationToken cancellationToken)
     {
         //TODO add validator.
@@ -21,13 +14,13 @@ public class GetUserAccountsQueryHandler : IRequestHandler<GetUserAccountsQuery,
 
         if (!string.IsNullOrEmpty(userRef))
         {
-            accounts = await _userAccountsRepository.GetAccountsByUserRef(userRef);
+            accounts = await userAcountRepository.GetAccountsByUserRef(userRef);
         }
         else
         {
-            accounts = await _userAccountsRepository.GetAccounts();
+            accounts = await userAcountRepository.GetAccounts();
         }
 
-        return new GetUserAccountsQueryResponse {Accounts = accounts};
+        return new GetUserAccountsQueryResponse { Accounts = accounts };
     }
 }

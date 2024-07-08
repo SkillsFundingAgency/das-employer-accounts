@@ -19,6 +19,12 @@ public class WhenIAcceptAnInvitation : ControllerTestBase
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task ThenTheInvitationIsAccepted()
     {

@@ -84,7 +84,6 @@ public class Startup
         services.AddCachesRegistrations();
         services.AddDateTimeServices(_configuration);
         services.AddEventsApi();
-        services.AddNotifications(_configuration);
 
         services
             .AddUnitOfWork()

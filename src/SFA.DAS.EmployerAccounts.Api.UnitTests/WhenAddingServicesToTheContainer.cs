@@ -31,9 +31,6 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserByEmail;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;
 using SFA.DAS.EmployerAccounts.Queries.UpdateUserAornLock;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
-using SFA.DAS.Encoding;
-using SFA.DAS.Notifications.Api.Client;
-using SFA.DAS.Notifications.Api.Client.Configuration;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests;
@@ -80,13 +77,7 @@ public class WhenAddingServicesToTheContainer
     {
         RunTestForType(toResolve);
     }
-
-    [TestCase(typeof(INotificationsApi))]
-    public void Then_The_Dependencies_Are_Correctly_Resolved_For_Apis(Type toResolve)
-    {
-        RunTestForType(toResolve);
-    }
-
+    
     private static ServiceCollection BuildServiceCollection()
     {
         var mockHostingEnvironment = new Mock<IWebHostEnvironment>();
@@ -111,7 +102,6 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddAutoMapper(typeof(Startup).Assembly);
         serviceCollection.AddApplicationServices();
         serviceCollection.AddApiConfigurationSections(config);
-        serviceCollection.AddNotifications(config);
         serviceCollection.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetAccountPayeSchemesQuery).Assembly));
         serviceCollection.AddMediatorValidators();
         serviceCollection.AddLogging();
@@ -140,9 +130,6 @@ public class WhenAddingServicesToTheContainer
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticUrl", "test"),
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticUsername", "test"),
                 new($"{ConfigurationKeys.EmployerAccounts}:ElasticPassword", "test"),
-                
-                new($"{ConfigurationKeys.NotificationsApiClient}:ApiBaseUrl", "https://test.test/"),
-                new($"{ConfigurationKeys.NotificationsApiClient}:ClientToken", "ABVCJKDS"),
             }
         };
 

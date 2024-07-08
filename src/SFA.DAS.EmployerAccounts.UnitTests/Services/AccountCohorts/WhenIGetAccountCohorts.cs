@@ -51,8 +51,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var result =await _sut.GetApprenticeships(_accountId);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count().Equals(1));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count().Equals(1), Is.True);
         }
 
         [Test]
@@ -76,8 +76,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var result = await _sut.GetCohorts(_accountId);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count().Equals(1));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count().Equals(1), Is.True);
         }
 
         [Test]
@@ -95,8 +95,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AccountCohorts
             var result = await _sut.GetDraftApprenticeships(new Cohort {Id = 123});
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Count().Equals(1));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count().Equals(1), Is.True);
         }
 
 

@@ -30,13 +30,19 @@ public class WhenIAmendTheOrganisation
             Mock.Of<LinkGenerator>());
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public void ThenTheAORNPensionRegulatorChooseOrganisationPageIsDisplayed()
     {
         var response = _employerAccountController.AmendOrganisation();
         var redirectResponse = (RedirectToActionResult)response;
 
-        Assert.AreEqual(ControllerConstants.SearchUsingAornActionName, redirectResponse.ActionName);
-        Assert.AreEqual(ControllerConstants.SearchPensionRegulatorControllerName, redirectResponse.ControllerName);
+        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SearchUsingAornActionName));
+        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.SearchPensionRegulatorControllerName));
     }
 }

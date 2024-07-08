@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using MediatR;
-using Moq;
-using NUnit.Framework;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Dtos;
 using SFA.DAS.EmployerAccounts.Exceptions;
-using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Queries.GetOrganisationAgreements;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
-using SFA.DAS.EmployerAccounts.Web.ViewModels;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAgreementOrchestratorTests;
@@ -48,7 +38,13 @@ public class WhenIGetOrganisationAgreements
 
         _referenceDataService = new Mock<IReferenceDataService>();
         _mapper.Setup(m => m.Map<ICollection<EmployerAgreementDto>, ICollection<OrganisationAgreementViewModel>>(It.IsAny<ICollection<EmployerAgreementDto>>())).Returns(organisationAgreementViewModel);
-        _orchestrator = new EmployerAgreementOrchestrator(_mediator.Object, _mapper.Object, _referenceDataService.Object, Mock.Of<IEncodingService>());
+        _orchestrator = new EmployerAgreementOrchestrator(
+            _mediator.Object,
+            _mapper.Object,
+            _referenceDataService.Object,
+            Mock.Of<IEncodingService>(),
+            Mock.Of<ILogger<EmployerAgreementOrchestrator>>()
+            );
     }
 
     [Test]
@@ -73,7 +69,7 @@ public class WhenIGetOrganisationAgreements
         var actual = await _orchestrator.GetOrganisationAgreements(AccountLegalEntityHashedId);
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, actual.Status);
+        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
@@ -86,7 +82,7 @@ public class WhenIGetOrganisationAgreements
         var actual = await _orchestrator.GetOrganisationAgreements(AccountLegalEntityHashedId);
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized, actual.Status);
+        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 
     [Test]
@@ -96,6 +92,6 @@ public class WhenIGetOrganisationAgreements
         var actual = await _orchestrator.GetOrganisationAgreements(AccountLegalEntityHashedId);
 
         //Assert
-        Assert.IsNotNull(actual.Data.Agreements.Any());            
+        Assert.That(actual.Data.Agreements.Any(), Is.True);            
     }
 }

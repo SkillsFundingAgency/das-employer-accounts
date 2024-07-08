@@ -28,7 +28,7 @@ public class WhenIValidateTheCommand
         var actual =  _createCommandValidator.Validate(_createAccountCommand);
 
         //Assert
-        Assert.IsTrue(actual.IsValid());
+        Assert.That(actual.IsValid(), Is.True);
     }
 
     [Test]
@@ -38,6 +38,6 @@ public class WhenIValidateTheCommand
         var actual = _createCommandValidator.Validate(new SendAccountTaskListCompleteNotificationCommand());
 
         //Assert
-        Assert.IsFalse(actual.IsValid());
+        Assert.That(actual.IsValid(), Is.False);
     }
 }

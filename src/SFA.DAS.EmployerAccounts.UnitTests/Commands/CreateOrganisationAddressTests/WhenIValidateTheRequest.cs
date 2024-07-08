@@ -33,7 +33,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(request);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(request);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -65,9 +65,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(new CreateOrganisationAddressRequest());
 
             //Assert
-            Assert.Contains(new KeyValuePair<string, string>("AddressFirstLine", "Enter house number or name, building or street"), result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("TownOrCity", "Enter town or city"), result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("Postcode", "Enter a valid postcode"), result.ValidationDictionary);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("TownOrCity", "Enter town or city")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("Postcode", "Enter a valid postcode")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("AddressFirstLine", "Enter house number or name, building or street")));
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(request);
 
             //Assert
-            Assert.Contains(new KeyValuePair<string, string>("Postcode", "Enter a valid postcode"), result.ValidationDictionary);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("Postcode", "Enter a valid postcode")));
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(request);
 
             //Assert
-            Assert.Contains(new KeyValuePair<string, string>("Postcode", "Enter a valid postcode"), result.ValidationDictionary);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("Postcode", "Enter a valid postcode")));
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(request);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(request);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var result = _validator.Validate(request);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -204,7 +204,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
                 AddressSecondLine = "Test Garden",
                 TownOrCity = "Test Town",
                 County = "Testshire",
-                Postcode = postCode.Replace(" ","")
+                Postcode = postCode.Replace(" ", "")
             };
 
             //Act
@@ -212,8 +212,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateOrganisationAddressT
             var resultWithoutSpaces = _validator.Validate(requestWithoutSpaces);
 
             //Assert
-            Assert.AreEqual(isValid, result.IsValid());
-            Assert.AreEqual(isValid, resultWithoutSpaces.IsValid());
+            Assert.That(result.IsValid(), Is.EqualTo(isValid));
+            Assert.That(resultWithoutSpaces.IsValid(), Is.EqualTo(isValid));
         }
 
     }

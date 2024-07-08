@@ -66,7 +66,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPagedEmployerAccounts
             var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.AreSame(_expectedAccounts.AccountList, actual.Accounts);
+            Assert.That(actual.Accounts, Is.SameAs(_expectedAccounts.AccountList));
         }
     }
 }

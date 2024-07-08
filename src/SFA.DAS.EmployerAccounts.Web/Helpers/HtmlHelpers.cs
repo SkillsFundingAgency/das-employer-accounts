@@ -11,7 +11,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 public interface IHtmlHelpers
 {
     bool IsSupportUser();
-    HtmlString GetContentByType(string type, bool useLegacyStyles = false);
+    HtmlString GetContentByType(string type);
     bool ViewExists(IHtmlHelper html, string viewName);
     string ReturnToHomePageButtonHref(string accountId);
     string ReturnToHomePageButtonText(string accountId);
@@ -73,11 +73,10 @@ public class HtmlHelpers : IHtmlHelpers
         return input.Replace("'", @"\'");
     }
 
-    public HtmlString GetContentByType(string type, bool useLegacyStyles = false)
+    public HtmlString GetContentByType(string type)
     {
         var userResponse = AsyncHelper.RunSync(() => _mediator.Send(new GetContentRequest
         {
-            UseLegacyStyles = useLegacyStyles,
             ContentType = type
         }));
 

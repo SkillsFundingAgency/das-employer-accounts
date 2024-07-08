@@ -40,7 +40,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _createCommandValidator.ValidateAsync(_createAccountCommand);
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _createCommandValidator.ValidateAsync(new CreateAccountCommand());
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.False);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var result = await _createCommandValidator.ValidateAsync(_createAccountCommand);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _createCommandValidator.ValidateAsync(_createAccountCommand);
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _createCommandValidator.ValidateAsync(_createAccountCommand);
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _createCommandValidator.ValidateAsync(_createAccountCommand);
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.False);
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _createCommandValidator.ValidateAsync(_createAccountCommand);
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.False);
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _createCommandValidator.ValidateAsync(_createAccountCommand);
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.False);
         }
     }
 }
