@@ -282,6 +282,8 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
     public async Task<IActionResult> Review(string hashedAccountId, string email)
     {
+        email = WebUtility.UrlDecode(email);
+        
         var invitation = await _employerTeamOrchestrator.GetTeamMemberWhetherActiveOrNot(hashedAccountId, email, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         return View(invitation);

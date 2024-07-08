@@ -1,4 +1,5 @@
-﻿@using SFA.DAS.EmployerAccounts.Models.AccountTeam;
+﻿@using System.Text.Encodings.Web
+@using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 @using SFA.DAS.EmployerAccounts.Models;
 @model OrchestratorResponse<SFA.DAS.EmployerAccounts.Web.ViewModels.EmployerTeamMembersViewModel>
 
@@ -42,31 +43,35 @@
 {
     <table class="govuk-table das-table--responsive">
         <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header">Name</th>
-                <th scope="col" class="govuk-table__header">What they can do</th>
-                <th scope="col" class="govuk-table__header">Status</th>
-                <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Action</span></th>
-            </tr>
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Name</th>
+            <th scope="col" class="govuk-table__header">What they can do</th>
+            <th scope="col" class="govuk-table__header">Status</th>
+            <th scope="col" class="govuk-table__header">
+                <span class="govuk-visually-hidden">Action</span>
+            </th>
+        </tr>
         </thead>
         <tbody class="govuk-table__body">
-            @foreach (var teamMember in Model.Data.TeamMembers)
+        @foreach (var teamMember in Model.Data.TeamMembers)
         {
-                <tr class="govuk-table__row">
-                    <td data-label="Name" class="govuk-table__cell">
-                        <div>@teamMember.Name</div>
-                        <div class="govuk-hint">@teamMember.Email</div>
-                    </td>
-                    <td data-label="What they can do" class="govuk-table__cell">@RoleStrings.GetRoleDescription(teamMember.Role)</td>
-                    <td data-label="Status" class="govuk-table__cell">@InvitationStatusStrings.ToString(teamMember.Status)</td>
-                    <td class="govuk-table__cell govuk-table__cell--numeric">
-                        <a aria-label="View details for @teamMember.Name"
-                        asp-route="@RouteNames.EmployerTeamReview"
-                        asp-route-hashedAccountId="@hashedAccountId"
-                        asp-route-email="@teamMember.Email" class="govuk-link">View<span class="govuk-visually-hidden"> details for @teamMember.Name</span></a>
-                    </td>
-                </tr>
-            }
+            <tr class="govuk-table__row">
+                <td data-label="Name" class="govuk-table__cell">
+                    <div>@teamMember.Name</div>
+                    <div class="govuk-hint">@teamMember.Email</div>
+                </td>
+                <td data-label="What they can do" class="govuk-table__cell">@RoleStrings.GetRoleDescription(teamMember.Role)</td>
+                <td data-label="Status" class="govuk-table__cell">@InvitationStatusStrings.ToString(teamMember.Status)</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    <a aria-label="View details for @teamMember.Name"
+                       asp-route="@RouteNames.EmployerTeamReview"
+                       asp-route-hashedAccountId="@hashedAccountId"
+                       asp-route-email="@(WebUtility.UrlEncode(teamMember.Email))" class="govuk-link">
+                        View<span class="govuk-visually-hidden"> details for @teamMember.Name</span>
+                    </a>
+                </td>
+            </tr>
+        }
         </tbody>
     </table>
 }
@@ -74,7 +79,9 @@
 @section breadcrumb {
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item"><a asp-route="@RouteNames.EmployerTeamIndex" asp-route-hashedAccountId="@hashedAccountId" class="govuk-breadcrumbs__link">Home</a></li>
+            <li class="govuk-breadcrumbs__list-item">
+                <a asp-route="@RouteNames.EmployerTeamIndex" asp-route-hashedAccountId="@hashedAccountId" class="govuk-breadcrumbs__link">Home</a>
+            </li>
             <li class="govuk-breadcrumbs__list-item">Your team</li>
         </ol>
     </div>
