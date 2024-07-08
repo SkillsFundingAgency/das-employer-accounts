@@ -39,7 +39,7 @@ class GetLastSignedAgreementTests : Testing.FluentTest<GetLastSignedAgreementTes
             act: fixtures => fixtures.Handle(AccountLegalEntityId),
             assert: fixtures =>
             {
-                Assert.AreEqual(latestSignedAgreement.Id, fixtures.Response.LastSignedAgreement.Id);
+                Assert.That(fixtures.Response.LastSignedAgreement.Id, Is.EqualTo(latestSignedAgreement.Id));
             });
     }
 
@@ -49,7 +49,7 @@ class GetLastSignedAgreementTests : Testing.FluentTest<GetLastSignedAgreementTes
         return TestAsync(
             act: fixtures => fixtures.Handle(AccountLegalEntityId),
             assert: fixtures =>
-                Assert.IsNull(fixtures.Response.LastSignedAgreement));
+                Assert.That(fixtures.Response.LastSignedAgreement, Is.Null));
     }
 }
 

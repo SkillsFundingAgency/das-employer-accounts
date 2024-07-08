@@ -28,6 +28,12 @@ public class WhenIConfirmAddOfOrganisationAndIAmNotTheOwner : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public void ThenIAmRedirectedToAccessDenied()
     {

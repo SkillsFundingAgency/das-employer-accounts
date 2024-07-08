@@ -60,7 +60,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.AreSame(_expectedPayeScheme, actual.PayeScheme);
+            Assert.That(actual.PayeScheme, Is.SameAs(_expectedPayeScheme));
         }
     }
 }

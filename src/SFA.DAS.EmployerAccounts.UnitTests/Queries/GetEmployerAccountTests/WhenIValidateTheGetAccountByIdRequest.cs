@@ -29,8 +29,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountTests
             var actual = await validator.ValidateAsync(query);
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("AccountId", "Account ID has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("AccountId", "Account ID has not been supplied")));
         }
 
         [Test, MoqAutoData]
@@ -45,8 +45,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountTests
             var actual = await validator.ValidateAsync(query);
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("UserId", "User ID has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("UserId", "User ID has not been supplied")));
         }
 
         [Test, MoqAutoData]
@@ -81,8 +81,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountTests
             var actual = await validator.ValidateAsync(query);
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
-            Assert.IsFalse(actual.IsUnauthorized);
+            Assert.That(actual.IsValid(), Is.True);
+            Assert.That(actual.IsUnauthorized, Is.False);
         }
 
         [Test, MoqAutoData]
@@ -98,9 +98,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAccountTests
             var actual = await validator.ValidateAsync(query);
 
             //Assert
-            Assert.Contains(new KeyValuePair<string, string>("membership", "Unauthorised: User not connected to account"), actual.ValidationDictionary);
-            Assert.IsFalse(actual.IsValid());
-            Assert.IsTrue(actual.IsUnauthorized);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("membership", "Unauthorised: User not connected to account")));
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.IsUnauthorized, Is.True);
         }
     }
 }

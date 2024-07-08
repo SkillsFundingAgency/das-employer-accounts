@@ -48,6 +48,12 @@ public class When_I_Call_GatewayInform_With_HashedAccountId : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public void Then_The_HashedAccountId_Is_Stored()
     {

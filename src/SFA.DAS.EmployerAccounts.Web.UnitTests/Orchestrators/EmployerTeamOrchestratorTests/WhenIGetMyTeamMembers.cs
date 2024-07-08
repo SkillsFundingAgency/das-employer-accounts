@@ -10,7 +10,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
     public class WhenIGetMyTeamMembers
     {
         private Mock<IMediator> _mediator;
-        private Mock<IAccountApiClient> _accountApiClient;      
+        private Mock<IAccountApiClient> _accountApiClient;
 
         private Mock<IMapper> _mapper;
 
@@ -24,15 +24,15 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
                      .ReturnsAsync(
                         new GetAccountTeamMembersResponse
                         {
-                            TeamMembers = new List<TeamMember> {new TeamMember()}
+                            TeamMembers = new List<TeamMember> { new TeamMember() }
                         });
 
-            _accountApiClient = new Mock<IAccountApiClient>();           
+            _accountApiClient = new Mock<IAccountApiClient>();
             _mapper = new Mock<IMapper>();
 
             _orchestrator = new EmployerTeamOrchestrator(_mediator.Object, Mock.Of<ICurrentDateTime>(), _accountApiClient.Object, _mapper.Object, Mock.Of<EmployerAccountsConfiguration>(), Mock.Of<IEncodingService>());
         }
-        
+
         [Test]
         public async Task ThenTheTeamMembersArePopulatedToTheResponse()
         {
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             var actual = await _orchestrator.GetTeamMembers("ABF45", "123");
 
             //Assert
-            Assert.IsNotEmpty(actual.Data.TeamMembers);
+            Assert.That(actual.Data.TeamMembers, Is.Not.Empty);
         }
     }
 }

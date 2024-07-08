@@ -32,7 +32,7 @@ public class WhenSettingAccountName
         }, "ABC123");
 
         //Assert
-        Assert.IsInstanceOf<OrchestratorResponse<RenameEmployerAccountViewModel>>(response);
+        Assert.That(response, Is.InstanceOf<OrchestratorResponse<RenameEmployerAccountViewModel>>());
 
         mediatorMock.Verify(x => x.Send(It.Is<RenameEmployerAccountCommand>(c => c.NewName == "New Account Name"), It.IsAny<CancellationToken>()), Times.Once);
     }

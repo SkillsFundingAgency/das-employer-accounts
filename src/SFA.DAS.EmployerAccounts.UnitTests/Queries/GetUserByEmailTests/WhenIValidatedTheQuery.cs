@@ -20,7 +20,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserByEmailTests
             var result = _queryValidator.Validate(new GetUserByEmailQuery {Email = "test@test.com"});
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserByEmailTests
             var result = _queryValidator.Validate(new GetUserByEmailQuery());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
     }
 }

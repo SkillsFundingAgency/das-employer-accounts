@@ -33,8 +33,8 @@ public class WhenICreateALegalEntityOfOtherType
         var request = new OrganisationDetailsViewModel();
         var result = await _orchestrator.ValidateLegalEntityName(request);
 
-        Assert.IsFalse(result.Data.Valid);
-        Assert.IsTrue(result.Data.ErrorDictionary.ContainsKey("Name"));
+        Assert.That(result.Data.Valid, Is.False);
+        Assert.That(result.Data.ErrorDictionary.ContainsKey("Name"), Is.True);
     }
 
     [Test]
@@ -46,6 +46,6 @@ public class WhenICreateALegalEntityOfOtherType
         };
         var result = await _orchestrator.ValidateLegalEntityName(request);
 
-        Assert.IsTrue(result.Data.Valid);
+        Assert.That(result.Data.Valid, Is.True);
     }
 }

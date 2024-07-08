@@ -75,7 +75,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Reservations
             var reservationsResult = await _reservationsServiceWithTimeout.Get(_accountId);
 
             // assert 
-            Assert.AreSame(reservationsResult, _reservations);
+            Assert.That(reservationsResult, Is.SameAs(_reservations));
         }
 
         [Test]
@@ -97,9 +97,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Reservations
                 actualException = e;
                 correctExceptionThrown = true;
             }
-            Assert.IsTrue(correctExceptionThrown);
-            Assert.AreEqual(actualException.InnerException?.Message, innerException);
-            Assert.AreEqual(actualException.Message, message);
+            Assert.That(correctExceptionThrown, Is.True);
+            Assert.That(innerException, Is.EqualTo(actualException.InnerException?.Message));
+            Assert.That(message, Is.EqualTo(actualException.Message));
         }
     }
 }

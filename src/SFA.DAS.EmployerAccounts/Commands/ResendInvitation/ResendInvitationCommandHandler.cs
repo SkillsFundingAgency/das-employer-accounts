@@ -5,7 +5,6 @@ using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
-using SFA.DAS.Notifications.Api.Types;
 using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.ResendInvitation;
@@ -19,12 +18,17 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
     private readonly IUserAccountRepository _userRepository;
     private readonly ResendInvitationCommandValidator _validator;
 
-    public ResendInvitationCommandHandler(IInvitationRepository invitationRepository, IMembershipRepository membershipRepository, IMediator mediator, EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration, IUserAccountRepository userRepository)
+    public ResendInvitationCommandHandler(IInvitationRepository invitationRepository,
+        IMembershipRepository membershipRepository, IMediator mediator,
+        EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
+        IUserAccountRepository userRepository)
     {
         _invitationRepository = invitationRepository ?? throw new ArgumentNullException(nameof(invitationRepository));
         _membershipRepository = membershipRepository ?? throw new ArgumentNullException(nameof(membershipRepository));
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        _employerApprenticeshipsServiceConfiguration = employerApprenticeshipsServiceConfiguration ?? throw new ArgumentNullException(nameof(employerApprenticeshipsServiceConfiguration));
+        _employerApprenticeshipsServiceConfiguration = employerApprenticeshipsServiceConfiguration ??
+                                                       throw new ArgumentNullException(
+                                                           nameof(employerApprenticeshipsServiceConfiguration));
         _userRepository = userRepository;
         _validator = new ResendInvitationCommandValidator();
     }
@@ -39,15 +43,18 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         var owner = await _membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
 
         if (owner == null || owner.Role != Role.Owner)
-            throw new InvalidRequestException(new Dictionary<string, string> { { "Membership", "User is not an Owner" } });
+            throw new InvalidRequestException(new Dictionary<string, string>
+                { { "Membership", "User is not an Owner" } });
 
         var existing = await _invitationRepository.Get(owner.AccountId, message.Email);
 
         if (existing == null)
-            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Invitation not found" } });
+            throw new InvalidRequestException(new Dictionary<string, string>
+                { { "Invitation", "Invitation not found" } });
 
         if (existing.Status == InvitationStatus.Accepted)
-            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Accepted invitations cannot be resent" } });
+            throw new InvalidRequestException(new Dictionary<string, string>
+                { { "Invitation", "Accepted invitations cannot be resent" } });
 
         existing.Status = InvitationStatus.Pending;
         var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
@@ -62,7 +69,8 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         await SendNotification(message, existingUser, owner, expiryDate, cancellationToken);
     }
 
-    private async Task AddAuditEntry(ResendInvitationCommand message, Invitation existing, CancellationToken cancellationToken)
+    private async Task AddAuditEntry(ResendInvitationCommand message, Invitation existing,
+        CancellationToken cancellationToken)
     {
         await _mediator.Send(new CreateAuditCommand
         {
@@ -72,33 +80,30 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
                 Description = $"Invitation to {message.Email} resent in Account {existing.AccountId}",
                 ChangedProperties = new List<PropertyUpdate>
                 {
-                    new PropertyUpdate {PropertyName = "Status",NewValue = existing.Status.ToString()},
-                    new PropertyUpdate {PropertyName = "ExpiryDate",NewValue = existing.ExpiryDate.ToString()}
+                    new() { PropertyName = "Status", NewValue = existing.Status.ToString() },
+                    new() { PropertyName = "ExpiryDate", NewValue = existing.ExpiryDate.ToString() }
                 },
-                RelatedEntities = new List<AuditEntity> { new AuditEntity { Id = existing.AccountId.ToString(), Type = "Account" } },
+                RelatedEntities = new List<AuditEntity>
+                    { new() { Id = existing.AccountId.ToString(), Type = "Account" } },
                 AffectedEntity = new AuditEntity { Type = "Invitation", Id = existing.Id.ToString() }
             }
         }, cancellationToken);
     }
 
-    private async Task SendNotification(ResendInvitationCommand message, User existingUser, MembershipView owner, DateTime expiryDate, CancellationToken cancellationToken)
+    private async Task SendNotification(ResendInvitationCommand message, User existingUser, MembershipView owner,
+        DateTime expiryDate, CancellationToken cancellationToken)
     {
         await _mediator.Send(new SendNotificationCommand
         {
-            Email = new Email
+            RecipientsAddress = message.Email,
+            TemplateId = existingUser?.UserRef != null ? "InvitationExistingUser" : "InvitationNewUser",
+            Tokens = new Dictionary<string, string>
             {
-                RecipientsAddress = message.Email,
-                TemplateId = existingUser?.UserRef != null ? "InvitationExistingUser" : "InvitationNewUser",
-                ReplyToAddress = "noreply@sfa.gov.uk",
-                Subject = "x",
-                SystemId = "x",
-                Tokens = new Dictionary<string, string> {
-                    { "account_name", owner.AccountName },
-                    { "first_name", message.FirstName },
-                    { "inviter_name", $"{owner.FirstName} {owner.LastName}"},
-                    { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
-                    { "expiry_date", expiryDate.ToString("dd MMM yyy")}
-                }
+                { "account_name", owner.AccountName },
+                { "first_name", message.FirstName },
+                { "inviter_name", $"{owner.FirstName} {owner.LastName}" },
+                { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
+                { "expiry_date", expiryDate.ToString("dd MMM yyy") }
             }
         }, cancellationToken);
     }
