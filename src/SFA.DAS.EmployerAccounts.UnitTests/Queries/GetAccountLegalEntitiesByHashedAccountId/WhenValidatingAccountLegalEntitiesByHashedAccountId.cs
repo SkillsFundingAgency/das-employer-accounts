@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntities;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesByHashedAccountId;
@@ -22,8 +23,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntitiesByHa
             var result = _validator.Validate(new GetAccountLegalEntitiesByHashedAccountIdRequest());
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("AccountId", "AccountId has not been supplied"),result.ValidationDictionary );
+            result.IsValid().Should().BeFalse();
+            result.ValidationDictionary.ContainsKey("AccountId");
+            result.ValidationDictionary.ContainsValue("AccountId has not been supplied");
         }
 
         [Test]
@@ -33,7 +35,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntitiesByHa
             var result = _validator.Validate(new GetAccountLegalEntitiesByHashedAccountIdRequest { AccountId = 12345});
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            result.IsValid().Should().BeTrue();
         }
     }
 }

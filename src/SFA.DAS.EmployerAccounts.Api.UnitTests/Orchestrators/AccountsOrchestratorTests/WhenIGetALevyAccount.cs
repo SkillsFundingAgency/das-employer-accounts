@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -57,7 +58,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             var result = await _orchestrator.GetAccount(accountId);
 
             //Assert
-            Assert.AreEqual(agreementType.ToString(), result.AccountAgreementType.ToString());
+            result.AccountAgreementType.ToString().Should().Be(agreementType.ToString());
         }        
     }
 }

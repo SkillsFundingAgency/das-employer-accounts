@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -58,7 +59,7 @@ internal class WhenIGetANonLevyAccount
         //Assert
         _mediator.Verify();
         _mediator.VerifyNoOtherCalls();
-        Assert.AreEqual(agreementType.ToString(), result.AccountAgreementType.ToString());
+        result.AccountAgreementType.ToString().Should().Be(agreementType.ToString());
     }
 }
 

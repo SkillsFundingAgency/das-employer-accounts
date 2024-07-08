@@ -25,15 +25,18 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.LegalEntitiesContro
             [Frozen] Mock<IMediator> mediator,
             [Greedy] LegalEntitiesController controller)
         {
+            // Arrange
             var expectedModel = LegalEntityMapping.MapFromAccountLegalEntity(mediatorResponse.LegalEntity, mediatorResponse.LatestAgreement, includeAllAgreements);
 
             mediator.Setup(m => m.Send(
                     It.Is<GetLegalEntityQuery>(q => q.AccountId == accountId && q.LegalEntityId == legalEntityId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mediatorResponse);
             
+            // Act
             var result = await controller.GetLegalEntity(accountId, legalEntityId, includeAllAgreements) as OkObjectResult;
 
-            Assert.IsNotNull(result);
+            // Assert
+            result.Should().NotBeNull();
             var model = result.Value;
             model.Should().BeEquivalentTo(expectedModel);
         }

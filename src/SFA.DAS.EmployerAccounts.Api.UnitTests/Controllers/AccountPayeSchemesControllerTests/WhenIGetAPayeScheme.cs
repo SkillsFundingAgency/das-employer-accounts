@@ -85,10 +85,12 @@ public class WhenIGetAPayeScheme
         long accountId,
         [NoAutoProperties] AccountPayeSchemesController sut)
     {
+        // Act
         var response = await sut.GetPayeSchemes(accountId);
 
-        Assert.IsNotNull(response);
-        Assert.IsInstanceOf<NotFoundResult>(response);
+        // Asset
+        response.Should().NotBeNull();
+        response.Should().BeAssignableTo<NotFoundResult>();
     }
 
     [Test, MoqAutoData]
