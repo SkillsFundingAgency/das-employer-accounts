@@ -51,11 +51,6 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.Configure<RouteOptions>(options =>
-        {
-            options.ConstraintMap.Add("long", typeof(LongRouteConstraint));
-        });
-        
         var employerAccountsConfiguration = _configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
         var isDevelopment = _configuration.IsDevOrLocal();
         
