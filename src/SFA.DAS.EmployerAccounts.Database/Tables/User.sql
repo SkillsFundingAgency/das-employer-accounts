@@ -6,8 +6,7 @@
     [FirstName] NVARCHAR(MAX) NULL, 
     [LastName] NVARCHAR(MAX) NULL, 
     [CorrelationId] NVARCHAR(255) NULL, 
-    [TermAndConditionsAcceptedOn] DATETIME NULL,
-    [LastLogin] DATETIME2 NULL
+    [TermAndConditionsAcceptedOn] DATETIME NULL
 )
 GO
 
