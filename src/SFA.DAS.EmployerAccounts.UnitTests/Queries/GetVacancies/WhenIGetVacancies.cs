@@ -62,7 +62,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.Contains(_vacancy, (ICollection) response.Vacancies);
+            Assert.That((ICollection) response.Vacancies, Does.Contain(_vacancy));
         }
 
         public override Task ThenIfTheMessageIsValidTheRepositoryIsCalled()

@@ -54,7 +54,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Extensions.AuthenticationServiceExt
             var result = _userContext.IsSupportConsoleUser();
 
             //Assert
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Extensions.AuthenticationServiceExt
             var result = _userContext.IsSupportConsoleUser();
 
             //Assert
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
     }
 }

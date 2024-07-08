@@ -70,7 +70,7 @@ public class WhenIGetTheUnsignedAgreement
 
         var response = await _handler.Handle(request, CancellationToken.None);
 
-        Assert.AreEqual(agreementId, response.AgreementId);
+        Assert.That(response.AgreementId, Is.EqualTo(agreementId));
     }
 
     [Test]
@@ -84,6 +84,6 @@ public class WhenIGetTheUnsignedAgreement
 
         var response = await _handler.Handle(request, CancellationToken.None);
 
-        Assert.IsNull(response.AgreementId);
+        Assert.That(response.AgreementId, Is.Null);
     }
 }

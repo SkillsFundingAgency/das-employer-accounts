@@ -43,13 +43,19 @@ class WhenISearchThePensionRegulator
             Mock.Of<ICookieStorageService<HashedAccountIdModel>>());
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task ThenTheGatewayInformPageIsDisplayed()
     {
         var response = await _controller.SearchPensionRegulator(It.IsAny<string>());
         var redirectResponse = (RedirectToActionResult) response;
 
-        Assert.AreEqual(ControllerConstants.GatewayViewName, redirectResponse.ActionName);
-        Assert.AreEqual(ControllerConstants.EmployerAccountControllerName, redirectResponse.ControllerName);
+        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.GatewayViewName));
+        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
     }
 }

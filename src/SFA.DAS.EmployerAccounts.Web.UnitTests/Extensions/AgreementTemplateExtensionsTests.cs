@@ -22,7 +22,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
                 VersionNumber = agreementVersion
             };
 
-            Assert.AreEqual(expectedResult, model.InsetText(new List<OrganisationAgreementViewModel>()));
+            Assert.That(model.InsetText(new List<OrganisationAgreementViewModel>()), Is.EqualTo(expectedResult));
         }
 
         [TestCase(1, "")]
@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
                 }
             };
 
-            Assert.AreEqual(expectedResult, model.InsetText(agreements));
+            Assert.That(model.InsetText(agreements), Is.EqualTo(expectedResult));
         }
 
         [TestCase(1, "")]
@@ -78,7 +78,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
                 }
             };
 
-            Assert.AreEqual(expectedResult, model.InsetText(agreements));
+            Assert.That(model.InsetText(agreements), Is.EqualTo(expectedResult));
         }
 
         [TestCase(1, "")]
@@ -106,7 +106,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
                 }
             };
 
-            Assert.AreEqual(expectedResult, model.InsetText(agreements));
+            Assert.That(model.InsetText(agreements), Is.EqualTo(expectedResult));
         }
 
         [TestCase(1, "")]
@@ -134,7 +134,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
                 }
             };
 
-            Assert.AreEqual(expectedResult, model.InsetText(agreements));
+            Assert.That(model.InsetText(agreements), Is.EqualTo(expectedResult));
         }
 
         [TestCase(1, "")]
@@ -162,7 +162,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
                 }
             };
 
-            Assert.AreEqual(expectedResult, model.InsetText(agreements));
+            Assert.That(model.InsetText(agreements), Is.EqualTo(expectedResult));
         }
     }
 }

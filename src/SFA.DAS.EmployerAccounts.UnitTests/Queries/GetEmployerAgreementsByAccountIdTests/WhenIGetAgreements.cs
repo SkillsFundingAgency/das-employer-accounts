@@ -65,7 +65,7 @@ internal class WhenIGetAgreements : QueryBaseTest<GetEmployerAgreementsByAccount
         var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(_agreements, response.EmployerAgreements);
+        Assert.That(response.EmployerAgreements, Is.EqualTo(_agreements));
     }
 
     [Test]

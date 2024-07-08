@@ -15,7 +15,7 @@ public class WhenIChooseIIfIKnowApprenticehipStartDate
         var result = controller.TriageWillApprenticeshipTrainingStart(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.Yes }) as RedirectToRouteResult;
 
         //Assert
-        Assert.AreEqual(RouteNames.TriageWhenApprenticeshipForExistingEmployee, result.RouteName);
+        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageWhenApprenticeshipForExistingEmployee));
     }
 
     [Test, MoqAutoData]
@@ -27,7 +27,7 @@ public class WhenIChooseIIfIKnowApprenticehipStartDate
         var result = controller.TriageWillApprenticeshipTrainingStart(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.No }) as RedirectToRouteResult;
 
         //Assert
-        Assert.AreEqual(RouteNames.TriageCannotSetupWithoutStartDate, result.RouteName);
+        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageCannotSetupWithoutStartDate));
     }
 
     [Test, MoqAutoData]
@@ -39,6 +39,6 @@ public class WhenIChooseIIfIKnowApprenticehipStartDate
         var result = controller.TriageWillApprenticeshipTrainingStart(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.Unknown }) as RedirectToRouteResult;
 
         //Assert
-        Assert.AreEqual(RouteNames.TriageCannotSetupWithoutApproximateStartDate, result.RouteName);
+        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageCannotSetupWithoutApproximateStartDate));
     }
 }

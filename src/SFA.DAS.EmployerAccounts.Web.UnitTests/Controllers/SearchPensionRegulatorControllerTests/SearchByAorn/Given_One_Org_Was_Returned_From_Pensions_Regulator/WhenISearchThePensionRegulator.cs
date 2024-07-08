@@ -56,6 +56,12 @@ class WhenISearchThePensionRegulator : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task ThenTheOrganisationAndPayeDetailsAreSaved()
     {
@@ -70,8 +76,8 @@ class WhenISearchThePensionRegulator : ControllerTestBase
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = ExpectedAorn, PayeRef = ExpectedPayeRef });
         var redirectResponse = (RedirectToActionResult) response;
 
-        Assert.AreEqual(ControllerConstants.SummaryActionName, redirectResponse.ActionName);
-        Assert.AreEqual(ControllerConstants.EmployerAccountControllerName, redirectResponse.ControllerName);
+        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SummaryActionName));
+        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
     }
 
     [Test]
@@ -82,8 +88,8 @@ class WhenISearchThePensionRegulator : ControllerTestBase
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = ExpectedAorn, PayeRef = ExpectedPayeRef });
         var redirectResponse = (RedirectToActionResult)response;
 
-        Assert.AreEqual(ControllerConstants.PayeErrorActionName, redirectResponse.ActionName);
-        Assert.AreEqual(ControllerConstants.EmployerAccountControllerName, redirectResponse.ControllerName);
+        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.PayeErrorActionName));
+        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
     }
 
     private bool OrganisationAndPayeDataMatchesViewModel(SaveOrganisationAndPayeData saveOrganisationData)

@@ -31,10 +31,10 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
 
             var response = await Controller.GetAccount(hashedAccountId) as OkObjectResult;
 
-            Assert.IsNotNull(response);
+            Assert.That(response, Is.Not.Null);
             var model = response.Value as AccountDetail;
 
-            Assert.IsInstanceOf<AccountDetail>(model);
+            Assert.That(model, Is.InstanceOf<AccountDetail>());
             model.Should().NotBeNull();
             model.AccountId.Should().Be(123);
             model.DasAccountName.Should().Be("Test 1");

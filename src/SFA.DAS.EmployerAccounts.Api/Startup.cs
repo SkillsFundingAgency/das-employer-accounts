@@ -90,7 +90,6 @@ public class Startup
 
         services.AddMediatorValidators();
         services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetPayeSchemeByRefQuery).Assembly));
-        services.AddNotifications(_configuration);
 
         services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
         services.AddSingleton<IAuthenticationServiceWrapper, AuthenticationServiceWrapper>();

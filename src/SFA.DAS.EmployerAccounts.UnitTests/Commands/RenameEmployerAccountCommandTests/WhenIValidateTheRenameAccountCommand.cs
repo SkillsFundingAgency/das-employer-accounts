@@ -37,7 +37,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RenameEmployerAccountComma
             var result = await _validator.ValidateAsync(command);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
+            Assert.That(result.IsValid(), Is.False);
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RenameEmployerAccountComma
             var result = await _validator.ValidateAsync(command);
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
     }
 }

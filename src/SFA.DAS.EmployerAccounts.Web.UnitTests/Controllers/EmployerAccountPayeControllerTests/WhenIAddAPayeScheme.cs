@@ -31,6 +31,13 @@ public class WhenIAddAPayeScheme : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
+
     [Test]
     public async Task ThenTheAddPayeSchemeToAccountIsCalledWithTheCorrectParameters()
     {

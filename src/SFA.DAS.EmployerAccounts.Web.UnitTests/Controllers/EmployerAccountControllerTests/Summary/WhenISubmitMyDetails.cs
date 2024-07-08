@@ -70,6 +70,12 @@ public class WhenISubmitMyDetails : ControllerTestBase
             .ReturnsAsync(_response);
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _employerAccountController?.Dispose();
+    }
+
     [Test]
     public void ThenIAmShownASummary()
     {
@@ -82,8 +88,8 @@ public class WhenISubmitMyDetails : ControllerTestBase
 
         //Assert
         _orchestrator.Verify(x => x.GetSummaryViewModel(It.IsAny<HttpContext>()), Times.Once);
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var model = actual.Model as OrchestratorResponse<SummaryViewModel>;
-        Assert.IsNotNull(model);
+        Assert.That(model, Is.Not.Null);
     }
 }

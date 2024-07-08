@@ -83,10 +83,10 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
             var actual = await _employerAccountPayeOrchestrator.GetPayeConfirmModel("1", "1", "", null);
 
             //Assert
-            Assert.IsEmpty(actual.Data.PayeScheme);
-            Assert.IsEmpty(actual.Data.AccessToken);
-            Assert.IsEmpty(actual.Data.RefreshToken);
-            Assert.IsEmpty(actual.Data.PayeName);
+            Assert.That(actual.Data.PayeScheme, Is.Empty);
+            Assert.That(actual.Data.AccessToken, Is.Empty);
+            Assert.That(actual.Data.RefreshToken, Is.Empty);
+            Assert.That(actual.Data.PayeName, Is.Empty);
         }
 
         [Test]
@@ -120,8 +120,8 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
             var actual = await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
 
             //act
-            Assert.IsAssignableFrom<OrchestratorResponse<GatewayInformViewModel>>(actual);
-            Assert.AreEqual(HttpStatusCode.Unauthorized, actual.Status);
+            Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<GatewayInformViewModel>>());
+            Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
         }
     }
 }

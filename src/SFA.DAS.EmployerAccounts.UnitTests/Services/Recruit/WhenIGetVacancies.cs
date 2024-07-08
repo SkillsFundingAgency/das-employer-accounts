@@ -106,10 +106,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
             var result = await _sut.GetVacancies(_hashedAccountId) as List<Vacancy>;
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsNotEmpty(result);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(testTitle, result[0].Title);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].Title, Is.EqualTo(testTitle));
         }
     }
 }

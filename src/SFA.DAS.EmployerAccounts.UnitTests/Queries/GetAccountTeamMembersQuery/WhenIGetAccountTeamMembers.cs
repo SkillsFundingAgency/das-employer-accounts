@@ -95,8 +95,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountTeamMembersQuery
             }, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.TeamMembers);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.TeamMembers, Is.Not.Null);
         }
 
         [Test]
