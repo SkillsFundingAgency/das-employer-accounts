@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -49,6 +51,11 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.Configure<RouteOptions>(options =>
+        {
+            options.ConstraintMap.Add("long", typeof(LongRouteConstraint));
+        });
+        
         var employerAccountsConfiguration = _configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
         var isDevelopment = _configuration.IsDevOrLocal();
         
