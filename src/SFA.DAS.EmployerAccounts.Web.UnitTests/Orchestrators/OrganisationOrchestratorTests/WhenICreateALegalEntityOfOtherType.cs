@@ -48,4 +48,15 @@ public class WhenICreateALegalEntityOfOtherType
 
         Assert.That(result.Data.Valid, Is.True);
     }
+
+    [Test]
+    public async Task ThenTheNameCannotContainInvalidChars()
+    {
+        var request = new OrganisationDetailsViewModel();
+        request.Name = "<not Allowed>";
+        var result = await _orchestrator.ValidateLegalEntityName(request);
+
+        Assert.That(result.Data.Valid, Is.False);
+        Assert.That(result.Data.ErrorDictionary.ContainsKey("Name"), Is.True);
+    }
 }
