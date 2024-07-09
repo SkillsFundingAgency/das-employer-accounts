@@ -279,7 +279,7 @@ public class EmployerTeamController : BaseController
     [HttpGet]
     [Route("review", Name = RouteNames.EmployerTeamReview)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Review(string hashedAccountId, [FromQuery] string email)
+    public async Task<IActionResult> Review(string hashedAccountId, string email)
     {
         var decodedEmail = WebUtility.UrlDecode(email);
 

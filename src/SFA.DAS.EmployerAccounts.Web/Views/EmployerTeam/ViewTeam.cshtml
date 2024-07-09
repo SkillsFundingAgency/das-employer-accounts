@@ -63,13 +63,8 @@
                 <td data-label="What they can do" class="govuk-table__cell">@RoleStrings.GetRoleDescription(teamMember.Role)</td>
                 <td data-label="Status" class="govuk-table__cell">@InvitationStatusStrings.ToString(teamMember.Status)</td>
                 <td class="govuk-table__cell govuk-table__cell--numeric">
-                    @{
-                        var emailParams = new Dictionary<string, string> { { "email", WebUtility.UrlEncode(teamMember.Email) } };
-                    }
                     <a aria-label="View details for @teamMember.Name"
-                       asp-route="@RouteNames.EmployerTeamReview"
-                       asp-route-hashedAccountId="@hashedAccountId"
-                       asp-all-route-data="emailParams" class="govuk-link">
+                       href="@Url.Action("Review", "EmployerTeam", new { hashedAccountId, email = WebUtility.UrlEncode(teamMember.Email) })">
                         View<span class="govuk-visually-hidden"> details for @teamMember.Name</span>
                     </a>
                 </td>
