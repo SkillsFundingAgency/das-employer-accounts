@@ -34,7 +34,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemovePayeFromAccountTests
 
 
             //Assert
-            Assert.IsTrue(result.IsValid());
+            Assert.That(result.IsValid(), Is.True);
         }
 
         [Test]
@@ -44,12 +44,12 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemovePayeFromAccountTests
             var result = await _validator.ValidateAsync(new RemovePayeFromAccountCommand(null, null, null, false, null));
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.IsNotEmpty(result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string,string>("HashedAccountId", "HashedAccountId has not been supplied"), result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string,string>("PayeRef","PayeRef has not been supplied"), result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string,string>("UserId","UserId has not been supplied"), result.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string,string>("RemoveScheme", "Please confirm you wish to remove the scheme"), result.ValidationDictionary);
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary, Is.Not.Empty);
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("HashedAccountId", "HashedAccountId has not been supplied")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("PayeRef","PayeRef has not been supplied")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("UserId","UserId has not been supplied")));
+            Assert.That(result.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("RemoveScheme", "Please confirm you wish to remove the scheme")));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemovePayeFromAccountTests
 
 
             //Assert
-            Assert.IsTrue(result.IsUnauthorized);
+            Assert.That(result.IsUnauthorized, Is.True);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemovePayeFromAccountTests
 
 
             //Assert
-            Assert.IsTrue(result.IsUnauthorized);
+            Assert.That(result.IsUnauthorized, Is.True);
         }
     }
 }

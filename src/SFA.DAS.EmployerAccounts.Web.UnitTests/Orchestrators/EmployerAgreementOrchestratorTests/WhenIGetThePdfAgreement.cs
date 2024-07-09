@@ -2,6 +2,7 @@
 using AutoFixture.NUnit3;
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementPdf;
 using SFA.DAS.EmployerAccounts.Queries.GetSignedEmployerAgreementPdf;
@@ -27,7 +28,13 @@ public class WhenIGetThePdfAgreement
 
         _referenceDataService = new Mock<IReferenceDataService>();
 
-        _orchestrator = new EmployerAgreementOrchestrator(_mediator.Object, Mock.Of<IMapper>(), _referenceDataService.Object, Mock.Of<IEncodingService>());
+        _orchestrator = new EmployerAgreementOrchestrator(
+            _mediator.Object,
+            Mock.Of<IMapper>(),
+            _referenceDataService.Object,
+            Mock.Of<IEncodingService>(),
+            Mock.Of<ILogger<EmployerAgreementOrchestrator>>()
+            );
     }
 
     [Test, MoqAutoData]
@@ -92,8 +99,8 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.IsNotEmpty(actual.FlashMessage.ErrorMessages);
-        Assert.AreEqual(HttpStatusCode.BadRequest, actual.Status);
+        Assert.That(actual.FlashMessage.ErrorMessages, Is.Not.Empty);
+        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test, MoqAutoData]
@@ -112,7 +119,7 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized, actual.Status);
+        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 
 
@@ -132,6 +139,6 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized, actual.Status);
+        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 }

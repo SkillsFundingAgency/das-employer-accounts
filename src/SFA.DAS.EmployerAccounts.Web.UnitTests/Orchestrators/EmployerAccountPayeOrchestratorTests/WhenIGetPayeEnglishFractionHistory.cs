@@ -46,7 +46,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPa
             var actual = await _employerAccountPayeOrchestrator.GetPayeDetails(EmpRef, AccountId, UserId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.Unauthorized, actual.Status);
+            Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
         }
     }
 }

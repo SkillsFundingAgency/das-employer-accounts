@@ -93,9 +93,9 @@ class WhenIGetAccountPayeSchemesWithEnglishFraction
         var result = await _sut.GetPayeSchemes(AccountId);
 
         //Assert
-        Assert.AreEqual(1, result.Count());
-        Assert.AreEqual(_payeView, result.First());
-        Assert.True(CompareEnglishFractions(_englishFraction, result.First().EnglishFraction));
+        Assert.That(result.Count(), Is.EqualTo(1));
+        Assert.That(result.First(), Is.EqualTo(_payeView));
+        Assert.That(CompareEnglishFractions(_englishFraction, result.First().EnglishFraction), Is.True);
     }
 
     [Test]
@@ -107,7 +107,7 @@ class WhenIGetAccountPayeSchemesWithEnglishFraction
         var result = await _sut.GetPayeSchemes(AccountId);
 
         //Assert
-        Assert.IsEmpty(result);
+        Assert.That(result, Is.Empty);
         _outerApiClient.Verify(v => v.Get<GetEnglishFractionCurrentResponse>(It.IsAny<GetEnglishFractionCurrentRequest>()), Times.Never);
     }
 

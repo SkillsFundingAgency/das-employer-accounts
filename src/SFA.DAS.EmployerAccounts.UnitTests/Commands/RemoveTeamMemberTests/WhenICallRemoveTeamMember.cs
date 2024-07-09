@@ -117,8 +117,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveTeamMemberTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
-
+            
             _membershipRepository.Verify(x => x.Remove(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
@@ -160,7 +159,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveTeamMemberTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
 
             _membershipRepository.Verify(x => x.Remove(command.UserId, ExpectedAccountId), Times.Never);
         }
@@ -203,7 +201,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveTeamMemberTests
             var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
             Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-            Assert.That(exception.ErrorMessages.FirstOrDefault(x => x.Key == "Membership"), Is.Not.Null);
 
             _membershipRepository.Verify(x => x.Remove(command.UserId, ExpectedAccountId), Times.Never);
         }

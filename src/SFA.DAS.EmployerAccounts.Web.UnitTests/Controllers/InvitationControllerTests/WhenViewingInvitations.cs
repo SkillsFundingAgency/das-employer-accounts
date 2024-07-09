@@ -28,6 +28,12 @@ public class WhenViewingInvitations : ControllerTestBase
        };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public void ThenTheUserIsShownTheIndexWhenNotAuthenticated()
     {
@@ -38,7 +44,7 @@ public class WhenViewingInvitations : ControllerTestBase
         var actual = _controller.Invite();
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
     }
 
     [Test]
@@ -51,11 +57,11 @@ public class WhenViewingInvitations : ControllerTestBase
         var actual = _controller.Invite();
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectToActionResult;
-        Assert.IsNotNull(actualRedirectResult);
-        Assert.AreEqual("Index",actualRedirectResult.ActionName);
-        Assert.AreEqual("Home",actualRedirectResult.ControllerName);
+        Assert.That(actualRedirectResult, Is.Not.Null);
+        Assert.That(actualRedirectResult.ActionName, Is.EqualTo("Index"));
+        Assert.That(actualRedirectResult.ControllerName, Is.EqualTo("Home"));
     }
 
     [Test]
@@ -72,8 +78,8 @@ public class WhenViewingInvitations : ControllerTestBase
 
         //Assert
         _invitationOrchestrator.Verify(x => x.GetInvitation(It.Is<string>(i => i == "123")));
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var viewResult = actual as ViewResult;
-        Assert.IsNotNull(viewResult);
+        Assert.That(viewResult, Is.Not.Null);
     }
 }

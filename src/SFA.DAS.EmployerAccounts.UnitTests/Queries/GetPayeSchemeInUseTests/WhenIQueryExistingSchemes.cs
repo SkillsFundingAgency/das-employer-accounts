@@ -51,8 +51,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeInUseTests
             var actual = await RequestHandler.Handle(new GetPayeSchemeInUseQuery { Empref = empref }, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(actual.PayeScheme);
-            Assert.AreEqual(ExpectedAccountId, actual.PayeScheme.AccountId);
+            Assert.That(actual.PayeScheme, Is.Not.Null);
+            Assert.That(actual.PayeScheme.AccountId, Is.EqualTo(ExpectedAccountId));
         }
     }
 }

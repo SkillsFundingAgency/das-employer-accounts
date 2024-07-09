@@ -65,9 +65,9 @@ class WhenIRemoveATeamMember
         var result = await _orchestrator.Remove(2, "3242", "32342");
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.Status);
-        Assert.AreEqual("Team member removed", result.FlashMessage.Headline);
-        Assert.AreEqual($"You've removed <strong>{Email}</strong>", result.FlashMessage.Message);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(result.FlashMessage.Headline, Is.EqualTo("Team member removed"));
+        Assert.That(result.FlashMessage.Message, Is.EqualTo($"You've removed <strong>{Email}</strong>"));
     }
 
     [Test]
@@ -80,7 +80,7 @@ class WhenIRemoveATeamMember
         var result = await _orchestrator.Remove(2, "3242", "32342");
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.NotFound, result.Status);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Test]
@@ -93,7 +93,7 @@ class WhenIRemoveATeamMember
         var result = await _orchestrator.Remove(2, "3242", "32342");
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.Status);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
@@ -106,6 +106,6 @@ class WhenIRemoveATeamMember
         var result = await _orchestrator.Remove(2, "3242", "32342");
 
         //Assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized, result.Status);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 }

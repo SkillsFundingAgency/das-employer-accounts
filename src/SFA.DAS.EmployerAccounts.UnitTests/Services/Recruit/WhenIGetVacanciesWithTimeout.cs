@@ -63,7 +63,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
             var recruitsResult = await _recruitServiceWithTimeout.GetVacancies(_hashedAccountId);
 
             // assert 
-            Assert.AreSame(recruitsResult, _vacancies);
+            Assert.That(_vacancies, Is.SameAs(recruitsResult));
         }
 
         [Test]
@@ -85,9 +85,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
                 actualException = e;
                 correctExceptionThrown = true;
             }
-            Assert.IsTrue(correctExceptionThrown);
-            Assert.AreEqual(actualException.InnerException?.Message, innerException);
-            Assert.AreEqual(actualException.Message, message);
+            Assert.That(correctExceptionThrown, Is.True);
+            Assert.That(innerException, Is.EqualTo(actualException.InnerException?.Message));
+            Assert.That(message, Is.EqualTo(actualException.Message));
         }
     }
 }

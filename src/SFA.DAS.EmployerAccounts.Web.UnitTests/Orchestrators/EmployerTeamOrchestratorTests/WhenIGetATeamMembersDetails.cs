@@ -62,7 +62,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
                         q.AccountId.Equals(AccountId) && 
                         q.ExternalUserId.Equals(ExternalUserId)), It.IsAny<CancellationToken>()), Times.Once);
 
-            Assert.AreEqual(status, result.Status);
+            Assert.That(result.Status, Is.EqualTo(status));
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
                         r.AccountId.Equals(AccountId) &&
                         r.Email.Equals(TeamMemberEmail)), It.IsAny<CancellationToken>()), Times.Once);
 
-            Assert.AreEqual(_teamMemberResponse.TeamMember, result.Data);
+            Assert.That(result.Data, Is.EqualTo(_teamMemberResponse.TeamMember));
         }
 
         [TestCase(Role.Transactor)]
@@ -114,7 +114,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             var result = await _orchestrator.GetActiveTeamMember(0, null, null);
 
             //Asset
-            Assert.AreEqual(HttpStatusCode.NotFound,result.Status);
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
         }
     }
 }

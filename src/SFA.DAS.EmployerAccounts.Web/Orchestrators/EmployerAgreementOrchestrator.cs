@@ -19,21 +19,22 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
     private readonly IMediator _mediator;
     private readonly IReferenceDataService _referenceDataService;
     private readonly IEncodingService _encodingService;
-
-    protected EmployerAgreementOrchestrator()
-    {
-    }
-
+    private readonly ILogger<EmployerAgreementOrchestrator> _logger;
+    
+    protected EmployerAgreementOrchestrator() { }
+    
     public EmployerAgreementOrchestrator(
         IMediator mediator,
         IMapper mapper,
         IReferenceDataService referenceDataService,
-        IEncodingService encodingService) : base(mediator)
+        IEncodingService encodingService, 
+        ILogger<EmployerAgreementOrchestrator> logger) : base(mediator)
     {
         _mediator = mediator;
         _mapper = mapper;
         _referenceDataService = referenceDataService;
         _encodingService = encodingService;
+        _logger = logger;
     }
 
     public virtual async Task<OrchestratorResponse<EmployerAgreementListViewModel>> Get(string hashedAccountId,
@@ -253,16 +254,20 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
 
             pdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel { PdfStream = result.FileStream };
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
             pdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             pdfEmployerAgreement.Status = HttpStatusCode.Unauthorized;
+            
+            _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught UnauthorizedAccessException.");
         }
         catch (Exception ex)
         {
             pdfEmployerAgreement.Exception = ex;
             pdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             pdfEmployerAgreement.Status = HttpStatusCode.NotFound;
+            
+            _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught Exception.");
         }
 
         return pdfEmployerAgreement;
@@ -299,17 +304,23 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 ErrorMessages = ex.ErrorMessages,
                 Severity = FlashMessageSeverityLevel.Error
             };
+            
+            _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught InvalidRequestException.");
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
             signedPdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             signedPdfEmployerAgreement.Status = HttpStatusCode.Unauthorized;
+            
+            _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught UnauthorizedAccessException.");
         }
         catch (Exception ex)
         {
             signedPdfEmployerAgreement.Exception = ex;
             signedPdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             signedPdfEmployerAgreement.Status = HttpStatusCode.NotFound;
+            
+            _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught Exception.");
         }
 
         return signedPdfEmployerAgreement;

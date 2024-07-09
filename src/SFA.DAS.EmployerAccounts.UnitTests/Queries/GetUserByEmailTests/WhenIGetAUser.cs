@@ -40,8 +40,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserByEmailTests
 
             //Act
             var result = await RequestHandler.Handle(Query, CancellationToken.None);
-            Assert.IsNotNull(result);
-            Assert.IsNull(result.User);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.User, Is.Null);
         }
 
         [Test]
@@ -61,8 +61,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetUserByEmailTests
             var result = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(_user, result.User);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.User, Is.EqualTo(_user));
             _repository.Verify(x => x.Get(Query.Email), Times.Once);
         }
     }

@@ -50,10 +50,10 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveLegalEntityTests
             var actual = await _removeLegalEntityCommandValidator.ValidateAsync(new RemoveLegalEntityCommand());
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("AccountId", "AccountId has not been supplied"), actual.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("UserId", "UserId has not been supplied"), actual.ValidationDictionary);
-            Assert.Contains(new KeyValuePair<string, string>("AccountLegalEntityId", "AccountLegalEntityId has not been supplied"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("UserId", "UserId has not been supplied")));
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("AccountLegalEntityId", "AccountLegalEntityId has not been supplied")));
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("AccountId", "AccountId has not been supplied")));
             _membershipRepository.Verify(x => x.GetCaller(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
@@ -64,7 +64,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveLegalEntityTests
             var actual = await _removeLegalEntityCommandValidator.ValidateAsync(new RemoveLegalEntityCommand { AccountId = ExpectedAccountId, UserId = "TGB678", AccountLegalEntityId = 198 });
 
             //Assert
-            Assert.IsTrue(actual.IsUnauthorized);
+            Assert.That(actual.IsUnauthorized, Is.True);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveLegalEntityTests
             var actual = await _removeLegalEntityCommandValidator.ValidateAsync(new RemoveLegalEntityCommand { AccountId = ExpectedAccountId, UserId = ExpectedNonOwnerUserId, AccountLegalEntityId = 198 });
 
             //Assert
-            Assert.IsTrue(actual.IsUnauthorized);
+            Assert.That(actual.IsUnauthorized, Is.True);
         }
 
         [Test]
@@ -84,8 +84,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveLegalEntityTests
             var actual = await _removeLegalEntityCommandValidator.ValidateAsync(new RemoveLegalEntityCommand { AccountId = ExpectedAccountId, UserId = ExpectedUserId, AccountLegalEntityId = ExpectedLegalEntityId });
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
-            Assert.IsFalse(actual.IsUnauthorized);
+            Assert.That(actual.IsValid(), Is.True);
+            Assert.That(actual.IsUnauthorized, Is.False);
         }
 
         [Test]
@@ -103,8 +103,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveLegalEntityTests
             var actual = await _removeLegalEntityCommandValidator.ValidateAsync(new RemoveLegalEntityCommand { AccountId = ExpectedAccountId, UserId = ExpectedUserId, AccountLegalEntityId = ExpectedLegalEntityId });
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string, string>("AccountLegalEntityId", "There must be at least one legal entity on the account"), actual.ValidationDictionary);
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("AccountLegalEntityId", "There must be at least one legal entity on the account")));
         }
     }
 }

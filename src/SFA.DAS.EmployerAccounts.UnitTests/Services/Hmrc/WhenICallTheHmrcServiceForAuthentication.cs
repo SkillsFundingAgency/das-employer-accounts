@@ -64,7 +64,7 @@ public class WhenICallTheHmrcServiceForAuthentication
         var actual = _hmrcService.GenerateAuthRedirectUrl(redirectUrl);
 
         //Assert
-        Assert.AreEqual($"{ExpectedBaseUrl}oauth/authorize?response_type=code&client_id={ExpectedClientId}&scope={ExpectedScope}&redirect_uri={urlFriendlyRedirectUrl}", actual);
+        Assert.That(actual, Is.EqualTo($"{ExpectedBaseUrl}oauth/authorize?response_type=code&client_id={ExpectedClientId}&scope={ExpectedScope}&redirect_uri={urlFriendlyRedirectUrl}"));
     }
 
     [Test]
@@ -80,6 +80,6 @@ public class WhenICallTheHmrcServiceForAuthentication
 
         //Assert
         _httpClientWrapper.Verify(x => x.SendMessage(It.IsAny<object>(), "oauth/token"), Times.Once);
-        Assert.IsAssignableFrom<HmrcTokenResponse>(actual);
+        Assert.That(actual, Is.AssignableFrom<HmrcTokenResponse>());
     }
 }

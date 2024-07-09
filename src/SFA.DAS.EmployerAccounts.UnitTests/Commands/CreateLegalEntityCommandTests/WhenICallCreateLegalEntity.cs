@@ -69,7 +69,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateLegalEntityCommandTe
             var result = await CommandHandler.Handle(Command, CancellationToken.None);
 
             //Assert
-            Assert.AreSame(_agreementView, result.AgreementView);
+            Assert.That(result.AgreementView, Is.SameAs(_agreementView));
         }
 
         [Test]
