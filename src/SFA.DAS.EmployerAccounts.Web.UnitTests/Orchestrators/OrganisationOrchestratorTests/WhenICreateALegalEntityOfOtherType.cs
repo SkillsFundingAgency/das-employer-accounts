@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentAssertions;
 using MediatR;
 using SFA.DAS.Encoding;
 
@@ -33,8 +34,8 @@ public class WhenICreateALegalEntityOfOtherType
         var request = new OrganisationDetailsViewModel();
         var result = await _orchestrator.ValidateLegalEntityName(request);
 
-        Assert.That(result.Data.Valid, Is.False);
-        Assert.That(result.Data.ErrorDictionary.ContainsKey("Name"), Is.True);
+        result.Data.Valid.Should().BeFalse();
+        result.Data.ErrorDictionary.ContainsKey("Name").Should().BeTrue();
     }
 
     [Test]
@@ -46,7 +47,7 @@ public class WhenICreateALegalEntityOfOtherType
         };
         var result = await _orchestrator.ValidateLegalEntityName(request);
 
-        Assert.That(result.Data.Valid, Is.True);
+        result.Data.Valid.Should().BeTrue();
     }
 
     [Test]
@@ -56,7 +57,7 @@ public class WhenICreateALegalEntityOfOtherType
         request.Name = "<not Allowed>";
         var result = await _orchestrator.ValidateLegalEntityName(request);
 
-        Assert.That(result.Data.Valid, Is.False);
-        Assert.That(result.Data.ErrorDictionary.ContainsKey("Name"), Is.True);
+        result.Data.Valid.Should().BeFalse();
+        result.Data.ErrorDictionary.ContainsKey("Name").Should().BeTrue();
     }
 }
