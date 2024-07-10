@@ -8,7 +8,7 @@ public record GetMemberByIdQuery : IRequest<GetMemberByIdResponse>
 {
     public long Id { get; set; }
     public long AccountId { get; set; }
-    public MemberType MemberType { get; set; }
+    public bool IsUser { get; set; }
 }
 
 public record GetMemberByIdResponse
@@ -24,7 +24,7 @@ public class GetMemberByIdQueryHandler(
     public async Task<GetMemberByIdResponse> Handle(GetMemberByIdQuery query, CancellationToken cancellationToken)
     {
         var hashedAccountId = encodingService.Encode(query.AccountId, EncodingType.AccountId);
-        var member = await accountTeamRepository.GetMember(hashedAccountId, query.Id, query.MemberType) ?? new TeamMember();
+        var member = await accountTeamRepository.GetMember(hashedAccountId, query.Id, query.IsUser) ?? new TeamMember();
         
         member.HashedUserId = encodingService.Encode(member.Id, EncodingType.AccountId);
         member.HashedAccountId = hashedAccountId;

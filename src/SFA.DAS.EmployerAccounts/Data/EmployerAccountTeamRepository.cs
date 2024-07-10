@@ -57,13 +57,13 @@ public class EmployerAccountTeamRepository : IEmployerAccountTeamRepository
         return result.SingleOrDefault();
     }
     
-    public async Task<TeamMember> GetMember(string hashedAccountId, long id, MemberType memberType)
+    public async Task<TeamMember> GetMember(string hashedAccountId, long id, bool isUser)
     {
         var parameters = new DynamicParameters();
 
         parameters.Add("@hashedAccountId", hashedAccountId, DbType.String);
         parameters.Add("@id", id, DbType.Int64);
-        parameters.Add("@isUser", memberType == MemberType.User ? 1 : 0, DbType.Boolean);
+        parameters.Add("@isUser", isUser, DbType.Boolean);
 
         var result = await _db.Value.Database.GetDbConnection().QueryAsync<TeamMember>(
             sql: """

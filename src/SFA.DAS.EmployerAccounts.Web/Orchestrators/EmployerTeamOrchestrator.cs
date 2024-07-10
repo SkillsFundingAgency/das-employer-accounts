@@ -52,7 +52,9 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
     }
 
     //Needed for tests	
-    protected EmployerTeamOrchestrator() { }
+    protected EmployerTeamOrchestrator()
+    {
+    }
 
     public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Cancel(string email, string hashedAccountId, string externalUserId)
     {
@@ -185,7 +187,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
             var tasksResponse = await _mediator.Send(new GetTaskSummaryQuery
             {
-                AccountId = accountResponse.Account.Id              
+                AccountId = accountResponse.Account.Id
             });
 
             var pendingAgreements = agreementsResponse.EmployerAgreements.Where(a => a.HasPendingAgreement && !a.HasSignedAgreement).Select(a => new PendingAgreementsViewModel { HashedAgreementId = a.Pending.HashedAgreementId }).ToList();
@@ -296,13 +298,13 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
     {
         return GetTeamMember(accountId, email, externalUserId, false);
     }
-    
-    public virtual Task<OrchestratorResponse<TeamMember>> GetTeamMember(string hashedAccountId, string hashedId, MemberType type, string externalUserId)
+
+    public virtual Task<OrchestratorResponse<TeamMember>> GetTeamMember(string hashedAccountId, string hashedId, bool isUser, string externalUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
         var id = _encodingService.Decode(hashedId, EncodingType.AccountId);
 
-        return GetTeamMember(accountId, id, externalUserId, type);
+        return GetTeamMember(accountId, id, externalUserId, isUser);
     }
 
     private async Task<OrchestratorResponse<TeamMember>> GetTeamMember(long accountId, string email, string externalUserId, bool onlyIfMemberIsActive)
@@ -330,8 +332,8 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             Data = response.TeamMember
         };
     }
-    
-    private async Task<OrchestratorResponse<TeamMember>> GetTeamMember(long accountId, long id, string externalUserId, MemberType type)
+
+    private async Task<OrchestratorResponse<TeamMember>> GetTeamMember(long accountId, long id, string externalUserId, bool isUser)
     {
         var userRoleResponse = await GetUserAccountRole(accountId, externalUserId);
 
@@ -347,7 +349,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         {
             AccountId = accountId,
             Id = id,
-            MemberType = type
+            IsUser = isUser
         });
 
         return new OrchestratorResponse<TeamMember>
@@ -361,12 +363,11 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
     {
         try
         {
-            var response = await
-                _mediator.Send(new GetAccountTeamMembersQuery
-                {
-                    HashedAccountId = hashedId,
-                    ExternalUserId = userId
-                });
+            var response = await _mediator.Send(new GetAccountTeamMembersQuery
+            {
+                HashedAccountId = hashedId,
+                ExternalUserId = userId
+            });
 
             return new OrchestratorResponse<EmployerTeamMembersViewModel>
             {
@@ -727,6 +728,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
         return false;
     }
+
     private static bool EvaluateClosedVacancyCallToActionRule(PanelViewModel<AccountDashboardViewModel> viewModel)
     {
         if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount != 1 ||
@@ -853,6 +855,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             viewModel.Data.HideTasksBar = true;
             return true;
         }
+
         return false;
     }
 

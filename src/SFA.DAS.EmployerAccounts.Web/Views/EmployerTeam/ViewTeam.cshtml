@@ -64,7 +64,7 @@
                 <td data-label="Status" class="govuk-table__cell">@InvitationStatusStrings.ToString(teamMember.Status)</td>
                 <td class="govuk-table__cell govuk-table__cell--numeric">
                     <a aria-label="View details for @teamMember.Name"
-                       href="@Url.Action("Review", "EmployerTeam", new { hashedAccountId, hashedId = teamMember.HashedUserId, type = teamMember.MemberType })">
+                       href="@Url.Action("Review", "EmployerTeam", new { hashedAccountId, teamMember.HashedUserId, teamMember.IsUser })">
                         View<span class="govuk-visually-hidden"> details for @teamMember.Name</span>
                     </a>
                 </td>

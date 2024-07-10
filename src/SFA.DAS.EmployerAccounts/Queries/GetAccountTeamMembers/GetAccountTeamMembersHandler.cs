@@ -3,33 +3,24 @@ using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Extensions;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Queries.GetAccountTeamMembers;
 
-public class GetAccountTeamMembersHandler : IRequestHandler<GetAccountTeamMembersQuery, GetAccountTeamMembersResponse>
+public class GetAccountTeamMembersHandler(
+    IValidator<GetAccountTeamMembersQuery> validator,
+    IEmployerAccountTeamRepository repository,
+    IMediator mediator,
+    IMembershipRepository membershipRepository,
+    IUserContext userContext,
+    IEncodingService encodingService)
+    : IRequestHandler<GetAccountTeamMembersQuery, GetAccountTeamMembersResponse>
 {
-    private readonly IValidator<GetAccountTeamMembersQuery> _validator;
-    private readonly IEmployerAccountTeamRepository _repository;
-    private readonly IMembershipRepository _membershipRepository;
-    private readonly IMediator _mediator;
-    private readonly IUserContext _userContext;
-
-    public GetAccountTeamMembersHandler(
-        IValidator<GetAccountTeamMembersQuery> validator, 
-        IEmployerAccountTeamRepository repository,
-        IMediator mediator, 
-        IMembershipRepository membershipRepository, IUserContext userContext)
-    {
-        _validator = validator;
-        _repository = repository;
-        _mediator = mediator;
-        _membershipRepository = membershipRepository;
-        _userContext = userContext;
-    }
+    private readonly IEncodingService _encodingService = encodingService;
 
     public async Task<GetAccountTeamMembersResponse> Handle(GetAccountTeamMembersQuery message, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(message);
+        var validationResult = await validator.ValidateAsync(message);
 
         if (!validationResult.IsValid())
         {
@@ -41,21 +32,26 @@ public class GetAccountTeamMembersHandler : IRequestHandler<GetAccountTeamMember
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        var accounts = await _repository.GetAccountTeamMembersForUserId(message.HashedAccountId, message.ExternalUserId);
+        var teamMembers = await repository.GetAccountTeamMembersForUserId(message.HashedAccountId, message.ExternalUserId);
 
-        if (_userContext.IsSupportConsoleUser())
+        foreach (var teamMember in teamMembers)
+        {
+            teamMember.HashedUserId = _encodingService.Encode(teamMember.Id, EncodingType.AccountId);
+        }
+
+        if (userContext.IsSupportConsoleUser())
         {
             await AuditAccess(message);
         }
 
-        return new GetAccountTeamMembersResponse { TeamMembers = accounts };
+        return new GetAccountTeamMembersResponse { TeamMembers = teamMembers };
     }
 
     private async Task AuditAccess(GetAccountTeamMembersQuery message)
     {
-        var caller = await _membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
+        var caller = await membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
 
-        await _mediator.Send(new CreateAuditCommand
+        await mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {

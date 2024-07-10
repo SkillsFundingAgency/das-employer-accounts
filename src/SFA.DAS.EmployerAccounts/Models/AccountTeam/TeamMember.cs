@@ -1,11 +1,5 @@
 ﻿namespace SFA.DAS.EmployerAccounts.Models.AccountTeam;
 
-public enum MemberType
-{
-    User,
-    Invitation
-}
-
 public class TeamMember : IAccountIdentifier
 {
     public bool IsUser { get; set; }
@@ -26,5 +20,4 @@ public class TeamMember : IAccountIdentifier
     /// </summary>
     public string HashedUserId { get; set; }
     public bool CanReceiveNotifications { get; set; }
-    public MemberType MemberType => Status == InvitationStatus.Accepted ? MemberType.User : MemberType.Invitation;
 }
