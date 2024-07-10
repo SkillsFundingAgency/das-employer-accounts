@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
+using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 
@@ -277,15 +278,14 @@ public class EmployerTeamController : BaseController
     }
 
     [HttpGet]
-    [Route("review", Name = RouteNames.EmployerTeamReview)]
+    [Route("{hashedId}/review", Name = RouteNames.EmployerTeamReview)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Review(string hashedAccountId, string email)
+    public async Task<IActionResult> Review(string hashedAccountId, string hashedId, MemberType type)
     {
-        var decodedEmail = WebUtility.UrlDecode(email);
-
-        var invitation = await _employerTeamOrchestrator.GetTeamMemberWhetherActiveOrNot(
+        var invitation = await _employerTeamOrchestrator.GetTeamMember(
             hashedAccountId,
-            decodedEmail,
+            hashedId,
+            type,
             HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
         );
 

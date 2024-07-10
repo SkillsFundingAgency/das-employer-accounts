@@ -16,6 +16,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetAccountTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetInvitation;
 using SFA.DAS.EmployerAccounts.Queries.GetMember;
+using SFA.DAS.EmployerAccounts.Queries.GetMemberById;
 using SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUser;
@@ -294,6 +295,14 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
     {
         return GetTeamMember(accountId, email, externalUserId, false);
     }
+    
+    public virtual Task<OrchestratorResponse<TeamMember>> GetTeamMember(string hashedAccountId, string hashedId, MemberType type, string externalUserId)
+    {
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var id = _encodingService.Decode(hashedId, EncodingType.AccountId);
+
+        return GetTeamMember(accountId, id, externalUserId, type);
+    }
 
     private async Task<OrchestratorResponse<TeamMember>> GetTeamMember(long accountId, string email, string externalUserId, bool onlyIfMemberIsActive)
     {
@@ -312,6 +321,32 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             AccountId = accountId,
             Email = email,
             OnlyIfMemberIsActive = onlyIfMemberIsActive
+        });
+
+        return new OrchestratorResponse<TeamMember>
+        {
+            Status = response.TeamMember.AccountId == 0 ? HttpStatusCode.NotFound : HttpStatusCode.OK,
+            Data = response.TeamMember
+        };
+    }
+    
+    private async Task<OrchestratorResponse<TeamMember>> GetTeamMember(long accountId, long id, string externalUserId, MemberType type)
+    {
+        var userRoleResponse = await GetUserAccountRole(accountId, externalUserId);
+
+        if (!userRoleResponse.UserRole.Equals(Role.Owner))
+        {
+            return new OrchestratorResponse<TeamMember>
+            {
+                Status = HttpStatusCode.Unauthorized
+            };
+        }
+
+        var response = await _mediator.Send(new GetMemberByIdRequest
+        {
+            AccountId = accountId,
+            Id = id,
+            MemberType = type
         });
 
         return new OrchestratorResponse<TeamMember>
