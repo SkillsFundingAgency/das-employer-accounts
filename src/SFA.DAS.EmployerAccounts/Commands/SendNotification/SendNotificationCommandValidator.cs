@@ -6,20 +6,14 @@ public class SendNotificationCommandValidator : IValidator<SendNotificationComma
     {
         var validationResult = new ValidationResult();
 
-        if (item.Email == null)
+        if (string.IsNullOrEmpty(item.RecipientsAddress))
         {
-            validationResult.AddError(nameof(item.Email), "Email has not been defined");
-            return validationResult;
-        }
-
-        if (string.IsNullOrEmpty(item.Email.RecipientsAddress))
-        {
-            validationResult.AddError(nameof(item.Email.RecipientsAddress), "RecipientsAddress has not been supplied");
+            validationResult.AddError(nameof(item.RecipientsAddress), "RecipientsAddress has not been supplied");
         }
             
-        if (string.IsNullOrEmpty(item.Email.TemplateId))
+        if (string.IsNullOrEmpty(item.TemplateId))
         {
-            validationResult.AddError(nameof(item.Email.TemplateId), "TemplateId has not been supplied");
+            validationResult.AddError(nameof(item.TemplateId), "TemplateId has not been supplied");
         }
 
         return validationResult;

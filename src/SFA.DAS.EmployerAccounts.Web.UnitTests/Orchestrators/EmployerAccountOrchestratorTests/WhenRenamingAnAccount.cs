@@ -28,9 +28,9 @@ public class WhenRenamingAnAccount
 
         //Assert
         mediatorMock.Verify(x => x.Send(It.Is<GetEmployerAccountByIdQuery>(q => q.AccountId.Equals(account.Id)), It.IsAny<CancellationToken>()));
-        Assert.AreEqual(account.HashedId, response.Data.HashedId);
-        Assert.AreEqual(account.Name, response.Data.Name);
-        Assert.AreEqual(HttpStatusCode.OK, response.Status);
+        Assert.That(response.Data.HashedId, Is.EqualTo(account.HashedId));
+        Assert.That(response.Data.Name, Is.EqualTo(account.Name));
+        Assert.That(response.Status, Is.EqualTo(HttpStatusCode.OK));
     }
 
     [Test, DomainAutoData]
@@ -54,7 +54,7 @@ public class WhenRenamingAnAccount
         }, "ABC123");
 
         //Assert
-        Assert.IsInstanceOf<OrchestratorResponse<RenameEmployerAccountViewModel>>(response);
+        Assert.That(response, Is.InstanceOf<OrchestratorResponse<RenameEmployerAccountViewModel>>());
 
         mediatorMock.Verify(x => x.Send(It.Is<RenameEmployerAccountCommand>(c => c.NewName == "New Account Name"), It.IsAny<CancellationToken>()), Times.Once());
     }

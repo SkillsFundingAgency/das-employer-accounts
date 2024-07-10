@@ -29,8 +29,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UpdateUserNotificationSett
             var result = _validator.Validate(command);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.IsTrue(result.ValidationDictionary.ContainsKey(nameof(command.UserRef)));
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary.ContainsKey(nameof(command.UserRef)), Is.True);
         }
 
         [Test]
@@ -47,8 +47,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.UpdateUserNotificationSett
             var result = _validator.Validate(command);
 
             //Assert
-            Assert.IsFalse(result.IsValid());
-            Assert.IsTrue(result.ValidationDictionary.ContainsKey(nameof(command.Settings)));
+            Assert.That(result.IsValid(), Is.False);
+            Assert.That(result.ValidationDictionary.ContainsKey(nameof(command.Settings)), Is.True);
         }
 
     }

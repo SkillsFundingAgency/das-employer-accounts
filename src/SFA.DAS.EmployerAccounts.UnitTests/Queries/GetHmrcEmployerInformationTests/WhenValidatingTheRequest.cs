@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetHmrcEmployerInformationT
             var actual = _validator.Validate(new GetHmrcEmployerInformationQuery {AuthToken = "someValue"});
 
             //Assert
-            Assert.IsTrue(actual.IsValid());
+            Assert.That(actual.IsValid(), Is.True);
         }
 
         [Test]
@@ -31,8 +31,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetHmrcEmployerInformationT
             var actual = _validator.Validate(new GetHmrcEmployerInformationQuery());
 
             //Assert
-            Assert.IsFalse(actual.IsValid());
-            Assert.Contains(new KeyValuePair<string,string>("AuthToken","AuthToken has not been supplied"),actual.ValidationDictionary );
+            Assert.That(actual.IsValid(), Is.False);
+            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string,string>("AuthToken","AuthToken has not been supplied")));
         }
     }
 }

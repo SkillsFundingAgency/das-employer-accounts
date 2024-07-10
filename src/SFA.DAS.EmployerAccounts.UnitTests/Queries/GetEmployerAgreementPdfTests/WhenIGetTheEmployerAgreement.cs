@@ -75,8 +75,8 @@ public class WhenIGetTheEmployerAgreement : QueryBaseTest<GetEmployerAgreementPd
         var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        Assert.IsAssignableFrom<GetEmployerAgreementPdfResponse>(actual);
-        Assert.IsNotNull(actual.FileStream);
+        Assert.That(actual, Is.AssignableFrom<GetEmployerAgreementPdfResponse>());
+        Assert.That(actual.FileStream, Is.Not.Null);
 
     }
 }

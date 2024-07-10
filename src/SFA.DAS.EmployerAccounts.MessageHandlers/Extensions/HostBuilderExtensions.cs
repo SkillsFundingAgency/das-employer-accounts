@@ -4,8 +4,6 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
 using SFA.DAS.EmployerAccounts.Configuration;
-using SFA.DAS.EmployerAccounts.Data;
-using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.MessageHandlers.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.MessageHandlers.Startup;
 using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
@@ -31,15 +29,14 @@ public static class HostBuilderExtensions
     {
         hostBuilder.ConfigureServices((context, services) =>
         {
-            var employerAccountsConfiguration = context.Configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
+            var employerAccountsConfiguration = context.Configuration.GetSection(ConfigurationKeys.EmployerAccounts)
+                .Get<EmployerAccountsConfiguration>();
 
             services.AddConfigurationSections(context.Configuration);
 
             services
-            .AddUnitOfWork()
-            .AddEntityFramework(employerAccountsConfiguration);
-
-            services.AddNotifications(context.Configuration);
+                .AddUnitOfWork()
+                .AddEntityFramework(employerAccountsConfiguration);
 
             services.AddApplicationServices();
             services.AddReadStoreServices();
@@ -52,7 +49,7 @@ public static class HostBuilderExtensions
             services.AddEventsApi();
             services.AddAuditServices();
             services.AddHttpContextAccessor();
-            services.AddMediatR(serviceConfiguration=> serviceConfiguration.RegisterServicesFromAssemblies(
+            services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(
                 typeof(CreateAccountUserCommandHandler).Assembly,
                 typeof(AccountLevyStatusCommandHandler).Assembly)
             );
@@ -90,7 +87,11 @@ public static class HostBuilderExtensions
             builder.AddAzureTableStorage(options =>
                     {
                         options.ConfigurationKeys = new[]
-                            { ConfigurationKeys.EmployerAccounts, ConfigurationKeys.EmployerAccountsReadStore, ConfigurationKeys.EncodingConfig, ConfigurationKeys.NotificationsApiClient };
+                        {
+                            ConfigurationKeys.EmployerAccounts,
+                            ConfigurationKeys.EmployerAccountsReadStore,
+                            ConfigurationKeys.EncodingConfig
+                        };
                         options.PreFixConfigurationKeys = true;
                         options.ConfigurationKeysRawJsonResult = new[] { ConfigurationKeys.EncodingConfig };
                     }

@@ -37,8 +37,8 @@ public class WhenIGetASingleLegalEntityWithKnownIds : GivenEmployerAccountsApi
     {
         var resources = Response?.GetContent<ResourceList>();
 
-        Assert.IsNotNull(resources);
-        Assert.AreEqual(1, resources?.Count);
+        Assert.That(resources, Is.Not.Null);
+        Assert.That(resources?.Count, Is.EqualTo(1));
     }
       
 }

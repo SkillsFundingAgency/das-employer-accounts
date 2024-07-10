@@ -71,7 +71,7 @@ class HtmlHelpersTests
         var result = _htmlHelper.IsSupportUser();
 
         // Assert
-        Assert.IsTrue(result);
+        Assert.That(result, Is.True);
     }
 
     [Test]
@@ -84,7 +84,7 @@ class HtmlHelpersTests
         var result = _htmlHelper.IsSupportUser();
 
         // Assert
-        Assert.IsFalse(result);
+        Assert.That(result, Is.False);
     }
 
     [Test]
@@ -97,7 +97,7 @@ class HtmlHelpersTests
         var result = _htmlHelper.IsSupportUser();
 
         // Assert
-        Assert.IsFalse(result);
+        Assert.That(result, Is.False);
     }
 
     [Test]
@@ -110,7 +110,7 @@ class HtmlHelpersTests
         var result = _htmlHelper.IsSupportUser();
 
         // Assert
-        Assert.IsFalse(result);
+        Assert.That(result, Is.False);
     }
 
     [TestCaseSource(nameof(LabelCases))]
@@ -123,7 +123,7 @@ class HtmlHelpersTests
         var actual = HtmlHelpers.SetZenDeskLabels(labels).ToString();
 
         // Assert
-        Assert.AreEqual(expected, actual);
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
 

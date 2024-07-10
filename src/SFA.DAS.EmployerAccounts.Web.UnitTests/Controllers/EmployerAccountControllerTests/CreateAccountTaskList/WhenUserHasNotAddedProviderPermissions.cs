@@ -87,7 +87,7 @@ public class WhenUserHasNotAddedProviderPermissions
         var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
 
         // Assert
-        Assert.IsNotNull(model);
+        Assert.That(model, Is.Not.Null);
         model.Data.HasProviders.Should().BeTrue();
         model.Data.HasProviderPermissions.Should().BeFalse();
         model.Data.CompletedSections.Should().Be(4);

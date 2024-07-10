@@ -25,7 +25,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Extensions
             var status = cohortSummary.GetStatus();
 
             //Assert
-            Assert.AreEqual(cohortStatus, status);
+            Assert.That(status, Is.EqualTo(cohortStatus));
         }
     }
 }

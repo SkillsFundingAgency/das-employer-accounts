@@ -171,7 +171,7 @@ public class EmployerAccountController : BaseController
     }
 
     [HttpGet]
-    [Route("{HashedAccountId}/gatewayInform", Order = 0)]
+    [Route("{hashedAccountId}/gatewayInform", Order = 0)]
     [Route("gatewayInform", Order = 1)]
     public IActionResult GatewayInform(string hashedAccountId)
     {
@@ -191,6 +191,7 @@ public class EmployerAccountController : BaseController
                 BreadcrumbDescription = "Back to Your User Profile",
                 ConfirmUrl = _linkGenerator.GetUriByAction(HttpContext, ControllerConstants.GatewayViewName,
                     ControllerConstants.EmployerAccountControllerName),
+                HashedAccountId = hashedAccountId,
                 CancelRoute = string.IsNullOrEmpty(hashedAccountId)
                     ? RouteNames.NewEmployerAccountTaskList
                     : RouteNames.EmployerAccountPaye,

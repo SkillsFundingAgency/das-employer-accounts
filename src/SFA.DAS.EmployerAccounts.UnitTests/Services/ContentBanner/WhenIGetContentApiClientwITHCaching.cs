@@ -53,7 +53,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ContentBanner
 
             var result = await ContentServiceWithCaching.Get(_contentType, EmployerAccountsConfig.ApplicationId);
 
-            Assert.AreEqual(ContentFromCache, result);
+            Assert.That(result, Is.EqualTo(ContentFromCache));
             MockCacheStorageService.Verify(c => c.TryGet(CacheKey, out ContentFromCache), Times.Once);
         }
 
@@ -75,7 +75,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ContentBanner
             var result = await ContentServiceWithCaching.Get(_contentType, EmployerAccountsConfig.ApplicationId);
 
             MockContentService.Verify(c => c.Get(_contentType, _clientId), Times.Once);
-            Assert.AreEqual(ContentFromApi, result);
+            Assert.That(result, Is.EqualTo(ContentFromApi));
         }
         private void StoredInCacheSetup()
         {

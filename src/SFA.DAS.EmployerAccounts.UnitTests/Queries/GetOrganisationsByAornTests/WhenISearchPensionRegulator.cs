@@ -49,6 +49,6 @@ public class WhenISearchPensionRegulator
         var actual = await _requestHandler.Handle(_query, CancellationToken.None);
 
         //Assert
-        Assert.AreSame(expectedResponse, actual.Organisations);
+        Assert.That(actual.Organisations, Is.SameAs(expectedResponse));
     }
 }

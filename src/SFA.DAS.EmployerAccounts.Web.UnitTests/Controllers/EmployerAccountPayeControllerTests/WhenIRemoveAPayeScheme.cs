@@ -30,6 +30,12 @@ public class WhenIRemoveAPayeScheme : ControllerTestBase
         };
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _controller?.Dispose();
+    }
+
     [Test]
     public async Task ThenTheOrchestratorIsCalledIfYouConfirmToRemoveTheScheme()
     {
@@ -38,11 +44,11 @@ public class WhenIRemoveAPayeScheme : ControllerTestBase
 
         //Assert
         _employerAccountPayeOrchestrator.Verify(x => x.RemoveSchemeFromAccount(It.IsAny<RemovePayeSchemeViewModel>()), Times.Once);
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualRedirect = actual as RedirectToActionResult;
-        Assert.IsNotNull(actualRedirect);
-        Assert.AreEqual("Index", actualRedirect.ActionName);
-        Assert.AreEqual("EmployerAccountPaye", actualRedirect.ControllerName);
+        Assert.That(actualRedirect, Is.Not.Null);
+        Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
+        Assert.That(actualRedirect.ControllerName, Is.EqualTo("EmployerAccountPaye"));
         _flashMessage.Verify(x => x.Create(It.Is<FlashMessageViewModel>(c => c.HiddenFlashMessageInformation.Equals("page-paye-scheme-deleted")), It.IsAny<string>(), 1));
     }
 
@@ -56,9 +62,9 @@ public class WhenIRemoveAPayeScheme : ControllerTestBase
         var actual = await _controller.RemovePaye("", new RemovePayeSchemeViewModel());
 
         //Assert
-        Assert.IsNotNull(actual);
+        Assert.That(actual, Is.Not.Null);
         var actualView = actual as ViewResult;
-        Assert.IsNotNull(actualView);
-        Assert.AreEqual("Remove", actualView.ViewName);
+        Assert.That(actualView, Is.Not.Null);
+        Assert.That(actualView.ViewName, Is.EqualTo("Remove"));
     }
 }

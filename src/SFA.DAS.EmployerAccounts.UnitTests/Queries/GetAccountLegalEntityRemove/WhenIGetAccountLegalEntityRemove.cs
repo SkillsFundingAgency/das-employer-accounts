@@ -106,8 +106,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntityRemove
             var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.IsNotNull(actual);
-            Assert.AreEqual(ExpectedAccountLegalEntityName, actual.Name);
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.Name, Is.EqualTo(ExpectedAccountLegalEntityName));
         }
     }
 }

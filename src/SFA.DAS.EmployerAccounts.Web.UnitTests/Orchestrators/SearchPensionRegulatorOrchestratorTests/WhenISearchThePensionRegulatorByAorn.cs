@@ -56,9 +56,9 @@ public class WhenISearchThePensionRegulatorByAorn
         var response = await _orchestrator.GetOrganisationsByAorn(aorn, payeRef);
 
         //Assert
-        Assert.AreEqual(payeRef, response.Data.PayeRef);
-        Assert.AreEqual(aorn, response.Data.Aorn);
-        Assert.AreEqual(queryResponse.Organisations.Count(), response.Data.Results.Count);
+        Assert.That(response.Data.PayeRef, Is.EqualTo(payeRef));
+        Assert.That(response.Data.Aorn, Is.EqualTo(aorn));
+        Assert.That(response.Data.Results.Count, Is.EqualTo(queryResponse.Organisations.Count()));
     }
 
     [Test]
@@ -74,9 +74,9 @@ public class WhenISearchThePensionRegulatorByAorn
         var response = await _orchestrator.GetOrganisationsByAorn(aorn, payeRef);
 
         //Assert
-        Assert.AreEqual(payeRef, response.Data.PayeRef);
-        Assert.AreEqual(aorn, response.Data.Aorn);
-        Assert.AreEqual(0, response.Data.Results.Count);
+        Assert.That(response.Data.PayeRef, Is.EqualTo(payeRef));
+        Assert.That(response.Data.Aorn, Is.EqualTo(aorn));
+        Assert.That(response.Data.Results.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -84,11 +84,10 @@ public class WhenISearchThePensionRegulatorByAorn
     {
         var actual = await _orchestrator.SearchPensionRegulator(It.IsAny<string>());
 
-        Assert
-            .IsTrue(
+        Assert.That(
                 actual
                     .Data
                     .Results
-                    .All( organisation => organisation.Type == OrganisationType.PensionsRegulator));
+                    .All( organisation => organisation.Type == OrganisationType.PensionsRegulator), Is.True);
     }
 }

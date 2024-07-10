@@ -55,7 +55,7 @@ public class EmployerAccountAuthorisationHandler : IEmployerAccountAuthorisation
             _logger.LogError(e, "Could not deserialize employer account claim for user");
             return false;
         }
-
+        
         EmployerUserAccountItem employerIdentifier = null;
 
         if (employerAccounts != null)

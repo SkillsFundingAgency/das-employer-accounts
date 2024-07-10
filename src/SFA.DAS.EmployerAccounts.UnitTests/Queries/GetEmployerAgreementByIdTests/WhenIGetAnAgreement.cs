@@ -57,7 +57,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementByIdTes
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(_agreement, response.EmployerAgreement);
+            Assert.That(response.EmployerAgreement, Is.EqualTo(_agreement));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetEmployerAgreementByIdTes
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(_agreement.AgreementType, response.EmployerAgreement.AgreementType);
+            Assert.That(response.EmployerAgreement.AgreementType, Is.EqualTo(_agreement.AgreementType));
         }
     }
 }
