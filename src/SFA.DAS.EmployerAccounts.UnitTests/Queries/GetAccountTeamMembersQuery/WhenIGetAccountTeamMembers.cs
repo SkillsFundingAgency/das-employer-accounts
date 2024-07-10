@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -101,8 +102,8 @@ public class WhenIGetAccountTeamMembers : QueryBaseTest<GetAccountTeamMembersHan
         }, CancellationToken.None);
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.TeamMembers, Is.Not.Null);
+        result.Should().NotBeNull();
+        result.TeamMembers.Should().NotBeNull();
     }
         
     [Test]

@@ -32,9 +32,12 @@ public class GetAccountTeamMembersHandler(
 
         var teamMembers = await repository.GetAccountTeamMembersForUserId(message.HashedAccountId, message.ExternalUserId);
 
-        foreach (var teamMember in teamMembers)
+        if (teamMembers != null && teamMembers.Any())
         {
-            teamMember.HashedUserId = encodingService.Encode(teamMember.Id, EncodingType.AccountId);
+            foreach (var teamMember in teamMembers)
+            {
+                teamMember.HashedUserId = encodingService.Encode(teamMember.Id, EncodingType.AccountId);
+            }
         }
 
         if (userContext.IsSupportConsoleUser())
