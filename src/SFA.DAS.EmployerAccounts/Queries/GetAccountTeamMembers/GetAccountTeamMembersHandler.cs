@@ -16,8 +16,6 @@ public class GetAccountTeamMembersHandler(
     IEncodingService encodingService)
     : IRequestHandler<GetAccountTeamMembersQuery, GetAccountTeamMembersResponse>
 {
-    private readonly IEncodingService _encodingService = encodingService;
-
     public async Task<GetAccountTeamMembersResponse> Handle(GetAccountTeamMembersQuery message, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(message);
@@ -36,7 +34,7 @@ public class GetAccountTeamMembersHandler(
 
         foreach (var teamMember in teamMembers)
         {
-            teamMember.HashedUserId = _encodingService.Encode(teamMember.Id, EncodingType.AccountId);
+            teamMember.HashedUserId = encodingService.Encode(teamMember.Id, EncodingType.AccountId);
         }
 
         if (userContext.IsSupportConsoleUser())
