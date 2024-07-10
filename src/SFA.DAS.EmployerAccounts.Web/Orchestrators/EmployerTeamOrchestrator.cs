@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Net.Http;
+using AutoMapper;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
@@ -230,7 +231,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
                 Exception = ex
             };
         }
-        catch (System.Net.Http.HttpRequestException ex)
+        catch (HttpRequestException ex)
         {
             return new OrchestratorResponse<AccountDashboardViewModel>
             {
@@ -342,7 +343,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             };
         }
 
-        var response = await _mediator.Send(new GetMemberByIdRequest
+        var response = await _mediator.Send(new GetMemberByIdQuery
         {
             AccountId = accountId,
             Id = id,

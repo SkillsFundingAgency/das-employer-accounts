@@ -24,7 +24,7 @@ public class TeamMember : IAccountIdentifier
     /// HashedId, if the user has been invited, then this will be the Hashed InvitationId.
     /// If the user has created an account, then this will be the Hashed UserId.
     /// </summary>
-    public string HashedId { get; set; }
+    public string HashedUserId { get; set; }
     public bool CanReceiveNotifications { get; set; }
     public MemberType MemberType => Status == InvitationStatus.Accepted ? MemberType.User : MemberType.Invitation;
 }
