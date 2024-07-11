@@ -120,7 +120,9 @@
     </partial>
 
     <div class="govuk-width-container">
-        @await RenderSectionAsync("breadcrumb", required: false)
+        <nav title="Journey navigation">
+            @await RenderSectionAsync("breadcrumb", required: false)
+        </nav>
         <main class="govuk-main-wrapper" id="main-content" role="main">
             @if (User.Identity.IsAuthenticated)
             {
