@@ -7,7 +7,7 @@ public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<
 {
     public RenameEmployerAccountViewModelValidator()
     {
-        RuleFor(r => r.NewName).NotEmpty().WithMessage("Enter a name");
+        RuleFor(r => r.NewName).NotEmpty().WithMessage("Enter a name, please.....");
         RuleFor(x => x.NewName).ValidFreeTextCharacters();
     }
 }
