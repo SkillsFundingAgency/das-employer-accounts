@@ -427,6 +427,9 @@ public class EmployerAccountController : BaseController
             case false:
                 {
                     var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
+
+                    throw new ApplicationException("Oh dear value " + vm.NewName);
+
                     response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
                     if (response.Status == HttpStatusCode.OK)
