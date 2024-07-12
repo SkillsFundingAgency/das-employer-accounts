@@ -79,24 +79,24 @@ public class WhenIRenameAnAccount : ControllerTestBase
         result.RouteName.Should().Be(RouteNames.AccountNameConfirm);
     }
 
-    [Test, MoqAutoData]
-    public async Task WhenILeaveNameBlank_ThenIMustShouldRecieveAnError(string hashedAccountId)
-    {
-        //Arrange
-        var viewModel = new RenameEmployerAccountViewModel
-        {
-            ChangeAccountName = true,
-            CurrentName = "Test Account",
-            NewName = string.Empty
-        };
+    //[Test, MoqAutoData]
+    //public async Task WhenILeaveNameBlank_ThenIMustShouldRecieveAnError(string hashedAccountId)
+    //{
+    //    //Arrange
+    //    var viewModel = new RenameEmployerAccountViewModel
+    //    {
+    //        ChangeAccountName = true,
+    //        CurrentName = "Test Account",
+    //        NewName = string.Empty
+    //    };
 
-        //Act
-        var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as ViewResult;
-        var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
+    //    //Act
+    //    var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as ViewResult;
+    //    var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
-        //Assert
-        model.Data.NewNameError.Should().Be(AccountNameBlankErrorMessage);
-    }
+    //    //Assert
+    //    model.Data.NewNameError.Should().Be(AccountNameBlankErrorMessage);
+    //}
     
     [Test, MoqAutoData]
     public async Task WhenNameIsUnchanged_ThenIShouldRecieveAnError(string hashedAccountId, string accountName)

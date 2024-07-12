@@ -23,7 +23,7 @@ public class RenameEmployerAccountCommandValidator : IValidator<RenameEmployerAc
 
         if (string.IsNullOrWhiteSpace(item.NewName))
         {
-            validationResult.AddError("NewName", "Enter a name");
+            validationResult.AddError("NewName", "Enter a name, is this it");
         }
 
         if (validationResult.IsValid())

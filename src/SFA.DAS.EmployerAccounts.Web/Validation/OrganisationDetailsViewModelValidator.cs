@@ -8,7 +8,7 @@ public sealed class OrganisationDetailsViewModelValidator : AbstractValidator<Or
 {
     public OrganisationDetailsViewModelValidator()
     {
-        RuleFor(r => r.Name).NotEmpty().WithMessage("Enter a name");
+        RuleFor(r => r.Name).NotEmpty().WithMessage("Enter a name.....");
         RuleFor(x => x.Name).ValidFreeTextCharacters();
     }
 }

@@ -411,7 +411,7 @@ public class EmployerAccountController : BaseController
                     {
                         var newNameError = vm.NewName == vm.CurrentName
                          ? "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name."
-                         : "Enter a name";
+                         : "Enter a name XXXXX";
 
                         vm.ErrorDictionary.Add(nameof(vm.NewName), newNameError);
 
