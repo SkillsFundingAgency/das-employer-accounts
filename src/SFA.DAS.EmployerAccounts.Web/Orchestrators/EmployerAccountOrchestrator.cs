@@ -1,4 +1,5 @@
-﻿using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
+﻿using Azure.Core;
+using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
@@ -9,6 +10,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
+using SFA.DAS.EmployerAccounts.Web.Validation;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.Orchestrators;
@@ -103,6 +105,20 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             {
                 Status = HttpStatusCode.Unauthorized
             };
+        }
+
+        var validator = new RenameEmployerAccountViewModelValidator();
+        var validationResult = await validator.ValidateAsync(model);
+
+        if (!validationResult.IsValid)
+        {
+            response.Data.ErrorDictionary = new Dictionary<string, string>();
+            foreach (var validationError in validationResult.Errors)
+            {
+                response.Data.ErrorDictionary.Add(validationError.PropertyName, validationError.ErrorMessage);
+            }
+            response.Status = HttpStatusCode.BadRequest;
+            return response;
         }
 
         try
