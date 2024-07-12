@@ -442,7 +442,7 @@ public class EmployerAccountController : BaseController
                 {
                     // Model validation failed, return the view with validation errors
                     vm.ErrorDictionary.Add(nameof(vm.ChangeAccountName),
-                        "Please select whether you wish to set a new Employer Account name.");
+                        "Please select whether you wish to set a new Employer Account name..");
                     response.Data = vm;
                     response.Status = response.Status = HttpStatusCode.BadRequest;
                     return View(response);

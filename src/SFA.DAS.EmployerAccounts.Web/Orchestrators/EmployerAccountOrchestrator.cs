@@ -108,7 +108,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         }
 
         var validator = new RenameEmployerAccountViewModelValidator();
-        var validationResult = await validator.ValidateAsync(model);
+        var validationResult = validator.Validate(model);
 
         if (!validationResult.IsValid)
         {
