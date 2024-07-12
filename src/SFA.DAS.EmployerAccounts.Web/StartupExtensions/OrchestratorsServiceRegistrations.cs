@@ -4,7 +4,7 @@ public static class OrchestratorsServiceRegistrations
 {
     public static IServiceCollection AddOrchestrators(this IServiceCollection services)
     {
-        services.AddTransient<EmployerAccountOrchestrator>();
+        services.AddTransient<EmployerAccountOrchestrator, EmployerAccountOrchestrator>();
         services.AddTransient<EmployerAccountPayeOrchestrator>();
         services.AddTransient<EmployerAgreementOrchestrator>();
         services.AddTransient<EmployerTeamOrchestrator>();
