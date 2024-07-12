@@ -8,7 +8,7 @@ public sealed class OrganisationDetailsViewModelValidator : AbstractValidator<Or
 {
     public OrganisationDetailsViewModelValidator()
     {
-        RuleFor(r => r.Name).NotEmpty().WithMessage("Enter a name.....");
-        RuleFor(x => x.Name).ValidFreeTextCharacters();
+        RuleFor(r => r.Name).NotEmpty().WithMessage("Enter a name");
+        RuleFor(x => x.Name).ValidFreeTextCharacters().WithMessage("Account Name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes"); ;
     }
 }

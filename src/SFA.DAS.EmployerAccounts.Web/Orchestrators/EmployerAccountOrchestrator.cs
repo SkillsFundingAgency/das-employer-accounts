@@ -108,16 +108,11 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             };
         }
 
-        throw new ApplicationException("Oh noooooooooooooooooooo value " + model.NewName);
-
-
         var validator = new RenameEmployerAccountViewModelValidator();
         var validationResult = await validator.ValidateAsync(model);
 
         if (!validationResult.IsValid)
         {
-
-
             response.Data.ErrorDictionary = new Dictionary<string, string>();
             foreach (var validationError in validationResult.Errors)
             {

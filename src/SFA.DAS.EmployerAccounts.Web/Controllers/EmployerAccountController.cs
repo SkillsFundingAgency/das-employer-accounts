@@ -411,7 +411,7 @@ public class EmployerAccountController : BaseController
                     {
                         var newNameError = vm.NewName == vm.CurrentName
                          ? "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name."
-                         : "Enter a name XXXXX";
+                         : "Enter a name";
 
                         vm.ErrorDictionary.Add(nameof(vm.NewName), newNameError);
 
@@ -428,27 +428,16 @@ public class EmployerAccountController : BaseController
                 {
                     var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
 
-                    throw new ApplicationException("Oh dear value " + vm.NewName);
+                    response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
+                    if (response.Status == HttpStatusCode.OK)
+                    {
+                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
+                    }
 
-                    vm.ErrorDictionary.Add(nameof(vm.NewName),
-                        "Will this work?");
                     response.Data = vm;
-                    response.Status = response.Status = HttpStatusCode.BadRequest;
+
                     return View(response);
-
-
-
-                    //response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
-
-                    //if (response.Status == HttpStatusCode.OK)
-                    //{
-                    //    return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
-                    //}
-
-                    //response.Data = vm;
-
-                    //return View(response);
                 }
             default:
                 {
