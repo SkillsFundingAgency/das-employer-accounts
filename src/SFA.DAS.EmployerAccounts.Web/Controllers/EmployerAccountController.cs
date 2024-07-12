@@ -430,16 +430,25 @@ public class EmployerAccountController : BaseController
 
                     throw new ApplicationException("Oh dear value " + vm.NewName);
 
-                    response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
-                    if (response.Status == HttpStatusCode.OK)
-                    {
-                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
-                    }
-
+                    vm.ErrorDictionary.Add(nameof(vm.NewName),
+                        "Will this work?");
                     response.Data = vm;
-
+                    response.Status = response.Status = HttpStatusCode.BadRequest;
                     return View(response);
+
+
+
+                    //response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
+
+                    //if (response.Status == HttpStatusCode.OK)
+                    //{
+                    //    return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
+                    //}
+
+                    //response.Data = vm;
+
+                    //return View(response);
                 }
             default:
                 {
