@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using System.Runtime.InteropServices;
+using Azure.Core;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
@@ -107,11 +108,16 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             };
         }
 
+        throw new ApplicationException("Oh noooooooooooooooooooo value " + model.NewName);
+
+
         var validator = new RenameEmployerAccountViewModelValidator();
-        var validationResult = validator.Validate(model);
+        var validationResult = await validator.ValidateAsync(model);
 
         if (!validationResult.IsValid)
         {
+
+
             response.Data.ErrorDictionary = new Dictionary<string, string>();
             foreach (var validationError in validationResult.Errors)
             {
