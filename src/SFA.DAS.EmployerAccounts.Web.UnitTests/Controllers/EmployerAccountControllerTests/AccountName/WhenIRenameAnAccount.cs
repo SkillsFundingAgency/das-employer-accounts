@@ -39,6 +39,14 @@ public class WhenIRenameAnAccount : ControllerTestBase
                 Data = new RenameEmployerAccountViewModel()
             });
 
+        _orchestrator.Setup(x =>
+                x.SetEmployerAccountName(It.IsAny<string>(), It.IsAny<RenameEmployerAccountViewModel>(), It.IsAny<string>()))
+            .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
+            {
+                Status = HttpStatusCode.OK,
+                Data = new RenameEmployerAccountViewModel()
+            });
+
         AddUserToContext();
 
         _employerAccountController = new EmployerAccountController(
@@ -87,8 +95,19 @@ public class WhenIRenameAnAccount : ControllerTestBase
         {
             ChangeAccountName = true,
             CurrentName = "Test Account",
-            NewName = string.Empty
+            NewName = string.Empty,
+            ErrorDictionary = new Dictionary<string, string>()
         };
+
+        viewModel.ErrorDictionary.Add("NewName", AccountNameBlankErrorMessage);
+
+        _orchestrator.Setup(x =>
+                x.SetEmployerAccountName(It.IsAny<string>(), It.IsAny<RenameEmployerAccountViewModel>(), It.IsAny<string>()))
+            .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
+            {
+                Status = HttpStatusCode.BadRequest,
+                Data = viewModel,
+            });
 
         //Act
         var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as ViewResult;
@@ -104,7 +123,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         //Arrange
         var viewModel = new RenameEmployerAccountViewModel
         {
-            ChangeAccountName = true,
+            ChangeAccountName = false,
             CurrentName = accountName,
             NewName = accountName
         };
@@ -123,7 +142,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         // Arrange
         var viewModel = new RenameEmployerAccountViewModel
         {
-            ChangeAccountName = true,
+            ChangeAccountName = false,
             CurrentName = "Test Account",
             NewName = string.Empty
         };

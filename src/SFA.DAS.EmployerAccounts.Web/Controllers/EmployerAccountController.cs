@@ -405,7 +405,7 @@ public class EmployerAccountController : BaseController
 
         switch (vm.ChangeAccountName)
         {
-            case true:
+            case false:
                 {
                     if (string.IsNullOrEmpty(vm.NewName) || vm.NewName == vm.CurrentName)
                     {
@@ -420,11 +420,9 @@ public class EmployerAccountController : BaseController
 
                         return View(response);
                     }
-
-                    return RedirectToRoute(RouteNames.AccountNameConfirm,
-                        new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
+                    return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
                 }
-            case false:
+            case true:
                 {
                     var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
 
@@ -432,11 +430,10 @@ public class EmployerAccountController : BaseController
 
                     if (response.Status == HttpStatusCode.OK)
                     {
-                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
+                        return RedirectToRoute(RouteNames.AccountNameConfirm,
+                            new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
                     }
-
                     response.Data = vm;
-
                     return View(response);
                 }
             default:

@@ -65,13 +65,13 @@
 
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="change-account-name-no" name="ChangeAccountName" type="radio" value="@bool.TrueString">
+                            <input class="govuk-radios__input" id="change-account-name-no" name="ChangeAccountName" type="radio" value="@bool.FalseString">
                             <label class="govuk-label govuk-radios__label" for="change-account-name-no">
                                 Yes, I want to use my organisation name as my employer account name
                             </label>
                         </div>
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="ChangeAccountName" name="ChangeAccountName" type="radio" checked="@Model.Data.ChangeAccountName" value="@bool.FalseString" aria-controls="conditional-change-account-name" aria-expanded="true">
+                            <input class="govuk-radios__input" id="ChangeAccountName" name="ChangeAccountName" type="radio" checked="@Model.Data.ChangeAccountName" value="@bool.TrueString" aria-controls="conditional-change-account-name" aria-expanded="true">
                             <label class="govuk-label govuk-radios__label" for="ChangeAccountName">
                                 No, I want to change my employer account name
                             </label>
