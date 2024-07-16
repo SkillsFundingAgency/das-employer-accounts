@@ -2,6 +2,8 @@
 {
     public static class RouteNames
     {
+        public const string AccountsIndex = "accounts-index";
+        
         public const string EmployerTeamIndex = "employer-team-index";
         public const string EmployerAccountPayBillTriage = "empoyer-account-pay-bill";
         public const string EmployerAccountPayBillTriagePost = "empoyer-account-pay-bill-post";
