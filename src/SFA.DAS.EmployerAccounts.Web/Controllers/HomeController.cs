@@ -44,7 +44,7 @@ public class HomeController : BaseController
     [Route("~/")]
     [Route("Index")]
     public async Task<IActionResult> Index(
-        GaQueryData gaQueryData, 
+        GaQueryData gaQueryData,
         [FromQuery(Name = "redirectUri")] string redirectUri)
     {
         // check if the GovSignIn is enabled
@@ -53,15 +53,16 @@ public class HomeController : BaseController
             if (User.Identities.FirstOrDefault() != null && User.Identities.FirstOrDefault()!.IsAuthenticated)
             {
                 var userRef = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserIdClaimTypeIdentifier);
-                
+
                 var userDetail = await _homeOrchestrator.GetUser(userRef);
-                
+
                 if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
                 {
-                    return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");    
+                    return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");
                 }
             }
         }
+
         var userIdClaim = HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ControllerConstants.UserRefClaimKeyName));
 
         OrchestratorResponse<UserAccountsViewModel> accounts;
@@ -110,7 +111,7 @@ public class HomeController : BaseController
 
             return View(ControllerConstants.ServiceStartPageViewName, model);
         }
-        
+
         if (accounts.Data.Invitations > 0)
         {
             return RedirectToAction(ControllerConstants.InvitationIndexName, ControllerConstants.InvitationControllerName, gaQueryData);
@@ -146,7 +147,7 @@ public class HomeController : BaseController
                         gaQueryData.utm_keywords,
                         gaQueryData.utm_content
                     });
-                } 
+                }
                 else
                 {
                     _logger.LogInformation($"Redirecting to {RouteNames.ContinueNewEmployerAccountTaskList}");
@@ -208,12 +209,13 @@ public class HomeController : BaseController
         {
             return RedirectToAction(ControllerConstants.IndexActionName, ControllerConstants.EmployerTeamControllerName, new { termsAndConditionViewModel.HashedAccountId });
         }
+
         return RedirectToAction(nameof(Index));
     }
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     [HttpGet]
-    [Route("accounts")]
+    [Route("accounts", Name = RouteNames.AccountsIndex)]
     public async Task<IActionResult> ViewAccounts()
     {
         var accounts = await _homeOrchestrator.GetUserAccounts(HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
@@ -242,15 +244,15 @@ public class HomeController : BaseController
     [Route("register")]
     [Route("register/{correlationId}")]
     public async Task<IActionResult> RegisterUser(Guid? correlationId)
-    {   
+    {
         var schema = Request.Scheme;
         var authority = HttpContext?.Request.Host.Value;
         var appConstants = new Constants(_configuration.Identity);
 
         if (!correlationId.HasValue)
         {
-            return _configuration.UseGovSignIn 
-                ? Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details")) 
+            return _configuration.UseGovSignIn
+                ? Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"))
                 : new RedirectResult($"{appConstants.RegisterLink()}{schema}://{authority}/service/register/new");
         }
 
@@ -263,11 +265,10 @@ public class HomeController : BaseController
                 : "";
             return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + queryData);
         }
-        
+
         return invitation.Data != null
             ? new RedirectResult($"{appConstants.RegisterLink()}{schema}://{authority}/service/register/new/{correlationId}&firstname={WebUtility.UrlEncode(invitation.Data.EmployerFirstName)}&lastname={WebUtility.UrlEncode(invitation.Data.EmployerLastName)}&email={WebUtility.UrlEncode(invitation.Data.EmployerEmail)}")
             : new RedirectResult($"{appConstants.RegisterLink()}{schema}://{authority}/service/register/new");
-
     }
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
@@ -320,7 +321,6 @@ public class HomeController : BaseController
     {
         return RedirectToAction(ControllerConstants.IndexActionName);
     }
-   
 
     [Route("signOut", Name = RouteNames.SignOut)]
     public async Task<IActionResult> SignOutUser()
@@ -341,22 +341,22 @@ public class HomeController : BaseController
             {
                 schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
             }
-            
-            return SignOut(authenticationProperties, schemes.ToArray());    
+
+            return SignOut(authenticationProperties, schemes.ToArray());
         }
-        
+
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/", Parameters = { { "id_token", idToken } } }); SignOut(authenticationProperties, CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
-        
+        await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/", Parameters = { { "id_token", idToken } } });
+        SignOut(authenticationProperties, CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
+
         var constants = new Constants(_configuration.Identity);
-        
+
         return new RedirectResult(string.Format(constants.LogoutEndpoint(), idToken));
     }
 
     [Route("signoutcleanup")]
     public async Task SignOutCleanup()
     {
-        
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
@@ -420,7 +420,7 @@ public class HomeController : BaseController
     {
         return View(ControllerConstants.LegalAgreementViewName, showSubFields);
     }
-    
+
     [HttpGet]
     [Route("SignIn-Stub")]
     public IActionResult SigninStub(string returnUrl)
