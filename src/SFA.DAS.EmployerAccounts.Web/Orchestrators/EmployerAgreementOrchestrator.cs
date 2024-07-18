@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeEmployerAgreement;
-using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.RemoveLegalEntity;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Dtos;
@@ -20,14 +19,14 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
     private readonly IReferenceDataService _referenceDataService;
     private readonly IEncodingService _encodingService;
     private readonly ILogger<EmployerAgreementOrchestrator> _logger;
-    
+
     protected EmployerAgreementOrchestrator() { }
-    
+
     public EmployerAgreementOrchestrator(
         IMediator mediator,
         IMapper mapper,
         IReferenceDataService referenceDataService,
-        IEncodingService encodingService, 
+        IEncodingService encodingService,
         ILogger<EmployerAgreementOrchestrator> logger) : base(mediator)
     {
         _mediator = mediator;
@@ -92,7 +91,8 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 Data = new EmployerAgreementViewModel
                 {
                     EmployerAgreement = employerAgreementView,
-                    OrganisationLookupPossible = organisationLookupByIdPossible
+                    OrganisationLookupPossible = organisationLookupByIdPossible,
+                    Status = employerAgreementView.Status
                 }
             };
         }
@@ -144,8 +144,8 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
 
     public async Task<OrchestratorResponse<SignAgreementViewModel>> SignAgreement(
         string agreementId,
-        string hashedAccountId, 
-        string externalUserId, 
+        string hashedAccountId,
+        string externalUserId,
         DateTime signedDate,
         string legalEntityName,
         bool hasPreviousAcknowledgement)
@@ -258,7 +258,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         {
             pdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             pdfEmployerAgreement.Status = HttpStatusCode.Unauthorized;
-            
+
             _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught UnauthorizedAccessException.");
         }
         catch (Exception ex)
@@ -266,7 +266,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
             pdfEmployerAgreement.Exception = ex;
             pdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             pdfEmployerAgreement.Status = HttpStatusCode.NotFound;
-            
+
             _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught Exception.");
         }
 
@@ -304,14 +304,14 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 ErrorMessages = ex.ErrorMessages,
                 Severity = FlashMessageSeverityLevel.Error
             };
-            
+
             _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught InvalidRequestException.");
         }
         catch (UnauthorizedAccessException ex)
         {
             signedPdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             signedPdfEmployerAgreement.Status = HttpStatusCode.Unauthorized;
-            
+
             _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught UnauthorizedAccessException.");
         }
         catch (Exception ex)
@@ -319,7 +319,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
             signedPdfEmployerAgreement.Exception = ex;
             signedPdfEmployerAgreement.Data = new EmployerAgreementPdfViewModel();
             signedPdfEmployerAgreement.Status = HttpStatusCode.NotFound;
-            
+
             _logger.LogError(ex, "GetSignedPdfEmployerAgreement caught Exception.");
         }
 
@@ -419,15 +419,17 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         {
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
             var employerAgreementsResponse = await _mediator.Send(new GetAccountEmployerAgreementsRequest { AccountId = accountId, ExternalUserId = externalUserId });
-            
+
             var result = await _mediator.Send(new GetEmployerAgreementRequest
             {
-                HashedAccountId = hashedAccountId, HashedAgreementId = agreementId, ExternalUserId = externalUserId
+                HashedAccountId = hashedAccountId,
+                HashedAgreementId = agreementId,
+                ExternalUserId = externalUserId
             });
             var viewModel = _mapper.Map<GetEmployerAgreementResponse, SignEmployerAgreementViewModel>(result);
 
             var signedAgreementResponse = await _mediator.Send(new GetLastSignedAgreementRequest
-                { AccountLegalEntityId = result.EmployerAgreement.LegalEntity.AccountLegalEntityId });
+            { AccountLegalEntityId = result.EmployerAgreement.LegalEntity.AccountLegalEntityId });
             viewModel.PreviouslySignedEmployerAgreement =
                 _mapper.Map<EmployerAccounts.Models.EmployerAgreement.EmployerAgreementView>(signedAgreementResponse
                     .LastSignedAgreement);
@@ -463,7 +465,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         {
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
             var result = await _mediator.Send(new GetNextUnsignedEmployerAgreementRequest
-                { AccountId = accountId, ExternalUserId = externalUserId });
+            { AccountId = accountId, ExternalUserId = externalUserId });
 
             var hashedAgreementId = result.AgreementId.HasValue
                 ? _encodingService.Encode(result.AgreementId.Value, EncodingType.AccountId)

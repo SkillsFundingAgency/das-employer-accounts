@@ -25,6 +25,7 @@ public class AgreementMappings : Profile
         CreateMap<GetEmployerAgreementResponse, EmployerAgreementViewModel>()
             .ForMember(dest => dest.NoChoiceSelected, opts => opts.Ignore())
             .ForMember(dest => dest.LegalEntitiesCount, opts => opts.Ignore())
+            .ForMember(dest => dest.Status, opts => opts.Ignore())
             .ForMember(dest => dest.OrganisationLookupPossible, opt => opt.Ignore());
 
         CreateMap<GetEmployerAgreementResponse, SignEmployerAgreementViewModel>()
