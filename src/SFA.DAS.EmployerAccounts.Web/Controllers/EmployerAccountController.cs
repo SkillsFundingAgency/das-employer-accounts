@@ -412,11 +412,11 @@ public class EmployerAccountController : BaseController
             return View(response);
         }
 
-        if (vm.ChangeAccountName.Value) //I want to Enter new employer account name
+        if (vm.ChangeAccountName.Value)
         {
             return HandleChangeAccountName(hashedAccountId, vm, response);
         }
-        else // I want to use org name - this doesnt actually do this?!
+        else
         {
             return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm, response);
         }
