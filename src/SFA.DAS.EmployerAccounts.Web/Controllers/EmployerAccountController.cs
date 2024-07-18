@@ -418,7 +418,7 @@ public class EmployerAccountController : BaseController
         }
         else
         {
-            return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm, response);
+            return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm);
         }
     }
 
@@ -676,7 +676,7 @@ public class EmployerAccountController : BaseController
             new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
     }
 
-    private async Task<IActionResult> HandleSetEmployerAccountNameAsync(string hashedAccountId, RenameEmployerAccountViewModel vm, OrchestratorResponse<RenameEmployerAccountViewModel> response)
+    private async Task<IActionResult> HandleSetEmployerAccountNameAsync(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
         var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);        
         response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
