@@ -51,12 +51,12 @@ public class EmployerAgreementController(
         });
     }
 
-    [Route("{accountId}/has-agreements", Name = "HasAgreements")]
+    [Route("{accountId}/agreements", Name = "GetAgreements")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAgreements)]
     [HttpGet]
-    public async Task<IActionResult> HasAgreements(long accountId)
+    public async Task<IActionResult> GetAgreements(long accountId)
     {
-        var result = await orchestrator.HasAgreements(accountId);
+        var result = await orchestrator.GetAgreements(accountId);
         return Ok(result);
     }
 }

@@ -24,5 +24,6 @@ namespace SFA.DAS.EmployerAccounts.Api.Types
         public string Sector { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public AgreementType AgreementType { get; set; }
+        public bool Acknowledged { get; set; }
     }
 }

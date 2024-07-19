@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
@@ -41,10 +42,15 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
             return response.MinimumSignedAgreementVersion;
         }
 
-        public async Task<bool> HasAgreements(long accountId)
+        public async Task<IEnumerable<EmployerAgreementView>> GetAgreements(long accountId)
         {
             var response = await _mediator.Send(new GetEmployerAgreementsByAccountIdRequest { AccountId = accountId });
-            return response.EmployerAgreements != null && response.EmployerAgreements.Any();
+            return response.EmployerAgreements.Select(x => new EmployerAgreementView
+            {
+                Id = x.Id,
+                Acknowledged = x.Acknowledged.GetValueOrDefault(),
+                SignedDate = x.SignedDate
+            });
         }
     }
 }
