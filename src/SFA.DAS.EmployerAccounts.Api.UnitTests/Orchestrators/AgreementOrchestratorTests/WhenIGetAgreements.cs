@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
@@ -25,7 +27,7 @@ public class WhenIGetAgreements
         [Frozen] Mock<ILogger<AgreementOrchestrator>> logger,
         [Frozen] Mock<IMediator> mediator,
         [Frozen] Mock<IMapper> mapper
-        )
+    )
     {
         var sut = new AgreementOrchestrator(mediator.Object, logger.Object, mapper.Object);
         var result = await sut.GetAgreements(accountId);
@@ -33,7 +35,7 @@ public class WhenIGetAgreements
         result.Should().NotBeNull();
         result.Any().Should().BeFalse();
     }
-    
+
     [Test, MoqAutoData]
     public async Task ThenAPopulatedResponseShouldBeReturnedWhenThereAreAgreements(
         long accountId,
@@ -48,7 +50,7 @@ public class WhenIGetAgreements
             {
                 StatusId = EmployerAgreementStatus.Signed,
                 Id = 1,
-                Acknowledged = true
+                Acknowledged = true,
             },
             new()
             {
@@ -57,11 +59,11 @@ public class WhenIGetAgreements
                 Acknowledged = false
             }
         };
-        
-        mediator.Setup(x => 
-            x.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(c =>c.AccountId.Equals(accountId)), It.IsAny<CancellationToken>()))
+
+        mediator.Setup(x =>
+                x.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(c => c.AccountId.Equals(accountId)), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
-        
+
         var sut = new AgreementOrchestrator(mediator.Object, logger.Object, mapper.Object);
         var result = await sut.GetAgreements(accountId);
 
@@ -70,5 +72,23 @@ public class WhenIGetAgreements
 
         result.Count().Should().Be(response.EmployerAgreements.Count);
         result.Should().BeEquivalentTo(response.EmployerAgreements, options => options.ExcludingMissingMembers());
+    }
+
+    private static IMapper ConfigureMapper()
+    {
+        var profiles = Assembly.Load("SFA.DAS.EmployerAccounts.Api")
+            .GetTypes()
+            .Where(t => typeof(Profile).IsAssignableFrom(t))
+            .Select(t => (Profile)Activator.CreateInstance(t));
+
+        var config = new MapperConfiguration(c =>
+        {
+            foreach (var profile in profiles)
+            {
+                c.AddProfile(profile);
+            }
+        });
+
+        return config.CreateMapper();
     }
 }
