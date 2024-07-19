@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -45,7 +47,13 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
         public async Task<IEnumerable<EmployerAgreementView>> GetAgreements(long accountId)
         {
             var response = await _mediator.Send(new GetEmployerAgreementsByAccountIdRequest { AccountId = accountId });
-            return response.EmployerAgreements.Select(x => new EmployerAgreementView
+
+            if (response.EmployerAgreements == null || !response.EmployerAgreements.Any())
+            {
+                return [];
+            }
+
+            return response.EmployerAgreements?.Select(x => new EmployerAgreementView
             {
                 Id = x.Id,
                 Acknowledged = x.Acknowledged.GetValueOrDefault(),
