@@ -43,7 +43,7 @@ public class AgreementOrchestrator(IMediator mediator, ILogger<AgreementOrchestr
         return response.EmployerAgreements?.Select(x => new EmployerAgreementView
         {
             Id = x.Id,
-            AccountId = x.AccountLegalEntity.AccountId,
+            AccountId = accountId,
             Acknowledged = x.Acknowledged.GetValueOrDefault(),
             SignedDate = x.SignedDate,
         });
