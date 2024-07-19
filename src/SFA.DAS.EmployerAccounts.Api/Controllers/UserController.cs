@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByEmail;
+using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
@@ -28,12 +29,22 @@ public class UserController : ControllerBase
     [Route("")]
     public async Task<IActionResult> Get(string email)
     {
-        var response = await _mediator.Send(new GetUserByEmailQuery{Email = email});
+        var response = await _mediator.Send(new GetUserByEmailQuery { Email = email });
 
         if (response.User == null) return NotFound();
         return Ok(response.User);
     }
-    
+
+    [HttpGet]
+    [Route("by-ref")]
+    public async Task<IActionResult> GetByRef(string userRef)
+    {
+        var response = await _mediator.Send(new GetUserByRefQuery { UserRef = userRef });
+
+        if (response.User == null) return NotFound();
+        return Ok(response.User);
+    }
+
     [HttpPut]
     [Route("upsert")]
     public async Task<IActionResult> Upsert([FromBody] UpsertRegisteredUserCommand command)
@@ -43,9 +54,9 @@ public class UserController : ControllerBase
             await _mediator.Send(command);
             return Ok();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            _logger.LogError(e,"Error in UserController PUT");
+            _logger.LogError(e, "Error in UserController PUT");
             return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
         }
     }

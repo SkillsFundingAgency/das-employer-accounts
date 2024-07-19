@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementById;
+using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
 using SFA.DAS.EmployerAccounts.Queries.GetMinimumSignedAgreementVersion;
 
 namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
@@ -20,7 +22,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
             _logger = logger;
             _mapper = mapper;
         }
-        
+
         public async Task<EmployerAgreementView> GetAgreement(long agreementId)
         {
             var response = await _mediator.Send(new GetEmployerAgreementByIdRequest
@@ -37,6 +39,12 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
 
             var response = await _mediator.Send(new GetMinimumSignedAgreementVersionQuery { AccountId = accountId });
             return response.MinimumSignedAgreementVersion;
+        }
+
+        public async Task<bool> HasAgreements(long accountId)
+        {
+            var response = await _mediator.Send(new GetEmployerAgreementsByAccountIdRequest { AccountId = accountId });
+            return response.EmployerAgreements != null && response.EmployerAgreements.Any();
         }
     }
 }

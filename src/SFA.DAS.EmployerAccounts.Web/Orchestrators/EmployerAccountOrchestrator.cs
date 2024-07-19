@@ -360,18 +360,15 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 response.Data.HasProviders = employerAccountTaskListResponse?.HasProviders ?? false;
                 response.Data.HasProviderPermissions = employerAccountTaskListResponse?.HasProviderPermissions ?? false;
 
-                if (!response.Data.AddTrainingProviderAcknowledged && response.Data.HasProviders &&
-                    response.Data.HasProviderPermissions)
+                if (!response.Data.AddTrainingProviderAcknowledged && response.Data.HasProviders && response.Data.HasProviderPermissions)
                 {
                     await Mediator.Send(new AcknowledgeTrainingProviderTaskCommand(accountId));
                 }
             }
         }
 
-        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() +
-                                           $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
-        response.Data.ProviderPermissionsUrl =
-            _urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true";
+        response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
+        response.Data.ProviderPermissionsUrl = _urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true";
 
         return response;
     }

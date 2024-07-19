@@ -9,24 +9,17 @@ using SFA.DAS.Encoding;
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
 [Route("api/accounts")]
-public class EmployerAgreementController : ControllerBase
+public class EmployerAgreementController(
+    AgreementOrchestrator orchestrator, 
+    IEncodingService encodingService) : ControllerBase
 {
-    private readonly AgreementOrchestrator _orchestrator;
-    private readonly IEncodingService _encodingService;
-
-    public EmployerAgreementController(AgreementOrchestrator orchestrator, IEncodingService encodingService)
-    {
-        _orchestrator = orchestrator;
-        this._encodingService = encodingService;
-    }
-
     [Route("{hashedAccountId}/legalEntities/{hashedlegalEntityId}/agreements/{agreementId}", Name = "AgreementById")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAgreements)]
     [HttpGet]
     public async Task<IActionResult> GetAgreement(string agreementId)
     {
-        var decodedAgreementId = _encodingService.Decode(agreementId, EncodingType.AccountId);
-        var response = await _orchestrator.GetAgreement(decodedAgreementId);
+        var decodedAgreementId = encodingService.Decode(agreementId, EncodingType.AccountId);
+        var response = await orchestrator.GetAgreement(decodedAgreementId);
 
         if (response == null)
         {
@@ -41,7 +34,7 @@ public class EmployerAgreementController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetMinimumSignedAgreemmentVersion(long accountId)
     {
-        var result = await _orchestrator.GetMinimumSignedAgreemmentVersion(accountId);
+        var result = await orchestrator.GetMinimumSignedAgreemmentVersion(accountId);
         return Ok(result);
     }
     
@@ -50,11 +43,20 @@ public class EmployerAgreementController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetMinimumSignedAgreementVersionByHashedId(string hashedAccountId)
     {
-        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-        var result = await _orchestrator.GetMinimumSignedAgreemmentVersion(accountId);
+        var accountId = encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var result = await orchestrator.GetMinimumSignedAgreemmentVersion(accountId);
         return Ok(new MinimumSignedAgreementResponse
         {
             MinimumSignedAgreementVersion = result
         });
+    }
+
+    [Route("{accountId}/has-agreements", Name = "HasAgreements")]
+    [Authorize(Policy = ApiRoles.ReadAllEmployerAgreements)]
+    [HttpGet]
+    public async Task<IActionResult> HasAgreements(long accountId)
+    {
+        var result = await orchestrator.HasAgreements(accountId);
+        return Ok(result);
     }
 }
