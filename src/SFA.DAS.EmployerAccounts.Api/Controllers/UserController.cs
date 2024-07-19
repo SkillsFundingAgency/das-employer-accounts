@@ -36,7 +36,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    [Route("by-ref")]
+    [Route("by-ref/{userRef}")]
     public async Task<IActionResult> GetByRef(string userRef)
     {
         var response = await _mediator.Send(new GetUserByRefQuery { UserRef = userRef });

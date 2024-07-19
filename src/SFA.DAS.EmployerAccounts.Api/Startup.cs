@@ -24,8 +24,10 @@ using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Mappings;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
+using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
 using SFA.DAS.EmployerAccounts.Startup;
+using SFA.DAS.EmployerAccounts.Validation;
 using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
@@ -83,6 +85,8 @@ public class Startup
         services.AddDatabaseRegistration();
         services.AddDataRepositories();
         services.AddExecutionPolicies();
+
+        services.AddTransient<IValidator<GetUserByRefQuery>, GetUserByRefQueryValidator>();
 
         services.AddAutoMapper(typeof(AccountMappings), typeof(Startup));
 
