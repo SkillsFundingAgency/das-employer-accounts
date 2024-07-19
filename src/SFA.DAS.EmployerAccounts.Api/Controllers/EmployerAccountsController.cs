@@ -1,10 +1,13 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
+using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
@@ -93,6 +96,22 @@ public class EmployerAccountsController : ControllerBase
     {
         var result = await _orchestrator.GetAccountTeamMembersWhichReceiveNotifications(accountId);
         return Ok(result);
+    }
+
+    [Route("acknowledge-training-provider-task", Name = "AcknowledgeTrainingProviderTask")]
+    [Authorize(Policy = ApiRoles.ReadAllAccountUsers)]
+    [HttpPatch]
+    public async Task<IActionResult> AcknowledgeTrainingProviderTask([FromBody] AcknowledgeTrainingProviderTaskCommand command)
+    {
+        try
+        {
+            await _orchestrator.AcknowledgeTrainingProviderTask(command.AccountId);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+        }
     }
 
     private void CreateGetLegalEntityLink(string hashedAccountId, Resource legalEntity)

@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Types;
+using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
@@ -126,6 +127,12 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
             {
                 return null;
             }
+        }
+
+        public async Task AcknowledgeTrainingProviderTask(long accountId)
+        {
+            var command = new AcknowledgeTrainingProviderTaskCommand(accountId);
+            await _mediator.Send(command);
         }
         
         private static PayeScheme ConvertToPayeScheme(string hashedAccountId, GetPayeSchemeByRefResponse payeSchemeResult)
