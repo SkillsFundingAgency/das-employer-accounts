@@ -141,4 +141,24 @@ public class WhenIRenameAnAccount : ControllerTestBase
         // Assert
         _mediator.Verify(x => x.Send(It.IsAny<SendAccountTaskListCompleteNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Never());
     }
+
+
+    [Test, MoqAutoData]
+    public async Task WhenIUseReservedChars_ThenIMustShouldReceiveAnError(string hashedAccountId)
+    {
+        //Arrange
+        var viewModel = new RenameEmployerAccountViewModel
+        {
+            ChangeAccountName = true,
+            CurrentName = "Test Account",
+            NewName = "Test <>"
+        };
+
+        //Act
+        var result = await _employerAccountController.AccountName(hashedAccountId, viewModel) as ViewResult;
+        var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
+
+        //Assert
+        model.Data.NewNameError.Should().Be("Account Name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes");
+    }
 }

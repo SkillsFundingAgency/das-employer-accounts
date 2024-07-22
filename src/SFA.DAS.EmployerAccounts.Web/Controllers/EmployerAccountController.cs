@@ -10,6 +10,7 @@ using SFA.DAS.EmployerAccounts.Commands.PayeRefData;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
+using SFA.DAS.EmployerAccounts.Web.Validation;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 
@@ -407,14 +408,19 @@ public class EmployerAccountController : BaseController
         {
             case true:
                 {
-                    if (string.IsNullOrEmpty(vm.NewName) || vm.NewName == vm.CurrentName)
+                    var validator = new RenameEmployerAccountViewModelValidator();
+                    var validationResult = validator.Validate(vm);
+
+                    if (!validationResult.IsValid)
                     {
-                        var newNameError = vm.NewName == vm.CurrentName
-                         ? "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name."
-                         : "Enter a name";
+                        foreach (var validationError in validationResult.Errors)
+                        {
+                            vm.ErrorDictionary.Add(validationError.PropertyName, validationError.ErrorMessage);
+                        }
+                    }
 
-                        vm.ErrorDictionary.Add(nameof(vm.NewName), newNameError);
-
+                    if (vm.ErrorDictionary.Count > 0)
+                    {
                         response.Data = vm;
                         response.Status = HttpStatusCode.BadRequest;
 
