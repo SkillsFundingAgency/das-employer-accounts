@@ -41,7 +41,11 @@ public class UserController : ControllerBase
     {
         var response = await _mediator.Send(new GetUserByRefQuery { UserRef = userRef });
 
-        if (response.User == null) return NotFound();
+        if (response.User == null)
+        {
+            return NotFound();
+        }
+        
         return Ok(response.User);
     }
 
