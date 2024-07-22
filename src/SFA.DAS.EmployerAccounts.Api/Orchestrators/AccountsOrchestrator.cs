@@ -134,7 +134,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
             var command = new AcknowledgeTrainingProviderTaskCommand(accountId);
             await _mediator.Send(command);
         }
-        
+
         private static PayeScheme ConvertToPayeScheme(string hashedAccountId, GetPayeSchemeByRefResponse payeSchemeResult)
         {
             return new PayeScheme
@@ -160,7 +160,8 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
                 LegalEntities = new ResourceList(accountResult.Account.LegalEntities.Select(x => new Resource { Id = x.ToString() })),
                 PayeSchemes = new ResourceList(accountResult.Account.PayeSchemes.Select(x => new Resource { Id = x })),
                 ApprenticeshipEmployerType = accountResult.Account.ApprenticeshipEmployerType.ToString(),
-                AccountAgreementType = GetAgreementType(accountResult.Account.AccountAgreementTypes)
+                AccountAgreementType = GetAgreementType(accountResult.Account.AccountAgreementTypes),
+                AddTrainingProviderAcknowledged = accountResult.Account.AddTrainingProviderAcknowledged,
             };
         }
 

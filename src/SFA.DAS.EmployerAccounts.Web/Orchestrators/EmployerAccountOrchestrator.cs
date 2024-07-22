@@ -309,10 +309,11 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
     public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(string hashedAccountId, string userRef)
     {
+        
+        // TODO HashAgreementId from AgreementId
         var response = new OrchestratorResponse<AccountTaskListViewModel>();
 
-        var userResponse = await Mediator.Send(new GetUserByRefQuery { UserRef = userRef });
-
+        
         if (string.IsNullOrEmpty(hashedAccountId))
         {
             var existingTaskListViewModel = await GetFirstUserAccount(userRef);
@@ -367,6 +368,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             }
         }
 
+        var userResponse = await Mediator.Send(new GetUserByRefQuery { UserRef = userRef });
+        
         response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
         response.Data.ProviderPermissionsUrl = _urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true";
 
