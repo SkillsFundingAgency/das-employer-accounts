@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
 
@@ -15,27 +16,31 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
         }
 
         [Test]
-        public void ThenFalseIsReturnedWhenTheHashedIdIsntPopulated()
+        public void ThenFalseIsReturnedWhenTheAccountIdIsntPopulated()
         {
             //Act
             var actual = _validator.Validate(new GetPayeSchemeByRefQuery { Ref = "ABC/123" });
 
             //Assert
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual.IsValid(), Is.False);
-            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("HashedAccountId", "HashedAccountId has not been supplied")));
+            actual.Should().NotBeNull();
+            actual.IsValid().Should().BeFalse();
+            actual.ValidationDictionary
+                .Should().ContainKey("AccountId")
+                .WhoseValue.Should().Be("AccountId has not been supplied");
         }
 
         [Test]
         public void ThenFalseIsReturnedWhenTheRefIsntPopulated()
         {
             //Act
-            var actual = _validator.Validate(new GetPayeSchemeByRefQuery { HashedAccountId = "ABC123" });
+            var actual = _validator.Validate(new GetPayeSchemeByRefQuery { AccountId = 12322 });
 
             //Assert
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual.IsValid(), Is.False);
-            Assert.That(actual.ValidationDictionary, Does.Contain(new KeyValuePair<string, string>("Ref", "PayeSchemeRef has not been supplied")));
+            actual.Should().NotBeNull();
+            actual.IsValid().Should().BeFalse();
+            actual.ValidationDictionary
+                .Should().ContainKey("Ref")
+                .WhoseValue.Should().Be("PayeSchemeRef has not been supplied");
         }
 
         [Test]
@@ -44,12 +49,13 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             //Act
             var actual = _validator.Validate(new GetPayeSchemeByRefQuery
             {
-                HashedAccountId = "ABC123",
+                AccountId = 34325,
                 Ref = "ABC/123"
             });
 
             //Assert
-            Assert.That(actual.IsValid(), Is.True);
+            actual.IsValid().Should().BeTrue();
         }
+
     }
 }

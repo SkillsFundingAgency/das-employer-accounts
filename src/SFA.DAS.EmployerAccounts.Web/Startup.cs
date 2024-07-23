@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
@@ -138,7 +139,6 @@ public class Startup
 
         services.Configure<RouteOptions>(options =>
         {
-
         }).AddMvc(options =>
         {
             options.Filters.Add(new AnalyticsFilterAttribute());
