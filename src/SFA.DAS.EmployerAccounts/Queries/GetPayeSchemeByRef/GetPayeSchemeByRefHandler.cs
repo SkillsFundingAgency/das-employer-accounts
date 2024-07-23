@@ -23,7 +23,7 @@ public class GetPayeSchemeByRefHandler : IRequestHandler<GetPayeSchemeByRefQuery
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        var payeScheme = await _payeRepository.GetPayeForAccountByRef(message.HashedAccountId, message.Ref);
+        var payeScheme = await _payeRepository.GetPayeForAccountByRef(message.AccountId, message.Ref);
 
         return new GetPayeSchemeByRefResponse { PayeScheme = payeScheme};
     }
