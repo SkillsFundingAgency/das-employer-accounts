@@ -15,9 +15,12 @@ public class GetLegalEntityQueryHandler : IRequestHandler<GetLegalEntityQuery, G
 
     public async Task<GetLegalEntityResponse> Handle(GetLegalEntityQuery message, CancellationToken cancellationToken)
     {
-        var legalEntity = await  _db.Value.AccountLegalEntities.SingleOrDefaultAsync(l =>
+        var legalEntity = await _db.Value.AccountLegalEntities
+            .Include(le => le.Agreements)
+            .ThenInclude(employerAgreement => employerAgreement.Template)
+            .SingleOrDefaultAsync(l =>
             l.LegalEntityId == message.LegalEntityId &&
-            l.Account.HashedId == message.AccountHashedId &&
+            l.Account.Id == message.AccountId &&
             (l.PendingAgreementId != null || l.SignedAgreementId != null) &&
             l.Deleted == null, cancellationToken);
 

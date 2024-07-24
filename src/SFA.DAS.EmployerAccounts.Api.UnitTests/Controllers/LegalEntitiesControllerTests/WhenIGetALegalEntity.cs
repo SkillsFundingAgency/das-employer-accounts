@@ -18,23 +18,26 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.LegalEntitiesContro
     {
         [Test, RecursiveMoqAutoData]
         public async Task ThenAGetLegalEntityQueryShouldBeSentAndLegalEntityReturned(
-            string hashedAccountId,
+            long accountId,
             long legalEntityId,
             bool includeAllAgreements,
             GetLegalEntityResponse mediatorResponse,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] LegalEntitiesController controller)
         {
+            // Arrange
             var expectedModel = LegalEntityMapping.MapFromAccountLegalEntity(mediatorResponse.LegalEntity, mediatorResponse.LatestAgreement, includeAllAgreements);
 
             mediator.Setup(m => m.Send(
-                    It.Is<GetLegalEntityQuery>(q => q.AccountHashedId == hashedAccountId && q.LegalEntityId == legalEntityId), It.IsAny<CancellationToken>()))
+                    It.Is<GetLegalEntityQuery>(q => q.AccountId == accountId && q.LegalEntityId == legalEntityId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mediatorResponse);
             
-            var result = await controller.GetLegalEntity(hashedAccountId, legalEntityId, includeAllAgreements) as OkObjectResult;
+            // Act
+            var result = await controller.GetLegalEntity(accountId, legalEntityId, includeAllAgreements) as OkObjectResult;
 
-            Assert.That(result, Is.Not.Null);
-            var model = ((OkObjectResult)result).Value;
+            // Assert
+            result.Should().NotBeNull();
+            var model = result.Value;
             model.Should().BeEquivalentTo(expectedModel);
         }
 
