@@ -37,28 +37,28 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
     [HttpGet]
     public async Task<IActionResult> GetAccount(long accountId)
     {
-        var isDecoded = _encodingService.TryDecode(accountId.ToString(), EncodingType.AccountId, out _);
+        var isDecoded = encodingService.TryDecode(accountId.ToString(), EncodingType.AccountId, out _);
 
         if (isDecoded)
         {
             return await GetAccount(accountId.ToString());
         }
-        
-        var result = await _orchestrator.GetAccount(accountId);
+
+        var result = await orchestrator.GetAccount(accountId);
         if (result == null) return NotFound();
 
         result.LegalEntities.ForEach(x => CreateGetLegalEntityLink(accountId, x));
         result.PayeSchemes.ForEach(x => CreateGetPayeSchemeLink(accountId, x));
         return Ok(result);
     }
-    
+
     [Route("{hashedAccountId}", Name = "GetAccount")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
     public async Task<IActionResult> GetAccount(string hashedAccountId)
     {
-        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-        var result = await _orchestrator.GetAccount(accountId);
+        var accountId = encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var result = await orchestrator.GetAccount(accountId);
 
         if (result == null) return NotFound();
 
@@ -112,7 +112,7 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         }
     }
 
-    private void CreateGetLegalEntityLink(string hashedAccountId, Resource legalEntity)
+    private void CreateGetLegalEntityLink(long accountId, Resource legalEntity)
     {
         legalEntity.Href = Url.RouteUrl("GetLegalEntity", new { accountId = accountId, legalEntityId = legalEntity.Id });
     }
