@@ -14,6 +14,6 @@ public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<
             .WithMessage("Enter a name");
         RuleFor(x => x.NewName)
             .ValidFreeTextCharacters()
-            .WithMessage("Account Name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes");
+            .WithMessage("Account name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes");
     }
 }

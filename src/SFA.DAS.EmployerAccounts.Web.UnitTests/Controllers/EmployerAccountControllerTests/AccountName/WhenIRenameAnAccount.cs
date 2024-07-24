@@ -159,6 +159,6 @@ public class WhenIRenameAnAccount : ControllerTestBase
         var model = result.Model.As<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
         //Assert
-        model.Data.NewNameError.Should().Be("Account Name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes");
+        model.Data.NewNameError.Should().Be("Account name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes");
     }
 }
