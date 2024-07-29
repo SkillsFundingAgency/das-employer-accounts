@@ -7,9 +7,9 @@ public interface IEmployerAccountRepository
 {
     Task<Account> GetAccountById(long accountId);
     Task<Accounts<Account>> GetAccounts(string toDate, int pageNumber, int pageSize);
-    Task<AccountDetail> GetAccountDetailByHashedId(string hashedAccountId);
+    Task<AccountDetail> GetAccountDetailById(long accountId);
     Task<AccountStats> GetAccountStats(long accountId);
-    Task RenameAccount(long id, string name);
+    Task RenameAccount(long accountId, string name);
     Task SetAccountLevyStatus(long accountId, ApprenticeshipEmployerType apprenticeshipEmployerType);
     Task AcknowledgeTrainingProviderTask(long accountId);
 }
