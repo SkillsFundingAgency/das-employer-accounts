@@ -159,6 +159,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
                 ApprenticeshipEmployerType = accountResult.Account.ApprenticeshipEmployerType.ToString(),
                 AccountAgreementType = GetAgreementType(accountResult.Account.AccountAgreementTypes),
                 AddTrainingProviderAcknowledged = accountResult.Account.AddTrainingProviderAcknowledged,
+                NameConfirmed = accountResult.Account.NameConfirmed,
             };
         }
 
