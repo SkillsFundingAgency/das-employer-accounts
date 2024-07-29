@@ -8,7 +8,7 @@ public class RenameEmployerAccountViewModel : ViewModelBase
     {
         get
         {
-            return ChangeAccountName.GetValueOrDefault() ? _newName : CurrentName;
+            return ChangeAccountName.GetValueOrDefault() ? _newName : LegalEntityName;
         }
         set
         {
@@ -18,4 +18,5 @@ public class RenameEmployerAccountViewModel : ViewModelBase
     public bool?  ChangeAccountName { get; set; }
     public string NewNameError => GetErrorMessage(nameof(NewName));
     public string LegalEntityName { get; set; }
+    public bool NameConfirmed { get; set; }
 }
