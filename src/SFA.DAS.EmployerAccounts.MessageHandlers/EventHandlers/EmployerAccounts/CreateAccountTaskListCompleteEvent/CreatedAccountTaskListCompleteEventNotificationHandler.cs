@@ -12,18 +12,28 @@ public class
     private readonly IUserAccountRepository _userRepository;
     private readonly IMediator _mediator;
     private readonly EmployerAccountsConfiguration _configuration;
-    private const string EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
+    private readonly bool _isProdEnvironment;
+    private readonly string EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
 
     public CreatedAccountTaskListCompleteEventNotificationHandler(
         ILogger<CreatedAccountTaskListCompleteEventNotificationHandler> logger,
         IUserAccountRepository userRepository,
         IMediator mediator,
-        EmployerAccountsConfiguration configuration)
+        EmployerAccountsConfiguration configuration,
+        IConfiguration config)
     {
         _logger = logger;
         _userRepository = userRepository;
         _mediator = mediator;
         _configuration = configuration;
+        if (config["ResourceEnvironmentName"].Equals("prd", StringComparison.CurrentCultureIgnoreCase))
+        {
+            EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
+        }
+        else
+        {
+            EmployerAccountCreatedTemplateId = "EmployerAccountCreated_dev";
+        }
     }
 
     public async Task Handle(CreatedAccountTaskListCompleteEvent message, IMessageHandlerContext context)
