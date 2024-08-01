@@ -12,8 +12,7 @@ public class
     private readonly IUserAccountRepository _userRepository;
     private readonly IMediator _mediator;
     private readonly EmployerAccountsConfiguration _configuration;
-    private readonly bool _isProdEnvironment;
-    private readonly string EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
+    private readonly string _employerAccountCreatedTemplateId;
 
     public CreatedAccountTaskListCompleteEventNotificationHandler(
         ILogger<CreatedAccountTaskListCompleteEventNotificationHandler> logger,
@@ -26,14 +25,7 @@ public class
         _userRepository = userRepository;
         _mediator = mediator;
         _configuration = configuration;
-        if (config["ResourceEnvironmentName"].Equals("prd", StringComparison.CurrentCultureIgnoreCase))
-        {
-            EmployerAccountCreatedTemplateId = "EmployerAccountCreated";
-        }
-        else
-        {
-            EmployerAccountCreatedTemplateId = "EmployerAccountCreated_dev";
-        }
+        _employerAccountCreatedTemplateId = config["ResourceEnvironmentName"].Equals("prd", StringComparison.CurrentCultureIgnoreCase) ? "EmployerAccountCreated" : "EmployerAccountCreated_dev";
     }
 
     public async Task Handle(CreatedAccountTaskListCompleteEvent message, IMessageHandlerContext context)
@@ -46,7 +38,7 @@ public class
         await _mediator.Send(new SendNotificationCommand
         {
             RecipientsAddress = existingUser.Email,
-            TemplateId = EmployerAccountCreatedTemplateId,
+            TemplateId = _employerAccountCreatedTemplateId,
             Tokens = new Dictionary<string, string>
             {
                 { "user_first_name", existingUser.FirstName },

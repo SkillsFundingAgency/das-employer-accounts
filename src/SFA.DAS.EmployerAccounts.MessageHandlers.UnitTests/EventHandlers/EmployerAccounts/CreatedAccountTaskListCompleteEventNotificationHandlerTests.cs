@@ -115,8 +115,6 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
             )
         {
             // Arrange
-            const string accountBase = "http://accounts.test.url";
-            const string notificationPath = "/settings/notifications";
             userRepositoryMock.Setup(m => m.GetUserByRef(createdAccountEvent.UserRef)).ReturnsAsync(user);
 
             var resultCommand = new SendNotificationCommand();
