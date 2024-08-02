@@ -68,7 +68,7 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
 
 
     public virtual async Task<OrchestratorResponse<EmployerAgreementViewModel>> GetById(
-        string agreementid, string hashedId, string externalUserId)
+        string agreementid, string hashedId, string externalUserId, bool isFromTasklist = true)
     {
         try
         {
@@ -92,7 +92,8 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
                 {
                     EmployerAgreement = employerAgreementView,
                     OrganisationLookupPossible = organisationLookupByIdPossible,
-                    Status = employerAgreementView.Status
+                    Status = employerAgreementView.Status,
+                    IsFromTasklist = isFromTasklist
                 }
             };
         }

@@ -37,6 +37,7 @@
     asp-route="@RouteNames.AboutYourAgreement"
     asp-route-hashedAccountId="@Model.HashedAccountId"
     asp-route-hashedAgreementId="@Model.HashedAgreementId">
+    <input type="hidden" name="isFromTasklist" value="false">
     <input class="govuk-button" type="submit" value="View agreement" />
 </form>
 

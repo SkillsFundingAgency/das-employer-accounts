@@ -18,4 +18,5 @@ public class EmployerAgreementViewModel
     public int LegalEntitiesCount { get; set; }
 
     public EmployerAgreementStatus Status { get; set; }
+    public bool IsFromTasklist { get; set; }
 }

@@ -25,6 +25,7 @@
         else
         {
             <p class="govuk-body">You have already accepted your employer agreement.</p>
+            <p class="govuk-body">You can view and download the agreement in 'Your organisations and agreements' on the homepage once your account is set up.</p>
         }
       
         <form method="get"
@@ -38,7 +39,16 @@
                 {
                     <input class="govuk-button" type="submit" value="Continue" />
                 }
-                <a asp-route="@RouteNames.ContinueNewEmployerAccountTaskList" asp-route-hashedAccountId="@ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]" class="govuk-link">@(isPending? "Cancel" : "Close")</a>
+                
+                @if (Model.Data.IsFromTasklist)
+                {
+                    <a asp-route="@RouteNames.ContinueNewEmployerAccountTaskList" asp-route-hashedAccountId="@ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]" class="govuk-link">@(isPending ? "Cancel" : "Close and return to previous page")</a>
+                }
+                else
+                {
+                    <a asp-route="@RouteNames.OrganisationAgreements" asp-route-hashedAccountId="@ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]"
+                       asp-route-accountLegalEntityHashedId="@Model.Data.EmployerAgreement.AccountLegalEntityPublicHashedId" class="govuk-link">@(isPending ? "Cancel" : "Close and return to previous page")</a>
+                }
             </div>
 
         </form>
