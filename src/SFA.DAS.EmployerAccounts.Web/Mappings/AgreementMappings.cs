@@ -26,7 +26,8 @@ public class AgreementMappings : Profile
             .ForMember(dest => dest.NoChoiceSelected, opts => opts.Ignore())
             .ForMember(dest => dest.LegalEntitiesCount, opts => opts.Ignore())
             .ForMember(dest => dest.Status, opts => opts.Ignore())
-            .ForMember(dest => dest.OrganisationLookupPossible, opt => opt.Ignore());
+            .ForMember(dest => dest.OrganisationLookupPossible, opt => opt.Ignore())
+            .ForMember(dest => dest.IsFromTasklist, opt => opt.Ignore());
 
         CreateMap<GetEmployerAgreementResponse, SignEmployerAgreementViewModel>()
             .ForMember(dest => dest.PreviouslySignedEmployerAgreement, opts => opts.Ignore())
