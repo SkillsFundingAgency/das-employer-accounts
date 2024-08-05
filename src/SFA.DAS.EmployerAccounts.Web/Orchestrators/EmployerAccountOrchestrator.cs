@@ -305,7 +305,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         var hasAccountId = _encodingService.TryDecode(hashedAccountId, EncodingType.AccountId, out var accountId);
         var result = await Mediator.Send(new GetCreateAccountTaskListQuery(hasAccountId ? accountId : 0, hashedAccountId, userRef));
 
-        if (result == null)
+      if (result == null)
         {
             return new OrchestratorResponse<AccountTaskListViewModel>
             {
@@ -329,7 +329,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         {
             model.PendingHashedAgreementId = _encodingService.Encode(result.PendingAgreementId.Value, EncodingType.AccountId);
         }
-        
+
         model.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={result.UserFirstName}&lastName={result.UserLastName}";
         model.ProviderPermissionsUrl = _urlHelper.ProviderRelationshipsAction("providers") + "?AccountTasks=true";
 
@@ -339,7 +339,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         };
     }
 
-   public async Task AcknowledgeTrainingProviderTask(string hashedAccountId, string externalUserId)
+    public async Task AcknowledgeTrainingProviderTask(string hashedAccountId, string externalUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
 

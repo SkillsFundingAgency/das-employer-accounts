@@ -15,7 +15,6 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
 [TestFixture]
 public class WhenUserHasNotAddedProviderPermissions
 {
-
     [Test]
     [MoqAutoData]
     public async Task Then_SetProviderPermissionsUrl(

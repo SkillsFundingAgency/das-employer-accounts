@@ -9,12 +9,12 @@ public class GetCreateAccountTaskListQueryHandler(IOuterApiClient apiClient) : I
 {
     public async Task<GetCreateAccountTaskListQueryResponse> Handle(GetCreateAccountTaskListQuery request, CancellationToken cancellationToken)
     {
-        var response =  await apiClient.Get<GetCreateTaskListResponse>(
+        var response = await apiClient.Get<GetCreateTaskListResponse>(
             new GetCreateTaskListRequest(
                 request.AccountId,
                 request.HashedAccountId,
                 request.UserRef)
-            );
+        );
 
         return new GetCreateAccountTaskListQueryResponse
         {

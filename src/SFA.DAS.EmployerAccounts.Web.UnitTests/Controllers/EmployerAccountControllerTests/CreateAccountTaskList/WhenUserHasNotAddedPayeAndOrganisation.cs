@@ -31,7 +31,7 @@ public class WhenUserHasNotAddedPayeAndOrganisation
         mediatorMock
             .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
             .ReturnsAsync(userByRefResponse);
-            
+
         // Act
         var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
         var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
@@ -44,21 +44,24 @@ public class WhenUserHasNotAddedPayeAndOrganisation
     [DomainAutoData]
     public async Task Then_SetEditUserDetailsUrl(
         string userId,
+        long accountId,
+        string hashedAccountId,
         Uri editUserDetailsUri,
+        [Frozen] Mock<IEncodingService> encodingServiceMock,
         [Frozen] Mock<IUrlActionHelper> urlHelperMock,
         [Frozen] Mock<IMediator> mediatorMock,
         [NoAutoProperties] EmployerAccountController controller,
-        GetCreateAccountTaskListQueryResponse taskListResponse,
-        Mock<IEncodingService> encodingServiceMock,
-        long accountId,
-        string hashedAccountId)
+        GetCreateAccountTaskListQueryResponse taskListResponse
+    )
     {
         // Arrange
-  
-        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
+        taskListResponse.HasProviderPermissions = false;
+        taskListResponse.AddTrainingProviderAcknowledged = false;
+        taskListResponse.HasPayeScheme = false;
+
+        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+
         urlHelperMock.Setup(m => m.EmployerProfileEditUserDetails(It.IsAny<string>())).Returns(editUserDetailsUri.AbsoluteUri);
-  
-        SetControllerContextUserIdClaim(userId, controller);
 
         mediatorMock
             .Setup(m => m.Send(It.Is<GetCreateAccountTaskListQuery>(x =>
@@ -67,7 +70,9 @@ public class WhenUserHasNotAddedPayeAndOrganisation
                     && x.UserRef == userId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(taskListResponse);
-            
+        
+        SetControllerContextUserIdClaim(userId, controller);
+        
         // Act
         var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
         var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
@@ -93,9 +98,7 @@ public class WhenUserHasNotAddedPayeAndOrganisation
         mediatorMock
             .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
             .ReturnsAsync(userByRefResponse);
-        
-        //encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
-            
+
         // Act
         var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
         var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;

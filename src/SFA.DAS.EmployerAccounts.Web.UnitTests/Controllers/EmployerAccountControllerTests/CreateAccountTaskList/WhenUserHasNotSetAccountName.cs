@@ -3,50 +3,45 @@ using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
-using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
-using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementsByAccountId;
-using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
+using SFA.DAS.EmployerAccounts.Queries.GetCreateAccountTaskList;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccountTaskList;
 
-[TestFixture]
 public class WhenUserHasNotSetAccountName
 {
     [Test]
     [MoqAutoData]
     public async Task Then_CannotAddAnotherPaye(
-        long agreementId,
         long accountId,
         string hashedAccountId,
         string userId,
-        [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-        GetUserByRefResponse userByRefResponse,
-        GetEmployerAccountDetailByIdResponse accountDetailResponse,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [Frozen] Mock<IMediator> mediatorMock,
-        [NoAutoProperties] EmployerAccountController controller)
+        [NoAutoProperties] EmployerAccountController controller,
+        GetCreateAccountTaskListQueryResponse taskListResponse)
     {
         // Arrange
-        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
+        
+        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
 
-        accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement> { new EmployerAgreement { StatusId = EmployerAgreementStatus.Pending, Id = agreementId } };
-        mediatorMock.Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId), It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse);
-        SetControllerContextUserIdClaim(userId, controller);
-
-        accountDetailResponse.Account.NameConfirmed = false;
-        accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
+        taskListResponse.NameConfirmed = false;
+        taskListResponse.HasProviderPermissions = false;
+        taskListResponse.AddTrainingProviderAcknowledged = false;
+        taskListResponse.HashedAccountId = hashedAccountId;
+       
         mediatorMock
-            .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(accountDetailResponse);
-            
-        mediatorMock
-            .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(userByRefResponse);
+            .Setup(m => m.Send(It.Is<GetCreateAccountTaskListQuery>(x =>
+                    x.AccountId == accountId
+                    && x.HashedAccountId == hashedAccountId
+                    && x.UserRef == userId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(taskListResponse);
 
+        SetControllerContextUserIdClaim(hashedAccountId, controller);
+        
         // Act
         var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
         var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
@@ -60,9 +55,22 @@ public class WhenUserHasNotSetAccountName
     public async Task And_No_Account_Then_Return_NotFound(
         string hashedAccountId,
         string userId,
+        long accountId,
+        [Frozen] Mock<IMediator> mediatorMock,
+        [Frozen] Mock<IEncodingService> encodingServiceMock,
         [NoAutoProperties] EmployerAccountController controller)
     {
+        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+
         // Arrange
+        mediatorMock
+            .Setup(m => m.Send(It.Is<GetCreateAccountTaskListQuery>(x =>
+                    x.AccountId == accountId
+                    && x.HashedAccountId == hashedAccountId
+                    && x.UserRef == userId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => null);
+
         SetControllerContextUserIdClaim(userId, controller);
 
         // Act
@@ -75,33 +83,30 @@ public class WhenUserHasNotSetAccountName
     [Test]
     [MoqAutoData]
     public async Task Then_SaveProgressRoute_Maintains_AccountContext(
-        long agreementId,
         long accountId,
         string hashedAccountId,
         string userId,
-        GetUserByRefResponse userByRefResponse,
-        [NoAutoProperties] GetEmployerAgreementsByAccountIdResponse accountEmployerAgreementsResponse,
-        GetEmployerAccountDetailByIdResponse accountDetailResponse,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [Frozen] Mock<IMediator> mediatorMock,
-        [NoAutoProperties] EmployerAccountController controller)
+        [NoAutoProperties] EmployerAccountController controller,
+        GetCreateAccountTaskListQueryResponse taskListResponse)
     {
         // Arrange
-        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
+        taskListResponse.NameConfirmed = false;
+        taskListResponse.HasProviderPermissions = false;
+        taskListResponse.AddTrainingProviderAcknowledged = false;
 
-        accountEmployerAgreementsResponse.EmployerAgreements = new List<EmployerAgreement> { new EmployerAgreement { StatusId = EmployerAgreementStatus.Pending, Id = agreementId } };
-        mediatorMock.Setup(m => m.Send(It.Is<GetEmployerAgreementsByAccountIdRequest>(x => x.AccountId == accountId), It.IsAny<CancellationToken>())).ReturnsAsync(accountEmployerAgreementsResponse);
+        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+
+        mediatorMock
+            .Setup(m => m.Send(It.Is<GetCreateAccountTaskListQuery>(x =>
+                    x.AccountId == accountId
+                    && x.HashedAccountId == hashedAccountId
+                    && x.UserRef == userId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(taskListResponse);
+
         SetControllerContextUserIdClaim(userId, controller);
-
-        accountDetailResponse.Account.NameConfirmed = false;
-        accountDetailResponse.Account.PayeSchemes = accountDetailResponse.Account.PayeSchemes.Take(1).ToList();
-        mediatorMock
-            .Setup(m => m.Send(It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(accountDetailResponse);
-            
-        mediatorMock
-            .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(userByRefResponse);
 
         // Act
         var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
@@ -110,7 +115,7 @@ public class WhenUserHasNotSetAccountName
         // Assert
         model.Data.SaveProgressRouteName.Should().Be(RouteNames.PartialAccountSaveProgress);
     }
-    
+
     private static void SetControllerContextUserIdClaim(string userId, EmployerAccountController controller)
     {
         var claims = new List<Claim> { new Claim(ControllerConstants.UserRefClaimKeyName, userId) };
