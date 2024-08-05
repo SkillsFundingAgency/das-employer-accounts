@@ -19,11 +19,10 @@
         <PackageReference Include="Moq" Version="4.20.70" />
         <PackageReference Include="NLog" Version="5.3.2" />
         <PackageReference Include="NUnit" Version="4.1.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
         <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
         <PackageReference Include="SFA.DAS.Notifications.Api.Client" Version="2.2.37" />
-        <PackageReference Include="HtmlTags" Version="8.1.1" />
         <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
         <PackageReference Include="SFA.DAS.Elastic" Version="2.0.14" />
         <PackageReference Include="SpecFlow" Version="3.9.74" />
