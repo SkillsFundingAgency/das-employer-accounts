@@ -46,10 +46,10 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
 
         var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
         var account = await _employerAccountRepository.GetAccountById(accountId);
-        
+
         var existingInvitation = await _invitationRepository.Get(accountId, message.Email);
 
-        ValidateExistingInvitation(existingInvitation);
+        ValidateExistingInvitation(existingInvitation, message.Email);
 
         existingInvitation.Status = InvitationStatus.Pending;
 
@@ -57,9 +57,9 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         existingInvitation.ExpiryDate = expiryDate;
 
         var accountOwner = account.Memberships.First(x => x.Role == Role.Owner).User;
-        
+
         await AddAuditEntry(message, existingInvitation, accountOwner.Email);
-        
+
         await _invitationRepository.Resend(existingInvitation);
 
         var existingUser = await _userRepository.Get(message.Email);
@@ -67,19 +67,19 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         await SendNotification(message, existingUser, account, expiryDate);
     }
 
-    private static void ValidateExistingInvitation(Invitation existingInvitation)
+    private static void ValidateExistingInvitation(Invitation existingInvitation, string email)
     {
         if (existingInvitation == null)
         {
-            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Invitation not found" } });
+            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", $"Invitation not found for the email address: {email}." } });
         }
 
         if (existingInvitation.Status == InvitationStatus.Accepted)
         {
-            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Accepted invitations cannot be resent" } });
+            throw new InvalidRequestException(new Dictionary<string, string> { { "Invitation", "Accepted invitations cannot be resent." } });
         }
     }
-    
+
     private void ValidateRequest(SupportResendInvitationCommand message)
     {
         var validationResult = _validator.Validate(message);
@@ -102,7 +102,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         };
 
         var templateId = existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser";
-        
+
         await _publisher.Send(new SendEmailCommand(templateId, message.Email, tokens));
     }
 
@@ -113,12 +113,12 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
             ImpersonatedUserEmail = accountOwnerEmail,
             Category = "INVITATION_RESENT",
             Description = $"Invitation to {message.Email} resent in Account {existingInvitation.AccountId}",
-            ChangedProperties = new List<PropertyUpdate>
-            {
+            ChangedProperties =
+            [
                 new() { PropertyName = "Status", NewValue = existingInvitation.Status.ToString() },
                 new() { PropertyName = "ExpiryDate", NewValue = existingInvitation.ExpiryDate.ToString() }
-            },
-            RelatedEntities = new List<AuditEntity> { new() { Id = existingInvitation.AccountId.ToString(), Type = "Account" } },
+            ],
+            RelatedEntities = [new() { Id = existingInvitation.AccountId.ToString(), Type = "Account" }],
             AffectedEntity = new AuditEntity { Type = "Invitation", Id = existingInvitation.Id.ToString() }
         };
 
