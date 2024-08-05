@@ -43,7 +43,9 @@ public static class NServiceBusServiceRegistrations
             .UseMessageConventions()
             .UseServicesBuilder(services)
             .UseNewtonsoftJsonSerializer()
-            .UseOutbox(allowOutboxCleanup)
+            .UseOutbox(
+                enableCleanup: allowOutboxCleanup, 
+                cleanupFrequency: TimeSpan.FromDays(1))
             .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(databaseConnectionString))
             .ConfigureServiceBusTransport(() => employerAccountsConfiguration.ServiceBusConnectionString, isDevOrLocal)
             .UseUnitOfWork();
