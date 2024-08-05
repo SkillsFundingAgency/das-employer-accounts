@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Net.Http;
+using AutoMapper;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
@@ -16,6 +17,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetAccountTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetInvitation;
 using SFA.DAS.EmployerAccounts.Queries.GetMember;
+using SFA.DAS.EmployerAccounts.Queries.GetMemberById;
 using SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUser;
@@ -50,7 +52,9 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
     }
 
     //Needed for tests	
-    protected EmployerTeamOrchestrator() { }
+    protected EmployerTeamOrchestrator()
+    {
+    }
 
     public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Cancel(string email, string hashedAccountId, string externalUserId)
     {
@@ -183,7 +187,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
             var tasksResponse = await _mediator.Send(new GetTaskSummaryQuery
             {
-                AccountId = accountResponse.Account.Id              
+                AccountId = accountResponse.Account.Id
             });
 
             var pendingAgreements = agreementsResponse.EmployerAgreements.Where(a => a.HasPendingAgreement && !a.HasSignedAgreement).Select(a => new PendingAgreementsViewModel { HashedAgreementId = a.Pending.HashedAgreementId }).ToList();
@@ -229,7 +233,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
                 Exception = ex
             };
         }
-        catch (System.Net.Http.HttpRequestException ex)
+        catch (HttpRequestException ex)
         {
             return new OrchestratorResponse<AccountDashboardViewModel>
             {
@@ -295,6 +299,14 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return GetTeamMember(accountId, email, externalUserId, false);
     }
 
+    public virtual Task<OrchestratorResponse<TeamMember>> GetTeamMember(string hashedAccountId, string hashedId, bool isUser, string externalUserId)
+    {
+        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var id = _encodingService.Decode(hashedId, EncodingType.AccountId);
+
+        return GetTeamMember(accountId, id, externalUserId, isUser);
+    }
+
     private async Task<OrchestratorResponse<TeamMember>> GetTeamMember(long accountId, string email, string externalUserId, bool onlyIfMemberIsActive)
     {
         var userRoleResponse = await GetUserAccountRole(accountId, externalUserId);
@@ -321,16 +333,41 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         };
     }
 
+    private async Task<OrchestratorResponse<TeamMember>> GetTeamMember(long accountId, long id, string externalUserId, bool isUser)
+    {
+        var userRoleResponse = await GetUserAccountRole(accountId, externalUserId);
+
+        if (!userRoleResponse.UserRole.Equals(Role.Owner))
+        {
+            return new OrchestratorResponse<TeamMember>
+            {
+                Status = HttpStatusCode.Unauthorized
+            };
+        }
+
+        var response = await _mediator.Send(new GetMemberByIdQuery
+        {
+            AccountId = accountId,
+            Id = id,
+            IsUser = isUser
+        });
+
+        return new OrchestratorResponse<TeamMember>
+        {
+            Status = response.TeamMember.AccountId == 0 ? HttpStatusCode.NotFound : HttpStatusCode.OK,
+            Data = response.TeamMember
+        };
+    }
+
     public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> GetTeamMembers(string hashedId, string userId)
     {
         try
         {
-            var response = await
-                _mediator.Send(new GetAccountTeamMembersQuery
-                {
-                    HashedAccountId = hashedId,
-                    ExternalUserId = userId
-                });
+            var response = await _mediator.Send(new GetAccountTeamMembersQuery
+            {
+                HashedAccountId = hashedId,
+                ExternalUserId = userId
+            });
 
             return new OrchestratorResponse<EmployerTeamMembersViewModel>
             {
@@ -691,6 +728,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
         return false;
     }
+
     private static bool EvaluateClosedVacancyCallToActionRule(PanelViewModel<AccountDashboardViewModel> viewModel)
     {
         if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount != 1 ||
@@ -817,6 +855,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             viewModel.Data.HideTasksBar = true;
             return true;
         }
+
         return false;
     }
 

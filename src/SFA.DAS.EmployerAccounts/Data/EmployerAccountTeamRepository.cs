@@ -56,6 +56,30 @@ public class EmployerAccountTeamRepository : IEmployerAccountTeamRepository
 
         return result.SingleOrDefault();
     }
+    
+    public async Task<TeamMember> GetMember(string hashedAccountId, long id, bool isUser)
+    {
+        var parameters = new DynamicParameters();
+
+        parameters.Add("@hashedAccountId", hashedAccountId, DbType.String);
+        parameters.Add("@id", id, DbType.Int64);
+        parameters.Add("@isUser", isUser, DbType.Boolean);
+
+        var result = await _db.Value.Database.GetDbConnection().QueryAsync<TeamMember>(
+            sql: """
+                 SELECT TOP 1 
+                    *
+                 FROM [employer_account].[GetTeamMembers]
+                 WHERE HashedId = @hashedAccountId
+                 AND Id = @id
+                 AND IsUser = @isUser;
+                 """,
+            param: parameters,
+            transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
+            commandType: CommandType.Text);
+
+        return result.SingleOrDefault();
+    }
 
     public async Task<List<TeamMember>> GetAccountTeamMembers(long accountId)
     {

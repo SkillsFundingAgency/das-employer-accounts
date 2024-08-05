@@ -10,7 +10,6 @@ using SFA.DAS.EmployerAccounts.Commands.PayeRefData;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.EmployerAccounts.Web.Validation;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 
@@ -404,55 +403,22 @@ public class EmployerAccountController : BaseController
     {
         var response = new OrchestratorResponse<RenameEmployerAccountViewModel>();
 
-        switch (vm.ChangeAccountName)
+        if (!ModelState.IsValid || !vm.ChangeAccountName.HasValue)
         {
-            case true:
-                {
-                    var validator = new RenameEmployerAccountViewModelValidator();
-                    var validationResult = validator.Validate(vm);
+            vm.ErrorDictionary.Add(nameof(vm.ChangeAccountName),
+                "Please select whether you wish to set a new Employer Account name.");
+            response.Data = vm;
+            response.Status = HttpStatusCode.BadRequest;
+            return View(response);
+        }
 
-                    if (!validationResult.IsValid)
-                    {
-                        foreach (var validationError in validationResult.Errors)
-                        {
-                            vm.ErrorDictionary.Add(validationError.PropertyName, validationError.ErrorMessage);
-                        }
-                    }
-
-                    if (vm.ErrorDictionary.Count > 0)
-                    {
-                        response.Data = vm;
-                        response.Status = HttpStatusCode.BadRequest;
-
-                        return View(response);
-                    }
-
-                    return RedirectToRoute(RouteNames.AccountNameConfirm,
-                        new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
-                }
-            case false:
-                {
-                    var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-                    response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
-
-                    if (response.Status == HttpStatusCode.OK)
-                    {
-                        return RedirectToRoute(RouteNames.AccountNameConfirmSuccess, new { hashedAccountId });
-                    }
-
-                    response.Data = vm;
-
-                    return View(response);
-                }
-            default:
-                {
-                    // Model validation failed, return the view with validation errors
-                    vm.ErrorDictionary.Add(nameof(vm.ChangeAccountName),
-                        "Please select whether you wish to set a new Employer Account name.");
-                    response.Data = vm;
-                    response.Status = response.Status = HttpStatusCode.BadRequest;
-                    return View(response);
-                }
+        if (vm.ChangeAccountName.Value)
+        {
+            return HandleChangeAccountName(hashedAccountId, vm, response);
+        }
+        else
+        {
+            return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm);
         }
     }
 
@@ -689,5 +655,40 @@ public class EmployerAccountController : BaseController
 
         return RedirectToRoute(RouteNames.OrganisationAndPayeAddedSuccess,
             new { hashedAccountId = response.Data.EmployerAgreement.HashedAccountId });
+    }
+
+    private IActionResult HandleChangeAccountName(string hashedAccountId, RenameEmployerAccountViewModel vm, OrchestratorResponse<RenameEmployerAccountViewModel> response)
+    {
+        if (string.IsNullOrEmpty(vm.NewName) || vm.NewName == vm.CurrentName)
+        {
+            var newNameError = vm.NewName == vm.CurrentName
+                ? "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name."
+                : "Enter a name";
+
+            vm.ErrorDictionary.Add(nameof(vm.NewName), newNameError);
+            response.Data = vm;
+            response.Status = HttpStatusCode.BadRequest;
+
+            return View(response);
+        }
+
+        return RedirectToRoute(RouteNames.AccountNameConfirm,
+            new { hashedAccountId, NewAccountName = Uri.EscapeDataString(vm.NewName) });
+    }
+
+    private async Task<IActionResult> HandleSetEmployerAccountNameAsync(string hashedAccountId, RenameEmployerAccountViewModel vm)
+    {
+        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);        
+        var response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
+
+        if (response.Status == HttpStatusCode.OK)
+        {
+            return RedirectToRoute(
+                vm.NameConfirmed? RouteNames.AccountNameSuccess : RouteNames.AccountNameConfirmSuccess, 
+                new { hashedAccountId });
+        }
+
+        response.Data = vm;
+        return View(response);
     }
 }
