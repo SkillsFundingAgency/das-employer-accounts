@@ -91,7 +91,7 @@
 
                                 <input id="NewName" name="NewName" type="text" maxlength="100" class="govuk-input" aria-required="true"
                                        aria-describedby="@(!string.IsNullOrEmpty(Model.Data.NewNameError) ? "error-message-newname" : "")"
-                                       value="" />
+                                       value="@(string.IsNullOrEmpty(Model.Data.NewNameError) ? string.Empty : Model.Data.NewName)" />
                             </div>
                         </div>
                     </div>
