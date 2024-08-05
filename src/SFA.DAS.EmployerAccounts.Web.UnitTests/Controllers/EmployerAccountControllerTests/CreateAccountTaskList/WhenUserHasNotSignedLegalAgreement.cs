@@ -14,6 +14,7 @@ public class WhenUserHasNotSignedLegalAgreement
     public async Task Then_HashedAccountId_IsDecoded(
         string hashedAccountId,
         string userId,
+        long accountId,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [NoAutoProperties] EmployerAccountController controller)
     {
@@ -24,13 +25,13 @@ public class WhenUserHasNotSignedLegalAgreement
         _ = await controller.CreateAccountTaskList(hashedAccountId);
 
         // Assert
-        encodingServiceMock.Verify(m => m.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
+        encodingServiceMock.Verify(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId), Times.Once);
     }
 
      
     private static void SetControllerContextUserIdClaim(string userId, EmployerAccountController controller)
     {
-        var claims = new List<Claim> { new Claim(ControllerConstants.UserRefClaimKeyName, userId) };
+        var claims = new List<Claim> { new(ControllerConstants.UserRefClaimKeyName, userId) };
         var claimsIdentity = new ClaimsIdentity(claims);
         var user = new ClaimsPrincipal(claimsIdentity);
         controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };

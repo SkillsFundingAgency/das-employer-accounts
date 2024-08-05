@@ -305,7 +305,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         var hasAccountId = _encodingService.TryDecode(hashedAccountId, EncodingType.AccountId, out var accountId);
         var result = await Mediator.Send(new GetCreateAccountTaskListQuery(hasAccountId ? accountId : 0, hashedAccountId, userRef));
 
-      if (result == null)
+        if (result == null)
         {
             return new OrchestratorResponse<AccountTaskListViewModel>
             {

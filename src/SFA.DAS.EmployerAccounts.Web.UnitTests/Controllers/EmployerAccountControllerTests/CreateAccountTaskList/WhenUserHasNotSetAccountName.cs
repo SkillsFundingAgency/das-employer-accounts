@@ -24,14 +24,14 @@ public class WhenUserHasNotSetAccountName
         GetCreateAccountTaskListQueryResponse taskListResponse)
     {
         // Arrange
-        
+
         encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
 
         taskListResponse.NameConfirmed = false;
         taskListResponse.HasProviderPermissions = false;
         taskListResponse.AddTrainingProviderAcknowledged = false;
         taskListResponse.HashedAccountId = hashedAccountId;
-       
+
         mediatorMock
             .Setup(m => m.Send(It.Is<GetCreateAccountTaskListQuery>(x =>
                     x.AccountId == accountId
@@ -40,8 +40,8 @@ public class WhenUserHasNotSetAccountName
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(taskListResponse);
 
-        SetControllerContextUserIdClaim(hashedAccountId, controller);
-        
+        SetControllerContextUserIdClaim(userId, controller);
+
         // Act
         var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
         var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
@@ -118,7 +118,7 @@ public class WhenUserHasNotSetAccountName
 
     private static void SetControllerContextUserIdClaim(string userId, EmployerAccountController controller)
     {
-        var claims = new List<Claim> { new Claim(ControllerConstants.UserRefClaimKeyName, userId) };
+        var claims = new List<Claim> { new(ControllerConstants.UserRefClaimKeyName, userId) };
         var claimsIdentity = new ClaimsIdentity(claims);
         var user = new ClaimsPrincipal(claimsIdentity);
         controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
