@@ -68,7 +68,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             {
                 LegalEntityName = response.Account.AccountLegalEntities.OrderBy(x => x.Created).First()?.Name,
                 CurrentName = response.Account.Name,
-                NewName = string.Empty
+                NewName = string.Empty,
+                NameConfirmed = response.Account.NameConfirmed
             }
         };
     }

@@ -36,8 +36,6 @@ public class SupportController(IMediator mediator, ILogger<SupportController> lo
     [Route("resend-invitation")]
     public async Task<IActionResult> ResendInvitation([FromBody] SupportResendInvitationCommand command)
     {
-        command.Email = WebUtility.UrlDecode(command.Email);
-        
         try
         {
             await mediator.Send(command);
