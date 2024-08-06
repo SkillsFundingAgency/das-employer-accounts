@@ -36,7 +36,7 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         var result = await _db.Value.Accounts
             .Include(x => x.AccountLegalEntities)
             .ThenInclude(y => y.Agreements)
-            .ThenInclude(x=> x.Template)
+            .ThenInclude(x => x.Template)
             .OrderBy(x => x.Id)
             .Skip(offset)
             .Take(pageSize)
@@ -53,15 +53,40 @@ public class EmployerAccountRepository : IEmployerAccountRepository
     {
         // These calls are using AsNoTracking() so will not track changes to the returned entity if they are to be persisted using the DB Context later.
         // https://skillsfundingagency.atlassian.net/browse/CON-5295
-        var account = await _db.Value.Accounts
+
+        var accountTask = _db.Value.Accounts
             .AsNoTracking()
-            .Include(x => x.AccountLegalEntities)
-                .ThenInclude(y => y.Agreements)
-                .ThenInclude(x => x.Template)
-            .Include(account => account.AccountHistory)
-            .Include(account => account.Memberships)
-                .ThenInclude(membership => membership.User)
             .SingleOrDefaultAsync(x => x.Id == accountId);
+
+        var accountLegalEntitiesTask = _db.Value.AccountLegalEntities
+            .AsNoTracking()
+            .Include(y => y.Agreements)
+            .ThenInclude(x => x.Template)
+            .Where(x => x.AccountId == accountId)
+            .ToListAsync();
+
+        var accountHistoryTask = _db.Value.AccountHistory
+            .AsNoTracking()
+            .Where(x => x.AccountId == accountId)
+            .ToListAsync();
+
+        var membershipsTask = _db.Value.Memberships
+            .AsNoTracking()
+            .Include(x => x.User)
+            .Where(x => x.AccountId == accountId)
+            .ToListAsync();
+
+        await Task.WhenAll(
+            accountTask,
+            accountLegalEntitiesTask,
+            accountHistoryTask,
+            membershipsTask
+        );
+
+        var account = accountTask.Result;
+        var accountLegalEntities = accountLegalEntitiesTask.Result;
+        var accountHistory = accountHistoryTask.Result;
+        var memberships = membershipsTask.Result;
 
         if (account == null)
         {
@@ -80,33 +105,23 @@ public class EmployerAccountRepository : IEmployerAccountRepository
             AddTrainingProviderAcknowledged = account.AddTrainingProviderAcknowledged
         };
 
-        var activeLegalEntities = account.AccountLegalEntities.Where(x =>
-            x.Deleted == null && x.Agreements.Any(ea =>
-                ea.StatusId == EmployerAgreementStatus.Pending ||
-                ea.StatusId == EmployerAgreementStatus.Signed));
+        var activeLegalEntities = accountLegalEntities
+            .Where(x => x.Deleted == null
+                        && x.Agreements.Any(ea => ea.StatusId is EmployerAgreementStatus.Pending or EmployerAgreementStatus.Signed))
+            .ToList();
 
         accountDetail.LegalEntities = activeLegalEntities.Select(x => x.Id).ToList();
-        accountDetail.AccountAgreementTypes = account.AccountLegalEntities.SelectMany(x => x.Agreements).Select(x => x.Template.AgreementType).Distinct().ToList();
+        accountDetail.AccountAgreementTypes = accountLegalEntities.SelectMany(x => x.Agreements).Select(x => x.Template.AgreementType).Distinct().ToList();
 
-        accountDetail.OwnerEmail = account.Memberships
+        accountDetail.OwnerEmail = memberships
             .Where(m => m.Role == Role.Owner)
             .OrderBy(m => m.CreatedDate)
             .Select(m => m.User.Email)
             .FirstOrDefault();
 
-        accountDetail.PayeSchemes = account.AccountHistory
+        accountDetail.PayeSchemes = accountHistory
             .Select(ach => ach.PayeRef)
             .ToList();
-
-        accountDetail.LegalEntities = await _db.Value.AccountLegalEntities
-            .AsNoTracking()
-            .Where(ale => ale.AccountId == accountDetail.AccountId
-                          && ale.Deleted == null
-                          && ale.Agreements.Any(ea =>
-                              ea.StatusId == EmployerAgreementStatus.Pending ||
-                              ea.StatusId == EmployerAgreementStatus.Signed))
-            .Select(ale => ale.LegalEntityId)
-            .ToListAsync();
 
         var templateIds = await _db.Value.Agreements
             .AsNoTracking()
