@@ -54,45 +54,33 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         // These calls are using AsNoTracking() so will not track changes to the returned entity if they are to be persisted using the DB Context later.
         // https://skillsfundingagency.atlassian.net/browse/CON-5295
 
-        var accountTask = _db.Value.Accounts
+        var account = await _db.Value.Accounts
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == accountId);
+        
+        if (account == null)
+        {
+            return null;
+        }
 
-        var accountLegalEntitiesTask = _db.Value.AccountLegalEntities
+        var accountLegalEntities = await _db.Value.AccountLegalEntities
             .AsNoTracking()
             .Include(y => y.Agreements)
             .ThenInclude(x => x.Template)
             .Where(x => x.AccountId == accountId)
             .ToListAsync();
 
-        var accountHistoryTask = _db.Value.AccountHistory
+        var accountHistory = await _db.Value.AccountHistory
             .AsNoTracking()
             .Where(x => x.AccountId == accountId)
             .ToListAsync();
 
-        var membershipsTask = _db.Value.Memberships
+        var memberships = await _db.Value.Memberships
             .AsNoTracking()
             .Include(x => x.User)
             .Where(x => x.AccountId == accountId)
             .ToListAsync();
-
-        await Task.WhenAll(
-            accountTask,
-            accountLegalEntitiesTask,
-            accountHistoryTask,
-            membershipsTask
-        );
-
-        var account = accountTask.Result;
-        var accountLegalEntities = accountLegalEntitiesTask.Result;
-        var accountHistory = accountHistoryTask.Result;
-        var memberships = membershipsTask.Result;
-
-        if (account == null)
-        {
-            return null;
-        }
-
+        
         var accountDetail = new AccountDetail
         {
             AccountId = account.Id,
