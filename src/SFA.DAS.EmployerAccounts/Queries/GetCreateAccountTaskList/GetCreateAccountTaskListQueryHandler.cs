@@ -16,6 +16,11 @@ public class GetCreateAccountTaskListQueryHandler(IOuterApiClient apiClient) : I
                 request.UserRef)
         );
 
+        if (response == null)
+        {
+            return null;
+        }
+
         return new GetCreateAccountTaskListQueryResponse
         {
             HashedAccountId = response.HashedAccountId,
