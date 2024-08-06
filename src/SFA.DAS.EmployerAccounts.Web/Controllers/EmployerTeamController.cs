@@ -42,7 +42,7 @@ public class EmployerTeamController : BaseController
 
             if (!(response.Data.Account.AddTrainingProviderAcknowledged ?? true))
             {
-                return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId } );
+                return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId });
             }
 
             return View(response);
@@ -52,7 +52,6 @@ public class EmployerTeamController : BaseController
             Console.WriteLine(e);
             throw;
         }
-        
     }
 
     [HttpGet]
@@ -197,7 +196,7 @@ public class EmployerTeamController : BaseController
     public async Task<IActionResult> Resend(string hashedAccountId, string email, string name)
     {
         var response = await _employerTeamOrchestrator.Resend(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName), name);
-        
+
         return View(ControllerConstants.ViewTeamViewName, response);
     }
 
@@ -278,11 +277,16 @@ public class EmployerTeamController : BaseController
     }
 
     [HttpGet]
-    [Route("{email}/review", Name = RouteNames.EmployerTeamReview)]
+    [Route("{hashedUserId}/review", Name = RouteNames.EmployerTeamReview)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Review(string hashedAccountId, string email)
+    public async Task<IActionResult> Review(string hashedAccountId, string hashedUserId, bool isUser)
     {
-        var invitation = await _employerTeamOrchestrator.GetTeamMemberWhetherActiveOrNot(hashedAccountId, email, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var invitation = await _employerTeamOrchestrator.GetTeamMember(
+            hashedAccountId,
+            hashedUserId,
+            isUser,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
+        );
 
         return View(invitation);
     }
@@ -335,19 +339,19 @@ public class EmployerTeamController : BaseController
         switch (model.TriageOption)
         {
             case TriageOptions.Yes:
-                {
-                    return RedirectToRoute(RouteNames.TriageChosenProvider, new { hashedAccountId });
-                }
+            {
+                return RedirectToRoute(RouteNames.TriageChosenProvider, new { hashedAccountId });
+            }
 
             case TriageOptions.No:
-                {
-                    return RedirectToRoute(RouteNames.TriageCannotSetupWithoutChosenCourseAndProvider, new { hashedAccountId });
-                }
+            {
+                return RedirectToRoute(RouteNames.TriageCannotSetupWithoutChosenCourseAndProvider, new { hashedAccountId });
+            }
 
             default:
-                {
-                    return View(model);
-                }
+            {
+                return View(model);
+            }
         }
     }
 
@@ -380,19 +384,19 @@ public class EmployerTeamController : BaseController
         switch (model.TriageOption)
         {
             case TriageOptions.Yes:
-                {
-                    return RedirectToRoute(RouteNames.TriageWhenWillApprenticeshipStart, new { hashedAccountId });
-                }
+            {
+                return RedirectToRoute(RouteNames.TriageWhenWillApprenticeshipStart, new { hashedAccountId });
+            }
 
             case TriageOptions.No:
-                {
-                    return RedirectToRoute(RouteNames.TriageCannotSetupWithoutChosenProvider, new { hashedAccountId });
-                }
+            {
+                return RedirectToRoute(RouteNames.TriageCannotSetupWithoutChosenProvider, new { hashedAccountId });
+            }
 
             default:
-                {
-                    return View(model);
-                }
+            {
+                return View(model);
+            }
         }
     }
 
@@ -415,7 +419,7 @@ public class EmployerTeamController : BaseController
     [HttpPost]
     [Route("triagewillapprenticeshiptrainingstart", Name = RouteNames.TriageWhenWillApprenticeshipStartPost)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
-    public IActionResult TriageWillApprenticeshipTrainingStart(string hashedAccountId,TriageViewModel model)
+    public IActionResult TriageWillApprenticeshipTrainingStart(string hashedAccountId, TriageViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -425,24 +429,24 @@ public class EmployerTeamController : BaseController
         switch (model.TriageOption)
         {
             case TriageOptions.Yes:
-                {
-                    return RedirectToRoute(RouteNames.TriageWhenApprenticeshipForExistingEmployee, new { hashedAccountId });
-                }
+            {
+                return RedirectToRoute(RouteNames.TriageWhenApprenticeshipForExistingEmployee, new { hashedAccountId });
+            }
 
             case TriageOptions.No:
-                {
-                    return RedirectToRoute(RouteNames.TriageCannotSetupWithoutStartDate, new { hashedAccountId });
-                }
+            {
+                return RedirectToRoute(RouteNames.TriageCannotSetupWithoutStartDate, new { hashedAccountId });
+            }
 
             case TriageOptions.Unknown:
-                {
-                    return RedirectToRoute(RouteNames.TriageCannotSetupWithoutApproximateStartDate, new { hashedAccountId });
-                }
+            {
+                return RedirectToRoute(RouteNames.TriageCannotSetupWithoutApproximateStartDate, new { hashedAccountId });
+            }
 
             default:
-                {
-                    return View(model);
-                }
+            {
+                return View(model);
+            }
         }
     }
 
@@ -483,19 +487,19 @@ public class EmployerTeamController : BaseController
         switch (model.TriageOption)
         {
             case TriageOptions.Yes:
-                {
-                    return View(ControllerConstants.TriageSetupApprenticeshipExistingEmployeeViewName);
-                }
+            {
+                return View(ControllerConstants.TriageSetupApprenticeshipExistingEmployeeViewName);
+            }
 
             case TriageOptions.No:
-                {
-                    return View(ControllerConstants.TriageSetupApprenticeshipNewEmployeeViewName);
-                }
+            {
+                return View(ControllerConstants.TriageSetupApprenticeshipNewEmployeeViewName);
+            }
 
             default:
-                {
-                    return View(model);
-                }
+            {
+                return View(model);
+            }
         }
     }
 
@@ -518,7 +522,7 @@ public class EmployerTeamController : BaseController
     private void PopulateViewBagWithExternalUserId()
     {
         var externalUserId = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        
+
         if (externalUserId != null)
         {
             ViewBag.UserId = externalUserId;

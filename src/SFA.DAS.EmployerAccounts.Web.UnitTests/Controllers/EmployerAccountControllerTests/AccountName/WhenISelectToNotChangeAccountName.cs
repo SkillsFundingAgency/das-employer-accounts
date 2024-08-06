@@ -93,10 +93,11 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Should_Redirect_To_Success(string hashedAccountId, RenameEmployerAccountViewModel viewModel)
+        public async Task Then_Should_Redirect_To_AccountNameConfirmSuccess_on_First_Visit(string hashedAccountId, RenameEmployerAccountViewModel viewModel)
         {
             // Arrange
             viewModel.ChangeAccountName = false;
+            viewModel.NameConfirmed = false;
 
             _orchestrator
                 .Setup(m => m.SetEmployerAccountName(hashedAccountId, viewModel, UserId))
@@ -111,6 +112,28 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
 
             // Assert
             result.RouteName.Should().Be(RouteNames.AccountNameConfirmSuccess);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Should_Redirect_To_AccountNameSuccess_on_subseqeuent_visits(string hashedAccountId, RenameEmployerAccountViewModel viewModel)
+        {
+            // Arrange
+            viewModel.ChangeAccountName = false;
+            viewModel.NameConfirmed = true;
+
+            _orchestrator
+                .Setup(m => m.SetEmployerAccountName(hashedAccountId, viewModel, UserId))
+                .ReturnsAsync(new OrchestratorResponse<RenameEmployerAccountViewModel>
+                {
+                    Status = HttpStatusCode.OK
+                });
+
+            // Act
+            var result =
+                await _employerAccountController.AccountName(hashedAccountId, viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.RouteName.Should().Be(RouteNames.AccountNameSuccess);
         }
     }
 }

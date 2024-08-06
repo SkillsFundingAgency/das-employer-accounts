@@ -14,6 +14,10 @@ public class TeamMember : IAccountIdentifier
     public Role Role { get; set; }
     public InvitationStatus Status { get; set; }
     public DateTime ExpiryDate { get; set; }
-    public string HashedInvitationId { get; set; }
+    /// <summary>
+    /// HashedId, if the user has been invited, then this will be the Hashed InvitationId.
+    /// If the user has created an account, then this will be the Hashed UserId.
+    /// </summary>
+    public string HashedUserId { get; set; }
     public bool CanReceiveNotifications { get; set; }
 }

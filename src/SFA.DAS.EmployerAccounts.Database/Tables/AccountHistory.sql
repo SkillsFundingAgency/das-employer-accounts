@@ -13,3 +13,7 @@ CREATE INDEX [IX_AccountId_PayeRef] ON [employer_account].[AccountHistory] (Acco
 GO
 
 CREATE UNIQUE NONCLUSTERED INDEX [IX_PayeRef_RemovedDate] ON [employer_account].[AccountHistory] (PayeRef) WHERE RemovedDate IS NULL
+GO
+
+CREATE NONCLUSTERED INDEX [IX_AccountHistory_RemovedDate] ON [employer_account].[AccountHistory] ([RemovedDate]) INCLUDE ([AccountId], [AddedDate], [PayeRef]) WITH (ONLINE = ON)
+GO
