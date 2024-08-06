@@ -49,13 +49,19 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         };
     }
 
-    public async Task<AccountDetail> GetAccountDetailByHashedId(string hashedAccountId)
+    public async Task<AccountDetail> GetAccountDetailById(long accountId)
     {
+        // These calls are using AsNoTracking() so will not track changes to the returned entity if they are to be persisted using the DB Context later.
+        // https://skillsfundingagency.atlassian.net/browse/CON-5295
         var account = await _db.Value.Accounts
+            .AsNoTracking()
             .Include(x => x.AccountLegalEntities)
-            .ThenInclude(y => y.Agreements)
-            .ThenInclude(x=> x.Template)
-            .SingleOrDefaultAsync(x => x.HashedId == hashedAccountId);
+                .ThenInclude(y => y.Agreements)
+                .ThenInclude(x => x.Template)
+            .Include(account => account.AccountHistory)
+            .Include(account => account.Memberships)
+                .ThenInclude(membership => membership.User)
+            .SingleOrDefaultAsync(x => x.Id == accountId);
 
         if (account == null)
         {
@@ -93,6 +99,7 @@ public class EmployerAccountRepository : IEmployerAccountRepository
             .ToList();
 
         accountDetail.LegalEntities = await _db.Value.AccountLegalEntities
+            .AsNoTracking()
             .Where(ale => ale.AccountId == accountDetail.AccountId
                           && ale.Deleted == null
                           && ale.Agreements.Any(ea =>
@@ -102,12 +109,14 @@ public class EmployerAccountRepository : IEmployerAccountRepository
             .ToListAsync();
 
         var templateIds = await _db.Value.Agreements
+            .AsNoTracking()
             .Where(x => accountDetail.LegalEntities.Contains(x.AccountLegalEntity.LegalEntityId) && x.SignedDate.HasValue)
             .Select(x => x.TemplateId)
             .ToListAsync()
             .ConfigureAwait(false);
 
         accountDetail.AccountAgreementTypes = await _db.Value.AgreementTemplates
+            .AsNoTracking()
             .Where(x => templateIds.Contains(x.Id))
             .Select(x => x.AgreementType)
             .ToListAsync()

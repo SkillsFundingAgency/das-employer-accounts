@@ -1,20 +1,20 @@
 ﻿namespace SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 
-public class GetEmployerAccountDetailByHashedIdValidator : IValidator<GetEmployerAccountDetailByHashedIdQuery>
+public class GetEmployerAccountDetailByHashedIdValidator : IValidator<GetEmployerAccountDetailByIdQuery>
 {
-    public ValidationResult Validate(GetEmployerAccountDetailByHashedIdQuery item)
+    public ValidationResult Validate(GetEmployerAccountDetailByIdQuery item)
     {
         var validationResult = new ValidationResult();
 
-        if (string.IsNullOrEmpty(item.HashedAccountId))
+        if (item.AccountId <= 0)
         {
-            validationResult.AddError(nameof(item.HashedAccountId), "HashedAccountId has not been supplied");
+            validationResult.AddError(nameof(item.AccountId), "AccountId has not been supplied");
         }
 
         return validationResult;
     }
 
-    public Task<ValidationResult> ValidateAsync(GetEmployerAccountDetailByHashedIdQuery item)
+    public Task<ValidationResult> ValidateAsync(GetEmployerAccountDetailByIdQuery item)
     {
         return Task.FromResult(Validate(item));
     }

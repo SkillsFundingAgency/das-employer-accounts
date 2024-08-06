@@ -6,9 +6,9 @@ public class GetAccountLegalEntitiesByHashedAccountIdValidator : IValidator<GetA
     {
         var validationResult = new ValidationResult();
 
-        if (string.IsNullOrEmpty(item.HashedAccountId))
+        if (item.AccountId <= 0)
         {
-            validationResult.AddError(nameof(item.HashedAccountId), "HashedAccountId has not been supplied");
+            validationResult.AddError(nameof(item.AccountId), "AccountId has not been supplied");
         }
 
         return validationResult;

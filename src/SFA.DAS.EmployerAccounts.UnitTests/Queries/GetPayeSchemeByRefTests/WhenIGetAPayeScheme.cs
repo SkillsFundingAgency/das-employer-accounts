@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
@@ -17,6 +18,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
         public override Mock<IValidator<GetPayeSchemeByRefQuery>> RequestValidator { get; set; }
 
         private PayeSchemeView _expectedPayeScheme;
+        private const long AccountId = 1667;
+        private const string Ref = "ABC/123";
 
         [SetUp]
         public void Arrange()
@@ -26,12 +29,14 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             _expectedPayeScheme = new PayeSchemeView();
 
             _payeRepository = new Mock<IPayeRepository>();
-            _payeRepository.Setup(x => x.GetPayeForAccountByRef(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(_expectedPayeScheme);
+            _payeRepository
+                .Setup(x => x.GetPayeForAccountByRef(AccountId, Ref))
+                .ReturnsAsync(_expectedPayeScheme);
 
             Query = new GetPayeSchemeByRefQuery
             {
-                HashedAccountId = "ABC123",
-                Ref = "ABC/123"
+                AccountId = AccountId,
+                Ref = Ref
             };
 
             RequestHandler = new GetPayeSchemeByRefHandler(RequestValidator.Object,_payeRepository.Object);
@@ -47,7 +52,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            _payeRepository.Verify(x => x.GetPayeForAccountByRef(Query.HashedAccountId, Query.Ref), Times.Once);
+            _payeRepository.Verify(x => x.GetPayeForAccountByRef(Query.AccountId, Query.Ref), Times.Once);
         }
 
         [Test]
@@ -60,7 +65,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
             var actual = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.That(actual.PayeScheme, Is.SameAs(_expectedPayeScheme));
+            actual.PayeScheme.Should().BeEquivalentTo(_expectedPayeScheme);
         }
     }
 }

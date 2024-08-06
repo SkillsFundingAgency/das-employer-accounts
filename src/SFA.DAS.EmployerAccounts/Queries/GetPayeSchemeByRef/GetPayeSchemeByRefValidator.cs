@@ -6,9 +6,9 @@ public class GetPayeSchemeByRefValidator : IValidator<GetPayeSchemeByRefQuery>
     {
         var validationResult = new ValidationResult();
 
-        if (string.IsNullOrEmpty(item.HashedAccountId))
+        if (item.AccountId <= 0)
         {
-            validationResult.AddError(nameof(item.HashedAccountId), "HashedAccountId has not been supplied");
+            validationResult.AddError(nameof(item.AccountId), "AccountId has not been supplied");
         }
 
         if (string.IsNullOrEmpty(item.Ref))

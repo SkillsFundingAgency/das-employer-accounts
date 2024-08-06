@@ -4,5 +4,5 @@ namespace SFA.DAS.EmployerAccounts.Data.Contracts;
 
 public interface IAccountLegalEntityRepository
 {
-    Task<List<AccountLegalEntity>> GetAccountLegalEntities(string accountHashedId);
+    Task<List<AccountLegalEntity>> GetAccountLegalEntities(long accountId);
 }
