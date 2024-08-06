@@ -19,13 +19,15 @@ public class WhenIGetAnAccountWithPayeSchemes : EmployerAccountsControllerTests
     [Test]
     public async Task ThenTheAccountIsReturnedAndTheUriIsCorrect()
     {
+        // Arrange
+        var accountId = 19;
         var hashedAccountId = "ABC123";
 
-        var accountsResponse = new GetEmployerAccountDetailByHashedIdResponse
+        var accountsResponse = new GetEmployerAccountDetailByIdResponse
         {
             Account = new Models.Account.AccountDetail()
             {
-                AccountId = 123,
+                AccountId = accountId,
                 HashedId = hashedAccountId,
                 Name = "Test 1",
                 PayeSchemes = new List<string> { "123/4567", "345/6554" }
@@ -33,7 +35,7 @@ public class WhenIGetAnAccountWithPayeSchemes : EmployerAccountsControllerTests
         };
 
         Mediator.Setup(x =>
-                x.Send(It.IsAny<GetEmployerAccountDetailByHashedIdQuery>(), It.IsAny<CancellationToken>()))
+                x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(accountsResponse);
 
         UrlTestHelper
@@ -42,12 +44,12 @@ public class WhenIGetAnAccountWithPayeSchemes : EmployerAccountsControllerTests
                     It.Is<UrlRouteContext>(
                         c => c.RouteName == "GetPayeScheme" && c.Values.IsEquivalentTo(new
                         {
-                            hashedAccountId,
+                            accountId,
                             payeSchemeRef = WebUtility.UrlEncode(accountsResponse.Account.PayeSchemes[0])
                         })))
             )
             .Returns(
-                $"/api/accounts/{hashedAccountId}/payeschemes/scheme?ref={accountsResponse.Account.PayeSchemes[0].Replace("/", "%2f")}");
+                $"/api/accounts/{accountId}/payeschemes/scheme?ref={accountsResponse.Account.PayeSchemes[0].Replace("/", "%2f")}");
 
         UrlTestHelper
             .Setup(
@@ -55,21 +57,22 @@ public class WhenIGetAnAccountWithPayeSchemes : EmployerAccountsControllerTests
                     It.Is<UrlRouteContext>(
                         c => c.RouteName == "GetPayeScheme" && c.Values.IsEquivalentTo(new
                         {
-                            hashedAccountId,
+                            accountId,
                             payeSchemeRef = WebUtility.UrlEncode(accountsResponse.Account.PayeSchemes[1])
                         })))
             )
             .Returns(
-                $"/api/accounts/{hashedAccountId}/payeschemes/scheme?ref={accountsResponse.Account.PayeSchemes[1].Replace("/", "%2f")}");
+                $"/api/accounts/{accountId}/payeschemes/scheme?ref={accountsResponse.Account.PayeSchemes[1].Replace("/", "%2f")}");
 
-        var response = await Controller.GetAccount(hashedAccountId);
+        // Act
+        var response = await Controller.GetAccount(accountId);
 
-        Assert.That(response, Is.Not.Null);
-        Assert.That(response, Is.InstanceOf<OkObjectResult>());
-        var model = ((OkObjectResult)response).Value as AccountDetail;
+        // Assert
+        var result = response.Should().BeAssignableTo<OkObjectResult>();
+        var model = result.Subject.Value as AccountDetail;
 
         model.Should().NotBeNull();
-        model.AccountId.Should().Be(123);
+        model.AccountId.Should().Be(accountId);
         model.DasAccountName.Should().Be("Test 1");
         model.HashedAccountId.Should().Be(hashedAccountId);
 
@@ -77,7 +80,7 @@ public class WhenIGetAnAccountWithPayeSchemes : EmployerAccountsControllerTests
         {
             var matchedScheme = model.PayeSchemes.Single(x => x.Id == payeScheme);
             matchedScheme?.Href.Should()
-                .Be($"/api/accounts/{hashedAccountId}/payeschemes/scheme?ref={payeScheme.Replace("/", "%2f")}");
+                .Be($"/api/accounts/{accountId}/payeschemes/scheme?ref={payeScheme.Replace("/", "%2f")}");
         }
     }
 }

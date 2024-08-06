@@ -50,6 +50,7 @@
         <form method="post" asp-route="@RouteNames.RenameAccountPost" asp-hashedAccountId="@Context.Request.RouteValues[RouteValueKeys.HashedAccountId]">
             <input type="hidden" value="@Model.Data.CurrentName" name="CurrentName" />
             <input type="hidden" value="@Model.Data.LegalEntityName" name="LegalEntityName" />
+            <input type="hidden" value="@Model.Data.NameConfirmed.ToString().ToLower()" name="NameConfirmed" />
             <div class="govuk-form-group @errorClass">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
@@ -90,7 +91,7 @@
 
                                 <input id="NewName" name="NewName" type="text" maxlength="100" class="govuk-input" aria-required="true"
                                        aria-describedby="@(!string.IsNullOrEmpty(Model.Data.NewNameError) ? "error-message-newname" : "")"
-                                       value="" />
+                                       value="@(string.IsNullOrEmpty(Model.Data.NewNameError) ? string.Empty : Model.Data.NewName)" />
                             </div>
                         </div>
                     </div>

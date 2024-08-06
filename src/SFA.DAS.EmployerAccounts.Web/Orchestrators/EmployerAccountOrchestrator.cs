@@ -75,7 +75,8 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             {
                 LegalEntityName = response.Account.AccountLegalEntities.OrderBy(x => x.Created).First()?.Name,
                 CurrentName = response.Account.Name,
-                NewName = string.Empty
+                NewName = string.Empty,
+                NameConfirmed = response.Account.NameConfirmed
             }
         };
     }
@@ -324,9 +325,9 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
             var employerAccountTaskListResponse = await _employerAccountService.GetEmployerAccountTaskList(accountId, hashedAccountId);
 
-            var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByHashedIdQuery
+            var accountResponse = await Mediator.Send(new GetEmployerAccountDetailByIdQuery
             {
-                HashedAccountId = hashedAccountId
+                AccountId = accountId
             });
 
             var accountAgreementsResponse = await Mediator.Send(new GetEmployerAgreementsByAccountIdRequest
@@ -347,14 +348,14 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             response.Data = new AccountTaskListViewModel
             {
                 HashedAccountId = hashedAccountId,
-                HasPayeScheme = accountResponse?.Account?.PayeSchemes?.Any() ?? false,
-                NameConfirmed = accountResponse?.Account?.NameConfirmed ?? false,
-                PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId),
+                HasPayeScheme = accountResponse.Account?.PayeSchemes?.Any() ?? false,
+                NameConfirmed = accountResponse.Account?.NameConfirmed ?? false,
                 AddTrainingProviderAcknowledged = accountResponse.Account.AddTrainingProviderAcknowledged ?? true
             };
 
             if (hasAgreement)
             {
+                response.Data.PendingHashedAgreementId = _encodingService.Encode(agreement.Id, EncodingType.AccountId);
                 response.Data.AgreementAcknowledged = agreement.Acknowledged ?? true;
                 response.Data.HasSignedAgreement = agreement.SignedDate.HasValue;
                 response.Data.HasProviders = employerAccountTaskListResponse?.HasProviders ?? false;
