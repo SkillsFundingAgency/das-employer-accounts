@@ -25,7 +25,7 @@ public class WhenUserHasCompletedAllTasks
         GetCreateAccountTaskListQueryResponse taskListResponse)
     {
         // Arrange
-        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
         taskListResponse.NameConfirmed = true;
         taskListResponse.AgreementAcknowledged = true;

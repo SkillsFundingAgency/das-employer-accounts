@@ -25,7 +25,7 @@ public class WhenUserHasNotSetAccountName
     {
         // Arrange
 
-        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
         taskListResponse.NameConfirmed = false;
         taskListResponse.HasProviderPermissions = false;
@@ -60,7 +60,7 @@ public class WhenUserHasNotSetAccountName
         [Frozen] Mock<IEncodingService> encodingServiceMock,
         [NoAutoProperties] EmployerAccountController controller)
     {
-        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
         // Arrange
         mediatorMock
@@ -96,7 +96,7 @@ public class WhenUserHasNotSetAccountName
         taskListResponse.HasProviderPermissions = false;
         taskListResponse.AddTrainingProviderAcknowledged = false;
 
-        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
         mediatorMock
             .Setup(m => m.Send(It.Is<GetCreateAccountTaskListQuery>(x =>

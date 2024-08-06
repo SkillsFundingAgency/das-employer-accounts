@@ -59,7 +59,7 @@ public class WhenUserHasNotAddedPayeAndOrganisation
         taskListResponse.AddTrainingProviderAcknowledged = false;
         taskListResponse.HasPayeScheme = false;
 
-        encodingServiceMock.Setup(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId)).Returns(true);
+        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
         urlHelperMock.Setup(m => m.EmployerProfileEditUserDetails(It.IsAny<string>())).Returns(editUserDetailsUri.AbsoluteUri);
 

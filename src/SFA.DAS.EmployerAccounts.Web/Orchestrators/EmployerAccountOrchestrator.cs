@@ -302,15 +302,14 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
 
     public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(string hashedAccountId, string userRef)
     {
-        var hasAccountId = false;
         long accountId = 0;
         
         if (!string.IsNullOrEmpty(hashedAccountId))
         {
-            hasAccountId = _encodingService.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId);   
+            accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);   
         }
          
-        var result = await Mediator.Send(new GetCreateAccountTaskListQuery(hasAccountId ? accountId : 0, hashedAccountId, userRef));
+        var result = await Mediator.Send(new GetCreateAccountTaskListQuery(accountId, hashedAccountId, userRef));
 
         if (result == null)
         {

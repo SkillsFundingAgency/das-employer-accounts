@@ -25,7 +25,7 @@ public class WhenUserHasNotSignedLegalAgreement
         _ = await controller.CreateAccountTaskList(hashedAccountId);
 
         // Assert
-        encodingServiceMock.Verify(m => m.TryDecode(hashedAccountId, EncodingType.AccountId, out accountId), Times.Once);
+        encodingServiceMock.Verify(m => m.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
     }
 
      
