@@ -35,6 +35,8 @@ public class
 
         var existingUser = await _userRepository.GetUserByRef(message.UserRef);
 
+        _logger.LogInformation($"Sending Email for Template: '{_employerAccountCreatedTemplateId}'.");
+
         await _mediator.Send(new SendNotificationCommand
         {
             RecipientsAddress = existingUser.Email,
