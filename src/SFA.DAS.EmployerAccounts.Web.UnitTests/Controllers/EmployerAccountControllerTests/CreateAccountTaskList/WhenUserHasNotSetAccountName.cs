@@ -52,7 +52,7 @@ public class WhenUserHasNotSetAccountName
 
     [Test]
     [MoqAutoData]
-    public async Task And_No_Account_Then_Return_NotFound(
+    public async Task And_No_Account_Then_Return_Ok(
         string hashedAccountId,
         string userId,
         long accountId,
@@ -77,7 +77,7 @@ public class WhenUserHasNotSetAccountName
         var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
 
         // Assert
-        result.ViewName.Should().Be(ControllerConstants.NotFoundViewName);
+        result.ViewName.Should().Be(nameof(CreateAccountTaskList));
     }
 
     [Test]

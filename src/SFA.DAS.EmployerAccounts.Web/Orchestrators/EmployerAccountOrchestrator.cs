@@ -304,19 +304,19 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
     public virtual async Task<OrchestratorResponse<AccountTaskListViewModel>> GetCreateAccountTaskList(string hashedAccountId, string userRef)
     {
         long accountId = 0;
-        
+
         if (!string.IsNullOrEmpty(hashedAccountId))
         {
-            accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);   
+            accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
         }
-         
+
         var result = await Mediator.Send(new GetCreateAccountTaskListQuery(accountId, hashedAccountId, userRef));
 
         if (result == null)
         {
             return new OrchestratorResponse<AccountTaskListViewModel>
             {
-                Status = HttpStatusCode.NotFound
+                Data = new AccountTaskListViewModel()
             };
         }
 
