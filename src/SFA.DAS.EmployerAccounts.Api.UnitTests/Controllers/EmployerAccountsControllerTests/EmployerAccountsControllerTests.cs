@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
             Mapper = new Mock<IMapper>();
 
             var orchestrator = new AccountsOrchestrator(Mediator.Object, Logger.Object, Mapper.Object, EncodingService.Object);
-            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object);
+            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, Mock.Of<ILogger<EmployerAccountsController>>());
 
             UrlTestHelper = new Mock<IUrlHelper>();
             Controller.Url = UrlTestHelper.Object;

@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Types;
+using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
@@ -125,6 +126,12 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
             }
         }
 
+        public async Task AcknowledgeTrainingProviderTask(long accountId)
+        {
+            var command = new AcknowledgeTrainingProviderTaskCommand(accountId);
+            await _mediator.Send(command);
+        }
+
         private static PayeScheme ConvertToPayeScheme(long accountId, GetPayeSchemeByRefResponse payeSchemeResult)
         {
             return new PayeScheme
@@ -150,7 +157,9 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
                 LegalEntities = new ResourceList(accountResult.Account.LegalEntities.Select(x => new Resource { Id = x.ToString() })),
                 PayeSchemes = new ResourceList(accountResult.Account.PayeSchemes.Select(x => new Resource { Id = x })),
                 ApprenticeshipEmployerType = accountResult.Account.ApprenticeshipEmployerType.ToString(),
-                AccountAgreementType = GetAgreementType(accountResult.Account.AccountAgreementTypes)
+                AccountAgreementType = GetAgreementType(accountResult.Account.AccountAgreementTypes),
+                AddTrainingProviderAcknowledged = accountResult.Account.AddTrainingProviderAcknowledged,
+                NameConfirmed = accountResult.Account.NameConfirmed,
             };
         }
 

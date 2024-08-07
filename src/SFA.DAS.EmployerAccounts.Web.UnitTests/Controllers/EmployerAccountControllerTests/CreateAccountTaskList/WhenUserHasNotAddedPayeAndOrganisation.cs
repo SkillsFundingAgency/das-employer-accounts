@@ -3,177 +3,115 @@ using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
+using SFA.DAS.EmployerAccounts.Queries.GetCreateAccountTaskList;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.TestCommon.AutoFixture;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
+using SFA.DAS.Encoding;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccountTaskList
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccountTaskList;
+
+[TestFixture]
+public class WhenUserHasNotAddedPayeAndOrganisation
 {
-    [TestFixture]
-    public class WhenUserHasNotAddedPayeAndOrganisation
+    [Test]
+    [DomainAutoData]
+    public async Task Then_CannotAddAnotherPaye(
+        string userId,
+        GetUserByRefResponse userByRefResponse,
+        GetUserAccountsQueryResponse queryResponse,
+        [Frozen] Mock<IMediator> mediatorMock,
+        [NoAutoProperties] EmployerAccountController controller)
     {
-        [Test]
-        [DomainAutoData]
-        public async Task Then_GetUserAccounts(
-            string userId,
-            GetUserByRefResponse userByRefResponse,
-            GetUserAccountsQueryResponse queryResponse,
-            [Frozen] Mock<IMediator> mediatorMock,
-            [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
-            queryResponse.Accounts.AccountList.Clear();
-            SetControllerContextUserIdClaim(userId, controller);
-            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
-            mediatorMock
-                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(userByRefResponse);
-            
-            // Act
-            var result = await controller.CreateAccountTaskList(null) as ActionResult;
+        // Arrange
+        queryResponse.Accounts.AccountList.Clear();
+        SetControllerContextUserIdClaim(userId, controller);
+        mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
+        mediatorMock
+            .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userByRefResponse);
 
-            // Assert
-            mediatorMock.Verify(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()), Times.Once);
-        }
+        // Act
+        var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
+        var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
 
-        [Test]
-        [DomainAutoData]
-        public async Task Then_Should_Not_Get_PAYE(
-            string userId,
-            GetUserByRefResponse userByRefResponse,
-            GetUserAccountsQueryResponse queryResponse,
-            [Frozen] Mock<IMediator> mediatorMock,
-            [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
-            queryResponse.Accounts.AccountList.Clear();
-            SetControllerContextUserIdClaim(userId, controller);
-            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
-            mediatorMock
-                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(userByRefResponse);
-            
-            // Act
-            var result = await controller.CreateAccountTaskList(null) as ViewResult;
-            var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+        // Assert
+        model.Data.AddPayeRouteName.Should().Be(RouteNames.EmployerAccountPayBillTriage);
+    }
 
-            // Assert
-            mediatorMock.Verify(m => m.Send(It.IsAny<GetAccountPayeSchemesQuery>(), It.IsAny<CancellationToken>()), Times.Never);
-        }
+    [Test]
+    [DomainAutoData]
+    public async Task Then_SetEditUserDetailsUrl(
+        string userId,
+        long accountId,
+        string hashedAccountId,
+        Uri editUserDetailsUri,
+        [Frozen] Mock<IEncodingService> encodingServiceMock,
+        [Frozen] Mock<IUrlActionHelper> urlHelperMock,
+        [Frozen] Mock<IMediator> mediatorMock,
+        [NoAutoProperties] EmployerAccountController controller,
+        GetCreateAccountTaskListQueryResponse taskListResponse
+    )
+    {
+        // Arrange
+        taskListResponse.HasProviderPermissions = false;
+        taskListResponse.AddTrainingProviderAcknowledged = false;
+        taskListResponse.HasPayeScheme = false;
 
-        [Test]
-        [DomainAutoData]
-        public async Task Then_HasPaye_False(
-            string userId,
-            GetUserByRefResponse userByRefResponse,
-            GetUserAccountsQueryResponse queryResponse,
-            [Frozen] Mock<IMediator> mediatorMock,
-            [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
-            queryResponse.Accounts.AccountList.Clear();
-            SetControllerContextUserIdClaim(userId, controller);
-            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
-            mediatorMock
-                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(userByRefResponse);
-            
-            // Act
-            var result = await controller.CreateAccountTaskList(null) as ViewResult;
-            var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+        encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
-            // Assert
-            Assert.That(model, Is.Not.Null);
-            model.Data.HasPayeScheme.Should().BeFalse();
-            model.Data.CompletedSections.Should().Be(1);
-        }
+        urlHelperMock.Setup(m => m.EmployerProfileEditUserDetails(It.IsAny<string>())).Returns(editUserDetailsUri.AbsoluteUri);
 
-        [Test]
-        [DomainAutoData]
-        public async Task Then_CannotAddAnotherPaye(
-            string userId,
-            GetUserByRefResponse userByRefResponse,
-            GetUserAccountsQueryResponse queryResponse,
-            [Frozen] Mock<IMediator> mediatorMock,
-            [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
-            queryResponse.Accounts.AccountList.Clear();
-            SetControllerContextUserIdClaim(userId, controller);
-            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
-            mediatorMock
-                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(userByRefResponse);
-            
-            // Act
-            var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
-            var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+        mediatorMock
+            .Setup(m => m.Send(It.Is<GetCreateAccountTaskListQuery>(x =>
+                    x.AccountId == accountId
+                    && x.HashedAccountId == hashedAccountId
+                    && x.UserRef == userId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(taskListResponse);
+        
+        SetControllerContextUserIdClaim(userId, controller);
+        
+        // Act
+        var result = await controller.CreateAccountTaskList(hashedAccountId) as ViewResult;
+        var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
 
-            // Assert
-            model.Data.AddPayeRouteName.Should().Be(RouteNames.EmployerAccountPayBillTriage);
-        }
+        // Assert
+        model.Data.EditUserDetailsUrl.Should().Be($"{editUserDetailsUri.AbsoluteUri}?firstName={taskListResponse.UserFirstName}&lastName={taskListResponse.UserLastName}");
+    }
 
-        [Test]
-        [DomainAutoData]
-        public async Task Then_SetEditUserDetailsUrl(
-            string userId,
-            GetUserByRefResponse userByRefResponse,
-            Uri editUserDetailsUri,
-            GetUserAccountsQueryResponse queryResponse,
-            [Frozen] Mock<IUrlActionHelper> urlHelperMock,
-            [Frozen] Mock<IMediator> mediatorMock,
-            [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
-            queryResponse.Accounts.AccountList.Clear();
-            SetControllerContextUserIdClaim(userId, controller);
-            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
-            urlHelperMock.Setup(m => m.EmployerProfileEditUserDetails(It.IsAny<string>())).Returns(editUserDetailsUri.AbsoluteUri);
-            mediatorMock
-                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(userByRefResponse);
-            
-            // Act
-            var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
-            var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+    [Test]
+    [DomainAutoData]
+    public async Task Then_SaveProgressRoute_Without_AccountContext(
+        string userId,
+        GetUserByRefResponse userByRefResponse,
+        GetUserAccountsQueryResponse queryResponse,
+        [Frozen] Mock<IMediator> mediatorMock,
+        Mock<IEncodingService> encodingServiceMock,
+        [NoAutoProperties] EmployerAccountController controller)
+    {
+        // Arrange
+        queryResponse.Accounts.AccountList.Clear();
+        SetControllerContextUserIdClaim(userId, controller);
+        mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
+        mediatorMock
+            .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userByRefResponse);
 
-            // Assert
-            model.Data.EditUserDetailsUrl.Should().Be($"{editUserDetailsUri.AbsoluteUri}?firstName={userByRefResponse.User.FirstName}&lastName={userByRefResponse.User.LastName}");
-        }
+        // Act
+        var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
+        var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
 
-        [Test]
-        [DomainAutoData]
-        public async Task Then_SaveProgressRoute_Without_AccountContext(
-            string userId,
-            GetUserByRefResponse userByRefResponse,
-            GetUserAccountsQueryResponse queryResponse,
-            [Frozen] Mock<IMediator> mediatorMock,
-            [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
-            queryResponse.Accounts.AccountList.Clear();
-            SetControllerContextUserIdClaim(userId, controller);
-            mediatorMock.Setup(m => m.Send(It.Is<GetUserAccountsQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>())).ReturnsAsync(queryResponse);
-            mediatorMock
-                .Setup(m => m.Send(It.Is<GetUserByRefQuery>(q => q.UserRef == userId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(userByRefResponse);
-            
-            // Act
-            var result = await controller.CreateAccountTaskList(string.Empty) as ViewResult;
-            var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
+        // Assert
+        model.Data.SaveProgressRouteName.Should().Be(RouteNames.NewAccountSaveProgress);
+    }
 
-            // Assert
-            model.Data.SaveProgressRouteName.Should().Be(RouteNames.NewAccountSaveProgress);
-        }
-
-        private static void SetControllerContextUserIdClaim(string userId, EmployerAccountController controller)
-        {
-            var claims = new List<Claim> { new Claim(ControllerConstants.UserRefClaimKeyName, userId) };
-            var claimsIdentity = new ClaimsIdentity(claims);
-            var user = new ClaimsPrincipal(claimsIdentity);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
-        }
+    private static void SetControllerContextUserIdClaim(string userId, EmployerAccountController controller)
+    {
+        var claims = new List<Claim> { new Claim(ControllerConstants.UserRefClaimKeyName, userId) };
+        var claimsIdentity = new ClaimsIdentity(claims);
+        var user = new ClaimsPrincipal(claimsIdentity);
+        controller.ControllerContext.HttpContext = new DefaultHttpContext { User = user };
     }
 }

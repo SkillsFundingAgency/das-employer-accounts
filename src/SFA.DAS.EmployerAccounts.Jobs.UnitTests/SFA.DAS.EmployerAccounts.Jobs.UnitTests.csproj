@@ -17,7 +17,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
     <PackageReference Include="SFA.DAS.CosmosDb.Testing" Version="1.0.15" />
     <PackageReference Include="SFA.DAS.Testing" Version="3.0.22" />
   </ItemGroup>

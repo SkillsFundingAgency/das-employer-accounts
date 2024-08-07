@@ -13,6 +13,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Types
         public string OwnerEmail { get; set; }
         public ResourceList LegalEntities { get; set; }
         public ResourceList PayeSchemes { get; set; }
+        public bool? NameConfirmed { get; set; }
 
         [Obsolete]
         public string DasAccountId => HashedAccountId;
@@ -20,5 +21,6 @@ namespace SFA.DAS.EmployerAccounts.Api.Types
         public AccountAgreementType AccountAgreementType { get; set; }	
         public string ApprenticeshipEmployerType { get; set; }
         public ApprenticeshipEmployerType EmployerType { get; set; }
+        public bool? AddTrainingProviderAcknowledged { get; set; }
     }
 }

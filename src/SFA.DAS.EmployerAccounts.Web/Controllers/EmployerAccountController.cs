@@ -11,6 +11,7 @@ using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerAccounts.Web.Validation;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 
@@ -61,7 +62,7 @@ public class EmployerAccountController : BaseController
     {
         var userIdClaim = HttpContext.User.Claims.First(x => x.Type.Equals(ControllerConstants.UserRefClaimKeyName));
         var accountTaskListViewModelResponse = await _employerAccountOrchestrator.GetCreateAccountTaskList(hashedAccountId, userIdClaim.Value);
-
+        
         if (accountTaskListViewModelResponse.Status == HttpStatusCode.OK
             && accountTaskListViewModelResponse.Data.TaskListComplete)
         {

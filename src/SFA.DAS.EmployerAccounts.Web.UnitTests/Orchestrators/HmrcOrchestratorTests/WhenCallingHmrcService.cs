@@ -29,9 +29,7 @@ public class WhenCallingHmrcService
             Hmrc = new HmrcConfiguration()
         };
 
-        _employerAccountOrchestrator = new EmployerAccountOrchestrator(
-            _employerAccountService.Object,
-            _mediator.Object, 
+        _employerAccountOrchestrator = new EmployerAccountOrchestrator(_mediator.Object, 
             _logger.Object, 
             _cookieService.Object, 
             _configuration, 
