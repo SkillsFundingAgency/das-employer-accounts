@@ -1,4 +1,5 @@
-﻿@model OrchestratorResponse<EmployerAgreementViewModel>
+﻿@using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
+@model OrchestratorResponse<EmployerAgreementViewModel>
 
 @{
     ViewBag.PageID = "agreement-about";
@@ -7,6 +8,8 @@
     ViewBag.GaData.Vpv = "/accounts/agreements/about-your-agreement/agreement-about";
     ViewBag.ShowNav = false;
     ViewBag.ZenDeskLabel = "eas-about-your-agreement";
+
+    var isPending = Model.Data.Status == EmployerAgreementStatus.Pending;
 }
 
 <div class="govuk-grid-row header-index">
@@ -14,15 +17,44 @@
         <span class="govuk-caption-xl">@Model.Data.EmployerAgreement.LegalEntityName</span>
         <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
 
-        <p class="govuk-body">This agreement is a legal contract between <span class="govuk-!-font-weight-bold">@Model.Data.EmployerAgreement.LegalEntityName</span> and The Secretary of State acting through the Department for Education (<abbr>DfE</abbr>) and/or its executive agency, the Education and Skills Funding Agency. It allows you to pay training providers for apprenticeship and transfer funds to other employers.</p>
-        <p class="govuk-body">You need to ensure you have the authority from your organisation before you accept this agreement.</p>
-
+        @if (isPending)
+        {
+            <p class="govuk-body">This agreement is a legal contract between <span class="govuk-!-font-weight-bold">@Model.Data.EmployerAgreement.LegalEntityName</span> and The Secretary of State acting through the Department for Education (<abbr>DfE</abbr>) and/or its executive agency, the Education and Skills Funding Agency. It allows you to pay training providers for apprenticeship and transfer funds to other employers.</p>
+            <p class="govuk-body">You need to ensure you have the authority from your organisation before you accept this agreement.</p>
+        }
+        else
+        {
+            <p class="govuk-body">You have already accepted your employer agreement.</p>
+            <p class="govuk-body">You can view and download the agreement in 'Your organisations and agreements' on the homepage once your account is set up.</p>
+        }
+      
         <form method="get"
               asp-controller="@ControllerConstants.EmployerAgreementControllerName"
               asp-action="@ControllerConstants.SignAgreementActionName"
               asp-route-hashedAccountId="@ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]"
               asp-route-hashedAgreementId="@ViewContext.RouteData.Values[RouteValueKeys.HashedAgreementId]">
-            <input class="govuk-button" type="submit" value="Continue" />
+
+             <div class="govuk-button-group">       
+                @if (isPending)
+                {
+                    <input class="govuk-button" type="submit" value="Continue" />
+                }
+                
+                @if (Model.Data.IsFromTasklist)
+                {
+                    <a asp-route="@RouteNames.ContinueNewEmployerAccountTaskList" asp-route-hashedAccountId="@ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]" class="govuk-link">@(isPending ? "Cancel" : "Close and return to previous page")</a>
+                }
+                else
+                {
+                    <a asp-route="@RouteNames.OrganisationAgreements" asp-route-hashedAccountId="@ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]"
+                       asp-route-accountLegalEntityHashedId="@Model.Data.EmployerAgreement.AccountLegalEntityPublicHashedId" class="govuk-link">@(isPending ? "Cancel" : "Close and return to previous page")</a>
+                }
+            </div>
+
         </form>
     </div>
 </div>
+
+@section breadcrumb {
+    <div class="das-js-back-link"></div>
+}

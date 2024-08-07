@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using SFA.DAS.EmployerAccounts.Mappings;
 using SFA.DAS.EmployerAccounts.Web.Mappings;
 using AgreementMappings = SFA.DAS.EmployerAccounts.Web.Mappings.AgreementMappings;
 using HealthCheckMappings = SFA.DAS.EmployerAccounts.Web.Mappings.HealthCheckMappings;
@@ -21,7 +20,7 @@ public class WhenAutoMapping
             c.AddProfile<OrganisationMappings>();
             c.AddProfile<VacancyMappings>();
         });
-        
+
         config.AssertConfigurationIsValid();
     }
 }

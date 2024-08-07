@@ -33,6 +33,7 @@
         public const string AgreementView = "agreement-view";
         public const string ProcessOrganisationReview = "process-organisation-review";
         public const string OrganisationPostUpdateSelection = "organisation-post-update-selection";
+        public const string OrganisationAgreements = "organisation-agreements";        
         
         public const string EmployerAccountPaye = "paye-index";
         public const string PayeDetails = "paye-details";

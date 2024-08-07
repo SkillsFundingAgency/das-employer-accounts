@@ -1,15 +1,12 @@
 ﻿using System.Security.Claims;
-using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using SFA.DAS.Common.Domain.Types;
-using SFA.DAS.EmployerAccounts.Commands.AcknowledgeEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers;
@@ -84,7 +81,7 @@ public class EmployerAgreementControllerTests
 
         //Assert
         ViewResult viewResult = response as ViewResult;
-        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.AccessDeniedViewName));
+        viewResult.ViewName.Should().Be(ControllerConstants.AccessDeniedViewName);
     }
 
     [Test]
@@ -108,7 +105,7 @@ public class EmployerAgreementControllerTests
 
         //Assert
         ViewResult viewResult = response as ViewResult;
-        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.ConfirmRemoveOrganisationActionName));
+        viewResult.ViewName.Should().Be(ControllerConstants.ConfirmRemoveOrganisationActionName);
     }
 
     [Test]
@@ -132,7 +129,7 @@ public class EmployerAgreementControllerTests
 
         //Assert
         ViewResult viewResult = response as ViewResult;
-        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.CannotRemoveOrganisationViewName));
+        viewResult.ViewName.Should().Be(ControllerConstants.CannotRemoveOrganisationViewName);
     }
 
     [Test]
@@ -181,9 +178,9 @@ public class EmployerAgreementControllerTests
 
         //Assert
         var result = response as RedirectToActionResult;
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.ActionName, Is.EqualTo("AboutYourAgreement"));
-        Assert.That(result.RouteValues["agreementId"], Is.EqualTo(HashedAgreementId));
+        result.Should().NotBeNull();
+        result.ActionName.Should().Be("AboutYourAgreement");
+        result.RouteValues["agreementId"].Should().Be(HashedAgreementId);
     }
 
     [Test, MoqAutoData]
@@ -209,7 +206,7 @@ public class EmployerAgreementControllerTests
     public async Task AboutYourAgreement_WhenIViewAboutYourAgreementAsLevy_ThenShouldShowTheAboutYourAgreementView()
     {
         // Arrange
-        _orchestratorMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _orchestratorMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
             .ReturnsAsync(new OrchestratorResponse<EmployerAgreementViewModel>
             {
                 Data = new EmployerAgreementViewModel
@@ -225,9 +222,8 @@ public class EmployerAgreementControllerTests
         var actualResult = await _controller.AboutYourAgreement(HashedAccountId, HashedAgreementId);
 
         // Assert
-        Assert.That(actualResult, Is.Not.Null);
+        actualResult.Model.Should().NotBeNull();
         actualResult.Model.Should().BeOfType<OrchestratorResponse<EmployerAgreementViewModel>>();
-        // Assert.That(actualResult.Model, Is.InstanceOf<OrchestratorResponse<EmployerAgreementViewModel>>());
     }
 
     [Test, MoqAutoData]
@@ -250,9 +246,9 @@ public class EmployerAgreementControllerTests
         var model = viewResult.Model as SignEmployerAgreementViewModel;
         var modelState = _controller.ModelState;
 
-        Assert.That(viewResult.ViewName, Is.EqualTo(ControllerConstants.SignAgreementViewName));
-        Assert.That(viewModel, Is.EqualTo(model));
-        Assert.That(modelState[nameof(model.Choice)].Errors.Count == 1, Is.True);
+        viewResult.ViewName.Should().Be(ControllerConstants.SignAgreementViewName);
+        viewModel.Should().BeEquivalentTo(model);
+        modelState[nameof(model.Choice)].Errors.Count.Should().Be(1);
     }
 
     [Test]
@@ -260,7 +256,7 @@ public class EmployerAgreementControllerTests
     {
         // Arrange
         _orchestratorMock
-            .Setup(x => x.GetById(HashedAgreementId, HashedAccountId, UserId))
+            .Setup(x => x.GetById(HashedAgreementId, HashedAccountId, UserId, true))
             .ReturnsAsync(new OrchestratorResponse<EmployerAgreementViewModel>
             {
                 Data = new EmployerAgreementViewModel
@@ -302,7 +298,7 @@ public class EmployerAgreementControllerTests
         actualResult.Should().NotBeNull();
         actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
-    
+
     [Test, MoqAutoData]
     public async Task SignAgreement_Later_ShouldAcknowledgeAgreement(SignEmployerAgreementViewModel viewModel)
     {
@@ -313,10 +309,10 @@ public class EmployerAgreementControllerTests
             {
                 Data = viewModel
             });
-        
+
         // Act
         var actualResult = await _controller.Sign(HashedAccountId, HashedAgreementId, 1) as RedirectToRouteResult;
-        
+
         // Assert
         _orchestratorMock
             .Verify(m => m.AcknowledgeAgreement(

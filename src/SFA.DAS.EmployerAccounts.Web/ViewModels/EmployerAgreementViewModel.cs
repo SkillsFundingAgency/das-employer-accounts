@@ -16,4 +16,7 @@ public class EmployerAgreementViewModel
     public bool NoChoiceSelected { get; set; }
 
     public int LegalEntitiesCount { get; set; }
+
+    public EmployerAgreementStatus Status { get; set; }
+    public bool IsFromTasklist { get; set; }
 }
