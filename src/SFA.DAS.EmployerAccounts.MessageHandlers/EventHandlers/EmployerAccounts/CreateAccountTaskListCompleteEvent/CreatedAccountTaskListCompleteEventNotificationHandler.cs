@@ -25,7 +25,7 @@ public class
         _userRepository = userRepository;
         _mediator = mediator;
         _configuration = configuration;
-        _employerAccountCreatedTemplateId = "EmployerAccountCreated_dev"; // config["ResourceEnvironmentName"].Equals("prd", StringComparison.CurrentCultureIgnoreCase) ? "EmployerAccountCreated" : "EmployerAccountCreated_dev";
+        _employerAccountCreatedTemplateId = config["EnvironmentName"].Equals("PROD", StringComparison.CurrentCultureIgnoreCase) ? "EmployerAccountCreated" : "EmployerAccountCreated_dev";
     }
 
     public async Task Handle(CreatedAccountTaskListCompleteEvent message, IMessageHandlerContext context)
