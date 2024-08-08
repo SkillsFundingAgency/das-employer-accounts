@@ -25,7 +25,7 @@ public class
         _userRepository = userRepository;
         _mediator = mediator;
         _configuration = configuration;
-        _employerAccountCreatedTemplateId = config["EnvironmentName"].Equals("PROD", StringComparison.CurrentCultureIgnoreCase) ? "EmployerAccountCreated" : "EmployerAccountCreated_dev";
+        _employerAccountCreatedTemplateId = "EmployerAccountCreated"; // config["EnvironmentName"].Equals("PROD", StringComparison.CurrentCultureIgnoreCase) ? "EmployerAccountCreated" : "EmployerAccountCreated_dev";
     }
 
     public async Task Handle(CreatedAccountTaskListCompleteEvent message, IMessageHandlerContext context)
@@ -51,6 +51,10 @@ public class
                 }
             }
         });
+
+        _logger.LogInformation($"user_first_name: {existingUser.FirstName}");
+        _logger.LogInformation($"employer_name: {message.Name}");
+        _logger.LogInformation($"unsubscribe_url: {_configuration.EmployerAccountsBaseUrl}");
 
         _logger.LogInformation($"Completed {nameof(CreatedAccountTaskListCompleteEventNotificationHandler)} handler.");
     }
