@@ -78,6 +78,7 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests.EventHandlers.Emplo
 
             // Assert
             resultCommand.Tokens.Should().Contain(new KeyValuePair<string, string>("user_first_name", user.FirstName));
+            resultCommand.Tokens.Should().Contain(new KeyValuePair<string, string>("user_name", user.FullName));
             resultCommand.Tokens.Should().Contain(new KeyValuePair<string, string>("employer_name", createdAccountEvent.Name));
             resultCommand.Tokens.Should().Contain(new KeyValuePair<string, string>("unsubscribe_url", accountBase + notificationPath));
         }
