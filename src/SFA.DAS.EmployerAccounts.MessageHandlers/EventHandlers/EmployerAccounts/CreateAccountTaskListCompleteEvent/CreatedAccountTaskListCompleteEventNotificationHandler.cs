@@ -40,6 +40,7 @@ public class
             Tokens = new Dictionary<string, string>
             {
                 { "user_first_name", existingUser.FirstName },
+                { "user_name", existingUser.FullName },
                 { "employer_name", message.Name },
                 {
                     "unsubscribe_url",
