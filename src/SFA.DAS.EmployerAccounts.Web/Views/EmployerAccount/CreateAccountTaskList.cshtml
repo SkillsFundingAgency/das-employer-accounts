@@ -122,6 +122,8 @@
                     </li>
                 </ul>
             </li>
+            @if (1 == 2)
+            {
             <li>
                 <h2 class="das-task-list__section">
                     <span class="das-task-list__section-number">5. </span> Add a training provider
@@ -172,6 +174,7 @@
                     </li>
                 </ul>
             </li>
+            }
         </ol>
         @*<div class="app-save-return">*@
         <a asp-route="@Model.Data.SaveProgressRouteName"

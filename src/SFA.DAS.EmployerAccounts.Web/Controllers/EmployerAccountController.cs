@@ -477,7 +477,10 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/create/agreement/success", Name = RouteNames.TaskListSignedAgreementSuccess)]
     public async Task<IActionResult> TaskListSignedAgreementSuccess(string hashedAccountId)
     {
-        return View();
+        var externalUserId = GetUserId();
+        await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
+        return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
+        //return View();
     }
 
     [HttpGet]
@@ -685,13 +688,13 @@ public class EmployerAccountController : BaseController
 
     private async Task<IActionResult> HandleSetEmployerAccountNameAsync(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
-        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);        
+        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
         var response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
         if (response.Status == HttpStatusCode.OK)
         {
             return RedirectToRoute(
-                vm.NameConfirmed? RouteNames.AccountNameSuccess : RouteNames.AccountNameConfirmSuccess, 
+                vm.NameConfirmed ? RouteNames.AccountNameSuccess : RouteNames.AccountNameConfirmSuccess,
                 new { hashedAccountId });
         }
 
