@@ -5,13 +5,14 @@
     ViewBag.Title = "Create your employer account";
     ViewBag.ShowNav = false;
     ViewBag.GaData.Vpv = "/create-account-task-list";
+    bool showAddTrainingProvider = false;
 }
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
         <h2 class="govuk-heading-s govuk-!-margin-bottom-2">Account creation incomplete</h2>
-        <p class="govuk-body">You have completed @Model.Data.CompletedSections of 5 sections.</p>
+        <p class="govuk-body">You have completed @Model.Data.CompletedSections of 4 sections.</p>
         <div class="govuk-inset-text govuk-!-margin-bottom-7">
             You do not have to complete all sections at once. Those labelled 'completed' have been saved so you can continue your employer account creation later.
         </div>
@@ -122,7 +123,7 @@
                     </li>
                 </ul>
             </li>
-            @if (1 == 2)
+            @if (showAddTrainingProvider) /// Deliberately hiding step 5 as the
             {
             <li>
                 <h2 class="das-task-list__section">

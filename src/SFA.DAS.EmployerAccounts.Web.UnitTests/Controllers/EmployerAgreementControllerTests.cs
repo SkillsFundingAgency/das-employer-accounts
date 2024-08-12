@@ -1,15 +1,12 @@
 ﻿using System.Security.Claims;
-using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using SFA.DAS.Common.Domain.Types;
-using SFA.DAS.EmployerAccounts.Commands.AcknowledgeEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers;
@@ -302,7 +299,7 @@ public class EmployerAgreementControllerTests
         actualResult.Should().NotBeNull();
         actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
-    
+
     [Test, MoqAutoData]
     public async Task SignAgreement_Later_ShouldAcknowledgeAgreement(SignEmployerAgreementViewModel viewModel)
     {
@@ -313,15 +310,15 @@ public class EmployerAgreementControllerTests
             {
                 Data = viewModel
             });
-        
+
         // Act
         var actualResult = await _controller.Sign(HashedAccountId, HashedAgreementId, 1) as RedirectToRouteResult;
-        
+
         // Assert
         _orchestratorMock
             .Verify(m => m.AcknowledgeAgreement(
                 HashedAgreementId,
                 viewModel.HasAcknowledgedAgreement));
-        actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
+        actualResult.RouteName.Should().Be(RouteNames.TaskListSignedAgreementSuccess);
     }
 }
