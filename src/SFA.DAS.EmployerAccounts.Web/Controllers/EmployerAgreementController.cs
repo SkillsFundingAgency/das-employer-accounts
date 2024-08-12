@@ -129,7 +129,11 @@ public class EmployerAgreementController : BaseController
         {
             _ = await _orchestrator.AcknowledgeAgreement(hashedAgreementId, hasPreviousAcknowledgement);
 
-            return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
+            /// this is temporary redirection to disable STEP 5 in the registration journey CSP-1630
+            return RedirectToRoute(RouteNames.TaskListSignedAgreementSuccess, new { hashedAccountId });
+
+            /// This line should be reinstated depending on the new permission journey
+            /// return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
         }
 
         var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow, legalEntityName, hasPreviousAcknowledgement);
@@ -155,7 +159,9 @@ public class EmployerAgreementController : BaseController
         return RedirectToAction(ControllerConstants.SignAgreementActionName,
             new GetEmployerAgreementRequest
             {
-                HashedAgreementId = hashedAgreementId, ExternalUserId = userInfo, HashedAccountId = hashedAccountId
+                HashedAgreementId = hashedAgreementId,
+                ExternalUserId = userInfo,
+                HashedAccountId = hashedAccountId
             });
     }
 
@@ -252,12 +258,12 @@ public class EmployerAgreementController : BaseController
                     new { hashedAccountId, hashedAgreementId });
             case ViewAgreementLater: return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
             default:
-            {
-                var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-                var agreement = await _orchestrator.GetById(hashedAgreementId, hashedAccountId, userInfo);
-                return View(new WhenDoYouWantToViewViewModel
+                {
+                    var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
+                    var agreement = await _orchestrator.GetById(hashedAgreementId, hashedAccountId, userInfo);
+                    return View(new WhenDoYouWantToViewViewModel
                     { EmployerAgreement = agreement.Data.EmployerAgreement, InError = true });
-            }
+                }
         }
     }
 
