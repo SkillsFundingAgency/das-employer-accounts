@@ -1,13 +1,17 @@
 ﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
+using SFA.DAS.EmployerAccounts.Queries.GetPayeAccountByRef;
 
 namespace SFA.DAS.EmployerAccounts.Data;
 
+[ExcludeFromCodeCoverage]
 public class PayeRepository : IPayeRepository
 {
     private readonly Lazy<EmployerAccountsDbContext> _db;
@@ -71,19 +75,37 @@ public class PayeRepository : IPayeRepository
         var accountHistories = _db.Value.AccountHistory;
         var payees = _db.Value.Payees;
         var query = from payee in payees
-            join accountHistory in accountHistories
-                on payee.EmpRef equals accountHistory.PayeRef
-            where accountHistory.AccountId == accountId && payee.EmpRef == reference
-            orderby accountHistory.Id descending 
-            select new PayeSchemeView
-            {
-                Ref = payee.EmpRef,
-                Name = payee.RefName,
-                AddedDate = accountHistory.AddedDate,
-                RemovedDate = accountHistory.RemovedDate
-            };
+                    join accountHistory in accountHistories
+                        on payee.EmpRef equals accountHistory.PayeRef
+                    where accountHistory.AccountId == accountId && payee.EmpRef == reference
+                    orderby accountHistory.Id descending
+                    select new PayeSchemeView
+                    {
+                        Ref = payee.EmpRef,
+                        Name = payee.RefName,
+                        AddedDate = accountHistory.AddedDate,
+                        RemovedDate = accountHistory.RemovedDate
+                    };
 
         var result = await query.FirstOrDefaultAsync();
+
+        return result;
+    }
+
+    public async Task<GetPayeAccountByRefResponse> GetPayeAccountByRef(string reference, CancellationToken cancellationToken)
+    {
+        var accountHistories = _db.Value.AccountHistory;
+
+        var query = from accountHistory in accountHistories
+                    where accountHistory.PayeRef == reference
+                    select new GetPayeAccountByRefResponse
+                    {
+                        AccountId = accountHistory.AccountId,
+                        AddedDate = accountHistory.AddedDate,
+                        RemovedDate = accountHistory.RemovedDate
+                    };
+
+        var result = await query.FirstOrDefaultAsync(cancellationToken);
 
         return result;
     }
