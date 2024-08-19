@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using SFA.DAS.EmployerAccounts.Audit.Types;
-using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Types.Models;
@@ -12,17 +11,17 @@ namespace SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
 public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemberRoleCommand>
 {
     private readonly IMembershipRepository _membershipRepository;
-    private readonly IMediator _mediator;
     private readonly IEventPublisher _eventPublisher;
     private readonly IEncodingService _encodingService;
     private readonly ChangeTeamMemberRoleCommandValidator _validator;
+    private readonly IAuditService _auditService;
 
-    public ChangeTeamMemberRoleCommandHandler(IMembershipRepository membershipRepository, IMediator mediator, IEventPublisher eventPublisher, IEncodingService encodingService)
+    public ChangeTeamMemberRoleCommandHandler(IMembershipRepository membershipRepository, IEventPublisher eventPublisher, IEncodingService encodingService, IAuditService auditService)
     {
-        _membershipRepository = membershipRepository ?? throw new ArgumentNullException(nameof(membershipRepository));
-        _mediator = mediator;
+        _membershipRepository = membershipRepository;
         _eventPublisher = eventPublisher;
         _encodingService = encodingService;
+        _auditService = auditService;
         _validator = new ChangeTeamMemberRoleCommandValidator();
     }
 
@@ -65,16 +64,20 @@ public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemb
 
         await _eventPublisher.Publish(new AccountUserRolesUpdatedEvent(caller.AccountId, existing.UserRef, (UserRole)message.Role, DateTime.UtcNow));
 
-        await _mediator.Send(new CreateAuditCommand
+        await AddAuditEntry(message, cancellationToken, existing, caller);
+    }
+
+    private async Task AddAuditEntry(ChangeTeamMemberRoleCommand message, CancellationToken cancellationToken, TeamMember existing, MembershipView caller)
+    {
+        var auditMessage = new AuditMessage
         {
-            EasAuditMessage = new AuditMessage
-            {
-                Category = "UPDATED",
-                Description = $"Member {existing.Email} on account {caller.AccountId} role has changed to {message.Role}",
-                ChangedProperties = [new() { PropertyName = "Role", NewValue = message.Role.ToString() }],
-                RelatedEntities = [new() { Id = caller.AccountId.ToString(), Type = "Account" }],
-                AffectedEntity = new AuditEntity { Type = "Membership", Id = existing.Id.ToString() }
-            }
-        }, cancellationToken);
+            Category = "UPDATED",
+            Description = $"Member {existing.Email} on account {caller.AccountId} role has changed to {message.Role}",
+            ChangedProperties = [new() { PropertyName = "Role", NewValue = message.Role.ToString() }],
+            RelatedEntities = [new() { Id = caller.AccountId.ToString(), Type = "Account" }],
+            AffectedEntity = new AuditEntity { Type = "Membership", Id = existing.Id.ToString() }
+        };
+        
+        await _auditService.SendAuditMessage(auditMessage);
     }
 }
