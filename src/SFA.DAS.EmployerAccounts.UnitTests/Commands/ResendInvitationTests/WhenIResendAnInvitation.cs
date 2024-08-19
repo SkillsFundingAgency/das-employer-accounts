@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -89,23 +90,23 @@ public class WhenIResendAnInvitation
         var command = new ResendInvitationCommand();
 
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
+        var action = () => _handler.Handle(command, CancellationToken.None);
 
         //Assert
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(3));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "HashedInvitationId"), Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "HashedId"), Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "ExternalUserId"), Is.EqualTo(1));
+        action.Should().ThrowAsync<InvalidRequestException>()
+            .WithMessage("No HashedInvitationId supplied")
+            .WithMessage("No HashedId supplied")
+            .WithMessage("No ExternalUserId supplied");
     }
 
     [Test]
     public void CallerIsNotAnAccountOwner()
     {
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () => await _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
+        action.Should().ThrowAsync<InvalidRequestException>();
     }
 
     [Test]
@@ -115,11 +116,11 @@ public class WhenIResendAnInvitation
         _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.HashedInvitationId)).ReturnsAsync(() => null);
 
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () => await _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
 
-        //Act
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "Invitation"), Is.EqualTo(1));
+        //Assert
+        action.Should().ThrowAsync<InvalidRequestException>()
+            .WithMessage("Invitation not found");
     }
 
     [Test]
@@ -135,11 +136,11 @@ public class WhenIResendAnInvitation
         _invitationRepository.Setup(x => x.Get(ExpectedAccountId, _command.HashedInvitationId)).ReturnsAsync(invitation);
 
         //Act
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () => await _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "Invitation"), Is.EqualTo(1));
+        action.Should().ThrowAsync<InvalidRequestException>()
+            .WithMessage("Accepted invitations cannot be resent");
     }
 
     [Test]
@@ -176,6 +177,7 @@ public class WhenIResendAnInvitation
             AccountId = 1,
             ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1)
         };
+        
         _invitationRepository.Setup(x => x.Get(ExpectedAccountId, InvitationId)).ReturnsAsync(invitation);
 
         //Act
