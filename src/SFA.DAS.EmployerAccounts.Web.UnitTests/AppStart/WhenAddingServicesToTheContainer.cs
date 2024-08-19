@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus;
 using SFA.DAS.EmployerAccounts.Commands.AcceptInvitation;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
@@ -171,6 +172,7 @@ public class WhenAddingServicesToTheContainer
         startup.ConfigureServices(serviceCollection);
 
         serviceCollection.AddSingleton(_ => mockHostingEnvironment.Object);
+        serviceCollection.AddSingleton(Mock.Of<IMessageSession>());
         var provider = serviceCollection.BuildServiceProvider();
 
         var type = provider.GetService(toResolve);

@@ -53,7 +53,7 @@ class WhenIChangeATeamMemberRole
         Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(result.FlashMessage, Is.Not.Null);
         Assert.That(result.FlashMessage.Headline, Is.EqualTo("Team member updated"));
-        Assert.That(result.FlashMessage.Message, Is.EqualTo($"{email} can now {RoleStrings.GetRoleDescriptionToLower(role)}"));
+        Assert.That(result.FlashMessage.Message, Is.EqualTo($"User can now {RoleStrings.GetRoleDescriptionToLower(role)}"));
     }
 
     [Test]

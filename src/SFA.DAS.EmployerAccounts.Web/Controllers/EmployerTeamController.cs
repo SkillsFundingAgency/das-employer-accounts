@@ -183,7 +183,9 @@ public class EmployerTeamController : BaseController
     public async Task<IActionResult> Cancel(string hashedInvitationId, string email, string hashedAccountId, int cancel)
     {
         if (cancel != 1)
+        {
             return RedirectToAction(ControllerConstants.ViewTeamViewName, new { HashedAccountId = hashedAccountId });
+        }
 
         var response = await _employerTeamOrchestrator.Cancel(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 

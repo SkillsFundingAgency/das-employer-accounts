@@ -570,7 +570,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             IsUser = true,
         });
 
-        response.Data = MapFrom(queryResponse.TeamMember);
+        response.Data = InvitationViewModel.MapFrom(queryResponse.TeamMember);
 
         return response;
     }
@@ -581,23 +581,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         var userResponse = await Mediator.Send(new GetTeamMemberQuery { AccountId = accountId, TeamMemberId = userId });
         return userResponse.User.ShowWizard && userResponse.User.Role == Role.Owner;
     }
-
-    private static InvitationViewModel MapFrom(TeamMember teamMember)
-    {
-        return new InvitationViewModel
-        {
-            IsUser = teamMember.IsUser,
-            Id = teamMember.Id,
-            AccountId = teamMember.AccountId,
-            Email = teamMember.Email,
-            Name = teamMember.Name,
-            Role = teamMember.Role,
-            Status = teamMember.Status,
-            ExpiryDate = teamMember.ExpiryDate,
-            HashedAccountId = teamMember.HashedAccountId
-        };
-    }
-
+    
     public virtual async Task<OrchestratorResponse<AccountSummaryViewModel>> GetAccountSummary(string hashedAccountId, string externalUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
@@ -673,7 +657,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
     private delegate bool EvaluateCallToActionRuleDelegate(PanelViewModel<AccountDashboardViewModel> viewModel);
 
-    private bool EvaluateDraftVacancyCallToActionRule(PanelViewModel<AccountDashboardViewModel> viewModel)
+    private static bool EvaluateDraftVacancyCallToActionRule(PanelViewModel<AccountDashboardViewModel> viewModel)
     {
         if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount != 1 ||
             viewModel.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
