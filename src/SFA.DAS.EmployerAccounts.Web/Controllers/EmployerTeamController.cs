@@ -248,9 +248,15 @@ public class EmployerTeamController : BaseController
     [HttpGet]
     [Route("{email}/role/change", Name = RouteNames.EmployerTeamGetChangeRole)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> ChangeRole(string hashedAccountId, string email)
+    public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId)
     {
-        var teamMember = await _employerTeamOrchestrator.GetTeamMemberWhetherActiveOrNot(hashedAccountId, email, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var teamMember = await _employerTeamOrchestrator.GetTeamMember(
+            hashedAccountId,
+            hashedUserId,
+            isUser: true,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
+        );
+
 
         return View(teamMember);
     }
@@ -258,17 +264,22 @@ public class EmployerTeamController : BaseController
     [HttpPost]
     [Route("{email}/role/change", Name = RouteNames.EmployerTeamChangeRolePost)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> ChangeRole(string hashedAccountId, string email, Role role)
+    public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId, Role role)
     {
-        var response = await _employerTeamOrchestrator.ChangeRole(hashedAccountId, email, role, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var response = await _employerTeamOrchestrator.ChangeRole(hashedAccountId, hashedUserId, role, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         if (response.Status == HttpStatusCode.OK)
         {
             return View(ControllerConstants.ViewTeamViewName, response);
         }
 
-        var teamMemberResponse = await _employerTeamOrchestrator.GetTeamMemberWhetherActiveOrNot(hashedAccountId, email, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
-
+        var teamMemberResponse = await _employerTeamOrchestrator.GetTeamMember(
+            hashedAccountId,
+            hashedUserId,
+            isUser: true,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
+        );
+        
         //We have to override flash message as the change role view has different model to view team view
         teamMemberResponse.FlashMessage = response.FlashMessage;
         teamMemberResponse.Exception = response.Exception;
