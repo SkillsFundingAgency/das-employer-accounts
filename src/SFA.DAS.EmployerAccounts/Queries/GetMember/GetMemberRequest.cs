@@ -3,6 +3,7 @@
 public class GetMemberRequest : IRequest<GetMemberResponse>
 {
     public long AccountId { get; set; }
+    public string HashedUserId { get; set; }
     public string Email { get; set; }
 
     /// <summary>
@@ -11,4 +12,5 @@ public class GetMemberRequest : IRequest<GetMemberResponse>
     ///     - not accepted the invitation).
     /// </summary>
     public bool OnlyIfMemberIsActive { get; set; }
+    public bool IsUser { get; set; }
 }

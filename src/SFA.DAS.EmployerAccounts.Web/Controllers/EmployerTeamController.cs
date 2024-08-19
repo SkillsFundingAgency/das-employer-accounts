@@ -193,27 +193,31 @@ public class EmployerTeamController : BaseController
     [HttpPost]
     [Route("resend", Name = RouteNames.EmployerTeamResendInvite)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Resend(string hashedAccountId, string email, string name)
+    public async Task<IActionResult> Resend(string hashedAccountId, string hashedInvitationId, string name)
     {
-        var response = await _employerTeamOrchestrator.Resend(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName), name);
+        var response = await _employerTeamOrchestrator.Resend(
+            hashedInvitationId,
+            hashedAccountId,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+            name);
 
         return View(ControllerConstants.ViewTeamViewName, response);
     }
 
     [HttpGet]
-    [Route("{email}/remove", Name = RouteNames.RemoveTeamMember)]
+    [Route("{hashedUserId}/remove", Name = RouteNames.RemoveTeamMember)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Remove(string hashedAccountId, string email)
+    public async Task<IActionResult> Remove(string hashedAccountId, string hashedUserId)
     {
-        var response = await _employerTeamOrchestrator.Review(hashedAccountId, email);
+        var response = await _employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
 
         return View(response);
     }
 
     [HttpPost]
-    [Route("{email}/remove", Name = RouteNames.ConfirmRemoveTeamMember)]
+    [Route("{hashedUserId}/remove", Name = RouteNames.ConfirmRemoveTeamMember)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Remove(long userId, string hashedAccountId, string email, int remove)
+    public async Task<IActionResult> Remove(long userId, string hashedAccountId, string hashedUserId, int remove)
     {
         Exception exception;
         HttpStatusCode httpStatusCode;
@@ -221,7 +225,9 @@ public class EmployerTeamController : BaseController
         try
         {
             if (remove != 1)
+            {
                 return RedirectToAction(ControllerConstants.ViewTeamViewName, new { HashedAccountId = hashedAccountId });
+            }
 
             var response = await _employerTeamOrchestrator.Remove(userId, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
@@ -238,7 +244,7 @@ public class EmployerTeamController : BaseController
             exception = e;
         }
 
-        var errorResponse = await _employerTeamOrchestrator.Review(hashedAccountId, email);
+        var errorResponse = await _employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
         errorResponse.Status = httpStatusCode;
         errorResponse.Exception = exception;
 
@@ -246,7 +252,7 @@ public class EmployerTeamController : BaseController
     }
 
     [HttpGet]
-    [Route("{email}/role/change", Name = RouteNames.EmployerTeamGetChangeRole)]
+    [Route("{hashedUserId}/role/change", Name = RouteNames.EmployerTeamGetChangeRole)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
     public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId)
     {
@@ -262,7 +268,7 @@ public class EmployerTeamController : BaseController
     }
 
     [HttpPost]
-    [Route("{email}/role/change", Name = RouteNames.EmployerTeamChangeRolePost)]
+    [Route("{hashedUserId}/role/change", Name = RouteNames.EmployerTeamChangeRolePost)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
     public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId, Role role)
     {

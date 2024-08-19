@@ -7,6 +7,7 @@ public interface IInvitationRepository
     Task<List<InvitationView>> Get(string userId);
     Task<Invitation> Get(long id);
     Task<Invitation> Get(long accountId, string email);
+    Task<Invitation> Get(long accountId, long invitationId);
     Task<InvitationView> GetView(long id);
     Task<long> Create(Invitation invitation);
     Task ChangeStatus(Invitation invitation);

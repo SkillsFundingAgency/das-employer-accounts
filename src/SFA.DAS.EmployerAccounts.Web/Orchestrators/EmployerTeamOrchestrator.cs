@@ -515,7 +515,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return response;
     }
 
-    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Resend(string email, string hashedId, string externalUserId, string name)
+    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Resend(string hashedInvitationId, string hashedId, string externalUserId, string name)
     {
         var response = await GetTeamMembers(hashedId, externalUserId);
 
@@ -528,7 +528,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         {
             await _mediator.Send(new ResendInvitationCommand
             {
-                Email = email,
+                HashedInvitationId = hashedInvitationId,
                 HashedAccountId = hashedId,
                 FirstName = name,
                 ExternalUserId = externalUserId
@@ -540,8 +540,8 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             response.FlashMessage = new FlashMessageViewModel
             {
                 Severity = FlashMessageSeverityLevel.Success,
-                Headline = $"Invitation resent",
-                Message = $"You've resent an invitation to <strong>{email}</strong>"
+                Headline = "Invitation resent",
+                Message = "You've resent the invitation."
             };
         }
         catch (InvalidRequestException e)
@@ -558,7 +558,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return response;
     }
 
-    public async Task<OrchestratorResponse<InvitationViewModel>> Review(string hashedAccountId, string email)
+    public async Task<OrchestratorResponse<InvitationViewModel>> Review(string hashedAccountId, string hashedUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
         var response = new OrchestratorResponse<InvitationViewModel>();
@@ -566,7 +566,8 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         var queryResponse = await _mediator.Send(new GetMemberRequest
         {
             AccountId = accountId,
-            Email = email
+            HashedUserId = hashedUserId,
+            IsUser = true,
         });
 
         response.Data = MapFrom(queryResponse.TeamMember);
