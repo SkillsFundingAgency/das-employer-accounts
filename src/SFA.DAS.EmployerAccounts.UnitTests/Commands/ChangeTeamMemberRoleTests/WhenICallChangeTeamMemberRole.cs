@@ -18,7 +18,6 @@ using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ChangeTeamMemberRoleTests;
 
-//TODO - lots of CTRL C CTRL V here. Refactor!
 [TestFixture]
 public class WhenICallChangeTeamMemberRole
 {
@@ -84,11 +83,11 @@ public class WhenICallChangeTeamMemberRole
         };
 
         _membershipRepository.Setup(x => x.GetCaller(command.HashedAccountId, command.ExternalUserId)).ReturnsAsync(() => null);
+        
+        var action = () => _handler.Handle(command, CancellationToken.None);
 
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
-
-        exception.ErrorMessages.Count.Should().Be(1);
-        exception.ErrorMessages.Count(x => x.Key == "Membership").Should().Be(1);
+        action.Should().ThrowAsync<InvalidRequestException>()
+            .WithMessage("You are not a member of this Account");
     }
 
     [Test]
@@ -111,10 +110,10 @@ public class WhenICallChangeTeamMemberRole
 
         _membershipRepository.Setup(x => x.GetCaller(callerMembership.AccountId, command.ExternalUserId)).ReturnsAsync(callerMembership);
 
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
-
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "Membership"), Is.EqualTo(1));
+        var action = () => _handler.Handle(command, CancellationToken.None);
+        
+        action.Should().ThrowAsync<InvalidRequestException>()
+            .WithMessage("You must be an owner of this Account");
     }
 
     [Test]
@@ -137,11 +136,11 @@ public class WhenICallChangeTeamMemberRole
 
         _membershipRepository.Setup(x => x.GetCaller(callerMembership.AccountId, command.ExternalUserId)).ReturnsAsync(callerMembership);
         _membershipRepository.Setup(x => x.Get(callerMembership.AccountId, command.HashedUserId)).ReturnsAsync(() => null);
+        
+        var action = () => _handler.Handle(command, CancellationToken.None);
 
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
-
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "Membership"), Is.EqualTo(1));
+        action.Should().ThrowAsync<InvalidRequestException>()
+            .WithMessage("You are not a member of this Account");
     }
 
     [Test]
@@ -172,10 +171,10 @@ public class WhenICallChangeTeamMemberRole
         _membershipRepository.Setup(x => x.GetCaller(callerMembership.AccountId, command.ExternalUserId)).ReturnsAsync(callerMembership);
         _membershipRepository.Setup(x => x.Get(callerMembership.AccountId, command.HashedUserId)).ReturnsAsync(userMembership);
 
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(command, CancellationToken.None));
+        var action = () => _handler.Handle(command, CancellationToken.None);
 
-        Assert.That(exception.ErrorMessages.Count, Is.EqualTo(1));
-        Assert.That(exception.ErrorMessages.Count(x => x.Key == "Membership"), Is.EqualTo(1));
+        action.Should().ThrowAsync<InvalidRequestException>()
+            .WithMessage("You cannot change your own role");
     }
 
     [Test]
