@@ -86,12 +86,13 @@ public class EmployerAgreementController : BaseController
 
     [HttpGet]
     [Route("agreements/{hashedAgreementId}/about-your-agreement", Name = RouteNames.AboutYourAgreement)]
-    public async Task<ViewResult> AboutYourAgreement(string hashedAccountId, string hashedAgreementId)
+    public async Task<ViewResult> AboutYourAgreement(string hashedAccountId, string hashedAgreementId, [FromQuery] bool isFromTasklist = true)
     {
         var agreement = await _orchestrator.GetById(
             hashedAgreementId,
             hashedAccountId,
-            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+            isFromTasklist);
 
         var view = View(agreement);
         return view;
@@ -268,7 +269,7 @@ public class EmployerAgreementController : BaseController
     }
 
     [HttpGet]
-    [Route("organisations/{accountLegalEntityHashedId}/agreements")]
+    [Route("organisations/{accountLegalEntityHashedId}/agreements", Name = RouteNames.OrganisationAgreements)]
     public async Task<IActionResult> ViewAllAgreements(string hashedAccountId, string accountLegalEntityHashedId)
     {
         var model = await _orchestrator.GetOrganisationAgreements(accountLegalEntityHashedId);
