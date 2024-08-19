@@ -74,6 +74,7 @@ public class PayeRepository : IPayeRepository
             join accountHistory in accountHistories
                 on payee.EmpRef equals accountHistory.PayeRef
             where accountHistory.AccountId == accountId && payee.EmpRef == reference
+            orderby accountHistory.Id descending 
             select new PayeSchemeView
             {
                 Ref = payee.EmpRef,
