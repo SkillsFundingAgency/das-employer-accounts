@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using NServiceBus;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.SendNotification;
@@ -6,6 +7,7 @@ using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.Encoding;
+using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.ResendInvitation;
@@ -14,30 +16,28 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
 {
     private readonly IInvitationRepository _invitationRepository;
     private readonly IMembershipRepository _membershipRepository;
-    private readonly IMediator _mediator;
     private readonly EmployerAccountsConfiguration _employerApprenticeshipsServiceConfiguration;
     private readonly IUserAccountRepository _userRepository;
     private readonly ResendInvitationCommandValidator _validator;
     private readonly IEncodingService _encodingService;
+    private readonly IMessageSession _publisher;
+    private readonly IAuditService _auditService;
 
     public ResendInvitationCommandHandler(IInvitationRepository invitationRepository,
-        IMembershipRepository membershipRepository, 
-        IMediator mediator,
+        IMembershipRepository membershipRepository,
         EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
         IUserAccountRepository userRepository, 
-        IEncodingService encodingService)
+        IEncodingService encodingService,
+        IMessageSession publisher,
+        IAuditService auditService)
     {
-        ArgumentNullException.ThrowIfNull(invitationRepository);
-        ArgumentNullException.ThrowIfNull(membershipRepository);
-        ArgumentNullException.ThrowIfNull(mediator);
-        ArgumentNullException.ThrowIfNull(employerApprenticeshipsServiceConfiguration);
-        
         _invitationRepository = invitationRepository;
         _membershipRepository = membershipRepository;
-        _mediator = mediator;
         _employerApprenticeshipsServiceConfiguration = employerApprenticeshipsServiceConfiguration;
         _userRepository = userRepository;
         _encodingService = encodingService;
+        _publisher = publisher;
+        _auditService = auditService;
         _validator = new ResendInvitationCommandValidator();
     }
 
@@ -79,44 +79,47 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
 
         var existingUser = await _userRepository.Get(invitation.Email);
 
-        await AddAuditEntry(invitation, cancellationToken);
+        await AddAuditEntry(invitation);
 
-        await SendNotification(message, existingUser, owner, expiryDate, cancellationToken);
+        await SendNotification(message, existingUser, owner, expiryDate, invitation.Email);
     }
 
-    private async Task AddAuditEntry(Invitation invitation, CancellationToken cancellationToken)
+    private async Task AddAuditEntry(Invitation invitation)
     {
-        await _mediator.Send(new CreateAuditCommand
+        var auditMessage = new AuditMessage
         {
-            EasAuditMessage = new AuditMessage
-            {
-                Category = "INVITATION_RESENT",
-                Description = $"Invitation to {invitation.Email} resent in Account {invitation.AccountId}",
-                ChangedProperties =
-                [
-                    new() { PropertyName = "Status", NewValue = invitation.Status.ToString() },
-                    new() { PropertyName = "ExpiryDate", NewValue = invitation.ExpiryDate.ToString() }
-                ],
-                RelatedEntities = [new() { Id = invitation.AccountId.ToString(), Type = "Account" }],
-                AffectedEntity = new AuditEntity { Type = "Invitation", Id = invitation.Id.ToString() }
-            }
-        }, cancellationToken);
+            Category = "INVITATION_RESENT",
+            Description = $"Invitation to {invitation.Email} resent in Account {invitation.AccountId}",
+            ChangedProperties =
+            [
+                new() { PropertyName = "Status", NewValue = invitation.Status.ToString() },
+                new() { PropertyName = "ExpiryDate", NewValue = invitation.ExpiryDate.ToString() }
+            ],
+            RelatedEntities = [new() { Id = invitation.AccountId.ToString(), Type = "Account" }],
+            AffectedEntity = new AuditEntity { Type = "Invitation", Id = invitation.Id.ToString() }
+        };
+        
+        await _auditService.SendAuditMessage(auditMessage);
     }
 
-    private async Task SendNotification(ResendInvitationCommand message, User existingUser, MembershipView owner, DateTime expiryDate, CancellationToken cancellationToken)
+    private async Task SendNotification(ResendInvitationCommand message, User existingUser, MembershipView owner, DateTime expiryDate, string email)
     {
-        await _mediator.Send(new SendNotificationCommand
+        var tokens = new Dictionary<string, string>
         {
-            RecipientsAddress = existingUser.Email,
-            TemplateId = existingUser?.UserRef != null ? "InvitationExistingUser" : "InvitationNewUser",
-            Tokens = new Dictionary<string, string>
-            {
-                { "account_name", owner.AccountName },
-                { "first_name", message.FirstName },
-                { "inviter_name", $"{owner.FirstName} {owner.LastName}" },
-                { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
-                { "expiry_date", expiryDate.ToString("dd MMM yyy") }
-            }
-        }, cancellationToken);
+            { "account_name", owner.AccountName },
+            { "first_name", message.FirstName },
+            { "inviter_name", $"{owner.FirstName} {owner.LastName}" },
+            { "base_url", _employerApprenticeshipsServiceConfiguration.DashboardUrl },
+            { "expiry_date", expiryDate.ToString("dd MMM yyy") }
+        };
+
+        var templateId = existingUser?.UserRef != null ? "InvitationExistingUser" : "InvitationNewUser";
+
+        var command = new SendEmailCommand(
+            templateId,
+            email,
+            tokens);
+        
+        await _publisher.Send(command);
     }
 }
