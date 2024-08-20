@@ -1,27 +1,21 @@
-﻿using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using Azure.Core;
 using Azure.Identity;
-using System.Net.Http.Headers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class HttpService : IHttpService
+public class HttpService(string clientId, string clientSecret, string identifierUri, string tenant)
+    : IHttpService
 {
-    private readonly string _clientId;
-    private readonly string _clientSecret;
-    private readonly string _identifierUri;
-    private readonly string _tenant;
-
-    public HttpService(string clientId, string clientSecret, string identifierUri, string tenant)
-    {
-        _clientId = clientId;
-        _clientSecret = clientSecret;
-        _identifierUri = identifierUri;
-        _tenant = tenant;
-    }
+    private readonly ChainedTokenCredential _azureServiceTokenProvider = new(
+        new ManagedIdentityCredential(),
+        new AzureCliCredential(),
+        new VisualStudioCodeCredential(),
+        new VisualStudioCredential()
+    );
 
     public virtual Task<string> GetAsync(string url, bool exceptionOnNotFound = true)
     {
@@ -49,9 +43,9 @@ public class HttpService : IHttpService
 
     private async Task<string> GetAccessToken()
     {
-        var accessToken = IsClientCredentialConfiguration(_clientId, _clientSecret, _tenant)
-            ? await GetClientCredentialAuthenticationResult(_clientId, _clientSecret, _identifierUri, _tenant)
-            : await GetManagedIdentityAuthenticationResult(_identifierUri);
+        var accessToken = IsClientCredentialConfiguration(clientId, clientSecret, tenant)
+            ? await GetClientCredentialAuthenticationResult(clientId, clientSecret, identifierUri, tenant)
+            : await GetManagedIdentityAuthenticationResult(identifierUri);
 
         return accessToken;
     }
@@ -65,16 +59,9 @@ public class HttpService : IHttpService
         return result.AccessToken;
     }
 
-    private static async Task<string> GetManagedIdentityAuthenticationResult(string resource)
+    private async Task<string> GetManagedIdentityAuthenticationResult(string resource)
     {
-        var azureServiceTokenProvider = new ChainedTokenCredential(
-            new ManagedIdentityCredential(),
-            new AzureCliCredential(),
-            new VisualStudioCodeCredential(),
-            new VisualStudioCredential()
-        );
-        
-        return (await azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { resource }))).Token;
+        return (await _azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: [resource]))).Token;
     }
 
     private static bool IsClientCredentialConfiguration(string clientId, string clientSecret, string tenant)
