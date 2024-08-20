@@ -58,7 +58,7 @@ public class WhenIResendAnInvitation
             HashedAccountId = ExpectedHashedId
         };
         _userRepository = new Mock<IUserAccountRepository>();
-        _userRepository.Setup(x => x.Get(ExpectedExistingUserEmail)).ReturnsAsync(new User { Email = ExpectedExistingUserEmail, UserRef = Guid.NewGuid().ToString() });
+        _userRepository.Setup(x => x.Get(ExpectedExistingUserEmail)).ReturnsAsync(new User { Email = ExpectedExistingUserEmail, Ref = Guid.NewGuid() });
 
         _membershipRepository = new Mock<IMembershipRepository>();
         _membershipRepository.Setup(x => x.GetCaller(owner.HashedAccountId, _command.ExternalUserId)).ReturnsAsync(owner);
