@@ -437,7 +437,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return new OrchestratorResponse<EmployerTeamMembersViewModel>();
     }
 
-    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Remove(long userId, string accountId, string externalUserId)
+    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Remove(string accountId, string externalUserId, string hashedUserId)
     {
         var response = await GetTeamMembers(accountId, externalUserId);
 
@@ -448,6 +448,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
         try
         {
+            var userId = _encodingService.Decode(hashedUserId, EncodingType.AccountId);
             var userResponse = await _mediator.Send(new GetUserQuery { UserId = userId });
 
             if (userResponse?.User == null)

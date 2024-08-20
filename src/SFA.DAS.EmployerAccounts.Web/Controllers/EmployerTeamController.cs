@@ -223,7 +223,7 @@ public class EmployerTeamController : BaseController
     [HttpPost]
     [Route("{hashedUserId}/remove", Name = RouteNames.ConfirmRemoveTeamMember)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Remove(long userId, string hashedAccountId, string hashedUserId, int remove)
+    public async Task<IActionResult> Remove(string hashedAccountId, string hashedUserId, int remove)
     {
         Exception exception;
         HttpStatusCode httpStatusCode;
@@ -235,7 +235,10 @@ public class EmployerTeamController : BaseController
                 return RedirectToAction(ControllerConstants.ViewTeamViewName, new { HashedAccountId = hashedAccountId });
             }
 
-            var response = await _employerTeamOrchestrator.Remove(userId, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+            var response = await _employerTeamOrchestrator.Remove(
+                hashedAccountId,
+                HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+                hashedUserId);
 
             return View(ControllerConstants.ViewTeamViewName, response);
         }
@@ -291,7 +294,7 @@ public class EmployerTeamController : BaseController
             isUser: true,
             HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
         );
-        
+
         //We have to override flash message as the change role view has different model to view team view
         teamMemberResponse.FlashMessage = response.FlashMessage;
         teamMemberResponse.Exception = response.Exception;
@@ -312,7 +315,7 @@ public class EmployerTeamController : BaseController
         );
 
         _logger.LogInformation("EmployerTeamController.Review invitation: {Invitation}.", JsonSerializer.Serialize(invitation));
-        
+
         return View(invitation);
     }
 

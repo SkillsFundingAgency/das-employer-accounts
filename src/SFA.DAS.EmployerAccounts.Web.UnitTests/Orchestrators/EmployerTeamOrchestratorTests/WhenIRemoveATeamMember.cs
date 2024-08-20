@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -28,7 +29,9 @@ class WhenIRemoveATeamMember
     private Mock<IMediator> _mediator;
     private Mock<IAccountApiClient> _accountApiClient;        
     private Mock<IMapper> _mapper;
-
+    private Mock<IEncodingService> _encodingService;
+    private const long UserId = 2;
+    private const string HashedUserId = "DSHD23D";
     private EmployerTeamOrchestrator _orchestrator;
 
     [SetUp]
@@ -37,8 +40,11 @@ class WhenIRemoveATeamMember
         _mediator = new Mock<IMediator>();
         _accountApiClient = new Mock<IAccountApiClient>();            
         _mapper = new Mock<IMapper>();
+        _encodingService = new Mock<IEncodingService>();
 
-        _orchestrator = new EmployerTeamOrchestrator(_mediator.Object, Mock.Of<ICurrentDateTime>(), _accountApiClient.Object, _mapper.Object, Mock.Of<EmployerAccountsConfiguration>(), Mock.Of<IEncodingService>());
+        _encodingService.Setup(x => x.Decode(HashedUserId, EncodingType.AccountId)).Returns(UserId);
+
+        _orchestrator = new EmployerTeamOrchestrator(_mediator.Object, Mock.Of<ICurrentDateTime>(), _accountApiClient.Object, _mapper.Object, Mock.Of<EmployerAccountsConfiguration>(), _encodingService.Object);
             
         _mediator.Setup(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetAccountTeamMembersResponse
@@ -62,12 +68,12 @@ class WhenIRemoveATeamMember
         //Arrange
 
         //Act
-        var result = await _orchestrator.Remove(2, "3242", "32342");
+        var result = await _orchestrator.Remove( "3242", "32342", HashedUserId);
 
         //Assert
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(result.FlashMessage.Headline, Is.EqualTo("Team member removed"));
-        Assert.That(result.FlashMessage.Message, Is.EqualTo($"You've removed <strong>{Email}</strong>"));
+        result.Status.Should().Be(HttpStatusCode.OK);
+        result.FlashMessage.Headline.Should().Be("Team member removed");
+        result.FlashMessage.Message.Should().Be($"You've removed <strong>{Email}</strong>");
     }
 
     [Test]
@@ -77,10 +83,10 @@ class WhenIRemoveATeamMember
         _mediator.Setup(x => x.Send(It.IsAny<GetUserQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetUserResponse());
 
         //Act
-        var result = await _orchestrator.Remove(2, "3242", "32342");
+        var result = await _orchestrator.Remove( "3242", "32342", HashedUserId);
 
         //Assert
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
+        result.Status.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Test]
@@ -90,10 +96,10 @@ class WhenIRemoveATeamMember
         _mediator.Setup(x => x.Send(It.IsAny<RemoveTeamMemberCommand>(), It.IsAny<CancellationToken>())).Throws(new InvalidRequestException(new Dictionary<string, string>()));
 
         //Act
-        var result = await _orchestrator.Remove(2, "3242", "32342");
+        var result = await _orchestrator.Remove( "3242", "32342", HashedUserId);
 
         //Assert
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        result.Status.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -103,9 +109,9 @@ class WhenIRemoveATeamMember
         _mediator.Setup(x => x.Send(It.IsAny<RemoveTeamMemberCommand>(), It.IsAny<CancellationToken>())).Throws<UnauthorizedAccessException>();
 
         //Act
-        var result = await _orchestrator.Remove(2, "3242", "32342");
+        var result = await _orchestrator.Remove("3242", "32342", HashedUserId);
 
         //Assert
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        result.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 }
