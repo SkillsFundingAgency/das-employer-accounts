@@ -66,7 +66,7 @@
 }
 @if (Model.Data.IsUser)
 {
-    <form asp-route="@RouteNames.RemoveTeamMember" method="GET" asp-route-hashedAccountId="@hashedAccountId">
+    <form asp-route="@RouteNames.RemoveTeamMember" method="GET" asp-route-hashedAccountId="@hashedAccountId" asp-route-hashedUserId="@Model.Data.HashedUserId">
         <input type="hidden" id="HashedUserId" name="HashedUserId" value="@Model.Data.HashedUserId"/>
         <button type="submit" class="govuk-button govuk-button--warning" id="delete_user">Remove team member</button>
     </form>
