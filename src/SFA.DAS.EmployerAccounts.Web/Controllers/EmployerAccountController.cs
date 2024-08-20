@@ -68,6 +68,14 @@ public class EmployerAccountController : BaseController
             return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
         }
 
+        // TODO CON-5312 - Temp fix until CSP-1638 reinstates Adding training provider as final step
+        // Remove this branching logic at the same time
+        if (accountTaskListViewModelResponse.Status == HttpStatusCode.OK
+            && accountTaskListViewModelResponse.Data.AgreementAcknowledged)
+        {
+            return RedirectToRoute(RouteNames.TaskListSignedAgreementSuccess, new { hashedAccountId });
+        }
+
         return View(nameof(CreateAccountTaskList), accountTaskListViewModelResponse);
     }
 
@@ -482,8 +490,8 @@ public class EmployerAccountController : BaseController
         
         return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
         
-        // To be reinstated once the new permissions journey is in place.
-        // Also reinstate AccountTaskListViewModel.TaskListComplete commented code
+        // TODO To be reinstated once the new permissions journey is in place.
+        //  ####### Also remove temp branching logic in CreateAccountTaskList() action ########
         // return View(); 
     }
 
