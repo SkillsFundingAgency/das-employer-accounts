@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
@@ -12,16 +13,19 @@ namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 public class EmployerTeamController : BaseController
 {
     private readonly IUrlActionHelper _urlActionHelper;
+    private readonly ILogger<EmployerTeamController> _logger;
     private readonly EmployerTeamOrchestratorWithCallToAction _employerTeamOrchestrator;
 
     public EmployerTeamController(
         ICookieStorageService<FlashMessageViewModel> flashMessage,
         EmployerTeamOrchestratorWithCallToAction employerTeamOrchestrator,
-        IUrlActionHelper urlActionHelper)
+        IUrlActionHelper urlActionHelper,
+        ILogger<EmployerTeamController> logger)
         : base(flashMessage)
     {
         _employerTeamOrchestrator = employerTeamOrchestrator;
         _urlActionHelper = urlActionHelper;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -307,6 +311,8 @@ public class EmployerTeamController : BaseController
             HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
         );
 
+        _logger.LogInformation("EmployerTeamController.Review invitation: {Invitation}.", JsonSerializer.Serialize(invitation));
+        
         return View(invitation);
     }
 
