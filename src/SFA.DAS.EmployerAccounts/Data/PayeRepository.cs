@@ -94,18 +94,22 @@ public class PayeRepository : IPayeRepository
 
     public async Task<GetPayeAccountByRefResponse> GetPayeAccountByRef(string reference, CancellationToken cancellationToken)
     {
-        var accountHistories = _db.Value.AccountHistory;
+        var accountHistory = await _db.Value.AccountHistory
+            .Where(a => a.PayeRef == reference)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
 
-        var query = from accountHistory in accountHistories
-                    where accountHistory.PayeRef == reference
-                    select new GetPayeAccountByRefResponse
-                    {
-                        AccountId = accountHistory.AccountId,
-                        AddedDate = accountHistory.AddedDate,
-                        RemovedDate = accountHistory.RemovedDate
-                    };
+        if (accountHistory == null)
+        {
+            return null;
+        }
 
-        var result = await query.FirstOrDefaultAsync(cancellationToken);
+        var result = new GetPayeAccountByRefResponse
+        {
+            AccountId = accountHistory.AccountId,
+            AddedDate = accountHistory.AddedDate,
+            RemovedDate = accountHistory.RemovedDate
+        };
 
         return result;
     }
