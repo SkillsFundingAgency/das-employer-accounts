@@ -479,8 +479,12 @@ public class EmployerAccountController : BaseController
     {
         var externalUserId = GetUserId();
         await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
+        
         return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
-        /// return View(); to be reinstated once the new permissions journey is in place.
+        
+        // To be reinstated once the new permissions journey is in place.
+        // Also reinstate AccountTaskListViewModel.TaskListComplete commented code
+        // return View(); 
     }
 
     [HttpGet]

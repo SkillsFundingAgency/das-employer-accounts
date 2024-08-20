@@ -24,6 +24,8 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         public bool HasProviders { get; set; }
         public bool HasProviderPermissions { get; set; }
         public string ProviderPermissionsUrl { get; set; }
-        public bool TaskListComplete => HasProviderPermissions || AddTrainingProviderAcknowledged;
+        // CON-5312 - Temp fix until CSP-1638 reinstates Adding training provider as final step
+        // public bool TaskListComplete => HasProviderPermissions || AddTrainingProviderAcknowledged;
+        public bool TaskListComplete => AgreementAcknowledged;
     }
 }
