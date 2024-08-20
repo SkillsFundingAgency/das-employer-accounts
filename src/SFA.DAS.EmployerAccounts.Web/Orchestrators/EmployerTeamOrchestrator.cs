@@ -561,12 +561,14 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
     public async Task<OrchestratorResponse<InvitationViewModel>> Review(string hashedAccountId, string hashedUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var userId = _encodingService.Decode(hashedUserId, EncodingType.AccountId);
+        
         var response = new OrchestratorResponse<InvitationViewModel>();
 
-        var queryResponse = await _mediator.Send(new GetMemberRequest
+        var queryResponse = await _mediator.Send(new GetMemberByIdQuery
         {
             AccountId = accountId,
-            HashedUserId = hashedUserId,
+            Id = userId,
             IsUser = true,
         });
 

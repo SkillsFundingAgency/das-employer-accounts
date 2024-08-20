@@ -19,17 +19,7 @@ public class GetMemberQueryHandler : IRequestHandler<GetMemberRequest, GetMember
     {
         var hashedAccountId = _encodingService.Encode(message.AccountId, EncodingType.AccountId);
 
-        TeamMember member;
-
-        if (!string.IsNullOrEmpty(message.HashedUserId))
-        {
-            var userId = _encodingService.Decode(message.HashedUserId, EncodingType.AccountId);
-            member = await _accountTeamRepository.GetMember(hashedAccountId, userId, message.IsUser) ?? new TeamMember();
-        }
-        else
-        {
-            member = await _accountTeamRepository.GetMember(hashedAccountId, message.Email, message.OnlyIfMemberIsActive) ?? new TeamMember();
-        }
+        var member = await _accountTeamRepository.GetMember(hashedAccountId, message.Email, message.OnlyIfMemberIsActive) ?? new TeamMember();
 
         member.HashedUserId = _encodingService.Encode(member.Id, EncodingType.AccountId);
         member.HashedAccountId = hashedAccountId;
