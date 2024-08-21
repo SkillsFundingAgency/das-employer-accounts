@@ -53,7 +53,7 @@ public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemb
         
         _logger.LogInformation("ChangeTeamMemberRoleCommand: HashedUserId: {HashedUserId}. UserId: {UserId}", message.HashedUserId, userId);
 
-        var existing = await _membershipRepository.Get(caller.AccountId, userId);
+        var existing = await _membershipRepository.Get(userId, caller.AccountId);
 
         if (existing == null)
         {
