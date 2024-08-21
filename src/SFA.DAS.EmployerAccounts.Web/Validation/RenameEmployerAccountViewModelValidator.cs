@@ -5,8 +5,6 @@ namespace SFA.DAS.EmployerAccounts.Web.Validation;
 
 public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<RenameEmployerAccountViewModel>
 {
-    private const string ValidCharactersExpression = @"^[a-zA-Z0-9$@#()""'!,+\-=_:;.&€£*%\s\/\[\]]*$";
-    
     public RenameEmployerAccountViewModelValidator()
     {
         RuleFor(r => r.NewName).Cascade(CascadeMode.Stop)
@@ -16,7 +14,7 @@ public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<
             .WithMessage("Enter a name");
         
     RuleFor(x => x.NewName)
-            .Matches(ValidCharactersExpression)
+            .ValidFreeTextCharacters()
             .WithMessage("Account name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes");
     }
 }

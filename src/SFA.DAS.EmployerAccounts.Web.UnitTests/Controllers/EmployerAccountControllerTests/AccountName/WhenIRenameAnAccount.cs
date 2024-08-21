@@ -28,7 +28,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         _orchestrator = new Mock<EmployerAccountOrchestrator>();
 
         _mediator = new Mock<IMediator>();
-        
+
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
 
         _orchestrator.Setup(x =>
@@ -42,13 +42,13 @@ public class WhenIRenameAnAccount : ControllerTestBase
         AddUserToContext();
 
         _employerAccountController = new EmployerAccountController(
-           _orchestrator.Object,
-           Mock.Of<ILogger<EmployerAccountController>>(),
-           _flashMessage.Object,
-           _mediator.Object,
-           Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
-           Mock.Of<ICookieStorageService<HashedAccountIdModel>>(),
-           Mock.Of<LinkGenerator>())
+            _orchestrator.Object,
+            Mock.Of<ILogger<EmployerAccountController>>(),
+            _flashMessage.Object,
+            _mediator.Object,
+            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
+            Mock.Of<ICookieStorageService<HashedAccountIdModel>>(),
+            Mock.Of<LinkGenerator>())
         {
             ControllerContext = ControllerContext,
             Url = new UrlHelper(new ActionContext(MockHttpContext.Object, Routes, new ActionDescriptor()))
@@ -61,22 +61,44 @@ public class WhenIRenameAnAccount : ControllerTestBase
         _employerAccountController?.Dispose();
     }
 
-    [Test, MoqAutoData]
-    public async Task ThenIMustConfirmTheRename(string hashedAccountId)
+    [TestCase("My New Name", true)]
+    [TestCase("My New Name $@#()\"'!,+-=_:;.&€£*%/[]", true)] 
+    [TestCase("My New Name ~", false)] 
+    [TestCase("My New Name {", false)] 
+    [TestCase("My New Name }", false)] 
+    [TestCase("My New Name |", false)] 
+    [TestCase("My New Name ^", false)] 
+    [TestCase("<My New Name>", false)] 
+    public async Task ThenIMustConfirmTheRename(string newName, bool isValidInput)
     {
         //Arrange
         var model = new RenameEmployerAccountViewModel
         {
             ChangeAccountName = true,
             CurrentName = "Test Account",
-            NewName = "New Account Name"
+            NewName = newName
         };
 
+        var hashedAccountId = Guid.NewGuid().ToString();
+
         //Act
-        var result = await _employerAccountController.AccountName(hashedAccountId, model) as RedirectToRouteResult;
+        var result = await _employerAccountController.AccountName(hashedAccountId, model);
+        var redirectResult = result as RedirectToRouteResult;
+        var viewResult = result as ViewResult;
 
         //Assert
-        result.RouteName.Should().Be(RouteNames.AccountNameConfirm);
+
+        if (isValidInput)
+        {
+            viewResult.Should().BeNull();
+            redirectResult.Should().NotBeNull();
+            redirectResult.RouteName.Should().Be(RouteNames.AccountNameConfirm);
+        }
+        else
+        {
+            viewResult.Should().NotBeNull();
+            redirectResult.Should().BeNull();
+        }
     }
 
     [Test, MoqAutoData]
@@ -97,7 +119,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         //Assert
         model.Data.NewNameError.Should().Be(AccountNameBlankErrorMessage);
     }
-    
+
     [Test, MoqAutoData]
     public async Task WhenNameIsUnchanged_ThenIShouldRecieveAnError(string hashedAccountId, string accountName)
     {
@@ -116,7 +138,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         //Assert
         model.Data.NewNameError.Should().Be(AccountNameErrorMessage);
     }
-    
+
     [Test, MoqAutoData]
     public async Task Then_Should_Not_Send_CreateAccountCompleteCommand(string hashedAccountId)
     {
