@@ -5,43 +5,44 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
-using SFA.DAS.EmployerAccounts.Queries.GetPayeAccountByRef;
+using SFA.DAS.EmployerAccounts.Models.PAYE;
+using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeAccountByRef;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeAccountByRefTests;
 
-public class WhenIGetAPayeAccount
+public class WhenIGetAPayeSchemeAccountByRef
 {
-    private Mock<IPayeRepository> _payeRepository;
-    private GetPayeAccountByRefQuery Query { get; set; }
+    private Mock<IEmployerSchemesRepository> _employerSchemesRepository;
+    private GetPayeSchemeAccountByRefQuery Query { get; set; }
 
-    private GetPayeAccountByRefHandler RequestHandler { get; set; }
+    private GetPayeSchemeAccountByRefHandler RequestHandler { get; set; }
 
     private const long AccountId = 1667;
     private const string Ref = "ABC/123";
     private readonly DateTime _addedDateTime = DateTime.UtcNow;
-    private GetPayeAccountByRefResponse _expectedResponse;
+    private PayeScheme _expectedResponse;
 
     [SetUp]
     public void Arrange()
     {
-        _expectedResponse = new GetPayeAccountByRefResponse
+        _expectedResponse = new PayeScheme
         {
             AccountId = AccountId,
             AddedDate = _addedDateTime,
             RemovedDate = null
         };
 
-        _payeRepository = new Mock<IPayeRepository>();
-        _payeRepository
-            .Setup(x => x.GetPayeAccountByRef(Ref, It.IsAny<CancellationToken>()))
+        _employerSchemesRepository = new Mock<IEmployerSchemesRepository>();
+        _employerSchemesRepository
+            .Setup(x => x.GetSchemeByRef(Ref))
             .ReturnsAsync(_expectedResponse);
 
-        Query = new GetPayeAccountByRefQuery
+        Query = new GetPayeSchemeAccountByRefQuery
         {
             Ref = Ref
         };
 
-        RequestHandler = new GetPayeAccountByRefHandler(_payeRepository.Object);
+        RequestHandler = new GetPayeSchemeAccountByRefHandler(_employerSchemesRepository.Object);
     }
 
     [Test]
@@ -52,7 +53,7 @@ public class WhenIGetAPayeAccount
         await RequestHandler.Handle(Query, cancellationToken);
 
         //Assert
-        _payeRepository.Verify(x => x.GetPayeAccountByRef(Query.Ref, cancellationToken), Times.Once);
+        _employerSchemesRepository.Verify(x => x.GetSchemeByRef(Query.Ref), Times.Once);
     }
 
     [Test]

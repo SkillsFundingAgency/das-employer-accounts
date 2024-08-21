@@ -1,13 +1,11 @@
 ﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
-using SFA.DAS.EmployerAccounts.Queries.GetPayeAccountByRef;
 
 namespace SFA.DAS.EmployerAccounts.Data;
 
@@ -88,28 +86,6 @@ public class PayeRepository : IPayeRepository
                     };
 
         var result = await query.FirstOrDefaultAsync();
-
-        return result;
-    }
-
-    public async Task<GetPayeAccountByRefResponse> GetPayeAccountByRef(string reference, CancellationToken cancellationToken)
-    {
-        var accountHistory = await _db.Value.AccountHistory
-            .Where(a => a.PayeRef == reference)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (accountHistory == null)
-        {
-            return null;
-        }
-
-        var result = new GetPayeAccountByRefResponse
-        {
-            AccountId = accountHistory.AccountId,
-            AddedDate = accountHistory.AddedDate,
-            RemovedDate = accountHistory.RemovedDate
-        };
 
         return result;
     }
