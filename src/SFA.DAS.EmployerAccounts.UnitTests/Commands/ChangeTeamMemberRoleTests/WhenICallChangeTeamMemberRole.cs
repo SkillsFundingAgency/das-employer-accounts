@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Audit.Types;
@@ -69,7 +68,7 @@ public class WhenICallChangeTeamMemberRole
         _eventPublisher = new Mock<IEventPublisher>();
         _auditService = new Mock<IAuditService>();
 
-        _handler = new ChangeTeamMemberRoleCommandHandler(_membershipRepository.Object, _eventPublisher.Object, _encodingService.Object, _auditService.Object, Mock.Of<ILogger<ChangeTeamMemberRoleCommandHandler>>());
+        _handler = new ChangeTeamMemberRoleCommandHandler(_membershipRepository.Object, _eventPublisher.Object, _encodingService.Object, _auditService.Object);
     }
 
     [Test]

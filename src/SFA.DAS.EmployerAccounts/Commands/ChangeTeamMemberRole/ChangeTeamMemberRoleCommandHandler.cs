@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
@@ -16,15 +15,13 @@ public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemb
     private readonly IEncodingService _encodingService;
     private readonly ChangeTeamMemberRoleCommandValidator _validator;
     private readonly IAuditService _auditService;
-    private readonly ILogger<ChangeTeamMemberRoleCommandHandler> _logger;
 
-    public ChangeTeamMemberRoleCommandHandler(IMembershipRepository membershipRepository, IEventPublisher eventPublisher, IEncodingService encodingService, IAuditService auditService, ILogger<ChangeTeamMemberRoleCommandHandler> logger)
+    public ChangeTeamMemberRoleCommandHandler(IMembershipRepository membershipRepository, IEventPublisher eventPublisher, IEncodingService encodingService, IAuditService auditService)
     {
         _membershipRepository = membershipRepository;
         _eventPublisher = eventPublisher;
         _encodingService = encodingService;
         _auditService = auditService;
-        _logger = logger;
         _validator = new ChangeTeamMemberRoleCommandValidator();
     }
 
@@ -48,11 +45,8 @@ public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemb
         {
             throw new InvalidRequestException(new Dictionary<string, string> { { "Membership", "You must be an owner of this Account" } });
         }
-        
-        var userId = _encodingService.Decode(message.HashedUserId, EncodingType.AccountId);
-        
-        _logger.LogInformation("ChangeTeamMemberRoleCommand: HashedUserId: {HashedUserId}. UserId: {UserId}", message.HashedUserId, userId);
 
+        var userId = _encodingService.Decode(message.HashedUserId, EncodingType.AccountId);
         var existing = await _membershipRepository.Get(userId, caller.AccountId);
 
         if (existing == null)
@@ -82,7 +76,7 @@ public class ChangeTeamMemberRoleCommandHandler : IRequestHandler<ChangeTeamMemb
             RelatedEntities = [new() { Id = caller.AccountId.ToString(), Type = "Account" }],
             AffectedEntity = new AuditEntity { Type = "Membership", Id = existing.Id.ToString() }
         };
-        
+
         await _auditService.SendAuditMessage(auditMessage);
     }
 }
