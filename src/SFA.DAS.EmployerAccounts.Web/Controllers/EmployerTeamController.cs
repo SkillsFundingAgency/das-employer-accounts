@@ -199,13 +199,14 @@ public class EmployerTeamController : BaseController
     [HttpPost]
     [Route("resend", Name = RouteNames.EmployerTeamResendInvite)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Resend(string hashedAccountId, string hashedInvitationId, string name)
+    public async Task<IActionResult> Resend(string hashedAccountId, string hashedInvitationId, string name, string email)
     {
         var response = await _employerTeamOrchestrator.Resend(
             hashedInvitationId,
             hashedAccountId,
             HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
-            name);
+            name,
+            email);
 
         return View(ControllerConstants.ViewTeamViewName, response);
     }

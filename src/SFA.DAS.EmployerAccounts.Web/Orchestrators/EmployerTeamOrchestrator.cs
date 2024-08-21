@@ -516,7 +516,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return response;
     }
 
-    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Resend(string hashedInvitationId, string hashedId, string externalUserId, string name)
+    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Resend(string hashedInvitationId, string hashedId, string externalUserId, string name, string email)
     {
         var response = await GetTeamMembers(hashedId, externalUserId);
 
@@ -542,7 +542,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             {
                 Severity = FlashMessageSeverityLevel.Success,
                 Headline = "Invitation resent",
-                Message = "You've resent the invitation."
+                Message = $"You've resent an invitation to <strong>{email}</strong>"
             };
         }
         catch (InvalidRequestException e)

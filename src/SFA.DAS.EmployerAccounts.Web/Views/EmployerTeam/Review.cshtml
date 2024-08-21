@@ -52,6 +52,7 @@
 {
     <form asp-route="@RouteNames.EmployerTeamResendInvite" asp-route-hashedAccountId="@hashedAccountId" method="POST">
         <input type="hidden" id="Name" name="Name" value="@Model.Data.Name"/>
+        <input type="hidden" id="Email" name="Email" value="@Model.Data.Email"/>
         <input type="hidden" id="HashedInvitationId" name="HashedInvitationId" value="@Model.Data.HashedUserId"/>
         <div class="govuk-button-group">
             <button type="submit" class="govuk-button" id="resend_invitation">Resend invitation</button>
