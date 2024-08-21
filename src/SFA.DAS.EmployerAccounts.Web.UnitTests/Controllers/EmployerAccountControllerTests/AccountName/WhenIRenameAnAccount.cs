@@ -76,14 +76,17 @@ public class WhenIRenameAnAccount : ControllerTestBase
         result.RouteName.Should().Be(RouteNames.AccountNameConfirm);
     }
 
-    [TestCase("My New Name", true)]
-    [TestCase("My New Name $@#()\"'!,+-=_:;.&€£*%/[]", true)] 
+    [TestCase("", false)] 
+    [TestCase(" ", false)] 
     [TestCase("My New Name ~", false)] 
     [TestCase("My New Name {", false)] 
     [TestCase("My New Name }", false)] 
     [TestCase("My New Name |", false)] 
     [TestCase("My New Name ^", false)] 
-    [TestCase("<My New Name>", false)] 
+    [TestCase("My New Name `", false)] 
+    [TestCase("<My New Name>", false)]
+    [TestCase("My New Name", true)]
+    [TestCase("My New Name $@#()\"'!,+-=_:;.&€£*%/[]", true)] 
     public async Task ThenTheNameMustBeValid(string newName, bool isValidInput)
     {
         //Arrange
