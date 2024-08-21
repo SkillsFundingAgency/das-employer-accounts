@@ -56,9 +56,24 @@ public class WhenIRenameAnAccount : ControllerTestBase
     }
 
     [TearDown]
-    public void TearDown()
+    public void TearDown() => _employerAccountController?.Dispose();
+
+    [Test, MoqAutoData]
+    public async Task ThenIMustConfirmTheRename(string hashedAccountId)
     {
-        _employerAccountController?.Dispose();
+        //Arrange
+        var model = new RenameEmployerAccountViewModel
+        {
+            ChangeAccountName = true,
+            CurrentName = "Test Account",
+            NewName = "New Account Name"
+        };
+
+        //Act
+        var result = await _employerAccountController.AccountName(hashedAccountId, model) as RedirectToRouteResult;
+
+        //Assert
+        result.RouteName.Should().Be(RouteNames.AccountNameConfirm);
     }
 
     [TestCase("My New Name", true)]
@@ -69,7 +84,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
     [TestCase("My New Name |", false)] 
     [TestCase("My New Name ^", false)] 
     [TestCase("<My New Name>", false)] 
-    public async Task ThenIMustConfirmTheRename(string newName, bool isValidInput)
+    public async Task ThenTheNameMustBeValid(string newName, bool isValidInput)
     {
         //Arrange
         var model = new RenameEmployerAccountViewModel
@@ -87,17 +102,17 @@ public class WhenIRenameAnAccount : ControllerTestBase
         var viewResult = result as ViewResult;
 
         //Assert
-
         if (isValidInput)
         {
             viewResult.Should().BeNull();
             redirectResult.Should().NotBeNull();
-            redirectResult.RouteName.Should().Be(RouteNames.AccountNameConfirm);
         }
         else
         {
             viewResult.Should().NotBeNull();
-            redirectResult.Should().BeNull();
+            var viewModel = viewResult!.Model as OrchestratorResponse<RenameEmployerAccountViewModel>;
+            viewModel!.Status.Should().Be(HttpStatusCode.BadRequest);
+            redirectResult!.Should().BeNull();
         }
     }
 
