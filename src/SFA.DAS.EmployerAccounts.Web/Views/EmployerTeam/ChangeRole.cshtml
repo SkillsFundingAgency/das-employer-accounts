@@ -47,6 +47,7 @@
 
         <form method="POST" asp-route="@RouteNames.EmployerTeamChangeRolePost" asp-route-hashedAccountId="@hashedAccountId" asp-route-hashedUserId="@Model.Data.HashedUserId">
             <input type="hidden" asp-for="@Model.Data.HashedUserId" name="HashedUserId" id="HashedUserId"/>
+            <input type="hidden" asp-for="@Model.Data.Email" name="Email" id="Email"/>
             <div class="govuk-form-group @(!ViewContext.ViewData.ModelState.IsValid ? "govuk-form-group--error" : "")">
                 <fieldset class="govuk-fieldset">
                     <legend id="change-role-selection" class="govuk-fieldset__legend">

@@ -280,9 +280,14 @@ public class EmployerTeamController : BaseController
     [HttpPost]
     [Route("{hashedUserId}/role/change", Name = RouteNames.EmployerTeamChangeRolePost)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId, Role role)
+    public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId, string email, Role role)
     {
-        var response = await _employerTeamOrchestrator.ChangeRole(hashedAccountId, hashedUserId, role, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var response = await _employerTeamOrchestrator.ChangeRole(
+            hashedAccountId,
+            hashedUserId,
+            role,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+            email);
 
         if (response.Status == HttpStatusCode.OK)
         {

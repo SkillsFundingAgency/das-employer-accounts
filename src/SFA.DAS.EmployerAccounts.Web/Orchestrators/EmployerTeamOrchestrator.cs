@@ -99,7 +99,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return response;
     }
 
-    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> ChangeRole(string hashedId, string hashedUserId, Role role, string externalUserId)
+    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> ChangeRole(string hashedId, string hashedUserId, Role role, string externalUserId, string email)
     {
         try
         {
@@ -120,7 +120,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
                     Severity = FlashMessageSeverityLevel.Success,
                     Headline = "Team member updated",
                     HiddenFlashMessageInformation = "page-team-member-role-changed",
-                    Message = $"User can now {RoleStrings.GetRoleDescriptionToLower(role)}"
+                    Message = $"{email} can now {RoleStrings.GetRoleDescriptionToLower(role)}"
                 };
             }
 

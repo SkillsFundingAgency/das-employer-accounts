@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -19,10 +20,10 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorTests;
 
-class WhenIChangeATeamMemberRole
+public class WhenIChangeATeamMemberRole
 {
     private Mock<IMediator> _mediator;
-    private Mock<IAccountApiClient> _accountApiClient;        
+    private Mock<IAccountApiClient> _accountApiClient;
     private Mock<IMapper> _mapper;
     private EmployerTeamOrchestrator _orchestrator;
 
@@ -30,7 +31,7 @@ class WhenIChangeATeamMemberRole
     public void Arrange()
     {
         _mediator = new Mock<IMediator>();
-        _accountApiClient = new Mock<IAccountApiClient>();           
+        _accountApiClient = new Mock<IAccountApiClient>();
         _mapper = new Mock<IMapper>();
 
         _orchestrator = new EmployerTeamOrchestrator(_mediator.Object, Mock.Of<ICurrentDateTime>(), _accountApiClient.Object, _mapper.Object, Mock.Of<EmployerAccountsConfiguration>(), Mock.Of<IEncodingService>());
@@ -40,39 +41,41 @@ class WhenIChangeATeamMemberRole
     public async Task ThenIShouldGetBackAnUpdatedTeamMembersListWithTheCorrectSuccessMessage()
     {
         //Assign
+        var hashedUserId = Guid.NewGuid().ToString();
         const string email = "test@test.com";
         const Role role = Role.Owner;
         var response = new GetAccountTeamMembersResponse();
         _mediator.Setup(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(response);
 
         //Act
-        var result = await _orchestrator.ChangeRole("437675", email, role, "37648");
+        var result = await _orchestrator.ChangeRole("437675", hashedUserId, role, "37648", email);
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(result.FlashMessage, Is.Not.Null);
-        Assert.That(result.FlashMessage.Headline, Is.EqualTo("Team member updated"));
-        Assert.That(result.FlashMessage.Message, Is.EqualTo($"User can now {RoleStrings.GetRoleDescriptionToLower(role)}"));
+        result.Should().NotBeNull();
+        result.Status.Should().Be(HttpStatusCode.OK);
+        result.FlashMessage.Should().NotBeNull();
+        result.FlashMessage.Headline.Should().Be("Team member updated");
+        result.FlashMessage.Message.Should().Be($"{email} can now {RoleStrings.GetRoleDescriptionToLower(role)}");
     }
 
     [Test]
     public async Task ThenIShouldGetBackABadRequestIfOneIsRaised()
     {
         //Assign
+        var hashedUserId = Guid.NewGuid().ToString();
         const string email = "test@test.com";
         const Role role = Role.Owner;
-            
+
         _mediator.Setup(x => x.Send(It.IsAny<ChangeTeamMemberRoleCommand>(), It.IsAny<CancellationToken>()))
             .Throws(new InvalidRequestException(new Dictionary<string, string>()));
-           
+
         //Act
-        var result = await _orchestrator.ChangeRole("437675", email, role, "37648");
+        var result = await _orchestrator.ChangeRole("437675", hashedUserId, role, "37648", email);
 
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        result.Should().NotBeNull();
+        result.Status.Should().Be(HttpStatusCode.BadRequest);
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -80,6 +83,7 @@ class WhenIChangeATeamMemberRole
     public async Task ThenIShouldGetBackAnUnauthorisedRequestIfOneIsRaised()
     {
         //Assign
+        var hashedUserId = Guid.NewGuid().ToString();
         const string email = "test@test.com";
         const Role role = Role.Owner;
 
@@ -87,11 +91,11 @@ class WhenIChangeATeamMemberRole
             .Throws(new UnauthorizedAccessException());
 
         //Act
-        var result = await _orchestrator.ChangeRole("437675", email, role, "37648");
+        var result = await _orchestrator.ChangeRole("437675", hashedUserId, role, "37648", email);
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        result.Should().NotBeNull();
+        result.Status.Should().Be(HttpStatusCode.Unauthorized);
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
