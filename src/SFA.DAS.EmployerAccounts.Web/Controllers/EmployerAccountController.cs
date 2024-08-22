@@ -117,14 +117,14 @@ public class EmployerAccountController : BaseController
             case CloseTo3Million: return RedirectToAction(ControllerConstants.GatewayInformActionName);
             case LessThan3Million: return RedirectToRoute(RouteNames.EmployerAccountGetApprenticeshipFunding);
             default:
+            {
+                var model = new
                 {
-                    var model = new
-                    {
-                        InError = true
-                    };
+                    InError = true
+                };
 
-                    return View(model);
-                }
+                return View(model);
+            }
         }
     }
 
@@ -160,14 +160,14 @@ public class EmployerAccountController : BaseController
                 return RedirectToAction(ControllerConstants.SearchUsingAornActionName,
                     ControllerConstants.SearchPensionRegulatorControllerName, new { hashedAccountId });
             default:
+            {
+                var model = new
                 {
-                    var model = new
-                    {
-                        InError = true
-                    };
+                    InError = true
+                };
 
-                    return View(model);
-                }
+                return View(model);
+            }
         }
     }
 
@@ -359,8 +359,32 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/rename", Name = RouteNames.RenameAccountPost)]
     public async Task<IActionResult> RenameAccount(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
+        var validator = new RenameEmployerAccountViewModelValidator();
+        var validationResult = validator.Validate(vm);
+
+        if (!validationResult.IsValid)
+        {
+            foreach (var validationError in validationResult.Errors)
+            {
+                vm.ErrorDictionary.Add(validationError.PropertyName, validationError.ErrorMessage);
+            }
+        }
+
+        OrchestratorResponse<RenameEmployerAccountViewModel> response;
+
+        if (vm.ErrorDictionary.Count > 0)
+        {
+            response = new OrchestratorResponse<RenameEmployerAccountViewModel>
+            {
+                Data = vm,
+                Status = HttpStatusCode.BadRequest
+            };
+
+            return View(response);
+        }
+
         var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
+        response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
 
         if (response.Status == HttpStatusCode.OK)
         {
@@ -417,10 +441,8 @@ public class EmployerAccountController : BaseController
         {
             return HandleChangeAccountName(hashedAccountId, vm, response);
         }
-        else
-        {
-            return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm);
-        }
+
+        return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm);
     }
 
     [HttpGet]
@@ -518,14 +540,14 @@ public class EmployerAccountController : BaseController
                 await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
                 return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
             default:
+            {
+                var model = new
                 {
-                    var model = new
-                    {
-                        InError = true
-                    };
+                    InError = true
+                };
 
-                    return View(model);
-                }
+                return View(model);
+            }
         }
     }
 
@@ -643,7 +665,7 @@ public class EmployerAccountController : BaseController
         {
             response.Status = HttpStatusCode.OK;
             response.FlashMessage = new FlashMessageViewModel
-            { Headline = "There was a problem creating your account" };
+                { Headline = "There was a problem creating your account" };
             return RedirectToAction(ControllerConstants.SummaryActionName);
         }
 
