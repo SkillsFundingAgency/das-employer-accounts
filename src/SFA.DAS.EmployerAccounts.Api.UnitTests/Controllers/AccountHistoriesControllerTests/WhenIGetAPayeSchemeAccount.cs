@@ -9,25 +9,25 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.Controllers;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
-using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeAccountByRef;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountHistoryByPayeRef;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.PayeControllerTests;
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.AccountHistoriesControllerTests;
 
 [TestFixture]
-public class WhenIGetAPayeSchemeAccount
+public class WhenIGetAPayeScheme
 {
     [Test, MoqAutoData]
     public async Task ThenThePayeSchemeAccountIsReturned(
         Models.PAYE.PayeScheme payeSchemeResponse,
         [Frozen] Mock<IMediator> mediatorMock,
-        [NoAutoProperties] PayeController sut,
+        [NoAutoProperties] AccountHistoriesController sut,
         CancellationToken cancellationToken
     )
     {
         // Arrange
         mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetPayeSchemeAccountByRefQuery>(),
+            .Setup(x => x.Send(It.IsAny<GetAccountHistoryByPayeRefQuery>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(payeSchemeResponse);
 
@@ -58,11 +58,11 @@ public class WhenIGetAPayeSchemeAccount
         var schemeRef = $"{RandomNumberGenerator.GetInt32(100, 999)}/REF";
         var encodedRef = schemeRef.Replace(@"/", "%2f");
         mediatorMock
-            .Setup(x => x.Send(It.Is<GetPayeSchemeAccountByRefQuery>(p => p.Ref == schemeRef),
+            .Setup(x => x.Send(It.Is<GetAccountHistoryByPayeRefQuery>(p => p.Ref == schemeRef),
                 cancellationToken))
             .ReturnsAsync((PayeScheme)null);
 
-        var sut = new PayeController(mediatorMock.Object);
+        var sut = new AccountHistoriesController(mediatorMock.Object);
 
         // Act
         var response = await sut.GetAccountHistoryByRef(encodedRef, cancellationToken);

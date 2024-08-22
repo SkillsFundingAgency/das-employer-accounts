@@ -5,11 +5,11 @@ using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.Controllers;
 using SFA.DAS.Encoding;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.PayeControllerTests;
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.AccountHistoriesControllerTests;
 
-public abstract class PayeControllerTests
+public abstract class AccountHistoriesControllerTests
 {
-    protected PayeController Controller;
+    protected AccountHistoriesController Controller;
     protected Mock<IMediator> Mediator;
     protected Mock<IUrlHelper> UrlTestHelper;
     protected Mock<IEncodingService> EncodingService;
@@ -19,7 +19,7 @@ public abstract class PayeControllerTests
     {
         Mediator = new Mock<IMediator>();
         EncodingService = new Mock<IEncodingService>();
-        Controller = new PayeController(Mediator.Object);
+        Controller = new AccountHistoriesController(Mediator.Object);
 
         UrlTestHelper = new Mock<IUrlHelper>();
         Controller.Url = UrlTestHelper.Object;

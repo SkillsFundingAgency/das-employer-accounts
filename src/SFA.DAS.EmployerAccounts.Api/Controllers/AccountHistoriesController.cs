@@ -6,28 +6,28 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Api.Types;
-using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeAccountByRef;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountHistoryByPayeRef;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
-[Route("paye")]
-public class PayeController : ControllerBase
+[Route("api/accounthistories")]
+public class AccountHistoriesController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public PayeController(IMediator mediator)
+    public AccountHistoriesController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
-    [Route("{payeSchemeRef}/accounthistory", Name = "GetPayeSchemeAccount")]
+    [Route("", Name = "GetAccountHistoryByRef")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
-    public async Task<IActionResult> GetAccountHistoryByRef([FromRoute] string payeSchemeRef, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAccountHistoryByRef([FromQuery] string payeRef, CancellationToken cancellationToken)
     {
-        var decodedPayeSchemeRef = Uri.UnescapeDataString(payeSchemeRef);
+        var decodedPayeRef = Uri.UnescapeDataString(payeRef);
 
-        var payeSchemeResult = await _mediator.Send(new GetPayeSchemeAccountByRefQuery { Ref = decodedPayeSchemeRef }, cancellationToken);
+        var payeSchemeResult = await _mediator.Send(new GetAccountHistoryByPayeRefQuery { Ref = decodedPayeRef }, cancellationToken);
 
         if (payeSchemeResult == null)
         {

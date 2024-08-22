@@ -45,7 +45,7 @@ public static class MediatorValidationServiceRegistration
         services.AddTransient<IValidator<SupportResendInvitationCommand>, SupportResendInvitationCommandValidator>();
         services.AddTransient<IValidator<SendNotificationCommand>, SendNotificationCommandValidator>();
         services.AddTransient<IValidator<SupportCreateInvitationCommand>, SupportCreateInvitationCommandValidator>();
-        
+
         return services;
     }
 }

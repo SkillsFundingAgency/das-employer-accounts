@@ -6,16 +6,16 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
-using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeAccountByRef;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountHistoryByPayeRef;
 
-namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeAccountByRefTests;
+namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountHistoryByPayeRefTests;
 
-public class WhenIGetAPayeSchemeAccountByRef
+public class WhenIGetAnAccountHisotryByPayeRef
 {
     private Mock<IEmployerSchemesRepository> _employerSchemesRepository;
-    private GetPayeSchemeAccountByRefQuery Query { get; set; }
+    private GetAccountHistoryByPayeRefQuery Query { get; set; }
 
-    private GetPayeSchemeAccountByRefHandler RequestHandler { get; set; }
+    private GetAccountHistoryByPayeRefHandler RequestHandler { get; set; }
 
     private const long AccountId = 1667;
     private const string Ref = "ABC/123";
@@ -37,12 +37,12 @@ public class WhenIGetAPayeSchemeAccountByRef
             .Setup(x => x.GetSchemeByRef(Ref))
             .ReturnsAsync(_expectedResponse);
 
-        Query = new GetPayeSchemeAccountByRefQuery
+        Query = new GetAccountHistoryByPayeRefQuery
         {
             Ref = Ref
         };
 
-        RequestHandler = new GetPayeSchemeAccountByRefHandler(_employerSchemesRepository.Object);
+        RequestHandler = new GetAccountHistoryByPayeRefHandler(_employerSchemesRepository.Object);
     }
 
     [Test]
