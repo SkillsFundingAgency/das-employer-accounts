@@ -21,7 +21,7 @@ public static class PollyPolicyServiceRegistrations
                 .TimeoutAsync(TimeSpan.FromMilliseconds(configuration.DefaultServiceTimeoutMilliseconds), TimeoutStrategy.Pessimistic
                     , (pollyContext, timeSpan, task) =>
                     {
-                        logger.LogWarning("Error executing command for method {ExecutionGuid}. Reason: {Message}. Retrying in {Seconds} secs...", pollyContext.ExecutionGuid, task?.Exception?.Message, timeSpan.Seconds);
+                        logger.LogWarning("Error executing command for method {ExecutionGuid}. Reason: {Message}. Retrying in {Seconds} secs...", pollyContext, task?.Exception?.Message, timeSpan.Seconds);
                         return Task.CompletedTask;
                     }
                 );

@@ -33,7 +33,7 @@
     <PackageReference Include="MediatR" Version="12.4.0" />
     <PackageReference Include="microsoft.data.sqlclient" Version="5.2.2" />
     <PackageReference Include="NLog.Schema" Version="5.3.3" />
-    <PackageReference Include="Polly" Version="5.7.0" />
+    <PackageReference Include="Polly" Version="6.1.2" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3195" />
     <PackageReference Include="SFA.DAS.ActiveDirectory" Version="1.0.3" />
