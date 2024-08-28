@@ -23,14 +23,12 @@
 		<PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
 		<PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
 		<PackageReference Include="SFA.DAS.Encoding" Version="1.1.76" />
-		<PackageReference Include="SFA.DAS.Logging" Version="1.0.5">
-		</PackageReference>
 		<PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
 		<PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
 		<PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.28" />
 		<PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
 		<PackageReference Include="SFA.DAS.Validation.Mvc" Version="6.0.30" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4">
 		</PackageReference>
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />

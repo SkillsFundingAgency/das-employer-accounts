@@ -8,13 +8,13 @@
 		<ProjectReference Include="..\SFA.DAS.EmployerAccounts\SFA.DAS.EmployerAccounts.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
 		<PackageReference Include="NUnit.Analyzers">
-		  <Version>4.2.0</Version>
+		  <Version>4.3.0</Version>
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Moq">
@@ -24,13 +24,13 @@
 			<Version>13.0.3</Version>
 		</PackageReference>
 		<PackageReference Include="NUnit">
-			<Version>4.1.0</Version>
+			<Version>4.2.1</Version>
 		</PackageReference>
 		<PackageReference Include="SFA.DAS.Testing">
 			<Version>3.0.121</Version>
 		</PackageReference>
 		<PackageReference Include="SFA.DAS.Testing.AzureStorageEmulator">
-			<Version>3.0.169</Version>
+			<Version>17.1.103</Version>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
