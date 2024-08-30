@@ -1,9 +1,9 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Azure.Core;
 using Azure.Identity;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
