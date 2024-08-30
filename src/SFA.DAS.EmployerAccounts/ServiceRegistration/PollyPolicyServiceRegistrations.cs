@@ -7,6 +7,7 @@ using SFA.DAS.EmployerAccounts.Configuration;
 
 namespace SFA.DAS.EmployerAccounts.ServiceRegistration;
 
+[ExcludeFromCodeCoverage]
 public static class PollyPolicyServiceRegistrations
 {
     public static IServiceCollection AddPollyPolicy(this IServiceCollection services, EmployerAccountsConfiguration configuration)

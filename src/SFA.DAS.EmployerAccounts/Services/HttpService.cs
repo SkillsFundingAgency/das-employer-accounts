@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
+[ExcludeFromCodeCoverage]
 public class HttpService(string identifierUri) : IHttpService
 {
     private readonly ChainedTokenCredential _azureServiceTokenProvider = new(
