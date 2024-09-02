@@ -12,5 +12,21 @@ public class InvitationViewModel : IAccountIdentifier
     public string Email { get; set; }
     public Role Role { get; set; }
     public InvitationStatus Status { get; set; }
-    public DateTime ExpiryDate { get; set; }        
+    public DateTime ExpiryDate { get; set; }   
+    
+    public static InvitationViewModel MapFrom(TeamMember teamMember)
+    {
+        return new InvitationViewModel
+        {
+            IsUser = teamMember.IsUser,
+            Id = teamMember.Id,
+            AccountId = teamMember.AccountId,
+            Email = teamMember.Email,
+            Name = teamMember.Name,
+            Role = teamMember.Role,
+            Status = teamMember.Status,
+            ExpiryDate = teamMember.ExpiryDate,
+            HashedAccountId = teamMember.HashedAccountId
+        };
+    }
 }

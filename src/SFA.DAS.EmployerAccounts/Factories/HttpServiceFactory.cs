@@ -2,9 +2,9 @@
 
 public class HttpServiceFactory : IHttpServiceFactory
 {       
-    public IHttpService Create(string identifierUri, string clientId = "", string clientSecret = "", string tenant = "")
+    public IHttpService Create(string identifierUri)
     {
-        var client = new HttpService(clientId, clientSecret, identifierUri, tenant);
+        var client = new HttpService( identifierUri);
         return client;
     }
 }
