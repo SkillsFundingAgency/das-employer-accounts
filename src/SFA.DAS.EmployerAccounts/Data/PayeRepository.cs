@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -8,6 +9,7 @@ using SFA.DAS.EmployerAccounts.Models.PAYE;
 
 namespace SFA.DAS.EmployerAccounts.Data;
 
+[ExcludeFromCodeCoverage]
 public class PayeRepository : IPayeRepository
 {
     private readonly Lazy<EmployerAccountsDbContext> _db;
@@ -71,17 +73,17 @@ public class PayeRepository : IPayeRepository
         var accountHistories = _db.Value.AccountHistory;
         var payees = _db.Value.Payees;
         var query = from payee in payees
-            join accountHistory in accountHistories
-                on payee.EmpRef equals accountHistory.PayeRef
-            where accountHistory.AccountId == accountId && payee.EmpRef == reference
-            orderby accountHistory.Id descending 
-            select new PayeSchemeView
-            {
-                Ref = payee.EmpRef,
-                Name = payee.RefName,
-                AddedDate = accountHistory.AddedDate,
-                RemovedDate = accountHistory.RemovedDate
-            };
+                    join accountHistory in accountHistories
+                        on payee.EmpRef equals accountHistory.PayeRef
+                    where accountHistory.AccountId == accountId && payee.EmpRef == reference
+                    orderby accountHistory.Id descending
+                    select new PayeSchemeView
+                    {
+                        Ref = payee.EmpRef,
+                        Name = payee.RefName,
+                        AddedDate = accountHistory.AddedDate,
+                        RemovedDate = accountHistory.RemovedDate
+                    };
 
         var result = await query.FirstOrDefaultAsync();
 
