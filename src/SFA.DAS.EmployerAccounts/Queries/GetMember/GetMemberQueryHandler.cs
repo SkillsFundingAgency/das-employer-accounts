@@ -18,7 +18,9 @@ public class GetMemberQueryHandler : IRequestHandler<GetMemberRequest, GetMember
     public async Task<GetMemberResponse> Handle(GetMemberRequest message, CancellationToken cancellationToken)
     {
         var hashedAccountId = _encodingService.Encode(message.AccountId, EncodingType.AccountId);
+
         var member = await _accountTeamRepository.GetMember(hashedAccountId, message.Email, message.OnlyIfMemberIsActive) ?? new TeamMember();
+
         member.HashedUserId = _encodingService.Encode(member.Id, EncodingType.AccountId);
         member.HashedAccountId = hashedAccountId;
 

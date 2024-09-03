@@ -99,14 +99,14 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return response;
     }
 
-    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> ChangeRole(string hashedId, string email, Role role, string externalUserId)
+    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> ChangeRole(string hashedId, string hashedUserId, Role role, string externalUserId, string email)
     {
         try
         {
             await _mediator.Send(new ChangeTeamMemberRoleCommand
             {
                 HashedAccountId = hashedId,
-                Email = email,
+                HashedUserId = hashedUserId,
                 Role = role,
                 ExternalUserId = externalUserId
             });
@@ -437,7 +437,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return new OrchestratorResponse<EmployerTeamMembersViewModel>();
     }
 
-    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Remove(long userId, string accountId, string externalUserId)
+    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Remove(string accountId, string externalUserId, string hashedUserId)
     {
         var response = await GetTeamMembers(accountId, externalUserId);
 
@@ -448,6 +448,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
         try
         {
+            var userId = _encodingService.Decode(hashedUserId, EncodingType.AccountId);
             var userResponse = await _mediator.Send(new GetUserQuery { UserId = userId });
 
             if (userResponse?.User == null)
@@ -515,7 +516,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return response;
     }
 
-    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Resend(string email, string hashedId, string externalUserId, string name)
+    public async Task<OrchestratorResponse<EmployerTeamMembersViewModel>> Resend(string hashedInvitationId, string hashedId, string externalUserId, string name, string email)
     {
         var response = await GetTeamMembers(hashedId, externalUserId);
 
@@ -528,7 +529,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         {
             await _mediator.Send(new ResendInvitationCommand
             {
-                Email = email,
+                HashedInvitationId = hashedInvitationId,
                 HashedAccountId = hashedId,
                 FirstName = name,
                 ExternalUserId = externalUserId
@@ -540,7 +541,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             response.FlashMessage = new FlashMessageViewModel
             {
                 Severity = FlashMessageSeverityLevel.Success,
-                Headline = $"Invitation resent",
+                Headline = "Invitation resent",
                 Message = $"You've resent an invitation to <strong>{email}</strong>"
             };
         }
@@ -558,18 +559,21 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         return response;
     }
 
-    public async Task<OrchestratorResponse<InvitationViewModel>> Review(string hashedAccountId, string email)
+    public async Task<OrchestratorResponse<InvitationViewModel>> Review(string hashedAccountId, string hashedUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var userId = _encodingService.Decode(hashedUserId, EncodingType.AccountId);
+        
         var response = new OrchestratorResponse<InvitationViewModel>();
 
-        var queryResponse = await _mediator.Send(new GetMemberRequest
+        var queryResponse = await _mediator.Send(new GetMemberByIdQuery
         {
             AccountId = accountId,
-            Email = email
+            Id = userId,
+            IsUser = true,
         });
 
-        response.Data = MapFrom(queryResponse.TeamMember);
+        response.Data = InvitationViewModel.MapFrom(queryResponse.TeamMember);
 
         return response;
     }
@@ -580,23 +584,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
         var userResponse = await Mediator.Send(new GetTeamMemberQuery { AccountId = accountId, TeamMemberId = userId });
         return userResponse.User.ShowWizard && userResponse.User.Role == Role.Owner;
     }
-
-    private static InvitationViewModel MapFrom(TeamMember teamMember)
-    {
-        return new InvitationViewModel
-        {
-            IsUser = teamMember.IsUser,
-            Id = teamMember.Id,
-            AccountId = teamMember.AccountId,
-            Email = teamMember.Email,
-            Name = teamMember.Name,
-            Role = teamMember.Role,
-            Status = teamMember.Status,
-            ExpiryDate = teamMember.ExpiryDate,
-            HashedAccountId = teamMember.HashedAccountId
-        };
-    }
-
+    
     public virtual async Task<OrchestratorResponse<AccountSummaryViewModel>> GetAccountSummary(string hashedAccountId, string externalUserId)
     {
         var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
@@ -672,7 +660,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
 
     private delegate bool EvaluateCallToActionRuleDelegate(PanelViewModel<AccountDashboardViewModel> viewModel);
 
-    private bool EvaluateDraftVacancyCallToActionRule(PanelViewModel<AccountDashboardViewModel> viewModel)
+    private static bool EvaluateDraftVacancyCallToActionRule(PanelViewModel<AccountDashboardViewModel> viewModel)
     {
         if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount != 1 ||
             viewModel.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)

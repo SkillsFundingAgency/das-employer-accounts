@@ -60,6 +60,35 @@ public class InvitationRepository :  IInvitationRepository
 
         return result.SingleOrDefault();
     }
+    
+    public async Task<Invitation> Get(long accountId, long invitationId)
+    {
+        var parameters = new DynamicParameters();
+
+        parameters.Add("@accountId", accountId, DbType.Int64);
+        parameters.Add("@id", invitationId, DbType.Int64);
+
+        const string query = """
+                             SELECT
+                             	Id
+                             	,AccountId
+                             	,[Name]
+                             	,Email
+                             	,ExpiryDate
+                             	,[Status]
+                             	,[Role]
+                             FROM [employer_account].[Invitation] 
+                             WHERE AccountId = @accountId AND Id = @id;
+                             """;
+
+        var result = await _db.Value.Database.GetDbConnection().QueryAsync<Invitation>(
+            sql: query,
+            param: parameters,
+            transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
+            commandType: CommandType.Text);
+
+        return result.SingleOrDefault();
+    }
 
     public async Task<InvitationView> GetView(long id)
     {

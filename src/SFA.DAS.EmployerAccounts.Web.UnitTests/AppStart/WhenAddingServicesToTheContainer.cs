@@ -1,8 +1,13 @@
+using System;
+using System.Collections.Generic;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using NServiceBus;
+using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.AcceptInvitation;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
@@ -62,6 +67,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserInvitations;
 using SFA.DAS.EmployerAccounts.Queries.GetUserNotificationSettings;
 using SFA.DAS.EmployerAccounts.Queries.GetVacancies;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;
+using SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart;
 
@@ -171,6 +177,7 @@ public class WhenAddingServicesToTheContainer
         startup.ConfigureServices(serviceCollection);
 
         serviceCollection.AddSingleton(_ => mockHostingEnvironment.Object);
+        serviceCollection.AddSingleton(Mock.Of<IMessageSession>());
         var provider = serviceCollection.BuildServiceProvider();
 
         var type = provider.GetService(toResolve);
