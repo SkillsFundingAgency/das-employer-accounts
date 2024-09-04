@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
@@ -12,16 +13,19 @@ namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 public class EmployerTeamController : BaseController
 {
     private readonly IUrlActionHelper _urlActionHelper;
+    private readonly ILogger<EmployerTeamController> _logger;
     private readonly EmployerTeamOrchestratorWithCallToAction _employerTeamOrchestrator;
 
     public EmployerTeamController(
         ICookieStorageService<FlashMessageViewModel> flashMessage,
         EmployerTeamOrchestratorWithCallToAction employerTeamOrchestrator,
-        IUrlActionHelper urlActionHelper)
+        IUrlActionHelper urlActionHelper,
+        ILogger<EmployerTeamController> logger)
         : base(flashMessage)
     {
         _employerTeamOrchestrator = employerTeamOrchestrator;
         _urlActionHelper = urlActionHelper;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -183,7 +187,9 @@ public class EmployerTeamController : BaseController
     public async Task<IActionResult> Cancel(string hashedInvitationId, string email, string hashedAccountId, int cancel)
     {
         if (cancel != 1)
+        {
             return RedirectToAction(ControllerConstants.ViewTeamViewName, new { HashedAccountId = hashedAccountId });
+        }
 
         var response = await _employerTeamOrchestrator.Cancel(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
@@ -193,27 +199,32 @@ public class EmployerTeamController : BaseController
     [HttpPost]
     [Route("resend", Name = RouteNames.EmployerTeamResendInvite)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Resend(string hashedAccountId, string email, string name)
+    public async Task<IActionResult> Resend(string hashedAccountId, string hashedInvitationId, string name, string email)
     {
-        var response = await _employerTeamOrchestrator.Resend(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName), name);
+        var response = await _employerTeamOrchestrator.Resend(
+            hashedInvitationId,
+            hashedAccountId,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+            name,
+            email);
 
         return View(ControllerConstants.ViewTeamViewName, response);
     }
 
     [HttpGet]
-    [Route("{email}/remove", Name = RouteNames.RemoveTeamMember)]
+    [Route("{hashedUserId}/remove", Name = RouteNames.RemoveTeamMember)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Remove(string hashedAccountId, string email)
+    public async Task<IActionResult> Remove(string hashedAccountId, string hashedUserId)
     {
-        var response = await _employerTeamOrchestrator.Review(hashedAccountId, email);
+        var response = await _employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
 
         return View(response);
     }
 
     [HttpPost]
-    [Route("{email}/remove", Name = RouteNames.ConfirmRemoveTeamMember)]
+    [Route("{hashedUserId}/remove", Name = RouteNames.ConfirmRemoveTeamMember)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> Remove(long userId, string hashedAccountId, string email, int remove)
+    public async Task<IActionResult> Remove(string hashedAccountId, string hashedUserId, int remove)
     {
         Exception exception;
         HttpStatusCode httpStatusCode;
@@ -221,9 +232,14 @@ public class EmployerTeamController : BaseController
         try
         {
             if (remove != 1)
+            {
                 return RedirectToAction(ControllerConstants.ViewTeamViewName, new { HashedAccountId = hashedAccountId });
+            }
 
-            var response = await _employerTeamOrchestrator.Remove(userId, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+            var response = await _employerTeamOrchestrator.Remove(
+                hashedAccountId,
+                HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+                hashedUserId);
 
             return View(ControllerConstants.ViewTeamViewName, response);
         }
@@ -238,7 +254,7 @@ public class EmployerTeamController : BaseController
             exception = e;
         }
 
-        var errorResponse = await _employerTeamOrchestrator.Review(hashedAccountId, email);
+        var errorResponse = await _employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
         errorResponse.Status = httpStatusCode;
         errorResponse.Exception = exception;
 
@@ -246,28 +262,44 @@ public class EmployerTeamController : BaseController
     }
 
     [HttpGet]
-    [Route("{email}/role/change", Name = RouteNames.EmployerTeamGetChangeRole)]
+    [Route("{hashedUserId}/role/change", Name = RouteNames.EmployerTeamGetChangeRole)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> ChangeRole(string hashedAccountId, string email)
+    public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId)
     {
-        var teamMember = await _employerTeamOrchestrator.GetTeamMemberWhetherActiveOrNot(hashedAccountId, email, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var teamMember = await _employerTeamOrchestrator.GetTeamMember(
+            hashedAccountId,
+            hashedUserId,
+            isUser: true,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
+        );
+
 
         return View(teamMember);
     }
 
     [HttpPost]
-    [Route("{email}/role/change", Name = RouteNames.EmployerTeamChangeRolePost)]
+    [Route("{hashedUserId}/role/change", Name = RouteNames.EmployerTeamChangeRolePost)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
-    public async Task<IActionResult> ChangeRole(string hashedAccountId, string email, Role role)
+    public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId, string email, Role role)
     {
-        var response = await _employerTeamOrchestrator.ChangeRole(hashedAccountId, email, role, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var response = await _employerTeamOrchestrator.ChangeRole(
+            hashedAccountId,
+            hashedUserId,
+            role,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+            email);
 
         if (response.Status == HttpStatusCode.OK)
         {
             return View(ControllerConstants.ViewTeamViewName, response);
         }
 
-        var teamMemberResponse = await _employerTeamOrchestrator.GetTeamMemberWhetherActiveOrNot(hashedAccountId, email, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var teamMemberResponse = await _employerTeamOrchestrator.GetTeamMember(
+            hashedAccountId,
+            hashedUserId,
+            isUser: true,
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
+        );
 
         //We have to override flash message as the change role view has different model to view team view
         teamMemberResponse.FlashMessage = response.FlashMessage;
@@ -287,6 +319,8 @@ public class EmployerTeamController : BaseController
             isUser,
             HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
         );
+
+        _logger.LogInformation("EmployerTeamController.Review invitation: {Invitation}.", JsonSerializer.Serialize(invitation));
 
         return View(invitation);
     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture.NUnit3;
 using AutoMapper;
 using Moq;
 using NUnit.Framework;
@@ -14,7 +13,6 @@ using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Queries.GetOrganisationAgreements;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetOrganisationAgreements
 {

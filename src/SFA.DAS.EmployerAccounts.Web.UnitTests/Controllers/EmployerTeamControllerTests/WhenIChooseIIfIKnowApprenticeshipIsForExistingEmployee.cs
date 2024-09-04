@@ -1,4 +1,5 @@
-﻿using SFA.DAS.EmployerAccounts.Web.Controllers;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerAccounts.Web.Controllers;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerTeamControllerTests;
 
@@ -18,7 +19,9 @@ public class WhenIChooseIIfIKnowApprenticeshipIsForExistingEmployee
         _controller = new EmployerTeamController(
             _mockCookieStorageService.Object,
             _mockEmployerTeamOrchestrator.Object,
-            Mock.Of<IUrlActionHelper>());
+            Mock.Of<IUrlActionHelper>(),
+            Mock.Of<ILogger<EmployerTeamController>>()
+            );
     }
 
     [TearDown]

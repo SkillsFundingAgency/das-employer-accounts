@@ -6,14 +6,20 @@ public class ResendInvitationCommandValidator : IValidator<ResendInvitationComma
     {
         var validationResult = new ValidationResult();
 
-        if (string.IsNullOrWhiteSpace(item.Email))
-            validationResult.AddError("Email", "No Email supplied");
+        if (string.IsNullOrWhiteSpace(item.HashedInvitationId))
+        {
+            validationResult.AddError("HashedInvitationId", "No HashedInvitationId supplied");
+        }
 
         if (string.IsNullOrEmpty(item.HashedAccountId))
+        {
             validationResult.AddError("HashedId", "No HashedId supplied");
+        }
 
         if (string.IsNullOrWhiteSpace(item.ExternalUserId))
+        {
             validationResult.AddError("ExternalUserId", "No ExternalUserId supplied");
+        }
 
         return validationResult;
     }

@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
             _mockMapper = new Mock<IMapper>();
 
             _mockHttpServiceFactory
-                .Setup(m => m.Create(_identifierUri, string.Empty, string.Empty, string.Empty))
+                .Setup(m => m.Create(_identifierUri))
                 .Returns(_mockHttpService.Object);
 
             _mockHttpService

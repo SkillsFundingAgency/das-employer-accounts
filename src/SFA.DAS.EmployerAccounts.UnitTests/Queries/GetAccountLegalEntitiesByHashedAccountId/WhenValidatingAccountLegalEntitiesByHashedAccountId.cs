@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntities;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesByHashedAccountId;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountLegalEntitiesByHashedAccountId
