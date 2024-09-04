@@ -499,10 +499,7 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/create/agreement/success", Name = RouteNames.TaskListSignedAgreementSuccess)]
     public async Task<IActionResult> TaskListSignedAgreementSuccess(string hashedAccountId)
     {
-        var externalUserId = GetUserId();
-        await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
-        return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
-        /// return View(); to be reinstated once the new permissions journey is in place.
+        return View();
     }
 
     [HttpGet]

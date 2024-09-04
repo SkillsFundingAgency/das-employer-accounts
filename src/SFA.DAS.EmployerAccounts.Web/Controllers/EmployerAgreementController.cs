@@ -130,11 +130,7 @@ public class EmployerAgreementController : BaseController
         {
             _ = await _orchestrator.AcknowledgeAgreement(hashedAgreementId, hasPreviousAcknowledgement);
 
-            /// this is temporary redirection to disable STEP 5 in the registration journey CSP-1630
-            return RedirectToRoute(RouteNames.TaskListSignedAgreementSuccess, new { hashedAccountId });
-
-            /// This line should be reinstated depending on the new permission journey
-            /// return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
+            return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
         }
 
         var response = await _orchestrator.SignAgreement(hashedAgreementId, hashedAccountId, userInfo, DateTime.UtcNow, legalEntityName, hasPreviousAcknowledgement);
