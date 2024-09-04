@@ -17,7 +17,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
     private Mock<IMediator> _mediator;
     private const string ExpectedRedirectUrl = "http://redirect.local.test";
-    private const string AccountNameErrorMessage = "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name.";
+    private const string AccountNameErrorMessage = "New account name must not be the same as current name";
     private const string AccountNameBlankErrorMessage = "Enter a name";
 
     [SetUp]

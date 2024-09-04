@@ -7,9 +7,10 @@ public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<
 {
     public RenameEmployerAccountViewModelValidator()
     {
-        RuleFor(r => r.NewName).Cascade(CascadeMode.Stop)
+        RuleFor(r => r.NewName)
+            .Cascade(CascadeMode.Stop)
             .NotEqual(r => r.CurrentName)
-            .WithMessage("New account name must not be the same as current name.")
+            .WithMessage("New account name must not be the same as current name")
             .NotEmpty()
             .WithMessage("Enter a name");
 
