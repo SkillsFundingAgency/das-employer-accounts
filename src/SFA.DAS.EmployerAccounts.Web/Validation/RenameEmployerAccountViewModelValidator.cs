@@ -9,7 +9,7 @@ public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<
     {
         RuleFor(r => r.NewName).Cascade(CascadeMode.Stop)
             .NotEqual(r => r.CurrentName)
-            .WithMessage("You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name.")
+            .WithMessage("New account name must not be the same as current name.")
             .NotEmpty()
             .WithMessage("Enter a name");
 
