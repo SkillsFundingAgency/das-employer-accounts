@@ -14,9 +14,9 @@ public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<
     private const string RenameAccountMessage = "New account name must not be the same as current name";
     private const string RegistrationChangeAccountMessage = "You have entered your organisation name. If you want to use your organisation name select 'Yes, I want to use my organisation name as my employer account name'. If not, enter a new employer account name.";
     
-    public RenameEmployerAccountViewModelValidator(RenameAccountType accountType)
+    public RenameEmployerAccountViewModelValidator(RenameAccountType renameAccountType)
     {
-        var sameNameErrorMessage = accountType == RenameAccountType.RenameAccount ? RenameAccountMessage : RegistrationChangeAccountMessage;
+        var sameNameErrorMessage = renameAccountType == RenameAccountType.RenameAccount ? RenameAccountMessage : RegistrationChangeAccountMessage;
         
         RuleFor(r => r.NewName)
             .Cascade(CascadeMode.Stop)
