@@ -359,7 +359,7 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/rename", Name = RouteNames.RenameAccountPost)]
     public async Task<IActionResult> RenameAccount(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
-        var validator = new RenameEmployerAccountViewModelValidator();
+        var validator = new RenameEmployerAccountViewModelValidator(RenameAccountType.RenameAccount);
         var validationResult = validator.Validate(vm);
 
         if (!validationResult.IsValid)
@@ -685,7 +685,7 @@ public class EmployerAccountController : BaseController
 
     private IActionResult HandleChangeAccountName(string hashedAccountId, RenameEmployerAccountViewModel vm, OrchestratorResponse<RenameEmployerAccountViewModel> response)
     {
-        var validator = new RenameEmployerAccountViewModelValidator();
+        var validator = new RenameEmployerAccountViewModelValidator(RenameAccountType.RegistrationChangeAccountName);
         var validationResult = validator.Validate(vm);
 
         if (!validationResult.IsValid)
