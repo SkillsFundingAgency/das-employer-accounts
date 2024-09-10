@@ -11,6 +11,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.8" />
         <PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.41" />
+        <PackageReference Include="Microsoft.IdentityModel.KeyVaultExtensions" Version="7.7.1" />
         <PackageReference Include="NLog" Version="5.3.3" />
         <PackageReference Include="NLog.Schema" Version="5.3.3" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.12" />
