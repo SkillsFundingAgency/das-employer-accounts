@@ -14,7 +14,6 @@
 		<PackageReference Include="Microsoft.ApplicationInsights.NLogTarget" Version="2.22.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.HealthChecks.SqlServer" Version="1.0.0" />
-		<PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.0.2" />
 		<PackageReference Include="NLog" Version="5.3.3" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
