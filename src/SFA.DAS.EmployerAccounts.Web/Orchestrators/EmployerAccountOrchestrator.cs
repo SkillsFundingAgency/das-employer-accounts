@@ -372,7 +372,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         response.Data.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() +
                                            $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}";
         response.Data.ProviderPermissionsUrl =
-            _urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true";
+            _urlHelper.ProviderRelationshipsAction("providers/new/selectOrganisation") + $"?AccountTasks=true";
 
         return response;
     }

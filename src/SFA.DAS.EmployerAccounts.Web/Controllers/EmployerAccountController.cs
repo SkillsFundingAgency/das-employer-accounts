@@ -117,14 +117,14 @@ public class EmployerAccountController : BaseController
             case CloseTo3Million: return RedirectToAction(ControllerConstants.GatewayInformActionName);
             case LessThan3Million: return RedirectToRoute(RouteNames.EmployerAccountGetApprenticeshipFunding);
             default:
-            {
-                var model = new
                 {
-                    InError = true
-                };
+                    var model = new
+                    {
+                        InError = true
+                    };
 
-                return View(model);
-            }
+                    return View(model);
+                }
         }
     }
 
@@ -160,14 +160,14 @@ public class EmployerAccountController : BaseController
                 return RedirectToAction(ControllerConstants.SearchUsingAornActionName,
                     ControllerConstants.SearchPensionRegulatorControllerName, new { hashedAccountId });
             default:
-            {
-                var model = new
                 {
-                    InError = true
-                };
+                    var model = new
+                    {
+                        InError = true
+                    };
 
-                return View(model);
-            }
+                    return View(model);
+                }
         }
     }
 
@@ -532,19 +532,19 @@ public class EmployerAccountController : BaseController
 
         switch (choice ?? 0)
         {
-            case 1: return Redirect(urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true");
+            case 1: return Redirect(urlHelper.ProviderRelationshipsAction("providers/new/selectOrganisation") + $"?AccountTasks=true");
             case 2:
                 await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
                 return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
             default:
-            {
-                var model = new
                 {
-                    InError = true
-                };
+                    var model = new
+                    {
+                        InError = true
+                    };
 
-                return View(model);
-            }
+                    return View(model);
+                }
         }
     }
 
@@ -662,7 +662,7 @@ public class EmployerAccountController : BaseController
         {
             response.Status = HttpStatusCode.OK;
             response.FlashMessage = new FlashMessageViewModel
-                { Headline = "There was a problem creating your account" };
+            { Headline = "There was a problem creating your account" };
             return RedirectToAction(ControllerConstants.SummaryActionName);
         }
 
