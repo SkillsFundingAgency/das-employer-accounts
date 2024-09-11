@@ -36,7 +36,6 @@ public class WhenILoginAUser
     public void When_GovSignIn_False_ThenTheUserIsRedirectedToIndex()
     {
         //arrange
-        _configuration.Object.UseGovSignIn = false;
 
         //Act
         var actual = _homeController.SignIn();

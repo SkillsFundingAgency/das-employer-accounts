@@ -58,9 +58,6 @@ public class Startup
 
         services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
         services.AddConfigurationOptions(_configuration);
-        var identityServerConfiguration = _configuration
-            .GetSection(ConfigurationKeys.Identity)
-            .Get<IdentityServerConfiguration>();
 
         var employerAccountsConfiguration = _configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
 
@@ -72,14 +69,7 @@ public class Startup
         services.AddApplicationServices();
         services.AddHmrcServices();
 
-        if (employerAccountsConfiguration.UseGovSignIn)
-        {
-            services.AddMaMenuConfiguration(RouteNames.SignOut, _configuration["ResourceEnvironmentName"]);
-        }
-        else
-        {
-            services.AddMaMenuConfiguration(RouteNames.SignOut, identityServerConfiguration.ClientId, _configuration["ResourceEnvironmentName"]);
-        }
+        services.AddMaMenuConfiguration(RouteNames.SignOut, _configuration["ResourceEnvironmentName"]);
 
         services.AddAuditServices();
         services.AddCachesRegistrations();
@@ -107,20 +97,14 @@ public class Startup
 
         var authenticationBuilder = services.AddAuthentication();
 
-        if (_configuration.UseGovUkSignIn())
-        {
-            var govConfig = _configuration.GetSection("SFA.DAS.Employer.GovSignIn");
-            govConfig["ResourceEnvironmentName"] = _configuration["ResourceEnvironmentName"];
-            govConfig["StubAuth"] = _configuration["StubAuth"];
-            services.AddAndConfigureGovUkAuthentication(govConfig,
-                typeof(EmployerAccountPostAuthenticationClaimsHandler),
-                "",
-                "/service/SignIn-Stub");
-        }
-        else
-        {
-            services.AddAndConfigureEmployerAuthentication(identityServerConfiguration);
-        }
+        var govConfig = _configuration.GetSection("SFA.DAS.Employer.GovSignIn");
+        govConfig["ResourceEnvironmentName"] = _configuration["ResourceEnvironmentName"];
+        govConfig["StubAuth"] = _configuration["StubAuth"];
+        services.AddAndConfigureGovUkAuthentication(govConfig,
+            typeof(EmployerAccountPostAuthenticationClaimsHandler),
+            "",
+            "/service/SignIn-Stub");
+        
 
         var staffAuthConfig = new SupportConsoleAuthenticationOptions
         {
@@ -129,7 +113,6 @@ public class Startup
                 MetadataAddress = employerAccountsConfiguration.AdfsMetadata,
                 Wreply = employerAccountsConfiguration.EmployerAccountsBaseUrl,
                 Wtrealm = employerAccountsConfiguration.EmployerAccountsBaseUrl,
-                BaseUrl = employerAccountsConfiguration.Identity.BaseAddress,
             }
         };
 

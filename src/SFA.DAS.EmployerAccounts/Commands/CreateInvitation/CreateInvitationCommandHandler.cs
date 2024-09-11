@@ -116,20 +116,18 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
         var templateId = existingUser?.UserRef != null
             ? "InvitationExistingUser"
             : "InvitationNewUser";
-        if (_employerApprenticeshipsServiceConfiguration.UseGovSignIn)
+
+        if (_isProdEnvironment)
         {
-            if (_isProdEnvironment)
-            {
-                templateId = existingUser?.UserRef != null
-                    ? "3c285db3-164c-4258-9180-f2d42723e155"
-                    : "6b6b46cc-4a5f-4985-8626-ed239af11d71";
-            }
-            else
-            {
-                templateId = existingUser?.UserRef != null
-                    ? "11cb4eb4-c22a-47c7-aa26-1074da25ff4d"
-                    : "2bb7da99-2542-4536-9c15-4eb3466a99e3";
-            }
+            templateId = existingUser?.UserRef != null
+                ? "3c285db3-164c-4258-9180-f2d42723e155"
+                : "6b6b46cc-4a5f-4985-8626-ed239af11d71";
+        }
+        else
+        {
+            templateId = existingUser?.UserRef != null
+                ? "11cb4eb4-c22a-47c7-aa26-1074da25ff4d"
+                : "2bb7da99-2542-4536-9c15-4eb3466a99e3";
         }
 
         await _mediator.Send(new SendNotificationCommand

@@ -66,14 +66,11 @@ public class EmployerAccountAuthorisationHandler : IEmployerAccountAuthorisation
 
         if (employerAccounts == null || !employerAccounts.ContainsKey(accountIdFromUrl))
         {
-            var requiredIdClaim = _configuration.UseGovSignIn
-                ? ClaimTypes.NameIdentifier : EmployerClaims.IdamsUserIdClaimTypeIdentifier;
-
-            if (!context.User.HasClaim(c => c.Type.Equals(requiredIdClaim)))
+            if (!context.User.HasClaim(c => c.Type.Equals(ClaimTypes.NameIdentifier)))
                 return false;
 
             var userClaim = context.User.Claims
-                .First(c => c.Type.Equals(requiredIdClaim));
+                .First(c => c.Type.Equals(ClaimTypes.NameIdentifier));
 
             var email = context.User.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
 
@@ -115,9 +112,7 @@ public class EmployerAccountAuthorisationHandler : IEmployerAccountAuthorisation
             return Task.FromResult(false);
         }
 
-        var requiredIdClaim = _configuration.UseGovSignIn ? ClaimTypes.NameIdentifier : EmployerClaims.IdamsUserIdClaimTypeIdentifier;
-
-        if (!context.User.HasClaim(c => c.Type.Equals(requiredIdClaim)))
+        if (!context.User.HasClaim(c => c.Type.Equals(ClaimTypes.NameIdentifier)))
             return Task.FromResult(false);
 
         return Task.FromResult(true);

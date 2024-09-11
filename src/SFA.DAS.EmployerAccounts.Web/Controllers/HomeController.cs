@@ -22,8 +22,6 @@ public class HomeController : BaseController
     private readonly IStubAuthenticationService _stubAuthenticationService;
     private readonly IUrlActionHelper _urlHelper;
 
-    public const string ReturnUrlCookieName = "SFA.DAS.EmployerAccounts.Web.Controllers.ReturnUrlCookie";
-
     public HomeController(
         IHomeOrchestrator homeOrchestrator,
         EmployerAccountsConfiguration configuration,
@@ -47,19 +45,15 @@ public class HomeController : BaseController
         GaQueryData gaQueryData,
         [FromQuery(Name = "redirectUri")] string redirectUri)
     {
-        // check if the GovSignIn is enabled
-        if (_configuration.UseGovSignIn)
+        if (User.Identities.FirstOrDefault() != null && User.Identities.FirstOrDefault()!.IsAuthenticated)
         {
-            if (User.Identities.FirstOrDefault() != null && User.Identities.FirstOrDefault()!.IsAuthenticated)
+            var userRef = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserIdClaimTypeIdentifier);
+
+            var userDetail = await _homeOrchestrator.GetUser(userRef);
+
+            if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
             {
-                var userRef = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserIdClaimTypeIdentifier);
-
-                var userDetail = await _homeOrchestrator.GetUser(userRef);
-
-                if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
-                {
-                    return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");
-                }
+                return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");
             }
         }
 
@@ -70,23 +64,6 @@ public class HomeController : BaseController
         if (userIdClaim != null)
         {
             await _homeOrchestrator.RecordUserLoggedIn(userIdClaim.Value);
-
-            if (!_configuration.UseGovSignIn)
-            {
-                var partialLogin = HttpContext.User.FindFirstValue(DasClaimTypes.RequiresVerification);
-
-                if (partialLogin.Equals("true", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    return Redirect(ConfigurationFactory.Current.Get().AccountActivationUrl);
-                }
-
-                var userRef = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserIdClaimTypeIdentifier);
-                var email = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserEmailClaimTypeIdentifier);
-                var firstName = HttpContext.User.FindFirstValue(DasClaimTypes.GivenName);
-                var lastName = HttpContext.User.FindFirstValue(DasClaimTypes.FamilyName);
-
-                await _homeOrchestrator.SaveUpdatedIdentityAttributes(userRef, email, firstName, lastName);
-            }
 
             accounts = await _homeOrchestrator.GetUserAccounts(
                 userIdClaim.Value,
@@ -106,7 +83,6 @@ public class HomeController : BaseController
             var model = new ServiceStartPageViewModel
             {
                 HideHeaderSignInLink = true,
-                GovSignInEnabled = _configuration.UseGovSignIn
             };
 
             return View(ControllerConstants.ServiceStartPageViewName, model);
@@ -227,16 +203,6 @@ public class HomeController : BaseController
     [Route("register/new/{correlationId?}")]
     public async Task<IActionResult> HandleNewRegistration(string correlationId = null)
     {
-        if (!_configuration.UseGovSignIn && !string.IsNullOrWhiteSpace(correlationId))
-        {
-            var userRef = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-            var email = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserEmailClaimTypeIdentifier);
-            var firstName = HttpContext.User.FindFirstValue(DasClaimTypes.GivenName);
-            var lastName = HttpContext.User.FindFirstValue(DasClaimTypes.FamilyName);
-
-            await _homeOrchestrator.SaveUpdatedIdentityAttributes(userRef, email, firstName, lastName, correlationId);
-        }
-
         return RedirectToAction(ControllerConstants.IndexActionName);
     }
 
@@ -245,30 +211,17 @@ public class HomeController : BaseController
     [Route("register/{correlationId}")]
     public async Task<IActionResult> RegisterUser(Guid? correlationId)
     {
-        var schema = Request.Scheme;
-        var authority = HttpContext?.Request.Host.Value;
-        var appConstants = new Constants(_configuration.Identity);
-
         if (!correlationId.HasValue)
         {
-            return _configuration.UseGovSignIn
-                ? Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"))
-                : new RedirectResult($"{appConstants.RegisterLink()}{schema}://{authority}/service/register/new");
+            return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
         }
 
         var invitation = await _homeOrchestrator.GetProviderInvitation(correlationId.Value);
 
-        if (_configuration.UseGovSignIn)
-        {
-            var queryData = invitation.Data != null
-                ? $"?correlationId={correlationId}&firstname={WebUtility.UrlEncode(invitation.Data.EmployerFirstName)}&lastname={WebUtility.UrlEncode(invitation.Data.EmployerLastName)}"
-                : "";
-            return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + queryData);
-        }
-
-        return invitation.Data != null
-            ? new RedirectResult($"{appConstants.RegisterLink()}{schema}://{authority}/service/register/new/{correlationId}&firstname={WebUtility.UrlEncode(invitation.Data.EmployerFirstName)}&lastname={WebUtility.UrlEncode(invitation.Data.EmployerLastName)}&email={WebUtility.UrlEncode(invitation.Data.EmployerEmail)}")
-            : new RedirectResult($"{appConstants.RegisterLink()}{schema}://{authority}/service/register/new");
+        var queryData = invitation.Data != null
+            ? $"?correlationId={correlationId}&firstname={WebUtility.UrlEncode(invitation.Data.EmployerFirstName)}&lastname={WebUtility.UrlEncode(invitation.Data.EmployerLastName)}"
+            : "";
+        return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + queryData);
     }
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
@@ -330,28 +283,17 @@ public class HomeController : BaseController
         var authenticationProperties = new AuthenticationProperties();
         authenticationProperties.Parameters.Clear();
         authenticationProperties.Parameters.Add("id_token", idToken);
-        if (_configuration.UseGovSignIn)
-        {
-            var schemes = new List<string>
+        var schemes = new List<string>
             {
                 CookieAuthenticationDefaults.AuthenticationScheme
             };
-            _ = bool.TryParse(_config["StubAuth"], out var stubAuth);
-            if (!stubAuth)
-            {
-                schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
-            }
-
-            return SignOut(authenticationProperties, schemes.ToArray());
+        _ = bool.TryParse(_config["StubAuth"], out var stubAuth);
+        if (!stubAuth)
+        {
+            schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/", Parameters = { { "id_token", idToken } } });
-        SignOut(authenticationProperties, CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
-
-        var constants = new Constants(_configuration.Identity);
-
-        return new RedirectResult(string.Format(constants.LogoutEndpoint(), idToken));
+        return SignOut(authenticationProperties, schemes.ToArray());
     }
 
     [Route("signoutcleanup")]
@@ -382,7 +324,6 @@ public class HomeController : BaseController
         var model = new ServiceStartPageViewModel
         {
             HideHeaderSignInLink = true,
-            GovSignInEnabled = _configuration.UseGovSignIn
         };
 
         return View(model);
