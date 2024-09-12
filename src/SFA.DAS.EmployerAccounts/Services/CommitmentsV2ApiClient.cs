@@ -1,12 +1,12 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using Azure.Core;
-using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.EmployerAccounts.Configuration;
+using SFA.DAS.EmployerAccounts.Extensions;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
@@ -14,12 +14,12 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly CommitmentsApiV2ClientConfiguration _config;
-    private readonly ILogger<CommitmentsV2ApiClient> _logger;        
+    private readonly ILogger<CommitmentsV2ApiClient> _logger;
 
     public CommitmentsV2ApiClient(HttpClient httpClient, CommitmentsApiV2ClientConfiguration config, ILogger<CommitmentsV2ApiClient> logger)
     {
         _httpClient = httpClient;
-        _config = config;            
+        _config = config;
         _logger = logger;
     }
 
@@ -31,7 +31,7 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
-            
+
         using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
@@ -47,7 +47,7 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
         _logger.LogInformation("Getting GetApprenticeships {Url}", url);
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-        await AddAuthenticationHeader(requestMessage);            
+        await AddAuthenticationHeader(requestMessage);
 
         using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
@@ -96,7 +96,7 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
-            
+
         using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
@@ -113,18 +113,13 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
         return _config.ApiBaseUrl + "/";
     }
-    
+
     private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
         if (!string.IsNullOrEmpty(_config.IdentifierUri))
         {
-            var azureServiceTokenProvider = new ChainedTokenCredential(
-                new ManagedIdentityCredential(),
-                new AzureCliCredential(),
-                new VisualStudioCodeCredential(),
-                new VisualStudioCredential()
-            );
-        
+            var azureServiceTokenProvider = ChainedTokenCredentialHelper.Create();
+
             var accessToken = (await azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { _config.IdentifierUri }))).Token;
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }

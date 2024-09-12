@@ -1,6 +1,5 @@
 ﻿using System.Data.Common;
 using Azure.Core;
-using Azure.Identity;
 using Microsoft.Data.SqlClient;
 
 namespace SFA.DAS.EmployerAccounts.Extensions;
@@ -15,20 +14,16 @@ public static class DatabaseExtensions
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
-        
+
         var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
         bool useManagedIdentity = !connectionStringBuilder.IntegratedSecurity && string.IsNullOrEmpty(connectionStringBuilder.UserID);
-        
+
         if (!useManagedIdentity)
         {
             return new SqlConnection(connectionString);
         }
 
-        var azureServiceTokenProvider = new ChainedTokenCredential(
-            new ManagedIdentityCredential(),
-            new AzureCliCredential(),
-            new VisualStudioCodeCredential(),
-            new VisualStudioCredential());
+        var azureServiceTokenProvider = ChainedTokenCredentialHelper.Create();
 
         return new SqlConnection
         {
