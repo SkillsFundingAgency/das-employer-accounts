@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using Azure.Core;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ using SFA.DAS.EmployerAccounts.Extensions;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
+[ExcludeFromCodeCoverage]
 public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 {
     private readonly HttpClient _httpClient;

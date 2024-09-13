@@ -1,9 +1,11 @@
 ﻿using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using Azure.Core;
 using Microsoft.Data.SqlClient;
 
 namespace SFA.DAS.EmployerAccounts.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class DatabaseExtensions
 {
     private const string AzureResource = "https://database.windows.net/";
