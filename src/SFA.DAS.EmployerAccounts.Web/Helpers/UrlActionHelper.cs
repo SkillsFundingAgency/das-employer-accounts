@@ -139,6 +139,13 @@ public class UrlActionHelper : IUrlActionHelper
         return builder.EmployerProfiles("EditUserDetails");
     }
 
+    public string EmployerRequestApprenticeshipTrainingAction(string path)
+    {
+        var baseUrl = _configuration.EmployerRequestApprenticeshipTrainingBaseUrl;
+
+        return NonAccountsAction(baseUrl, path);
+    }
+
     private static string Action(string baseUrl, string path)
     {
         var trimmedBaseUrl = baseUrl?.TrimEnd('/') ?? string.Empty;

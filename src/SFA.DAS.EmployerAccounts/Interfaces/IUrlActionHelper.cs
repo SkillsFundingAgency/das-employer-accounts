@@ -17,4 +17,5 @@ public interface IUrlActionHelper
     string EmployerAanAction(string path = "");
     string EmployerProfileAddUserDetails(string path = "");
     string EmployerProfileEditUserDetails(string path = "");
+    string EmployerRequestApprenticeshipTrainingAction(string path="");
 }
