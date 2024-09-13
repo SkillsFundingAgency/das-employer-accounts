@@ -106,26 +106,18 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
 
     private async Task ValidateLegalEntityHasNoCommitments(EmployerAgreementView agreement, long accountId, ValidationResult validationResult)
     {
-        _logger.LogInformation("ValidateLegalEntityHasNoCommitments starting for accountId: {Id}. EmployerAgreementView: {View}", accountId, JsonSerializer.Serialize(agreement));
-        
         var response = await _commitmentsV2ApiClient.GetEmployerAccountSummary(accountId);
         
-        _logger.LogInformation("ValidateLegalEntityHasNoCommitments apprenticeshipStatusSummaryResponse: {Response}.", JsonSerializer.Serialize(response));
-
         var commitment = response.ApprenticeshipStatusSummaryResponse.FirstOrDefault(c =>
             !string.IsNullOrEmpty(c.LegalEntityIdentifier)
             && c.LegalEntityIdentifier.Equals(agreement.LegalEntityCode)
             && c.LegalEntityOrganisationType == agreement.LegalEntitySource);
         
-        _logger.LogInformation("ValidateLegalEntityHasNoCommitments commitment: {Commitment}.", JsonSerializer.Serialize(commitment));
-
-        if (commitment != null && (commitment.ActiveCount + commitment.PausedCount + commitment.PendingApprovalCount + commitment.WithdrawnCount) != 0)
+        if (commitment != null && commitment.ActiveCount + commitment.CompletedCount + commitment.PausedCount + commitment.PendingApprovalCount + commitment.WithdrawnCount != 0)
         {
             validationResult.AddError(nameof(agreement.Id), "Agreement has already been signed and has active commitments");
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
-
-        _logger.LogInformation("ValidateLegalEntityHasNoCommitments completed.");
     }
 
     private Task PublishLegalEntityRemovedMessage(
