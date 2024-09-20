@@ -1,9 +1,7 @@
-﻿using System.Security.Claims;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
-using Claim = System.Security.Claims.Claim;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Helpers;
 
@@ -46,7 +44,7 @@ class UrlActionHelperTests
         var employerRATDashboardUrl = _urlActionHelper.EmployerRequestApprenticeshipTrainingAction("Dashboard");
 
         //Assert
-        var dashboardPath = $"https://requesttraining.{_environmentName}-eas.apprenticeships.education.gov.uk/accounts/{_hashedAccountId}/employerrequests/dashboard";
+        var dashboardPath = $"https://requesttraining.{_environmentName}-eas.apprenticeships.education.gov.uk/accounts/{_hashedAccountId}/employer-requests/dashboard";
         var expectedDashboardUrl = string.Format("{0}", dashboardPath);
         employerRATDashboardUrl.Should().Be(expectedDashboardUrl);
     }
