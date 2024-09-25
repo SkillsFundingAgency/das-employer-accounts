@@ -39,14 +39,14 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetPayeSchemeByRefTests
                 Ref = Ref
             };
 
-            RequestHandler = new GetPayeSchemeByRefHandler(RequestValidator.Object,_payeRepository.Object);
+            RequestHandler = new GetPayeSchemeByRefHandler(RequestValidator.Object, _payeRepository.Object);
         }
 
         [Test]
         public override async Task ThenIfTheMessageIsValidTheRepositoryIsCalled()
         {
             //Arrange
-            RequestValidator.Setup(x => x.Validate(It.IsAny<GetPayeSchemeByRefQuery>())).Returns(new ValidationResult {ValidationDictionary = new Dictionary<string, string>()});
+            RequestValidator.Setup(x => x.Validate(It.IsAny<GetPayeSchemeByRefQuery>())).Returns(new ValidationResult { ValidationDictionary = new Dictionary<string, string>() });
 
             //Act
             await RequestHandler.Handle(Query, CancellationToken.None);

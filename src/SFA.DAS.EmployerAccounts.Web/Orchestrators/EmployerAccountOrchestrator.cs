@@ -112,7 +112,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             {
                 HashedAccountId = hashedAccountId,
                 ExternalUserId = userId,
-                NewName = (model.NewName ?? string.Empty).Trim()
+                NewName = model.NewName.Trim()
             });
 
             model.CurrentName = model.NewName;

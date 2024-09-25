@@ -28,7 +28,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         _orchestrator = new Mock<EmployerAccountOrchestrator>();
 
         _mediator = new Mock<IMediator>();
-        
+
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
 
         _orchestrator.Setup(x =>
@@ -42,13 +42,13 @@ public class WhenIRenameAnAccount : ControllerTestBase
         AddUserToContext();
 
         _employerAccountController = new EmployerAccountController(
-           _orchestrator.Object,
-           Mock.Of<ILogger<EmployerAccountController>>(),
-           _flashMessage.Object,
-           _mediator.Object,
-           Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
-           Mock.Of<ICookieStorageService<HashedAccountIdModel>>(),
-           Mock.Of<LinkGenerator>())
+            _orchestrator.Object,
+            Mock.Of<ILogger<EmployerAccountController>>(),
+            _flashMessage.Object,
+            _mediator.Object,
+            Mock.Of<ICookieStorageService<ReturnUrlModel>>(),
+            Mock.Of<ICookieStorageService<HashedAccountIdModel>>(),
+            Mock.Of<LinkGenerator>())
         {
             ControllerContext = ControllerContext,
             Url = new UrlHelper(new ActionContext(MockHttpContext.Object, Routes, new ActionDescriptor()))
@@ -56,10 +56,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
     }
 
     [TearDown]
-    public void TearDown()
-    {
-        _employerAccountController?.Dispose();
-    }
+    public void TearDown() => _employerAccountController?.Dispose();
 
     [Test, MoqAutoData]
     public async Task ThenIMustConfirmTheRename(string hashedAccountId)
@@ -77,6 +74,49 @@ public class WhenIRenameAnAccount : ControllerTestBase
 
         //Assert
         result.RouteName.Should().Be(RouteNames.AccountNameConfirm);
+    }
+
+    [TestCase("", false)] 
+    [TestCase(" ", false)] 
+    [TestCase("My New Name ~", false)] 
+    [TestCase("My New Name {", false)] 
+    [TestCase("My New Name }", false)] 
+    [TestCase("My New Name |", false)] 
+    [TestCase("My New Name ^", false)] 
+    [TestCase("My New Name `", false)] 
+    [TestCase("<My New Name>", false)]
+    [TestCase("My New Name", true)]
+    [TestCase("My New Name $@#()\"'!,+-=_:;.&€£*%/[]", true)] 
+    public async Task ThenTheNameMustBeValid(string newName, bool isValidInput)
+    {
+        //Arrange
+        var model = new RenameEmployerAccountViewModel
+        {
+            ChangeAccountName = true,
+            CurrentName = "Test Account",
+            NewName = newName
+        };
+
+        var hashedAccountId = Guid.NewGuid().ToString();
+
+        //Act
+        var result = await _employerAccountController.AccountName(hashedAccountId, model);
+        var redirectResult = result as RedirectToRouteResult;
+        var viewResult = result as ViewResult;
+
+        //Assert
+        if (isValidInput)
+        {
+            viewResult.Should().BeNull();
+            redirectResult.Should().NotBeNull();
+        }
+        else
+        {
+            viewResult.Should().NotBeNull();
+            var viewModel = viewResult!.Model as OrchestratorResponse<RenameEmployerAccountViewModel>;
+            viewModel!.Status.Should().Be(HttpStatusCode.BadRequest);
+            redirectResult!.Should().BeNull();
+        }
     }
 
     [Test, MoqAutoData]
@@ -97,9 +137,9 @@ public class WhenIRenameAnAccount : ControllerTestBase
         //Assert
         model.Data.NewNameError.Should().Be(AccountNameBlankErrorMessage);
     }
-    
+
     [Test, MoqAutoData]
-    public async Task WhenNameIsUnchanged_ThenIShouldRecieveAnError(string hashedAccountId, string accountName)
+    public async Task WhenNameIsUnchanged_ThenIShouldReceiveAnError(string hashedAccountId, string accountName)
     {
         //Arrange
         var viewModel = new RenameEmployerAccountViewModel
@@ -116,7 +156,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
         //Assert
         model.Data.NewNameError.Should().Be(AccountNameErrorMessage);
     }
-    
+
     [Test, MoqAutoData]
     public async Task Then_Should_Not_Send_CreateAccountCompleteCommand(string hashedAccountId)
     {
