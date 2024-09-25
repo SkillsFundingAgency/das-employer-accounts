@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Azure.Core;
@@ -6,6 +7,7 @@ using Azure.Identity;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
+[ExcludeFromCodeCoverage]
 public class HttpService(string identifierUri) : IHttpService
 {
     private readonly ChainedTokenCredential _azureServiceTokenProvider = new(
@@ -22,7 +24,7 @@ public class HttpService(string identifierUri) : IHttpService
 
     public virtual async Task<string> GetAsync(string url, Func<HttpResponseMessage, bool> responseChecker)
     {
-        var accessToken = await GenerateAccessToken(identifierUri);
+        var accessToken = await GenerateAccessToken();
 
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -39,8 +41,8 @@ public class HttpService(string identifierUri) : IHttpService
         return await response.Content.ReadAsStringAsync();
     }
     
-    private async Task<string> GenerateAccessToken(string resource)
+    private async Task<string> GenerateAccessToken()
     {
-        return (await _azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: [resource]))).Token;
+        return (await _azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: [identifierUri]))).Token;
     }
 }

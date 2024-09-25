@@ -1,13 +1,11 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.Authentication.Extensions.Legacy;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistrationApiClient
+public class ProviderRegistrationApiClient : IProviderRegistrationApiClient
 {
     private readonly string _apiBaseUrl;
     private readonly string _identifierUri;
@@ -19,7 +17,7 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
         IProviderRegistrationClientApiConfiguration configuration,
         ILogger<ProviderRegistrationApiClient> logger,
         IAzureClientCredentialHelper azureClientCredentialHelper
-    ) : base(client)
+    )
     {
         _apiBaseUrl = configuration.BaseUrl.EndsWith("/")
             ? configuration.BaseUrl
@@ -56,7 +54,7 @@ public class ProviderRegistrationApiClient : ApiClientBase, IProviderRegistratio
 
         return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
     }
-    
+
     private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
         if (!string.IsNullOrEmpty(_identifierUri))

@@ -10,46 +10,22 @@ using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Commands.RemoveLegalEntity;
 
-public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntityCommand>
+public class RemoveLegalEntityCommandHandler(
+    IValidator<RemoveLegalEntityCommand> validator,
+    ILogger<RemoveLegalEntityCommandHandler> logger,
+    IEmployerAgreementRepository employerAgreementRepository,
+    IMediator mediator,
+    IEncodingService encodingService,
+    IGenericEventFactory genericEventFactory,
+    IEmployerAgreementEventFactory employerAgreementEventFactory,
+    IMembershipRepository membershipRepository,
+    IEventPublisher eventPublisher,
+    ICommitmentsV2ApiClient commitmentsV2ApiClient)
+    : IRequestHandler<RemoveLegalEntityCommand>
 {
-    private readonly IValidator<RemoveLegalEntityCommand> _validator;
-    private readonly ILogger<RemoveLegalEntityCommandHandler> _logger;
-    private readonly IEmployerAgreementRepository _employerAgreementRepository;
-    private readonly IMediator _mediator;
-    private readonly IEncodingService _encodingService;
-    private readonly IGenericEventFactory _genericEventFactory;
-    private readonly IEmployerAgreementEventFactory _employerAgreementEventFactory;
-    private readonly IMembershipRepository _membershipRepository;
-    private readonly IEventPublisher _eventPublisher;
-    private readonly ICommitmentsV2ApiClient _commitmentsV2ApiClient;
-
-    public RemoveLegalEntityCommandHandler(
-        IValidator<RemoveLegalEntityCommand> validator,
-        ILogger<RemoveLegalEntityCommandHandler> logger,
-        IEmployerAgreementRepository employerAgreementRepository,
-        IMediator mediator,
-        IEncodingService encodingService,
-        IGenericEventFactory genericEventFactory,
-        IEmployerAgreementEventFactory employerAgreementEventFactory,
-        IMembershipRepository membershipRepository,
-        IEventPublisher eventPublisher,
-        ICommitmentsV2ApiClient commitmentsV2ApiClient)
-    {
-        _validator = validator;
-        _logger = logger;
-        _employerAgreementRepository = employerAgreementRepository;
-        _mediator = mediator;
-        _encodingService = encodingService;
-        _genericEventFactory = genericEventFactory;
-        _employerAgreementEventFactory = employerAgreementEventFactory;
-        _membershipRepository = membershipRepository;
-        _eventPublisher = eventPublisher;
-        _commitmentsV2ApiClient = commitmentsV2ApiClient;
-    }
-
     public async Task Handle(RemoveLegalEntityCommand message, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(message);
+        var validationResult = await validator.ValidateAsync(message);
 
         if (!validationResult.IsValid())
         {
@@ -58,24 +34,24 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
 
         if (validationResult.IsUnauthorized)
         {
-            _logger.LogInformation("User {UserId} tried to remove {AccountLegalEntityId} from Account {AccountId}", message.UserId, message.AccountLegalEntityId, message.AccountId);
+            logger.LogInformation("User {UserId} tried to remove {AccountLegalEntityId} from Account {AccountId}", message.UserId, message.AccountLegalEntityId, message.AccountId);
             throw new UnauthorizedAccessException();
         }
 
-        var agreements = await _employerAgreementRepository.GetAccountLegalEntityAgreements(message.AccountLegalEntityId);
+        var agreements = await employerAgreementRepository.GetAccountLegalEntityAgreements(message.AccountLegalEntityId);
         var legalAgreement = agreements.OrderByDescending(a => a.TemplateId).First();
 
-        var hashedAccountId = _encodingService.Encode(message.AccountId, EncodingType.AccountId);
-        var hashedLegalAgreementId = _encodingService.Encode(legalAgreement.Id, EncodingType.AccountId);
+        var hashedAccountId = encodingService.Encode(message.AccountId, EncodingType.AccountId);
+        var hashedLegalAgreementId = encodingService.Encode(legalAgreement.Id, EncodingType.AccountId);
 
-        var agreement = await _employerAgreementRepository.GetEmployerAgreement(legalAgreement.Id);
+        var agreement = await employerAgreementRepository.GetEmployerAgreement(legalAgreement.Id);
 
         if (agreements.Any(x => x.SignedDate.HasValue))
         {
             await ValidateLegalEntityHasNoCommitments(agreement, message.AccountId, validationResult);
         }
 
-        await _employerAgreementRepository.RemoveLegalEntityFromAccount(legalAgreement.Id);
+        await employerAgreementRepository.RemoveLegalEntityFromAccount(legalAgreement.Id);
 
         await Task.WhenAll(
             AddAuditEntry(hashedAccountId, hashedLegalAgreementId),
@@ -89,7 +65,7 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
         }
 
         var agreementSigned = agreement.Status == EmployerAgreementStatus.Signed;
-        var caller = await _membershipRepository.GetCaller(message.AccountId, message.UserId);
+        var caller = await membershipRepository.GetCaller(message.AccountId, message.UserId);
         var createdByName = caller.FullName();
 
         await PublishLegalEntityRemovedMessage(
@@ -105,14 +81,14 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
 
     private async Task ValidateLegalEntityHasNoCommitments(EmployerAgreementView agreement, long accountId, ValidationResult validationResult)
     {
-        var commitments = await _commitmentsV2ApiClient.GetEmployerAccountSummary(accountId);
-
-        var commitment = commitments.ApprenticeshipStatusSummaryResponse.FirstOrDefault(c =>
+        var response = await commitmentsV2ApiClient.GetEmployerAccountSummary(accountId);
+        
+        var commitment = response.ApprenticeshipStatusSummaryResponse.FirstOrDefault(c =>
             !string.IsNullOrEmpty(c.LegalEntityIdentifier)
             && c.LegalEntityIdentifier.Equals(agreement.LegalEntityCode)
             && c.LegalEntityOrganisationType == agreement.LegalEntitySource);
-
-        if (commitment != null && (commitment.ActiveCount + commitment.PausedCount + commitment.PendingApprovalCount + commitment.WithdrawnCount) != 0)
+        
+        if (commitment != null && commitment.ActiveCount + commitment.CompletedCount + commitment.PausedCount + commitment.PendingApprovalCount + commitment.WithdrawnCount != 0)
         {
             validationResult.AddError(nameof(agreement.Id), "Agreement has already been signed and has active commitments");
             throw new InvalidRequestException(validationResult.ValidationDictionary);
@@ -123,7 +99,7 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
         long accountId, long agreementId, bool agreementSigned, string createdBy,
         long legalEntityId, string organisationName, long accountLegalEntityId, string userRef)
     {
-        return _eventPublisher.Publish(new RemovedLegalEntityEvent
+        return eventPublisher.Publish(new RemovedLegalEntityEvent
         {
             AccountId = accountId,
             AgreementId = agreementId,
@@ -139,7 +115,7 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
 
     private async Task AddAuditEntry(string hashedAccountId, string employerAgreementId)
     {
-        await _mediator.Send(new CreateAuditCommand
+        await mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {
@@ -157,10 +133,10 @@ public class RemoveLegalEntityCommandHandler : IRequestHandler<RemoveLegalEntity
 
     private async Task CreateEvent(string hashedAgreementId)
     {
-        var agreementEvent = _employerAgreementEventFactory.RemoveAgreementEvent(hashedAgreementId);
+        var agreementEvent = employerAgreementEventFactory.RemoveAgreementEvent(hashedAgreementId);
 
-        var genericEvent = _genericEventFactory.Create(agreementEvent);
+        var genericEvent = genericEventFactory.Create(agreementEvent);
 
-        await _mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
+        await mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
     }
 }

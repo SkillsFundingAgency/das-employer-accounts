@@ -3,7 +3,7 @@
     ViewBag.Title = "Update an organisation";
     ViewBag.Section = "organisations";
     ViewBag.PageID = "update-organisation-details";
-    string hashedAccountId = @ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]?.ToString();
+    var hashedAccountId = ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId]?.ToString();
 }
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">

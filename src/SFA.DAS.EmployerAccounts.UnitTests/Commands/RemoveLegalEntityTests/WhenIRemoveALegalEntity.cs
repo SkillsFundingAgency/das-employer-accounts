@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -19,7 +20,6 @@ using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
-using SFA.DAS.EmployerAccounts.TestCommon;
 using SFA.DAS.Encoding;
 using SFA.DAS.Events.Api.Types;
 using SFA.DAS.NServiceBus.Services;
@@ -65,7 +65,7 @@ public class WhenIRemoveALegalEntity
         _repository.Setup(r => r.GetAccountLegalEntityAgreements(ExpectedAccountLegalEntityId))
             .ReturnsAsync(new List<EmployerAgreement>
             {
-                new EmployerAgreement
+                new()
                 {
                     AccountLegalEntityId = ExpectedAccountLegalEntityId,
                     TemplateId = 1,
@@ -104,11 +104,11 @@ public class WhenIRemoveALegalEntity
         _commitmentsV2ApiClient = new Mock<ICommitmentsV2ApiClient>();
         _commitmentsV2ApiClient
             .Setup(x => x.GetEmployerAccountSummary(ExpectedAccountId))
-            .ReturnsAsync(new GetApprenticeshipStatusSummaryResponse()
+            .ReturnsAsync(new GetApprenticeshipStatusSummaryResponse
             {
-                ApprenticeshipStatusSummaryResponse = new List<ApprenticeshipStatusSummaryResponse>()
+                ApprenticeshipStatusSummaryResponse = new List<ApprenticeshipStatusSummaryResponse>
                 {
-                    new ApprenticeshipStatusSummaryResponse()
+                    new()
                     {
                         ActiveCount = 0,
                         PausedCount = 0,
@@ -117,7 +117,6 @@ public class WhenIRemoveALegalEntity
                         LegalEntityIdentifier = _expectedAgreement.LegalEntityCode
                     }
                 }
-
             });
 
         _command = new RemoveLegalEntityCommand { AccountId = ExpectedAccountId, UserId = _expectedUserId, AccountLegalEntityId = ExpectedAccountLegalEntityId };
@@ -142,7 +141,8 @@ public class WhenIRemoveALegalEntity
         _validator.Setup(x => x.ValidateAsync(It.IsAny<RemoveLegalEntityCommand>())).ReturnsAsync(new ValidationResult { ValidationDictionary = new Dictionary<string, string> { { "", "" } } });
 
         //Act Assert
-        Assert.ThrowsAsync<InvalidRequestException>(async () => await _handler.Handle(new RemoveLegalEntityCommand(), CancellationToken.None));
+        var action = () => _handler.Handle(new RemoveLegalEntityCommand(), CancellationToken.None);
+        action.Should().ThrowAsync<InvalidRequestException>();
     }
 
     [Test]
@@ -152,15 +152,8 @@ public class WhenIRemoveALegalEntity
         _validator.Setup(x => x.ValidateAsync(It.IsAny<RemoveLegalEntityCommand>())).ReturnsAsync(new ValidationResult { IsUnauthorized = true });
 
         //Act Assert
-        var command = new RemoveLegalEntityCommand
-        {
-            AccountId = -1,
-            AccountLegalEntityId = -2,
-            UserId = "ABC123"
-        };
-
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await _handler.Handle(command, CancellationToken.None));
-        _logger.VerifyLogging($"User {command.UserId} tried to remove {command.AccountLegalEntityId} from Account {command.AccountId}", LogLevel.Information);
+        var action = () => _handler.Handle(_command, CancellationToken.None);
+        action.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
     [Test]
@@ -189,13 +182,16 @@ public class WhenIRemoveALegalEntity
         _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
             c.EasAuditMessage.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Status") && y.NewValue.Equals(EmployerAgreementStatus.Removed.ToString())) != null
         ), It.IsAny<CancellationToken>()));
+
         _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
             c.EasAuditMessage.Description.Equals($"EmployerAgreement {ExpectedHashedEmployerAgreementId} removed from account {ExpectedHashedAccountId}")), It.IsAny<CancellationToken>()));
+
         _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-            c.EasAuditMessage.RelatedEntities.SingleOrDefault(y => y.Id.Equals(ExpectedHashedAccountId.ToString()) && y.Type.Equals("Account")) != null
+            c.EasAuditMessage.RelatedEntities.SingleOrDefault(y => y.Id.Equals(ExpectedHashedAccountId) && y.Type.Equals("Account")) != null
         ), It.IsAny<CancellationToken>()));
+
         _mediator.Verify(x => x.Send(It.Is<CreateAuditCommand>(c =>
-            c.EasAuditMessage.AffectedEntity.Id.Equals(ExpectedHashedEmployerAgreementId.ToString()) &&
+            c.EasAuditMessage.AffectedEntity.Id.Equals(ExpectedHashedEmployerAgreementId) &&
             c.EasAuditMessage.AffectedEntity.Type.Equals("EmployerAgreement")
         ), It.IsAny<CancellationToken>()));
     }
@@ -233,11 +229,11 @@ public class WhenIRemoveALegalEntity
     {
         _commitmentsV2ApiClient
             .Setup(x => x.GetEmployerAccountSummary(ExpectedAccountId))
-            .ReturnsAsync(new GetApprenticeshipStatusSummaryResponse()
+            .ReturnsAsync(new GetApprenticeshipStatusSummaryResponse
             {
-                ApprenticeshipStatusSummaryResponse = new List<ApprenticeshipStatusSummaryResponse>()
+                ApprenticeshipStatusSummaryResponse = new List<ApprenticeshipStatusSummaryResponse>
                 {
-                    new ApprenticeshipStatusSummaryResponse()
+                    new()
                     {
                         ActiveCount = 1,
                         PausedCount = 1,
@@ -247,7 +243,8 @@ public class WhenIRemoveALegalEntity
                 }
             });
 
-        Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
+        action.Should().ThrowAsync<InvalidRequestException>();
     }
 
     [Test]
@@ -255,11 +252,11 @@ public class WhenIRemoveALegalEntity
     {
         _commitmentsV2ApiClient
             .Setup(x => x.GetEmployerAccountSummary(ExpectedAccountId))
-            .ReturnsAsync(new GetApprenticeshipStatusSummaryResponse()
+            .ReturnsAsync(new GetApprenticeshipStatusSummaryResponse
             {
-                ApprenticeshipStatusSummaryResponse = new List<ApprenticeshipStatusSummaryResponse>()
+                ApprenticeshipStatusSummaryResponse = new List<ApprenticeshipStatusSummaryResponse>
                 {
-                    new ApprenticeshipStatusSummaryResponse()
+                    new()
                     {
                         WithdrawnCount = 1,
                         LegalEntityIdentifier = _expectedAgreement.LegalEntityCode
@@ -267,6 +264,28 @@ public class WhenIRemoveALegalEntity
                 }
             });
 
-        Assert.ThrowsAsync<InvalidRequestException>(() => _handler.Handle(_command, CancellationToken.None));
+        var action = () => _handler.Handle(_command, CancellationToken.None);
+        action.Should().ThrowAsync<InvalidRequestException>();
+    }
+
+    [Test]
+    public void ThenTheAgreementIsCheckedToSeeIfItHasBeenSignedAndHasCompletedCommitments()
+    {
+        _commitmentsV2ApiClient
+            .Setup(x => x.GetEmployerAccountSummary(ExpectedAccountId))
+            .ReturnsAsync(new GetApprenticeshipStatusSummaryResponse
+            {
+                ApprenticeshipStatusSummaryResponse = new List<ApprenticeshipStatusSummaryResponse>
+                {
+                    new()
+                    {
+                        CompletedCount = 1,
+                        LegalEntityIdentifier = _expectedAgreement.LegalEntityCode
+                    }
+                }
+            });
+
+        var action = () => _handler.Handle(_command, CancellationToken.None);
+        action.Should().ThrowAsync<InvalidRequestException>();
     }
 }

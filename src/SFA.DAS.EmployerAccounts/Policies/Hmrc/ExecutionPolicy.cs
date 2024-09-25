@@ -4,32 +4,8 @@ namespace SFA.DAS.EmployerAccounts.Policies.Hmrc;
 
 public abstract class ExecutionPolicy
 {
-    protected Policy RootPolicy { get; set; }
-
-    public virtual void Execute(Action action)
-    {
-        try
-        {
-            RootPolicy.Execute(action);
-        }
-        catch (Exception ex)
-        {
-            OnException(ex);
-        }
-    }
-
-    public virtual T Execute<T>(Func<T> func)
-    {
-        try
-        {
-            return RootPolicy.Execute(func);
-        }
-        catch (Exception ex)
-        {
-            return OnException<T>(ex);
-        }
-    }
-
+    protected IAsyncPolicy RootPolicy { get; set; }
+    
     public virtual async Task ExecuteAsync(Func<Task> action)
     {
         try
@@ -65,11 +41,14 @@ public abstract class ExecutionPolicy
         throw ex;
     }
 
-    protected static Policy CreateAsyncRetryPolicy<T>(Func<T, bool> canHandle, int numberOfRetries, TimeSpan waitBetweenTries, Action<Exception> onRetryableFailure = null)
+    protected static IAsyncPolicy CreateAsyncRetryPolicy<T>(Func<T, bool> canHandle, int numberOfRetries, TimeSpan waitBetweenTries, Action<Exception> onRetryableFailure = null)
         where T : Exception
     {
         var waits = new TimeSpan[numberOfRetries];
-        for (var i = 0; i < waits.Length; i++) waits[i] = waitBetweenTries;
+        for (var retryCount = 0; retryCount < waits.Length; retryCount++)
+        {
+            waits[retryCount] = waitBetweenTries;
+        }
 
         return Policy.Handle(canHandle).WaitAndRetryAsync(waits, (ex, wait) => { onRetryableFailure?.Invoke(ex); });
     }
