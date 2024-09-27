@@ -227,7 +227,12 @@ public class WhenAddingServicesToTheContainer
                 new("ResourceEnvironmentName", "TEST"),
                 new("SFA.DAS.EmployerAccounts:Identity:ClientId", "clientId"),
                 new("SFA.DAS.EmployerAccounts:EventsApi:BaseUrl", "https://test.test"),
-                new("SFA.DAS.EmployerAccounts:EventsApi:ClientToken", "CLIENT_TOKEN")
+                new("SFA.DAS.EmployerAccounts:EventsApi:ClientToken", "CLIENT_TOKEN"),
+                new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:BaseUrl", "https://local.test.com"),
+                new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:ClientId", "test"),
+                new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:KeyVaultIdentifier", "https://local.test.com"),
+                new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:LoginSlidingExpiryTimeOutInMinutes", "30"),
+                new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:GovLoginSessionConnectionString", "https://local.test.com"),
             }
         };
 

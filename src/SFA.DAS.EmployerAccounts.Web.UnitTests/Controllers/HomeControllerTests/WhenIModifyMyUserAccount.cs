@@ -94,7 +94,6 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
     public async Task ThenTheAccountCreatedActionCreatesARedirectToActionResultToIndexAndDoesntUpdateDetailsForGovSignIn()
     {
         //Arrange
-        _configuration.UseGovSignIn = true;
         _homeController = new HomeController(
             _homeOrchestrator.Object,              
             _configuration, 
