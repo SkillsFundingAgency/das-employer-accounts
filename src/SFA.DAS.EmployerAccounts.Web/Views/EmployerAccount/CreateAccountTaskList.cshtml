@@ -5,14 +5,13 @@
     ViewBag.Title = "Create your employer account";
     ViewBag.ShowNav = false;
     ViewBag.GaData.Vpv = "/create-account-task-list";
-    bool showAddTrainingProvider = false;
 }
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
         <h2 class="govuk-heading-s govuk-!-margin-bottom-2">Account creation incomplete</h2>
-        <p class="govuk-body">You have completed @Model.Data.CompletedSections of 4 sections.</p>
+        <p class="govuk-body">You have completed @Model.Data.CompletedSections of 5 sections.</p>
         <div class="govuk-inset-text govuk-!-margin-bottom-7">
             You do not have to complete all sections at once. Those labelled 'completed' have been saved so you can continue your employer account creation later.
         </div>
@@ -123,8 +122,6 @@
                     </li>
                 </ul>
             </li>
-            @if (showAddTrainingProvider) /// Deliberately hiding step 5 as the
-            {
             <li>
                 <h2 class="das-task-list__section">
                     <span class="das-task-list__section-number">5. </span> Add a training provider
@@ -134,7 +131,7 @@
                         @if (!Model.Data.AgreementAcknowledged)
                         {
                             <span class="das-task-list__task-name">
-                                Training provider
+                                Add a training provider and set their permissions
                             </span>
                             <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Cannot start yet</strong>
                         }
@@ -142,47 +139,19 @@
                         {
                             <span class="das-task-list__task-name">
                                 <a asp-route="@RouteNames.TrainingProviderTriage" asp-route-hashedAccountId="@Model.Data.HashedAccountId" aria-describedby="status-add-training-provider" class="govuk-link">
-                                    Training provider
+                                    Add a training provider and set their permissions
                                 </a>
                             </span>
-                            if (!Model.Data.HasProviders)
-                            {
-                                <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Not started</strong>
-                            }
-                            else
-                            {
-                                <strong class="govuk-tag das-task-list__task-tag" id="status-add-training-provider">Completed</strong>
-                            }
-                        }
-                    </li>
-                    <li class="das-task-list__item">
-                        @if(!Model.Data.HasProviders)
-                        {
-                            <span class="das-task-list__task-name">
-                                Training provider permissions
-                            </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-provider-permissions">Cannot start yet</strong>
-                        }
-                        else
-                        {
-                            <span class="das-task-list__task-name">
-                                <a href="@Model.Data.ProviderPermissionsUrl" aria-describedby="status-provider-permissions" class="govuk-link">
-                                    Training provider permissions
-                                </a>
-                            </span>
-                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-provider-permissions">Not started</strong>
+                            <strong class="govuk-tag das-task-list__task-tag govuk-tag--grey" id="status-add-training-provider">Not started</strong>
                         }
                     </li>
                 </ul>
             </li>
-            }
         </ol>
-        @*<div class="app-save-return">*@
         <a asp-route="@Model.Data.SaveProgressRouteName"
            asp-route-hashedAccountId="@Model.Data.HashedAccountId"
            class="govuk-body govuk-button govuk-button--secondary app-save-return__link">
             Save and come back later
         </a>
-        @*</div>*@
     </div>
 </div>
