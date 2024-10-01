@@ -39,7 +39,6 @@ public class UserSettingsOrchestrator
             {
                 HashedId = userRef,
                 NotificationSettings = response.NotificationSettings,
-                UseGovSignIn = _configuration.UseGovSignIn
             },
         };
     }

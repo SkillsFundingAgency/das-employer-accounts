@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -11,18 +11,17 @@
     <ItemGroup>
         <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.1" />
         <PackageReference Include="AutoFixture.NUnit3" Version="4.18.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.33" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
         <PackageReference Include="Dapper" Version="2.1.35" />
         <PackageReference Include="AutoMapper" Version="13.0.1" />
         <PackageReference Include="FluentAssertions" Version="6.12.0" />
         <PackageReference Include="MediatR" Version="12.4.0" />
         <PackageReference Include="Moq" Version="4.20.70" />
-        <PackageReference Include="NLog" Version="5.3.2" />
-        <PackageReference Include="NUnit" Version="4.1.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageReference Include="NLog" Version="5.3.3" />
+        <PackageReference Include="NUnit" Version="4.2.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
         <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
-        <PackageReference Include="SFA.DAS.Notifications.Api.Client" Version="2.2.37" />
         <PackageReference Include="HtmlTags" Version="8.1.1" />
         <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
         <PackageReference Include="SFA.DAS.Elastic" Version="2.0.14" />

@@ -23,7 +23,6 @@ namespace SFA.DAS.EmployerAccounts.Web.ViewModels
         public bool HasSignedAgreement { get; set; }
         public bool HasProviders { get; set; }
         public bool HasProviderPermissions { get; set; }
-        public string ProviderPermissionsUrl { get; set; }
         public bool TaskListComplete => HasProviderPermissions || AddTrainingProviderAcknowledged;
     }
 }

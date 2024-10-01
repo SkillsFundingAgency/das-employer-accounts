@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Registry;
@@ -7,6 +8,7 @@ using SFA.DAS.EmployerAccounts.Configuration;
 
 namespace SFA.DAS.EmployerAccounts.ServiceRegistration;
 
+[ExcludeFromCodeCoverage]
 public static class PollyPolicyServiceRegistrations
 {
     public static IServiceCollection AddPollyPolicy(this IServiceCollection services, EmployerAccountsConfiguration configuration)
@@ -21,7 +23,7 @@ public static class PollyPolicyServiceRegistrations
                 .TimeoutAsync(TimeSpan.FromMilliseconds(configuration.DefaultServiceTimeoutMilliseconds), TimeoutStrategy.Pessimistic
                     , (pollyContext, timeSpan, task) =>
                     {
-                        logger.LogWarning("Error executing command for method {ExecutionGuid}. Reason: {Message}. Retrying in {Seconds} secs...", pollyContext.ExecutionGuid, task?.Exception?.Message, timeSpan.Seconds);
+                        logger.LogWarning("Error executing command for method {ExecutionGuid}. Reason: {Message}. Retrying in {Seconds} secs...", pollyContext, task?.Exception?.Message, timeSpan.Seconds);
                         return Task.CompletedTask;
                     }
                 );

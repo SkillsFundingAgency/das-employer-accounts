@@ -1,5 +1,4 @@
-﻿using SFA.DAS.Authentication;
-using SFA.DAS.EAS.Account.Api.Client;
+﻿using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.TokenService.Api.Client;
 
 namespace SFA.DAS.EmployerAccounts.Configuration;
@@ -29,7 +28,6 @@ public class EmployerAccountsConfiguration
     public HmrcConfiguration Hmrc { get; set; }
     public PensionRegulatorConfiguration PensionRegulatorApi { get; set; }
     public ProviderRegistrationClientApiConfiguration ProviderRegistrationsApi { get; set; }
-    public IdentityServerConfiguration Identity { get; set; }
     public string LegacyServiceBusConnectionString { get; set; }
     public string MessageServiceBusConnectionString => LegacyServiceBusConnectionString;
     public string NServiceBusLicense { get; set; }
@@ -58,7 +56,6 @@ public class EmployerAccountsConfiguration
     public int DefaultCacheExpirationInMinutes { get; set; }
     public string SupportConsoleUsers { get; set; }
     public DateTime? LastTermsAndConditionsUpdate { get; set; }
-    public bool UseGovSignIn { get; set; }
     public string DataProtectionKeysDatabase { get; set; }
     public List<RedirectUriConfiguration> ValidRedirectUris { get; set; }
 }

@@ -7,7 +7,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountCont
 class WhenIChooseToAddATrainingProvider : EmployerAccountControllerTestsBase
 {
     [Test, MoqAutoData]
-    public async Task ThenIShouldGoToGatewayInform(   
+    public async Task ThenIShouldGoToGatewayInform(
         string userId,
         string hashedAccountId,
         Uri providersUri,
@@ -19,9 +19,9 @@ class WhenIChooseToAddATrainingProvider : EmployerAccountControllerTestsBase
         SetControllerContextUserIdClaim(userId, controller);
         urlActionHelper
             .Setup(u => u.ProviderRelationshipsAction(It.Is<string>(s =>
-                s.Equals("providers", StringComparison.InvariantCultureIgnoreCase))))
+                s.Equals("providers/new/selectOrganisation", StringComparison.InvariantCultureIgnoreCase))))
             .Returns(providersUri.AbsoluteUri);
-        
+
         //Act
         var result = (await controller.AddTrainingProviderTriage(hashedAccountId, 1, urlActionHelper.Object)) as RedirectResult;
 

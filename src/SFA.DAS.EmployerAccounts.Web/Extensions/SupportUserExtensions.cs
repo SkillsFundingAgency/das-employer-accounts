@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Infrastructure;
-using SFA.DAS.EmployerAccounts.Services;
 
 namespace SFA.DAS.EmployerAccounts.Web.Extensions
 {

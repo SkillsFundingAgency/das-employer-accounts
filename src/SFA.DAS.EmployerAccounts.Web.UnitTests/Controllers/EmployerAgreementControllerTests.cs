@@ -318,6 +318,6 @@ public class EmployerAgreementControllerTests
             .Verify(m => m.AcknowledgeAgreement(
                 HashedAgreementId,
                 viewModel.HasAcknowledgedAgreement));
-        actualResult.RouteName.Should().Be(RouteNames.TaskListSignedAgreementSuccess);
+        actualResult.RouteName.Should().Be(RouteNames.EmployerTeamIndex);
     }
 }
