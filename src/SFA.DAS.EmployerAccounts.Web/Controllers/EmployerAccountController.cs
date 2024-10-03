@@ -47,7 +47,7 @@ public class EmployerAccountController : BaseController
     {
         _employerAccountOrchestrator = employerAccountOrchestrator;
         _logger = logger;
-        _mediator = mediatr ?? throw new ArgumentNullException(nameof(mediatr));
+        _mediator = mediatr;
         _returnUrlCookieStorageService = returnUrlCookieStorageService;
         _accountCookieStorage = accountCookieStorage;
         _linkGenerator = linkGenerator;
@@ -307,7 +307,7 @@ public class EmployerAccountController : BaseController
     [Route("summary")]
     public ViewResult Summary()
     {
-        var result = _employerAccountOrchestrator.GetSummaryViewModel(HttpContext);
+        var result = _employerAccountOrchestrator.GetSummaryViewModel();
         return View(result);
     }
 
@@ -360,8 +360,32 @@ public class EmployerAccountController : BaseController
     [Route("{HashedAccountId}/rename", Name = RouteNames.RenameAccountPost)]
     public async Task<IActionResult> RenameAccount(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
+        var validator = new RenameEmployerAccountViewModelValidator(RenameAccountType.RenameAccount);
+        var validationResult = validator.Validate(vm);
+
+        if (!validationResult.IsValid)
+        {
+            foreach (var validationError in validationResult.Errors)
+            {
+                vm.ErrorDictionary.Add(validationError.PropertyName, validationError.ErrorMessage);
+            }
+        }
+
+        OrchestratorResponse<RenameEmployerAccountViewModel> response;
+
+        if (vm.ErrorDictionary.Count > 0)
+        {
+            response = new OrchestratorResponse<RenameEmployerAccountViewModel>
+            {
+                Data = vm,
+                Status = HttpStatusCode.BadRequest
+            };
+
+            return View(response);
+        }
+
         var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
+        response = await _employerAccountOrchestrator.RenameEmployerAccount(hashedAccountId, vm, userIdClaim);
 
         if (response.Status == HttpStatusCode.OK)
         {
@@ -418,10 +442,8 @@ public class EmployerAccountController : BaseController
         {
             return HandleChangeAccountName(hashedAccountId, vm, response);
         }
-        else
-        {
-            return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm);
-        }
+
+        return await HandleSetEmployerAccountNameAsync(hashedAccountId, vm);
     }
 
     [HttpGet]
@@ -476,14 +498,14 @@ public class EmployerAccountController : BaseController
 
     [HttpGet]
     [Route("{HashedAccountId}/create/agreement/success", Name = RouteNames.TaskListSignedAgreementSuccess)]
-    public async Task<IActionResult> TaskListSignedAgreementSuccess(string hashedAccountId)
+    public IActionResult TaskListSignedAgreementSuccess(string hashedAccountId)
     {
         return View();
     }
 
     [HttpGet]
     [Route("{HashedAccountId}/create/success", Name = RouteNames.CreateAccountSuccess)]
-    public async Task<IActionResult> CreateAccountSuccess(string hashedAccountId)
+    public IActionResult CreateAccountSuccess(string hashedAccountId)
     {
         return View();
     }
@@ -507,48 +529,23 @@ public class EmployerAccountController : BaseController
     public async Task<IActionResult> AddTrainingProviderTriage(string hashedAccountId, int? choice,
         [FromServices] IUrlActionHelper urlHelper)
     {
-        var externalUserId = GetUserId();
-
         switch (choice ?? 0)
         {
-            case 1: return Redirect(urlHelper.ProviderRelationshipsAction("providers") + $"?AccountTasks=true");
+            case 1:
+                return Redirect(urlHelper.ProviderRelationshipsAction("providers/new/selectOrganisation") + $"?AccountTasks=true");
             case 2:
-                await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
-                return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
+                return await AcknowledgeProviderAndRedirectToAccountSuccess(hashedAccountId);
             default:
-                {
-                    var model = new
-                    {
-                        InError = true
-                    };
-
-                    return View(model);
-                }
+                return View(new { InError = true });
         }
     }
 
     [HttpGet]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     [Route("{HashedAccountId}/training-provider-success", Name = RouteNames.TrainingProviderSuccess)]
-    public IActionResult AddTrainingProviderSuccess()
+    public async Task<IActionResult> AddedTrainingProvider(string hashedAccountId)
     {
-        var model = new
-        {
-            HideHeaderSignInLink = true
-        };
-
-        return View(model);
-    }
-
-    [HttpPost]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
-    [Route("{hashedAccountId}/training-provider-success", Name = RouteNames.TrainingProviderSuccess)]
-    public async Task<IActionResult> AddTrainingProviderTriage(string hashedAccountId)
-    {
-        var externalUserId = GetUserId();
-
-        await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
-        return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
+        return await AcknowledgeProviderAndRedirectToAccountSuccess(hashedAccountId);
     }
 
     [HttpGet]
@@ -579,6 +576,13 @@ public class EmployerAccountController : BaseController
 
         return RedirectToAction(ControllerConstants.SearchForOrganisationActionName,
             ControllerConstants.SearchOrganisationControllerName);
+    }
+
+    private async Task<IActionResult> AcknowledgeProviderAndRedirectToAccountSuccess(string hashedAccountId)
+    {
+        var externalUserId = GetUserId();
+        await _employerAccountOrchestrator.AcknowledgeTrainingProviderTask(hashedAccountId, externalUserId);
+        return RedirectToRoute(RouteNames.CreateAccountSuccess, new { hashedAccountId });
     }
 
     private async Task<OrchestratorResponse<RenameEmployerAccountViewModel>> GetRenameViewModel(string hashedAccountId)
@@ -661,7 +665,7 @@ public class EmployerAccountController : BaseController
 
     private IActionResult HandleChangeAccountName(string hashedAccountId, RenameEmployerAccountViewModel vm, OrchestratorResponse<RenameEmployerAccountViewModel> response)
     {
-        var validator = new RenameEmployerAccountViewModelValidator();
+        var validator = new RenameEmployerAccountViewModelValidator(RenameAccountType.RegistrationChangeAccountName);
         var validationResult = validator.Validate(vm);
 
         if (!validationResult.IsValid)
@@ -686,13 +690,13 @@ public class EmployerAccountController : BaseController
 
     private async Task<IActionResult> HandleSetEmployerAccountNameAsync(string hashedAccountId, RenameEmployerAccountViewModel vm)
     {
-        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);        
+        var userIdClaim = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
         var response = await _employerAccountOrchestrator.SetEmployerAccountName(hashedAccountId, vm, userIdClaim);
 
         if (response.Status == HttpStatusCode.OK)
         {
             return RedirectToRoute(
-                vm.NameConfirmed? RouteNames.AccountNameSuccess : RouteNames.AccountNameConfirmSuccess, 
+                vm.NameConfirmed ? RouteNames.AccountNameSuccess : RouteNames.AccountNameConfirmSuccess,
                 new { hashedAccountId });
         }
 

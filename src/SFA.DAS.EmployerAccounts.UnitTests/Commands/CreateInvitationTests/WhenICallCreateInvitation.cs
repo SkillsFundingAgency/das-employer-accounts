@@ -16,7 +16,6 @@ using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.UnitTests.Fakes;
-using SFA.DAS.EmployerAccounts.Validation;
 using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.TimeProvider;
 
@@ -156,7 +155,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
 
             //Assert
             _mediator.Verify(x => x.Send(It.Is<SendNotificationCommand>(c => c.RecipientsAddress.Equals(ExpectedCallerEmail)
-                                                                             && c.TemplateId.Equals("InvitationNewUser")
+                                                                             && c.TemplateId.Equals("2bb7da99-2542-4536-9c15-4eb3466a99e3")
             ), It.IsAny<CancellationToken>()));
         }
 
@@ -164,7 +163,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
         public async Task ThenTheSendNotificationCommandIsInvoked_ForGovLogin_NewUserNonProd()
         {
             var userId = 1;
-            _configuration.UseGovSignIn = true;
 
             _membershipRepository.Setup(x => x.GetCaller(_command.HashedAccountId, _command.ExternalUserId)).ReturnsAsync(new MembershipView
             {
@@ -187,7 +185,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
         public async Task ThenTheSendNotificationCommandIsInvoked_ForGovLogin_NewUserProd()
         {
             var userId = 1;
-            _configuration.UseGovSignIn = true;
             _config.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
             _membershipRepository.Setup(x => x.GetCaller(_command.HashedAccountId, _command.ExternalUserId)).ReturnsAsync(new MembershipView
             {
@@ -211,7 +208,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
         public async Task ThenTheSendNotificationCommandIsInvoked_ForGovLogin_ExistingUserNonProd()
         {
             var userId = 1;
-            _configuration.UseGovSignIn = true;
 
             _membershipRepository.Setup(x => x.GetCaller(_command.HashedAccountId, _command.ExternalUserId)).ReturnsAsync(new MembershipView
             {
@@ -234,7 +230,6 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
         public async Task ThenTheSendNotificationCommandIsInvoked_ForGovLogin_ExistingUserProd()
         {
             var userId = 1;
-            _configuration.UseGovSignIn = true;
             _config.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
             _membershipRepository.Setup(x => x.GetCaller(_command.HashedAccountId, _command.ExternalUserId)).ReturnsAsync(new MembershipView
             {
@@ -268,7 +263,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateInvitationTests
             //Assert
             _mediator.Verify(x => x.Send(It.Is<SendNotificationCommand>(c =>
                 c.RecipientsAddress.Equals(ExpectedExistingUserEmail)
-                && c.TemplateId.Equals("InvitationExistingUser")
+                && c.TemplateId.Equals("11cb4eb4-c22a-47c7-aa26-1074da25ff4d")
             ), It.IsAny<CancellationToken>()));
         }
 

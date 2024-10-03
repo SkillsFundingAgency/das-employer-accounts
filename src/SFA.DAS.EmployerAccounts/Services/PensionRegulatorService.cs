@@ -15,12 +15,7 @@ public class PensionRegulatorService : IPensionRegulatorService
         EmployerAccountsConfiguration configuration)
     {           
         _configuration = configuration;         
-        _httpService = httpServiceFactory.Create(
-            configuration.PensionRegulatorApi.IdentifierUri,
-            configuration.PensionRegulatorApi.ClientId,
-            configuration.PensionRegulatorApi.ClientSecret,                
-            configuration.PensionRegulatorApi.Tenant
-        );
+        _httpService = httpServiceFactory.Create(configuration.PensionRegulatorApi.IdentifierUri);
     }
 
     public async Task<Organisation> GetOrganisationById(string organisationId)

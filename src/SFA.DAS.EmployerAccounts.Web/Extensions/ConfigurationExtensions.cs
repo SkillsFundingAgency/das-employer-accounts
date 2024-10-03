@@ -5,13 +5,6 @@ namespace SFA.DAS.EmployerAccounts.Web.Extensions;
 
 public static class ConfigurationExtensions
 {
-    public static bool UseGovUkSignIn(this IConfiguration configuration)
-    {
-        return configuration["SFA.DAS.EmployerAccounts:UseGovSignIn"] != null &&
-               configuration["SFA.DAS.EmployerAccounts:UseGovSignIn"]
-                  .Equals("true", StringComparison.CurrentCultureIgnoreCase);
-    }
-
     public static IConfiguration BuildDasConfiguration(this IConfiguration configuration)
     {
         var configurationBuilder = new ConfigurationBuilder()

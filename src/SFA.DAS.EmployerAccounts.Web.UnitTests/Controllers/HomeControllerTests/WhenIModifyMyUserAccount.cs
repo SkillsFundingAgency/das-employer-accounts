@@ -7,7 +7,7 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
 {
     private Mock<IAuthenticationService> _owinWrapper;
     private Mock<IHomeOrchestrator> _homeOrchestrator;
-    private EmployerAccountsConfiguration _configuration;      
+    private EmployerAccountsConfiguration _configuration;
     private HomeController _homeController;
     private Mock<ICookieStorageService<FlashMessageViewModel>> _flashMessage;
     private Mock<IUrlActionHelper> _urlActionHelper;
@@ -18,14 +18,14 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         base.Arrange();
 
         _owinWrapper = new Mock<IAuthenticationService>();
-        _homeOrchestrator = new Mock<IHomeOrchestrator>();          
+        _homeOrchestrator = new Mock<IHomeOrchestrator>();
         _flashMessage = new Mock<ICookieStorageService<FlashMessageViewModel>>();
         _configuration = new EmployerAccountsConfiguration();
         _urlActionHelper = new Mock<IUrlActionHelper>();
 
         _homeController = new HomeController(
-            _homeOrchestrator.Object,              
-            _configuration, 
+            _homeOrchestrator.Object,
+            _configuration,
             _flashMessage.Object,
             Mock.Of<ILogger<HomeController>>(), null, null,
             _urlActionHelper.Object)
@@ -53,7 +53,7 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         Assert.That(actualRedirect, Is.Not.Null);
         Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
     }
-        
+
     [Test]
     public async Task ThenIfTheHandleEmailChangedIsCancelledAndTheQueryParamIsSetTheCookieValuesAreNotSet()
     {
@@ -77,10 +77,10 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
     }
 
     [Test]
-    public async Task ThenTheAccountCreatedActionCreatesARedirectToActionResultToIndex()
+    public void ThenTheAccountCreatedActionCreatesARedirectToActionResultToIndex()
     {
         //Act
-        var actual = await _homeController.HandleNewRegistration();
+        var actual = _homeController.HandleNewRegistration();
 
         //Assert
         Assert.That(actual, Is.Not.Null);
@@ -89,24 +89,23 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         Assert.That(actualRedirect, Is.Not.Null);
         Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
     }
-    
+
     [Test]
-    public async Task ThenTheAccountCreatedActionCreatesARedirectToActionResultToIndexAndDoesntUpdateDetailsForGovSignIn()
+    public void ThenTheAccountCreatedActionCreatesARedirectToActionResultToIndexAndDoesntUpdateDetailsForGovSignIn()
     {
         //Arrange
-        _configuration.UseGovSignIn = true;
         _homeController = new HomeController(
-            _homeOrchestrator.Object,              
-            _configuration, 
+            _homeOrchestrator.Object,
+            _configuration,
             _flashMessage.Object,
             Mock.Of<ILogger<HomeController>>(), null, null,
             _urlActionHelper.Object)
         {
             ControllerContext = ControllerContext
         };
-        
+
         //Act
-        var actual = await _homeController.HandleNewRegistration("123-345");
+        var actual = _homeController.HandleNewRegistration("123-345");
 
         //Assert
         Assert.That(actual, Is.Not.Null);
@@ -114,20 +113,19 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         var actualRedirect = actual as RedirectToActionResult;
         Assert.That(actualRedirect, Is.Not.Null);
         Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
-        _homeOrchestrator.Verify(x=>x.SaveUpdatedIdentityAttributes(It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>()),Times.Never);
+        _homeOrchestrator.Verify(x => x.SaveUpdatedIdentityAttributes(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
     public async Task ThenTheUserIsUpdatedWhenTheEmailHasChanged()
     {
         //Arrange
-        var expectedEmail = "test@test.com";
-        var expectedId = "123456";
-        var expectedFirstName = "Test";
-        var expectedLastName = "tester";
+        const string expectedEmail = "test@test.com";
+        const string expectedId = "123456";
+        const string expectedFirstName = "Test";
+        const string expectedLastName = "tester";
 
         AddUserToContext(expectedId, expectedEmail, expectedFirstName, expectedLastName);
-          
 
         //Act
         await _homeController.HandleEmailChanged();

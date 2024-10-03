@@ -33,7 +33,7 @@ public class GetCreateAccountTaskListQueryHandler(IOuterApiClient apiClient) : I
             PendingAgreementId = response.PendingAgreementId,
             UserFirstName = response.UserFirstName,
             UserLastName = response.UserLastName,
-            AddTrainingProviderAcknowledged = response.AddTrainingProviderAcknowledged,
+            AddTrainingProviderAcknowledged = response.AddTrainingProviderAcknowledged
         };
     }
 }

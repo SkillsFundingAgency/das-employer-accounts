@@ -105,7 +105,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
             {
                 HashedAccountId = hashedAccountId,
                 ExternalUserId = userId,
-                NewName = (model.NewName ?? string.Empty).Trim()
+                NewName = model.NewName.Trim()
             });
 
             model.CurrentName = model.NewName;
@@ -264,7 +264,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         }
     }
 
-    public virtual OrchestratorResponse<SummaryViewModel> GetSummaryViewModel(HttpContext context)
+    public virtual OrchestratorResponse<SummaryViewModel> GetSummaryViewModel()
     {
         var enteredData = GetCookieData();
 
@@ -319,7 +319,7 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
                 Data = new AccountTaskListViewModel()
             };
         }
-
+        
         var model = new AccountTaskListViewModel
         {
             HashedAccountId = result.HashedAccountId,
@@ -338,7 +338,6 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         }
 
         model.EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={result.UserFirstName}&lastName={result.UserLastName}";
-        model.ProviderPermissionsUrl = _urlHelper.ProviderRelationshipsAction("providers") + "?AccountTasks=true";
 
         return new OrchestratorResponse<AccountTaskListViewModel>
         {

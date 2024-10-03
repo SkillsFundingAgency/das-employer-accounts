@@ -86,12 +86,13 @@ public class EmployerAgreementController : BaseController
 
     [HttpGet]
     [Route("agreements/{hashedAgreementId}/about-your-agreement", Name = RouteNames.AboutYourAgreement)]
-    public async Task<ViewResult> AboutYourAgreement(string hashedAccountId, string hashedAgreementId)
+    public async Task<ViewResult> AboutYourAgreement(string hashedAccountId, string hashedAgreementId, [FromQuery] bool isFromTasklist = true)
     {
         var agreement = await _orchestrator.GetById(
             hashedAgreementId,
             hashedAccountId,
-            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+            HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
+            isFromTasklist);
 
         var view = View(agreement);
         return view;
@@ -155,7 +156,9 @@ public class EmployerAgreementController : BaseController
         return RedirectToAction(ControllerConstants.SignAgreementActionName,
             new GetEmployerAgreementRequest
             {
-                HashedAgreementId = hashedAgreementId, ExternalUserId = userInfo, HashedAccountId = hashedAccountId
+                HashedAgreementId = hashedAgreementId,
+                ExternalUserId = userInfo,
+                HashedAccountId = hashedAccountId
             });
     }
 
@@ -252,17 +255,17 @@ public class EmployerAgreementController : BaseController
                     new { hashedAccountId, hashedAgreementId });
             case ViewAgreementLater: return RedirectToRoute(RouteNames.EmployerTeamIndex, new { hashedAccountId });
             default:
-            {
-                var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-                var agreement = await _orchestrator.GetById(hashedAgreementId, hashedAccountId, userInfo);
-                return View(new WhenDoYouWantToViewViewModel
+                {
+                    var userInfo = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
+                    var agreement = await _orchestrator.GetById(hashedAgreementId, hashedAccountId, userInfo);
+                    return View(new WhenDoYouWantToViewViewModel
                     { EmployerAgreement = agreement.Data.EmployerAgreement, InError = true });
-            }
+                }
         }
     }
 
     [HttpGet]
-    [Route("organisations/{accountLegalEntityHashedId}/agreements")]
+    [Route("organisations/{accountLegalEntityHashedId}/agreements", Name = RouteNames.OrganisationAgreements)]
     public async Task<IActionResult> ViewAllAgreements(string hashedAccountId, string accountLegalEntityHashedId)
     {
         var model = await _orchestrator.GetOrganisationAgreements(accountLegalEntityHashedId);

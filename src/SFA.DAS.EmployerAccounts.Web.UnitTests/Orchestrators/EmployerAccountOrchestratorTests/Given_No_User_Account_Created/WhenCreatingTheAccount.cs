@@ -111,7 +111,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             var context = new Mock<HttpContext>();
 
             //Act
-            var model = _employerAccountOrchestrator.GetSummaryViewModel(context.Object);
+            var model = _employerAccountOrchestrator.GetSummaryViewModel();
 
             //Assert
             Assert.That(model.Data.OrganisationName, Is.EqualTo(employerAccountData.EmployerAccountOrganisationData.OrganisationName));

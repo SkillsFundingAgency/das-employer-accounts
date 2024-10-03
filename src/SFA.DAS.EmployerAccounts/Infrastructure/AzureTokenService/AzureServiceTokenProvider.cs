@@ -1,8 +1,11 @@
-﻿using Azure.Core;
+﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Core;
 using Azure.Identity;
+using SFA.DAS.EmployerAccounts.Extensions;
 
 namespace SFA.DAS.EmployerAccounts.Infrastructure.AzureTokenService;
 
+[ExcludeFromCodeCoverage]
 public class AzureServiceTokenProvider : IAzureServiceTokenProvider
 {
     private readonly ChainedTokenCredential _azureServiceTokenProvider = new(

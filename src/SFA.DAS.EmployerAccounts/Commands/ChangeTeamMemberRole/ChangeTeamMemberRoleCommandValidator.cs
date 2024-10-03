@@ -7,13 +7,19 @@ public class ChangeTeamMemberRoleCommandValidator : IValidator<ChangeTeamMemberR
         var validationResult = new ValidationResult();
 
         if (string.IsNullOrEmpty(item.HashedAccountId))
-            validationResult.AddError("HashedId", "No HashedId supplied");
+        {
+            validationResult.AddError(nameof(ChangeTeamMemberRoleCommand.HashedAccountId), $"No {nameof(ChangeTeamMemberRoleCommand.HashedAccountId)} supplied");
+        }
 
-        if (string.IsNullOrWhiteSpace(item.Email))
-            validationResult.AddError("Email", "No Email supplied");
+        if (string.IsNullOrEmpty(item.HashedUserId))
+        {
+            validationResult.AddError(nameof(ChangeTeamMemberRoleCommand.HashedUserId), $"No {nameof(ChangeTeamMemberRoleCommand.HashedUserId)} supplied");
+        }
 
         if (string.IsNullOrWhiteSpace(item.ExternalUserId))
-            validationResult.AddError("ExternalUserId", "No ExternalUserId supplied");
+        {
+            validationResult.AddError(nameof(ChangeTeamMemberRoleCommand.ExternalUserId), $"No {nameof(ChangeTeamMemberRoleCommand.ExternalUserId)} supplied");
+        }
 
         return validationResult;
     }

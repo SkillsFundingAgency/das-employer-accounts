@@ -111,15 +111,7 @@ public class InvitationController : BaseController
     [Route("register-and-accept")]
     public IActionResult AcceptInvitationNewUser()
     {
-        if (_configuration.UseGovSignIn)
-        {
-            return RedirectToAction(ControllerConstants.IndexActionName, ControllerConstants.HomeControllerName);
-        }
-        
-        var schema = HttpContext?.Request.Scheme;
-        var authority = HttpContext?.Request.Host;
-        var appConstants = new Constants(_configuration.Identity);
-        return new RedirectResult($"{appConstants.RegisterLink()}{schema}://{authority}/invitations");
+        return RedirectToAction(ControllerConstants.IndexActionName, ControllerConstants.HomeControllerName);
     }
 
 
@@ -127,10 +119,6 @@ public class InvitationController : BaseController
     [Route("accept")]
     public IActionResult AcceptInvitationExistingUser()
     {
-        if (_configuration.UseGovSignIn)
-        {
-            return RedirectToAction(ControllerConstants.IndexActionName, ControllerConstants.HomeControllerName);
-        }
-        return RedirectToAction("All");
+        return RedirectToAction(ControllerConstants.IndexActionName, ControllerConstants.HomeControllerName);
     }
 }

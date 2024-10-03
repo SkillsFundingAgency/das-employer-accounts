@@ -7,7 +7,9 @@ public class AccountTaskListViewModel
     public string HashedAccountId { get; set; }
     public bool HasPayeScheme { get; set; }
 
-    public int CompletedSections { get; set; }
+    public int CompletedSections =>
+        // by default, will have 1 completed section for user details (step previous)
+        AgreementAcknowledged ? 4 : NameConfirmed ? 3 : HasPayeScheme ? 2 : 1;
 
     public string SaveProgressRouteName => string.IsNullOrEmpty(HashedAccountId) ? RouteNames.NewAccountSaveProgress : RouteNames.PartialAccountSaveProgress;
 
@@ -21,6 +23,5 @@ public class AccountTaskListViewModel
     public bool HasSignedAgreement { get; set; }
     public bool HasProviders { get; set; }
     public bool HasProviderPermissions { get; set; }
-    public string ProviderPermissionsUrl { get; set; }
     public bool TaskListComplete => HasProviderPermissions || AddTrainingProviderAcknowledged;
 }
