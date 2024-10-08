@@ -1,33 +1,28 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
+using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
 [Route("api/accounts")]
 [ApiController]
-public class EmployerAccountsController : ControllerBase
+public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService, ILogger<EmployerAccountsController> logger)
+    : ControllerBase
 {
-    private readonly AccountsOrchestrator _orchestrator;
-    private readonly IEncodingService _encodingService;
-
-    public EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService)
-    {
-        _orchestrator = orchestrator;
-        _encodingService = encodingService;
-    }
-
     [Route("", Name = "AccountsIndex")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
     public async Task<IActionResult> GetAccounts(string toDate = null, int pageSize = 1000, int pageNumber = 1)
     {
-        var result = await _orchestrator.GetAccounts(toDate, pageSize, pageNumber);
+        var result = await orchestrator.GetAccounts(toDate, pageSize, pageNumber);
 
         foreach (var account in result.Data)
         {
@@ -42,28 +37,28 @@ public class EmployerAccountsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAccount(long accountId)
     {
-        var isDecoded = _encodingService.TryDecode(accountId.ToString(), EncodingType.AccountId, out _);
+        var isDecoded = encodingService.TryDecode(accountId.ToString(), EncodingType.AccountId, out _);
 
         if (isDecoded)
         {
             return await GetAccount(accountId.ToString());
         }
-        
-        var result = await _orchestrator.GetAccount(accountId);
+
+        var result = await orchestrator.GetAccount(accountId);
         if (result == null) return NotFound();
 
         result.LegalEntities.ForEach(x => CreateGetLegalEntityLink(accountId, x));
         result.PayeSchemes.ForEach(x => CreateGetPayeSchemeLink(accountId, x));
         return Ok(result);
     }
-    
+
     [Route("{hashedAccountId}", Name = "GetAccount")]
     [Authorize(Policy = ApiRoles.ReadAllEmployerAccountBalances)]
     [HttpGet]
     public async Task<IActionResult> GetAccount(string hashedAccountId)
     {
-        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-        var result = await _orchestrator.GetAccount(accountId);
+        var accountId = encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var result = await orchestrator.GetAccount(accountId);
 
         if (result == null) return NotFound();
 
@@ -77,8 +72,8 @@ public class EmployerAccountsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAccountUsers(string hashedAccountId)
     {
-        var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-        var result = await _orchestrator.GetAccountTeamMembers(accountId);
+        var accountId = encodingService.Decode(hashedAccountId, EncodingType.AccountId);
+        var result = await orchestrator.GetAccountTeamMembers(accountId);
         return Ok(result);
     }
 
@@ -87,7 +82,7 @@ public class EmployerAccountsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAccountUsers(long accountId)
     {
-        var result = await _orchestrator.GetAccountTeamMembers(accountId);
+        var result = await orchestrator.GetAccountTeamMembers(accountId);
         return Ok(result);
     }
 
@@ -96,8 +91,25 @@ public class EmployerAccountsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAccountUsersWhichReceiveNotifications(long accountId)
     {
-        var result = await _orchestrator.GetAccountTeamMembersWhichReceiveNotifications(accountId);
+        var result = await orchestrator.GetAccountTeamMembersWhichReceiveNotifications(accountId);
         return Ok(result);
+    }
+
+    [Route("acknowledge-training-provider-task", Name = "AcknowledgeTrainingProviderTask")]
+    [Authorize(Policy = ApiRoles.ReadAllAccountUsers)]
+    [HttpPatch]
+    public async Task<IActionResult> AcknowledgeTrainingProviderTask([FromBody] AcknowledgeTrainingProviderTaskCommand command)
+    {
+        try
+        {
+            await orchestrator.AcknowledgeTrainingProviderTask(command.AccountId);
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Exception occurred whilst processing {ActionName} action.", nameof(AcknowledgeTrainingProviderTask));
+            return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+        }
     }
 
     private void CreateGetLegalEntityLink(long accountId, Resource legalEntity)

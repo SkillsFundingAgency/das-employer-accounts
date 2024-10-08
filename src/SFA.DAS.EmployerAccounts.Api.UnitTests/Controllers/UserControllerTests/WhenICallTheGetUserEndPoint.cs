@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,41 +10,40 @@ using SFA.DAS.EmployerAccounts.Api.Controllers;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByEmail;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.UserControllerTests
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.UserControllerTests;
+
+[TestFixture]
+public class WhenICallTheGetUserEndPoint
 {
-    [TestFixture]
-    public class WhenICallTheGetUserEndPoint
+    private UserController _controller;
+    private Mock<IMediator> _mediator;
+    private GetUserByEmailResponse _response;
+    private User _user;
+
+    [SetUp]
+    public void Setup()
     {
-        private UserController _controller;
-        private Mock<IMediator> _mediator;
-        private GetUserByEmailResponse _response;
-        private User _user;
+        _mediator = new Mock<IMediator>();
 
-        [SetUp]
-        public void Setup()
+        _user = new User
         {
-            _mediator = new Mock<IMediator>();
+            FirstName = "John",
+            LastName = "Smith"
+        };
 
-            _user = new User
-            {
-              FirstName = "John",
-              LastName = "Smith"
-            };
+        _response = new GetUserByEmailResponse() { User = _user };
 
-            _response = new GetUserByEmailResponse() { User = _user };
+        _mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(_response);
 
-            _mediator.Setup(m => m.Send(It.IsAny<GetUserByEmailQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(_response);
+        _controller = new UserController(_mediator.Object, Mock.Of<ILogger<UserController>>());
+    }
 
-            _controller = new UserController(_mediator.Object, Mock.Of<ILogger<UserController>>());
-        }
+    [Test]
+    public async Task ThenShouldReturnAUser()
+    {
+        var result = await _controller.Get("Email@Test.com") as OkObjectResult;
 
-        [Test]
-        public async Task ThenShouldReturnAUser()
-        {
-            var result = await _controller.Get("Email@Test.com") as OkObjectResult; 
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Value, Is.SameAs(_user));
-        }
+        result.Should().NotBeNull();
+        result.Value.Should().Be(_user);
     }
 }

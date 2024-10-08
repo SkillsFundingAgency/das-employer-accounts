@@ -6,48 +6,19 @@ using SFA.DAS.EmployerAccounts.Models.Account;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class EmployerAccountService : IEmployerAccountService
+public class EmployerAccountService(
+    IOuterApiClient apiClient,
+    ILogger<EmployerAccountService> logger) : IEmployerAccountService
 {
-    private readonly IOuterApiClient _outerApiClient;
-    private readonly ILogger<EmployerAccountService> _logger;
-    public EmployerAccountService(IOuterApiClient apiClient, ILogger<EmployerAccountService> logger)
-    {
-        _logger = logger;
-        _outerApiClient = apiClient;
-    }
-    
-    public async Task<EmployerAccountTaskList> GetEmployerAccountTaskList(long accountId, string hashedAccountId)
-    {
-        EmployerAccountTaskList taskList = null;
-
-        try
-        {
-            _logger.LogInformation("Getting task list for account ID: {hashedAccountId}", hashedAccountId);
-
-            var taskListResponse = await _outerApiClient.Get<GetEmployerAccountTaskListResponse>(new GetEmployerAccountTaskListRequest(accountId, hashedAccountId));
-
-            if (taskListResponse != null)
-            {
-                taskList =  MapFrom(taskListResponse);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Could not find employer account task list for account ID: {hashedAccountId}", hashedAccountId);
-        }
-
-        return taskList;
-    }
-
     public async Task<TaskSummary> GetTaskSummary(long accountId)
     {
         TaskSummary taskSummary = null;
 
         try
         {
-            _logger.LogInformation("Getting TaskSummary for account ID: {accountId}", accountId);
+            logger.LogInformation("Getting TaskSummary for account ID: {accountId}", accountId);
 
-            var tasksResponse = await _outerApiClient.Get<GetTasksResponse>(new GetTasksRequest(accountId));
+            var tasksResponse = await apiClient.Get<GetTasksResponse>(new GetTasksRequest(accountId));
 
             if (tasksResponse != null)
             {
@@ -56,7 +27,7 @@ public class EmployerAccountService : IEmployerAccountService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Could not find TaskSummary for account ID: {accountId}", accountId);
+            logger.LogError(ex, "Could not find TaskSummary for account ID: {accountId}", accountId);
             return new TaskSummary
             {
                 UnableToGetTasks = true
@@ -65,15 +36,6 @@ public class EmployerAccountService : IEmployerAccountService
 
         return taskSummary;
     }
-    
-    private static EmployerAccountTaskList MapFrom(GetEmployerAccountTaskListResponse getEmployerTaskListResponse)
-    {
-        return new EmployerAccountTaskList
-        {
-            HasProviders = getEmployerTaskListResponse.HasProviders,
-            HasProviderPermissions = getEmployerTaskListResponse.HasPermissions
-        };
-    } 
     
     private static TaskSummary MapFrom(GetTasksResponse getTasksResponse)
     {

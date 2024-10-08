@@ -25,9 +25,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             _configuration = new EmployerAccountsConfiguration();
             _employerAccountService = new Mock<IEmployerAccountService>();
             
-            _employerAccountOrchestrator = new EmployerAccountOrchestrator(
-                _employerAccountService.Object,
-                _mediator.Object, 
+            _employerAccountOrchestrator = new EmployerAccountOrchestrator(_mediator.Object, 
                 _logger.Object, 
                 _cookieService.Object, 
                 _configuration, 
@@ -113,7 +111,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountOr
             var context = new Mock<HttpContext>();
 
             //Act
-            var model = _employerAccountOrchestrator.GetSummaryViewModel(context.Object);
+            var model = _employerAccountOrchestrator.GetSummaryViewModel();
 
             //Assert
             Assert.That(model.Data.OrganisationName, Is.EqualTo(employerAccountData.EmployerAccountOrganisationData.OrganisationName));
