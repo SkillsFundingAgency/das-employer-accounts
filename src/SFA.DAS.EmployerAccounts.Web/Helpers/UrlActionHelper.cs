@@ -53,7 +53,8 @@ public class UrlActionHelper : IUrlActionHelper
     public string EmployerIncentivesAction(string path = "")
     {
         var baseUrl = _configuration.EmployerIncentivesBaseUrl;
-        var hashedAccountId = _httpContextAccessor.HttpContext.Request.RouteValues.GetValueOrDefault(ControllerConstants.AccountHashedIdRouteKeyName);
+        var hashedAccountId = GetHashedAccountId();
+
         return Action(baseUrl, $"{hashedAccountId}/{path}");
     }
 
@@ -94,7 +95,7 @@ public class UrlActionHelper : IUrlActionHelper
 
     private string AccountAction(string baseUrl, string path)
     {
-        var hashedAccountId = _httpContextAccessor.HttpContext.Request.RouteValues.GetValueOrDefault(ControllerConstants.AccountHashedIdRouteKeyName);
+        var hashedAccountId = GetHashedAccountId();
         var accountPath = hashedAccountId == null ? $"accounts/{path}" : $"accounts/{hashedAccountId}/{path}";
 
         return Action(baseUrl, accountPath);
@@ -104,8 +105,7 @@ public class UrlActionHelper : IUrlActionHelper
     // Nor does Employer Feedback
     private string NonAccountsAction(string baseUrl, string path)
     {
-
-        var hashedAccountId = _httpContextAccessor.HttpContext.Request.RouteValues.GetValueOrDefault(ControllerConstants.AccountHashedIdRouteKeyName);
+        var hashedAccountId = GetHashedAccountId();
         var commitmentPath = hashedAccountId == null ? $"{path}" : $"{hashedAccountId}/{path}";
 
         return Action(baseUrl, commitmentPath);
@@ -139,10 +139,27 @@ public class UrlActionHelper : IUrlActionHelper
         return builder.EmployerProfiles("EditUserDetails");
     }
 
+    public string EmployerRequestApprenticeshipTrainingAction(string path = "")
+    {
+        var hashedAccountId = GetHashedAccountId();
+        var builder = new UrlBuilder(_config["ResourceEnvironmentName"]);
+
+        return builder.RequestApprenticeshipTrainingLink(path, hashedAccountId ?? string.Empty);
+    }
+
     private static string Action(string baseUrl, string path)
     {
         var trimmedBaseUrl = baseUrl?.TrimEnd('/') ?? string.Empty;
 
         return $"{trimmedBaseUrl}/{path}".TrimEnd('/');
+    }
+
+    private string GetHashedAccountId() 
+    { 
+        return _httpContextAccessor
+            .HttpContext
+            .Request
+            .RouteValues
+            .GetValueOrDefault(ControllerConstants.AccountHashedIdRouteKeyName) as string;
     }
 }
