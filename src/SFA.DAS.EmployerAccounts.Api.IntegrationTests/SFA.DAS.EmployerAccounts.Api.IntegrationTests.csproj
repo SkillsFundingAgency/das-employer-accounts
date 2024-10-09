@@ -23,7 +23,7 @@
 		<PackageReference Include="NUnit" Version="4.2.1" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 		<PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
-		<PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
+		<PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.108" />
 		<PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
 		<PackageReference Include="SFA.DAS.Testing" Version="3.0.121" />
 	</ItemGroup>
