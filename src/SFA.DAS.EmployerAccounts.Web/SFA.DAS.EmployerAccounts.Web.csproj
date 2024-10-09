@@ -8,7 +8,7 @@
         <PackageReference Include="AutoMapper" Version="13.0.1" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
         <PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.41" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="7.6.2" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.6.2" />
@@ -24,7 +24,7 @@
         <PackageReference Include="Scrutor.AspNetCore" Version="3.3.0" />
         <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
-        <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
+        <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.108" />
         <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.109" />
         <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.104" />
         <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
@@ -36,10 +36,10 @@
         <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
         <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.28" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2" />
         <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="8.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="8.0.10" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SFA.DAS.EmployerAccounts.Api.Client\SFA.DAS.EmployerAccounts.Api.Client.csproj" />
