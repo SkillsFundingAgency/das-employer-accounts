@@ -46,7 +46,6 @@ public static class HostBuilderExtensions
             services.AddMemoryCache();
             services.AddCachesRegistrations();
             services.AddDatabaseRegistration();
-            services.AddEventsApi();
             services.AddAuditServices();
             services.AddHttpContextAccessor();
             services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(

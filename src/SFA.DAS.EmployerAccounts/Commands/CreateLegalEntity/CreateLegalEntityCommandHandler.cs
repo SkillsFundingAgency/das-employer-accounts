@@ -2,7 +2,6 @@
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Models.Account;
@@ -12,43 +11,19 @@ using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Commands.CreateLegalEntity;
 
-public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntityCommand, CreateLegalEntityCommandResponse>
+public class CreateLegalEntityCommandHandler(
+    IAccountRepository accountRepository,
+    IMembershipRepository membershipRepository,
+    IMediator mediator,
+    IEventPublisher eventPublisher,
+    IEncodingService encodingService,
+    IEmployerAgreementRepository employerAgreementRepository,
+    IValidator<CreateLegalEntityCommand> validator)
+    : IRequestHandler<CreateLegalEntityCommand, CreateLegalEntityCommandResponse>
 {
-    private readonly IValidator<CreateLegalEntityCommand> _validator;
-    private readonly IAccountRepository _accountRepository;
-    private readonly IMembershipRepository _membershipRepository;
-    private readonly IMediator _mediator;
-    private readonly IGenericEventFactory _genericEventFactory;
-    private readonly ILegalEntityEventFactory _legalEntityEventFactory;
-    private readonly IEventPublisher _eventPublisher;
-    private readonly IEncodingService _encodingService;
-    private readonly IEmployerAgreementRepository _employerAgreementRepository;
-
-    public CreateLegalEntityCommandHandler(
-        IAccountRepository accountRepository,
-        IMembershipRepository membershipRepository,
-        IMediator mediator,
-        IGenericEventFactory genericEventFactory,
-        ILegalEntityEventFactory legalEntityEventFactory,
-        IEventPublisher eventPublisher,
-        IEncodingService encodingService,
-        IEmployerAgreementRepository employerAgreementRepository,
-        IValidator<CreateLegalEntityCommand> validator)
-    {
-        _accountRepository = accountRepository;
-        _membershipRepository = membershipRepository;
-        _mediator = mediator;
-        _genericEventFactory = genericEventFactory;
-        _legalEntityEventFactory = legalEntityEventFactory;
-        _eventPublisher = eventPublisher;
-        _encodingService = encodingService;
-        _employerAgreementRepository = employerAgreementRepository;
-        _validator = validator;
-    }
-
     public async Task<CreateLegalEntityCommandResponse> Handle(CreateLegalEntityCommand message, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(message);
+        var validationResult = await validator.ValidateAsync(message);
 
         if (!validationResult.IsValid())
         {
@@ -60,7 +35,7 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
             throw new UnauthorizedAccessException();
         }
 
-        var owner = await _membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
+        var owner = await membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
 
         var ownerExternalUserId = owner.UserRef;
 
@@ -78,15 +53,14 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
             AgreementType = AgreementType.Combined
         };
 
-        var agreementView = await _accountRepository.CreateLegalEntityWithAgreement(createParams);
+        var agreementView = await accountRepository.CreateLegalEntityWithAgreement(createParams);
 
-        var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
-        agreementView.AccountLegalEntityPublicHashedId = _encodingService.Encode(agreementView.AccountLegalEntityId, EncodingType.PublicAccountLegalEntityId);
-        agreementView.HashedAgreementId = _encodingService.Encode(agreementView.Id, EncodingType.AccountId);
+        var accountId = encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
+        agreementView.AccountLegalEntityPublicHashedId = encodingService.Encode(agreementView.AccountLegalEntityId, EncodingType.PublicAccountLegalEntityId);
+        agreementView.HashedAgreementId = encodingService.Encode(agreementView.Id, EncodingType.AccountId);
 
         await Task.WhenAll(
             CreateAuditEntries(owner, agreementView),
-            NotifyLegalEntityCreated(message.HashedAccountId, agreementView.LegalEntityId),
             SetEmployerLegalEntityAgreementStatus(agreementView.AccountLegalEntityId, agreementView.Id, agreementView.VersionNumber),
             PublishLegalEntityAddedMessage(accountId, agreementView.Id, createParams.Name, owner.FullName(), agreementView.LegalEntityId,
                 agreementView.AccountLegalEntityId, agreementView.AccountLegalEntityPublicHashedId, createParams.Code, message.Address, message.Source, ownerExternalUserId),
@@ -101,7 +75,7 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
 
     private Task PublishLegalEntityAddedMessage(long accountId, long agreementId, string organisationName, string createdByName, long legalEntityId, long accountLegalEntityId, string accountLegalEntityPublicHashedId, string organisationReferenceNumber, string organisationAddress, OrganisationType organisationType, Guid userRef)
     {
-        return _eventPublisher.Publish(new AddedLegalEntityEvent
+        return eventPublisher.Publish(new AddedLegalEntityEvent
         {
             AccountId = accountId,
             AgreementId = agreementId,
@@ -120,7 +94,7 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
 
     private Task PublishAgreementCreatedMessage(long accountId, long agreementId, string organisationName, string createdByName, long legalEntityId, Guid userRef)
     {
-        return _eventPublisher.Publish(new CreatedAgreementEvent
+        return eventPublisher.Publish(new CreatedAgreementEvent
         {
             AgreementId = agreementId,
             LegalEntityId = legalEntityId,
@@ -131,23 +105,15 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
             Created = DateTime.UtcNow
         });
     }
-
-    private Task NotifyLegalEntityCreated(string hashedAccountId, long legalEntityId)
-    {
-        var legalEntityEvent = _legalEntityEventFactory.CreateLegalEntityCreatedEvent(hashedAccountId, legalEntityId);
-        var genericEvent = _genericEventFactory.Create(legalEntityEvent);
-
-        return _mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
-    }
-
+    
     private Task SetEmployerLegalEntityAgreementStatus(long accountLegalEntityId, long agreementId, int agreementVersion)
     {
-        return _employerAgreementRepository.SetAccountLegalEntityAgreementDetails(accountLegalEntityId, agreementId, agreementVersion, null, null);
+        return employerAgreementRepository.SetAccountLegalEntityAgreementDetails(accountLegalEntityId, agreementId, agreementVersion, null, null);
     }
 
     private async Task CreateAuditEntries(MembershipView owner, EmployerAgreementView agreementView)
     {
-        await _mediator.Send(new CreateAuditCommand
+        await mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {
@@ -169,7 +135,7 @@ public class CreateLegalEntityCommandHandler : IRequestHandler<CreateLegalEntity
             }
         });
 
-        await _mediator.Send(new CreateAuditCommand
+        await mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {

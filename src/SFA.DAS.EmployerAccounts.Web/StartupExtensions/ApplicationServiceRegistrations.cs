@@ -20,7 +20,6 @@ public static class ApplicationServiceRegistrations
     {
         services.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
-        services.AddSingleton<IAccountEventFactory, AccountEventFactory>();
         services.AddSingleton<IPdfService, PdfService>();
 
         services.AddScoped<IHtmlHelpers, HtmlHelpers>();
@@ -55,11 +54,7 @@ public static class ApplicationServiceRegistrations
         services.AddSingleton<IUrlActionHelper, UrlActionHelper>();
 
         services.AddTransient<HmrcExecutionPolicy>();
-
-        services.AddTransient<IGenericEventFactory, GenericEventFactory>();
-        services.AddTransient<IPayeSchemeEventFactory, PayeSchemeEventFactory>();
-        services.AddTransient<ILegalEntityEventFactory, LegalEntityEventFactory>();
-        services.AddTransient<IEmployerAgreementEventFactory, EmployerAgreementEventFactory>();
+        
         services.AddScoped<IPayeSchemesWithEnglishFractionService, PayeSchemesWithEnglishFractionService>();
 
         services.AddTransient<IUserContext, UserContext>();

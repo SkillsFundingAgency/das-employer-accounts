@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -11,7 +12,6 @@ using SFA.DAS.EmployerAccounts.Commands.AcceptInvitation;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
-using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
@@ -63,7 +63,6 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<CreateAccountUserCommand>))]
     [TestCase(typeof(IRequestHandler<AccountLevyStatusCommand>))]
     [TestCase(typeof(IRequestHandler<GetUserByRefQuery, GetUserByRefResponse>))]
-    [TestCase(typeof(IRequestHandler<PublishGenericEventCommand>))]
     [TestCase(typeof(IRequestHandler<CreateAuditCommand>))]
     [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand>))]
     [TestCase(typeof(IRequestHandler<UpdateAccountUserCommand>))]
@@ -74,7 +73,7 @@ public class WhenAddingServicesToTheContainer
         var provider = services.BuildServiceProvider();
 
         var type = provider.GetService(toResolve);
-        Assert.That(type, Is.Not.Null);
+        type.Should().NotBeNull();
     }
 
     private static void SetupServiceCollection(IServiceCollection services)
@@ -99,7 +98,6 @@ public class WhenAddingServicesToTheContainer
         services.AddMemoryCache();
         services.AddCachesRegistrations();
         services.AddDatabaseRegistration();
-        services.AddEventsApi();
         services.AddAuditServices();
         services.AddHttpContextAccessor();
         services.AddAuditServices();
@@ -127,7 +125,7 @@ public class WhenAddingServicesToTheContainer
     }
 
 
-    private static IConfigurationRoot GenerateStubConfiguration()
+    private static ConfigurationRoot GenerateStubConfiguration()
     {
         var configSource = new MemoryConfigurationSource
         {
@@ -141,8 +139,6 @@ public class WhenAddingServicesToTheContainer
                     new("Environment", "test"),
                     new("EnvironmentName", "test"),
                     new("APPINSIGHTS_INSTRUMENTATIONKEY", "test"),
-                    new("SFA.DAS.EmployerAccounts:EventsApi:BaseUrl", "https://test.test"),
-                    new("SFA.DAS.EmployerAccounts:EventsApi:ClientToken", "CLIENT_TOKEN"),
                     new("SFA.DAS.EmployerAccounts:AuditApi:BaseUrl", "https://test.test"),
                     new("SFA.DAS.EmployerAccounts:AuditApi:IdentifierUri", "test"),
                 }
