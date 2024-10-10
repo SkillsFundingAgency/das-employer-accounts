@@ -10,8 +10,6 @@ using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
-using SFA.DAS.EmployerAccounts.Events.Agreement;
-using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Models;
@@ -37,7 +35,7 @@ public class WhenISignAnEmployerAgreement
     private Mock<IValidator<SignEmployerAgreementCommand>> _validator;
     private Mock<IMediator> _mediator;
     private EmployerAgreementView _agreement;
-    private Mock<ICommitmentV2Service> _commintmentService;
+    private Mock<ICommitmentV2Service> _commitmentService;
     private TestableEventPublisher _eventPublisher;
 
     private const long AccountId = 223344;
@@ -69,7 +67,6 @@ public class WhenISignAnEmployerAgreement
         _validator = new Mock<IValidator<SignEmployerAgreementCommand>>();
         _validator.Setup(x => x.ValidateAsync(It.IsAny<SignEmployerAgreementCommand>())).ReturnsAsync(new ValidationResult { ValidationDictionary = new Dictionary<string, string>() });
 
-
         _agreement = new EmployerAgreementView
         {
             LegalEntityId = LegalEntityId,
@@ -85,14 +82,13 @@ public class WhenISignAnEmployerAgreement
         _agreementRepository.Setup(x => x.GetEmployerAgreement(It.IsAny<long>()))
             .ReturnsAsync(_agreement);
 
-        new AgreementSignedEvent();
         _mediator = new Mock<IMediator>();
 
         _mediator.Setup(x => x.Send(It.Is<GetUserByRefQuery>(s => s.UserRef == _command.ExternalUserId), It.IsAny<CancellationToken>())).ReturnsAsync(new GetUserByRefResponse { User = new User { CorrelationId = "CORRELATION_ID" } });
 
-        _commintmentService = new Mock<ICommitmentV2Service>();
+        _commitmentService = new Mock<ICommitmentV2Service>();
 
-        _commintmentService.Setup(x => x.GetEmployerCommitments(It.IsAny<long>()))
+        _commitmentService.Setup(x => x.GetEmployerCommitments(It.IsAny<long>()))
             .ReturnsAsync([]);
 
         _eventPublisher = new TestableEventPublisher();
@@ -104,7 +100,7 @@ public class WhenISignAnEmployerAgreement
             _validator.Object,
             _mediator.Object,
             _eventPublisher,
-            _commintmentService.Object);
+            _commitmentService.Object);
 
         _owner = new MembershipView
         {
@@ -187,9 +183,9 @@ public class WhenISignAnEmployerAgreement
     public async Task ThenTheServiceShouldBeNotified()
     {
         //Arrange
-        _commintmentService.Setup(x => x.GetEmployerCommitments(It.IsAny<long>()))
-            .ReturnsAsync(new List<Cohort> { new Cohort() });
-
+        _commitmentService.Setup(x => x.GetEmployerCommitments(It.IsAny<long>()))
+            .ReturnsAsync([new Cohort()]);
+        
         //Act
         await _handler.Handle(_command, CancellationToken.None);
 
@@ -213,7 +209,7 @@ public class WhenISignAnEmployerAgreement
     public async Task ThenIfICannotGetCommitmentsForTheAccountIStillNotifyTheService()
     {
         //Arrange
-        _commintmentService.Setup(x => x.GetEmployerCommitments(It.IsAny<long>()))
+        _commitmentService.Setup(x => x.GetEmployerCommitments(It.IsAny<long>()))
             .ReturnsAsync(() => null);
 
         //Act
