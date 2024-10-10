@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.Encoding;
@@ -12,8 +11,6 @@ public static class ApplicationServiceRegistrations
     {
         services.AddTransient<IPayeSchemesService, PayeSchemesService>();
         services.AddTransient<IUserAornPayeLockService, UserAornPayeLockService>();
-        services.AddTransient<IGenericEventFactory, GenericEventFactory>();
-        services.AddTransient<IPayeSchemeEventFactory, PayeSchemeEventFactory>();
         services.AddTransient<IEncodingService, EncodingService>();
 
         return services;
