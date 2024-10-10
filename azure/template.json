@@ -470,7 +470,12 @@
                                 {
                                     "name": "ASPNETCORE_ENVIRONMENT",
                                     "value": "[toUpper(parameters('environmentName'))]"
+                                },
+                                {
+                                    "name": "WEBSITE_SWAP_WARMUP_PING_PATH",
+                                    "value": "/ping"       
                                 }
+                 
                             ]
                         }
                     },
