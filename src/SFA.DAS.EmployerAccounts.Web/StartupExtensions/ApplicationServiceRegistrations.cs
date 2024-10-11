@@ -45,7 +45,7 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IPensionRegulatorService, PensionRegulatorService>();
 
         services.AddTransient<IDateTimeService, DateTimeService>();
-        services.AddTransient<IAzureServiceTokenProvider, AzureServiceTokenProvider>();
+        services.AddScoped<IAzureServiceTokenProvider, AzureServiceTokenProvider>();
         services.AddSingleton<IEncodingService, EncodingService>();
 
         services.AddTransient<IUserAccountRepository, UserAccountRepository>();
