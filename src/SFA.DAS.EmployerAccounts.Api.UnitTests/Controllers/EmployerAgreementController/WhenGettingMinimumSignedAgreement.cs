@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using AutoMapper;
+using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -32,12 +33,12 @@ public class WhenGettingMinimumSignedAgreement
         var orchestrator = new AgreementOrchestrator(mediator.Object, Mock.Of<ILogger<AgreementOrchestrator>>(),
             Mock.Of<IMapper>());
         var controller = new Api.Controllers.EmployerAgreementController(orchestrator, encodingService.Object);
-        
+
         //Act
         var actual = await controller.GetMinimumSignedAgreementVersionByHashedId(hashedAccountId) as OkObjectResult;
         var model = actual.Value as MinimumSignedAgreementResponse;
 
         //Assert
-        Assert.That(model.MinimumSignedAgreementVersion, Is.EqualTo(response.MinimumSignedAgreementVersion));
+        model.MinimumSignedAgreementVersion.Should().Be(response.MinimumSignedAgreementVersion);
     }
 }
