@@ -184,7 +184,7 @@ public class WhenAddingServicesToTheContainer
         Assert.That(type, Is.Not.Null);
     }
 
-    private static IConfigurationRoot GenerateStubConfiguration()
+    private static ConfigurationRoot GenerateStubConfiguration()
     {
         var configSource = new MemoryConfigurationSource
         {
@@ -226,8 +226,6 @@ public class WhenAddingServicesToTheContainer
                 new("SFA.DAS.EmployerAccounts:TasksApi:IdentifierUrl", "https://test.test"),
                 new("ResourceEnvironmentName", "TEST"),
                 new("SFA.DAS.EmployerAccounts:Identity:ClientId", "clientId"),
-                new("SFA.DAS.EmployerAccounts:EventsApi:BaseUrl", "https://test.test"),
-                new("SFA.DAS.EmployerAccounts:EventsApi:ClientToken", "CLIENT_TOKEN"),
                 new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:BaseUrl", "https://local.test.com"),
                 new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:ClientId", "test"),
                 new("SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:KeyVaultIdentifier", "https://local.test.com"),

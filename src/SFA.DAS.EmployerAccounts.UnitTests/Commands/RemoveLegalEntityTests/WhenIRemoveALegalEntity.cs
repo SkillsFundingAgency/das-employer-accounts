@@ -10,18 +10,15 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Commands.RemoveLegalEntity;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Events.Agreement;
-using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.Encoding;
-using SFA.DAS.Events.Api.Types;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.RemoveLegalEntityTests;
@@ -35,8 +32,6 @@ public class WhenIRemoveALegalEntity
     private RemoveLegalEntityCommand _command;
     private Mock<IMediator> _mediator;
     private Mock<IEncodingService> _encodingService;
-    private Mock<IGenericEventFactory> _genericEventHandler;
-    private Mock<IEmployerAgreementEventFactory> _employerAgreementEventFactory;
     private Mock<IMembershipRepository> _membershipRepository;
     private Mock<IEventPublisher> _eventPublisher;
     private Mock<ICommitmentsV2ApiClient> _commitmentsV2ApiClient;
@@ -50,7 +45,6 @@ public class WhenIRemoveALegalEntity
     private EmployerAgreementView _expectedAgreement;
     private const long ExpectedEmployerAgreementId = 5533678;
     private const string ExpectedHashedEmployerAgreementId = "FGDFH45645";
-    private const string ExpectedHashedAccountLegalEntityId = "HDHFFS";
 
     [SetUp]
     public void Arrange()
@@ -88,12 +82,7 @@ public class WhenIRemoveALegalEntity
         _encodingService = new Mock<IEncodingService>();
         _encodingService.Setup(x => x.Encode(ExpectedAccountId, EncodingType.AccountId)).Returns(ExpectedHashedAccountId);
         _encodingService.Setup(x => x.Encode(ExpectedEmployerAgreementId, EncodingType.AccountId)).Returns(ExpectedHashedEmployerAgreementId);
-
-        _employerAgreementEventFactory = new Mock<IEmployerAgreementEventFactory>();
-        _employerAgreementEventFactory.Setup(x => x.RemoveAgreementEvent(ExpectedHashedEmployerAgreementId)).Returns(new AgreementRemovedEvent { HashedAgreementId = ExpectedHashedEmployerAgreementId });
-        _genericEventHandler = new Mock<IGenericEventFactory>();
-        _genericEventHandler.Setup(x => x.Create(It.Is<AgreementRemovedEvent>(c => c.HashedAgreementId.Equals(ExpectedHashedEmployerAgreementId)))).Returns(new GenericEvent { Payload = ExpectedHashedEmployerAgreementId });
-
+        
         _membershipRepository = new Mock<IMembershipRepository>();
         _membershipRepository
             .Setup(mr => mr.GetCaller(ExpectedAccountId, _expectedUserId))
@@ -127,8 +116,6 @@ public class WhenIRemoveALegalEntity
             _repository.Object,
             _mediator.Object,
             _encodingService.Object,
-            _genericEventHandler.Object,
-            _employerAgreementEventFactory.Object,
             _membershipRepository.Object,
             _eventPublisher.Object,
             _commitmentsV2ApiClient.Object);
@@ -195,18 +182,7 @@ public class WhenIRemoveALegalEntity
             c.EasAuditMessage.AffectedEntity.Type.Equals("EmployerAgreement")
         ), It.IsAny<CancellationToken>()));
     }
-
-    [Test]
-    public async Task ThenTheEventIsFired()
-    {
-        //Act
-        await _handler.Handle(_command, CancellationToken.None);
-
-        //Assert
-        _genericEventHandler.Verify(x => x.Create(It.IsAny<AgreementRemovedEvent>()), Times.Once);
-        _mediator.Verify(x => x.Send(It.Is<PublishGenericEventCommand>(c => c.Event.Payload.Equals(ExpectedHashedEmployerAgreementId)), It.IsAny<CancellationToken>()));
-    }
-
+    
     [Test]
     public async Task ThenTheRemovedLegalEntityEventIsPublished()
     {
