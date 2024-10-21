@@ -20,7 +20,6 @@
 		<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.12" />
 		<PackageReference Include="SFA.DAS.Api.Common" Version="17.1.107" />
 		<PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
-		<PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
 		<PackageReference Include="SFA.DAS.Encoding" Version="1.1.76" />
 		<PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
 		<PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
