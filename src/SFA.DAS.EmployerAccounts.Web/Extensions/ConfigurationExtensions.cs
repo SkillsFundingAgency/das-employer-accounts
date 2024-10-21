@@ -14,7 +14,8 @@ public static class ConfigurationExtensions
 #if DEBUG
         if (!configuration.IsDev())
         {
-            configurationBuilder.AddJsonFile("appsettings.json", false)
+            configurationBuilder
+                .AddJsonFile("appsettings.json", false)
                 .AddJsonFile("appsettings.Development.json", true);
         }
 #endif
@@ -27,10 +28,10 @@ public static class ConfigurationExtensions
                 options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
                 options.EnvironmentName = configuration["EnvironmentName"];
                 options.PreFixConfigurationKeys = true;
-                options.ConfigurationKeysRawJsonResult = new[] { ConfigurationKeys.EncodingConfig };
+                options.ConfigurationKeysRawJsonResult = [ConfigurationKeys.EncodingConfig];
             }
         );
-        
+
         return configurationBuilder.Build();
     }
 }
