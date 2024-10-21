@@ -191,6 +191,8 @@ public class OrganisationOrchestrator : UserVerificationOrchestratorBase, IOrche
             OrganisationType = currentDetails.AccountLegalEntity.OrganisationType
         });
 
+        var refreshedAddress = refreshedDetails.Organisation.Address.FormatAddress();
+
         var result = new OrchestratorResponse<ReviewOrganisationAddressViewModel>
         {
             Data = new ReviewOrganisationAddressViewModel
@@ -199,7 +201,7 @@ public class OrganisationOrchestrator : UserVerificationOrchestratorBase, IOrche
                 OrganisationName = currentDetails.AccountLegalEntity.Name,
                 OrganisationAddress = currentDetails.AccountLegalEntity.Address,
                 RefreshedName = refreshedDetails.Organisation.Name,
-                RefreshedAddress = refreshedDetails.Organisation.Address.FormatAddress(),
+                RefreshedAddress = refreshedAddress == string.Empty ? null : refreshedAddress,
                 HashedAccountLegalEntityId = hashedAccountLegalEntityId
             }
         };
