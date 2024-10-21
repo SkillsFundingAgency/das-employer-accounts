@@ -65,7 +65,6 @@ jobs:
               EASMessageServiceBusString: $(EASMessageServiceBusString)
               EmployerAccountsApimSubscriptionKey: $(EmployerAccountsApimSubscriptionKey)
               EmployerSharedServiceBusString: $(EmployerSharedServiceBusString)
-              EventsApiToken: $(EventsApiToken)
               Hashstring: $(Hashstring)
               IdentityClientSecret: $(IdentityClientSecret)
               HmrcClientSecret: $(HmrcClientSecret)

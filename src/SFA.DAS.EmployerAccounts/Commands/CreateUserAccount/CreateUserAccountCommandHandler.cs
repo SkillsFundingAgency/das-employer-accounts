@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
@@ -10,46 +9,26 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
 
-public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccountCommand, CreateUserAccountCommandResponse>
+public class CreateUserAccountCommandHandler(
+    IAccountRepository accountRepository,
+    IMediator mediator,
+    IValidator<CreateUserAccountCommand> validator,
+    IEncodingService encodingService)
+    : IRequestHandler<CreateUserAccountCommand, CreateUserAccountCommandResponse>
 {
-    private readonly IAccountRepository _accountRepository;
-    private readonly IMediator _mediator;
-    private readonly IValidator<CreateUserAccountCommand> _validator;
-    private readonly IEncodingService _encodingService;
-    private readonly IGenericEventFactory _genericEventFactory;
-    private readonly IAccountEventFactory _accountEventFactory;
-
-    public CreateUserAccountCommandHandler(
-        IAccountRepository accountRepository,
-        IMediator mediator,
-        IValidator<CreateUserAccountCommand> validator,
-        IEncodingService encodingService,
-        IGenericEventFactory genericEventFactory,
-        IAccountEventFactory accountEventFactory)
-    {
-        _accountRepository = accountRepository;
-        _mediator = mediator;
-        _validator = validator;
-        _encodingService = encodingService;
-        _genericEventFactory = genericEventFactory;
-        _accountEventFactory = accountEventFactory;
-    }
-
     public async Task<CreateUserAccountCommandResponse> Handle(CreateUserAccountCommand message, CancellationToken cancellationToken)
     {
         ValidateMessage(message);
 
-        var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = message.ExternalUserId }, cancellationToken);
+        var userResponse = await mediator.Send(new GetUserByRefQuery { UserRef = message.ExternalUserId }, cancellationToken);
 
-        var createAccountResult = await _accountRepository.CreateUserAccount(userResponse.User.Id, message.OrganisationName);
+        var createAccountResult = await accountRepository.CreateUserAccount(userResponse.User.Id, message.OrganisationName);
 
-        var hashedAccountId = _encodingService.Encode(createAccountResult.AccountId, EncodingType.AccountId);
-        var publicHashedAccountId = _encodingService.Encode(createAccountResult.AccountId, EncodingType.PublicAccountId);
+        var hashedAccountId = encodingService.Encode(createAccountResult.AccountId, EncodingType.AccountId);
+        var publicHashedAccountId = encodingService.Encode(createAccountResult.AccountId, EncodingType.PublicAccountId);
 
-        await _accountRepository.UpdateAccountHashedIds(createAccountResult.AccountId, hashedAccountId, publicHashedAccountId);
-
-        await NotifyAccountCreated(hashedAccountId);
-
+        await accountRepository.UpdateAccountHashedIds(createAccountResult.AccountId, hashedAccountId, publicHashedAccountId);
+        
         await CreateAuditEntries(message, createAccountResult, hashedAccountId, userResponse.User);
 
         return new CreateUserAccountCommandResponse
@@ -57,19 +36,10 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
             HashedAccountId = hashedAccountId
         };
     }
-
-    private Task NotifyAccountCreated(string hashedAccountId)
-    {
-        var accountEvent = _accountEventFactory.CreateAccountCreatedEvent(hashedAccountId);
-
-        var genericEvent = _genericEventFactory.Create(accountEvent);
-
-        return _mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
-    }
     
     private void ValidateMessage(CreateUserAccountCommand message)
     {
-        var validationResult = _validator.Validate(message);
+        var validationResult = validator.Validate(message);
 
         if (!validationResult.IsValid())
             throw new InvalidRequestException(validationResult.ValidationDictionary);
@@ -79,7 +49,7 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
         string hashedAccountId, User user)
     {
         //Account
-        await _mediator.Send(new CreateAuditCommand
+        await mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {
@@ -98,7 +68,7 @@ public class CreateUserAccountCommandHandler : IRequestHandler<CreateUserAccount
         });
 
         //Membership Account
-        await _mediator.Send(new CreateAuditCommand
+        await mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {
