@@ -15,6 +15,7 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IGenericEventFactory, GenericEventFactory>();
         services.AddTransient<IPayeSchemeEventFactory, PayeSchemeEventFactory>();
         services.AddTransient<IEncodingService, EncodingService>();
+        services.AddSingleton<IAccountEventFactory, AccountEventFactory>();
 
         return services;
     }

@@ -1,20 +1,26 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
+using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
 [Route("api/accounts")]
 [ApiController]
-public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService, ILogger<EmployerAccountsController> logger)
+public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService, IMediator _mediator, ILogger<EmployerAccountsController> logger)
     : ControllerBase
 {
     [Route("", Name = "AccountsIndex")]
@@ -93,6 +99,55 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
     {
         var result = await orchestrator.GetAccountTeamMembersWhichReceiveNotifications(accountId);
         return Ok(result);
+    }
+
+    [Route("createaccount")]
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> CreateEmployerAccountViaProviderRequest([FromBody] CreateEmployerAccountViaProviderRequestModel model, CancellationToken cancellationToken)
+    {
+        UpsertRegisteredUserCommand upsertRegisteredUserCommand = new()
+        {
+            CorrelationId = model.RequestId.ToString(),
+            EmailAddress = model.Email,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            UserRef = model.UserRef.ToString()
+        };
+
+        await _mediator.Send(upsertRegisteredUserCommand, cancellationToken);
+
+        CreateAccountCommand createAccountCommand = new()
+        {
+            IsViaProviderRequest = true,
+            ExternalUserId = model.UserRef.ToString(),
+            OrganisationType = OrganisationType.PensionsRegulator,
+            OrganisationName = model.EmployerOrganisationName,
+            OrganisationAddress = model.EmployerAddress,
+            PayeReference = model.EmployerPaye,
+            Aorn = model.EmployerAorn,
+            OrganisationReferenceNumber = model.EmployerOrganisationReferenceNumber,
+            OrganisationStatus = "active",
+            EmployerRefName = model.EmployerOrganisationName
+        };
+
+        var response = await _mediator.Send(createAccountCommand, cancellationToken);
+
+        SignEmployerAgreementCommand signEmployerAgreementCommand = new()
+        {
+            ExternalUserId = model.UserRef.ToString(),
+            HashedAccountId = response.HashedAccountId,
+            HashedAgreementId = response.HashedAgreementId,
+            SignedDate = DateTime.UtcNow
+        };
+
+        await _mediator.Send(signEmployerAgreementCommand, cancellationToken);
+
+        AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(response.AccountId);
+
+        await _mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
+
+        return Ok();
     }
 
     [Route("acknowledge-training-provider-task", Name = "AcknowledgeTrainingProviderTask")]

@@ -11,7 +11,6 @@ using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Queries.GetPagedEmployerAccounts;
 using SFA.DAS.Encoding;
-
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsControllerTests
 {
     public abstract class EmployerAccountsControllerTests
@@ -32,7 +31,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
             Mapper = new Mock<IMapper>();
 
             var orchestrator = new AccountsOrchestrator(Mediator.Object, Logger.Object, Mapper.Object, EncodingService.Object);
-            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, Mock.Of<ILogger<EmployerAccountsController>>());
+            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, Mock.Of<IMediator>(), Mock.Of<ILogger<EmployerAccountsController>>());
 
             UrlTestHelper = new Mock<IUrlHelper>();
             Controller.Url = UrlTestHelper.Object;
