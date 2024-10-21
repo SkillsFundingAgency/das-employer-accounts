@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -55,7 +53,7 @@ public class Startup
     {
         var employerAccountsConfiguration = _configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
         var isDevelopment = _configuration.IsDevOrLocal();
-        
+
         services.AddSingleton(_configuration);
 
         services
@@ -95,6 +93,7 @@ public class Startup
         services.AddAuditServices();
 
         services.AddMediatorValidators();
+
         services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetPayeSchemeByRefQuery).Assembly));
 
         services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
