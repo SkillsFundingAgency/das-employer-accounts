@@ -4,6 +4,7 @@ using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.EmployerAccounts.Queries.GetCreateAccountTaskList;
+using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.AutoFixture;
@@ -58,7 +59,8 @@ public class WhenUserHasNotSetAccountName
         long accountId,
         [Frozen] Mock<IMediator> mediatorMock,
         [Frozen] Mock<IEncodingService> encodingServiceMock,
-        [NoAutoProperties] EmployerAccountController controller)
+        [NoAutoProperties] EmployerAccountController controller,
+        GetUserByRefResponse userByRefResponse)
     {
         encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
@@ -70,6 +72,12 @@ public class WhenUserHasNotSetAccountName
                     && x.UserRef == userId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => null);
+
+        mediatorMock
+            .Setup(m => m.Send(It.Is<GetUserByRefQuery>(x =>
+                    x.UserRef == userId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userByRefResponse);
 
         SetControllerContextUserIdClaim(userId, controller);
 
