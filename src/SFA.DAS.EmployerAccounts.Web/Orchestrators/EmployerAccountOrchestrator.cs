@@ -311,12 +311,17 @@ public class EmployerAccountOrchestrator : EmployerVerificationOrchestratorBase
         }
 
         var result = await Mediator.Send(new GetCreateAccountTaskListQuery(accountId, hashedAccountId, userRef));
-
+        
         if (result == null)
         {
+            var userResponse = await Mediator.Send(new GetUserByRefQuery { UserRef = userRef });
+            
             return new OrchestratorResponse<AccountTaskListViewModel>
             {
-                Data = new AccountTaskListViewModel()
+                Data = new AccountTaskListViewModel
+                {
+                    EditUserDetailsUrl = _urlHelper.EmployerProfileEditUserDetails() + $"?firstName={userResponse.User.FirstName}&lastName={userResponse.User.LastName}"
+                }
             };
         }
         
