@@ -6,4 +6,5 @@ public class EmployerAgreementTemplate
     public string PartialViewName { get; set; }
     public DateTime CreatedDate { get; set; }
     public int VersionNumber { get; set; }
+    public DateTime? PublishedDate { get; set; }
 }
