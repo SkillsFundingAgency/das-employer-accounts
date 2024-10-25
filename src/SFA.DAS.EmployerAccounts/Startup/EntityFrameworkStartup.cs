@@ -33,7 +33,6 @@ namespace SFA.DAS.EmployerAccounts.Startup
                     var connection = DatabaseExtensions.GetSqlConnection(config.DatabaseConnectionString);
                     var optionsBuilder = new DbContextOptionsBuilder<EmployerAccountsDbContext>().UseSqlServer(connection);
                     dbContext = new EmployerAccountsDbContext(optionsBuilder.Options);
-                    dbContext.Database.BeginTransaction();
                 }
 
                 return dbContext;
