@@ -1,10 +1,7 @@
-﻿using System.Data;
-using System.Diagnostics.CodeAnalysis;
-using Dapper;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
-using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
+using SFA.DAS.EmployerAccounts.Models.Account;
 
 namespace SFA.DAS.EmployerAccounts.Data;
 
@@ -18,13 +15,8 @@ public class EmployerAgreementTemplatesRepository : IEmployerAgreementTemplatesR
         _db = db;
     }
 
-    public async Task<List<EmployerAgreementTemplate>> GetEmployerAgreementTemplates()
+    public async Task<List<AgreementTemplate>> GetEmployerAgreementTemplates()
     {
-        var result = await _db.Value.Database.GetDbConnection().QueryAsync<EmployerAgreementTemplate>(
-            sql: "select * from [Employer_account].[EmployerAgreementTemplate]",
-            transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
-            commandType: CommandType.Text);
-
-        return result.ToList();
+        return await _db.Value.AgreementTemplates.ToListAsync();
     }
 }

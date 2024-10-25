@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
+using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementTemplates;
 
@@ -19,16 +21,28 @@ public class WhenIGetEmployerAgreementTemplates
 
     private GetEmployerAgreementTemplatesHandler RequestHandler { get; set; }
     private GetEmployerAgreementTemplatesResponse _expectedResponse;
+    private List<AgreementTemplate> AgreementTemplates { get; set; }
     private List<EmployerAgreementTemplate> EmployerAgreementTemplates { get; set; }
 
     [SetUp]
     public void Arrange()
     {
-        EmployerAgreementTemplates = new List<EmployerAgreementTemplate>
+        AgreementTemplates = new List<AgreementTemplate>
         {
             new() { CreatedDate = DateTime.Now, Id = 1, PartialViewName = "_partial1_", VersionNumber = 1 },
             new() { CreatedDate = DateTime.Now.AddDays(-1), Id = 2, PartialViewName = "_parital2_", VersionNumber = 1 }
         };
+
+        var EmployerAgreementTemplates = AgreementTemplates.Select(template => new EmployerAgreementTemplate
+        {
+            Id = template.Id,
+            PartialViewName = template.PartialViewName,
+            CreatedDate = template.CreatedDate.GetValueOrDefault(),
+            VersionNumber = template.VersionNumber,
+            AgreementType = template.AgreementType,
+            PublishedDate = template.PublishedDate
+        })
+            .ToList();
 
         _expectedResponse = new GetEmployerAgreementTemplatesResponse
         {
@@ -38,7 +52,7 @@ public class WhenIGetEmployerAgreementTemplates
         _repository = new Mock<IEmployerAgreementTemplatesRepository>();
         _repository
             .Setup(x => x.GetEmployerAgreementTemplates())
-            .ReturnsAsync(EmployerAgreementTemplates);
+            .ReturnsAsync(AgreementTemplates);
 
         Request = new GetEmployerAgreementTemplatesRequest();
 
