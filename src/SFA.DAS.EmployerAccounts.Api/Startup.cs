@@ -74,16 +74,17 @@ public class Startup
         services.AddDasDistributedMemoryCache(employerAccountsConfiguration, _environment.IsDevelopment());
         services.AddDasHealthChecks(employerAccountsConfiguration);
         services.AddOrchestrators();
-
+        
+        services.AddDatabaseRegistration();
+        services.AddDataRepositories();
+        
         services
             .AddUnitOfWork()
             .AddEntityFramework(employerAccountsConfiguration)
             .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
 
         services.AddNServiceBusClientUnitOfWork();
-
-        services.AddDatabaseRegistration();
-        services.AddDataRepositories();
+        
         services.AddExecutionPolicies();
 
         services.AddTransient<IValidator<GetUserByRefQuery>, GetUserByRefQueryValidator>();
