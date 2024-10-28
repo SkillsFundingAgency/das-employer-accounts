@@ -62,8 +62,6 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IEmployerAgreementEventFactory, EmployerAgreementEventFactory>();
         services.AddScoped<IPayeSchemesWithEnglishFractionService, PayeSchemesWithEnglishFractionService>();
 
-        services.AddTransient<IUserContext, UserContext>();
-
         services.AddTransient<IPayeSchemesService, PayeSchemesService>();
 
         services.AddTransient<IStubAuthenticationService, StubAuthenticationService>();//TODO remove once gov login live

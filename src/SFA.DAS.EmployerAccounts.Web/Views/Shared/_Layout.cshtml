@@ -108,10 +108,7 @@
     <partial name="_CookieBanner"></partial>
 
     <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
-    @if (HtmlHelpers.IsSupportUser())
-    {
-        @(await Component.InvokeAsync(ComponentConstants.SupportUserBanner, new { hashedAccountId }))
-    }
+
     @* ReSharper disable once Mvc.PartialViewNotResolved *@
     <partial name="_Header">
         @* ReSharper disable once Mvc.PartialViewNotResolved *@

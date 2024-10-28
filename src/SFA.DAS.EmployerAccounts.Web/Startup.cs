@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
@@ -104,19 +103,6 @@ public class Startup
             typeof(EmployerAccountPostAuthenticationClaimsHandler),
             "",
             "/service/SignIn-Stub");
-        
-
-        var staffAuthConfig = new SupportConsoleAuthenticationOptions
-        {
-            AdfsOptions = new ADFSOptions
-            {
-                MetadataAddress = employerAccountsConfiguration.AdfsMetadata,
-                Wreply = employerAccountsConfiguration.EmployerAccountsBaseUrl,
-                Wtrealm = employerAccountsConfiguration.EmployerAccountsBaseUrl,
-            }
-        };
-
-        authenticationBuilder.AddAndConfigureSupportConsoleAuthentication(staffAuthConfig);
 
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
@@ -129,7 +115,6 @@ public class Startup
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             }
-
         });
 
         services.AddApplicationInsightsTelemetry();
@@ -171,8 +156,6 @@ public class Startup
         {
             app.UseExceptionHandler("/error");
         }
-
-        app.UseSupportConsoleAuthentication();
 
         app.UseUnitOfWork();
 

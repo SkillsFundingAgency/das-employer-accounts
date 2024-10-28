@@ -10,11 +10,11 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl access-denied">Access denied</h1>
         <p class="access-denied">Your account does not have sufficient privileges</p>
-        <p>@HtmlHelpers.ReturnParagraphContent()</p>
+        <p>If you are experiencing difficulty accessing the area of the site you need, first contact an/the account owner to ensure you have the correct role assigned to your account.</p>
         <a class="govuk-button" href="@HtmlHelpers.ReturnToHomePageButtonHref((string)ViewBag.AccountId)">@HtmlHelpers.ReturnToHomePageButtonText((string)ViewBag.AccountId)</a>
     </div>
 </div>
 
 @section breadcrumb {
-    <a href="@HtmlHelpers.ReturnToHomePageLinkHref((string)ViewBag.AccountId)" class="govuk-back-link">@HtmlHelpers.ReturnToHomePageLinkText((string)ViewBag.AccountId)</a>
+    <a href="/" class="govuk-back-link">@HtmlHelpers.ReturnToHomePageLinkText((string)ViewBag.AccountId)</a>
 }

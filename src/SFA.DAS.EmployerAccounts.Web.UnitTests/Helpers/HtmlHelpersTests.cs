@@ -1,8 +1,7 @@
 ﻿using System.Security.Claims;
+using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Microsoft.Extensions.Logging;
 using Claim = System.Security.Claims.Claim;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Helpers;
@@ -13,13 +12,11 @@ class HtmlHelpersTests
     private Mock<IHttpContextAccessor> _mockHttpContextAccessor;
     private Mock<ClaimsPrincipal> _mockPrincipal;
     private Mock<ClaimsIdentity> _mockClaimsIdentity;
-    private bool _isAuthenticated = true;
+    private readonly bool _isAuthenticated = true;
     private List<Claim> _claims;
     private string _userId;
-    private IHtmlHelpers _htmlHelper;
     private Mock<IMediator> _mockMediator;
-    private EmployerAccountsConfiguration _employerConfirguration;
-    private readonly string _supportConsoleUsers = "Tier1User,Tier2User";
+    private EmployerAccountsConfiguration _employerConfiguration;
 
     [SetUp]
     public void SetUp()
@@ -28,17 +25,10 @@ class HtmlHelpersTests
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         _mockPrincipal = new Mock<ClaimsPrincipal>();
         _mockClaimsIdentity = new Mock<ClaimsIdentity>();
-        _employerConfirguration = new EmployerAccountsConfiguration()
-        {
-            SupportConsoleUsers = _supportConsoleUsers
-
-        };
+        _employerConfiguration = new EmployerAccountsConfiguration();
         _userId = "TestUser";
 
-        _claims = new List<Claim>
-        {
-            new Claim(ControllerConstants.UserRefClaimKeyName, _userId)
-        };
+        _claims = [new(ControllerConstants.UserRefClaimKeyName, _userId)];
 
         _mockPrincipal.Setup(m => m.Identity).Returns(_mockClaimsIdentity.Object);
         _mockClaimsIdentity.Setup(m => m.IsAuthenticated).Returns(_isAuthenticated);
@@ -48,69 +38,9 @@ class HtmlHelpersTests
 
         _mockMediator = new Mock<IMediator>();
 
-        _htmlHelper = new HtmlHelpers(_employerConfirguration,
-            _mockMediator.Object,
-            _mockHttpContextAccessor.Object,
-            Mock.Of<ILogger<HtmlHelpers>>(),
-            Mock.Of<ICompositeViewEngine>());
-
         var serviceProviderMock = new Mock<IServiceProvider>();
         serviceProviderMock.Setup(provider => provider.GetService(typeof(EmployerAccountsConfiguration)))
-            .Returns(_employerConfirguration);
-
-    }
-
-    [Test]
-    public void WhenAuthenticatedSupportUser_ShouldReturnTrue()
-    {
-        // Arrange
-        _isAuthenticated = true;
-        _claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, ControllerConstants.Tier2UserClaim));
-
-        // Act
-        var result = _htmlHelper.IsSupportUser();
-
-        // Assert
-        Assert.That(result, Is.True);
-    }
-
-    [Test]
-    public void WhenUnauthenticatedSupportUser_ShouldReturnFalse()
-    {
-        // Arrange
-        _mockClaimsIdentity.Setup(m => m.IsAuthenticated).Returns(false); // re-apply the mock return
-        _claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, ControllerConstants.Tier2UserClaim));
-        // Act
-        var result = _htmlHelper.IsSupportUser();
-
-        // Assert
-        Assert.That(result, Is.False);
-    }
-
-    [Test]
-    public void WhenUnauthenticatedNonSupportUser_ShouldReturnFalse()
-    {
-        // Arrange
-        _isAuthenticated = false;
-
-        // Act
-        var result = _htmlHelper.IsSupportUser();
-
-        // Assert
-        Assert.That(result, Is.False);
-    }
-
-    [Test]
-    public void WhenAuthenticatedNonSupportUser_ShouldReturnFalse()
-    {
-        // Arrange
-        _isAuthenticated = true;
-
-        // Act
-        var result = _htmlHelper.IsSupportUser();
-
-        // Assert
-        Assert.That(result, Is.False);
+            .Returns(_employerConfiguration);
     }
 
     [TestCaseSource(nameof(LabelCases))]
@@ -123,15 +53,14 @@ class HtmlHelpersTests
         var actual = HtmlHelpers.SetZenDeskLabels(labels).ToString();
 
         // Assert
-        Assert.That(actual, Is.EqualTo(expected));
+        actual.Should().Be(expected);
     }
 
-
     private static readonly object[] LabelCases =
-    {
-        new object[] { new string[] { "a string with multiple words", "the title of another page" }, "'a string with multiple words','the title of another page'"},
-        new object[] { new string[] { "eas-estimate-apprenticeships-you-could-fund" }, "'eas-estimate-apprenticeships-you-could-fund'"},
-        new object[] { new string[] { "eas-apostrophe's" }, @"'eas-apostrophe\'s'"},
+    [
+        new object[] { new[] { "a string with multiple words", "the title of another page" }, "'a string with multiple words','the title of another page'"},
+        new object[] { new[] { "eas-estimate-apprenticeships-you-could-fund" }, "'eas-estimate-apprenticeships-you-could-fund'"},
+        new object[] { new[] { "eas-apostrophe's" }, @"'eas-apostrophe\'s'"},
         new object[] { new string[] { null }, "''" }
-    };
+    ];
 }
