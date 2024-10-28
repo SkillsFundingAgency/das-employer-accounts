@@ -18,8 +18,7 @@ public class PublishGenericEventCommandHandler : IRequestHandler<PublishGenericE
     public async Task Handle(PublishGenericEventCommand command, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Publishing Generic event of type {EventType}", command.Event.Type);
-
-        await Task.Delay(10, cancellationToken);
-        //await _eventsApi.CreateGenericEvent(command.Event);
+        
+        await _eventsApi.CreateGenericEvent(command.Event);
     }
 }
