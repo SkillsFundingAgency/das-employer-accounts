@@ -33,7 +33,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
                 }
             };
 
-            Mediator.Setup(x => x.Send(
+            MediatorMock.Setup(x => x.Send(
                     It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), 
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accountsResponse);

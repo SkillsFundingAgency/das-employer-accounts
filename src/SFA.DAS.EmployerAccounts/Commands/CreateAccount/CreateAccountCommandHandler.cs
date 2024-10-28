@@ -95,14 +95,20 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
         await Task.WhenAll(
             PublishAddPayeSchemeMessage(message.PayeReference, createAccountResult.AccountId, createdByName, userResponse.User.Ref, message.Aorn, message.EmployerRefName, userResponse.User.CorrelationId),
             PublishAccountCreatedMessage(createAccountResult.AccountId, hashedAccountId, publicHashedAccountId, message.OrganisationName, createdByName, externalUserId),
-            PublishLegalEntityAddedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId, createAccountResult.EmployerAgreementId, createAccountResult.AccountLegalEntityId, message.OrganisationName, message.OrganisationReferenceNumber, message.OrganisationAddress, message.OrganisationType, createdByName, externalUserId),
-            CreateAuditEntries(message, createAccountResult, hashedAccountId, userResponse.User)
+            PublishLegalEntityAddedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId, createAccountResult.EmployerAgreementId, createAccountResult.AccountLegalEntityId, message.OrganisationName, message.OrganisationReferenceNumber, message.OrganisationAddress, message.OrganisationType, createdByName, externalUserId)
         );
 
-        if (!message.IsViaProviderRequest)
+        if (message.IsViaProviderRequest)
+        {
+            await Task.WhenAll(
+                SignAgreement(hashedAgreementId, userResponse.User, message.CorrelationId),
+                AddAccountCreatedAuditEntry(message, createAccountResult, hashedAccountId, userResponse.User));
+        }
+        else
         {
             await Task.WhenAll(
                 NotifyAccountCreated(hashedAccountId),
+                CreateAuditEntries(message, createAccountResult, hashedAccountId, userResponse.User),
                 PublishAgreementCreatedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId, createAccountResult.EmployerAgreementId, message.OrganisationName, createdByName, externalUserId));
 
             if (!string.IsNullOrWhiteSpace(message.Aorn))
@@ -207,6 +213,34 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
 
         if (!validationResult.IsValid())
             throw new InvalidRequestException(validationResult.ValidationDictionary);
+    }
+
+    private async Task AddAccountCreatedAuditEntry(CreateAccountCommand message, CreateAccountResult returnValue, string hashedAccountId, User user)
+    {
+        await _mediator.Send(new CreateAuditCommand
+        {
+            EasAuditMessage = new AuditMessage
+            {
+                Category = "CREATED",
+                Description = $"Account {message.OrganisationName} created with id {returnValue.AccountId}",
+                ChangedProperties = new List<PropertyUpdate>
+                {
+                    PropertyUpdate.FromLong("AccountId", returnValue.AccountId),
+                    PropertyUpdate.FromString("HashedId", hashedAccountId),
+                    PropertyUpdate.FromString("Name", message.OrganisationName),
+                    PropertyUpdate.FromDateTime("CreatedDate", DateTime.UtcNow),
+                },
+                AffectedEntity = new AuditEntity { Type = "Account", Id = returnValue.AccountId.ToString() },
+                RelatedEntities =
+                [
+                    new AuditEntity { Type = "LegalEntity", Id = returnValue.LegalEntityId.ToString() },
+                    new AuditEntity { Type = "EmployerAgreement", Id = returnValue.EmployerAgreementId.ToString() },
+                    new AuditEntity { Type = "Paye", Id = message.PayeReference },
+                    new AuditEntity { Type = "Membership", Id = message.ExternalUserId }
+                ],
+                ChangedBy = new Actor { EmailAddress = user.Email, Id = user.Ref.ToString() }
+            }
+        });
     }
 
     private async Task CreateAuditEntries(CreateAccountCommand message, CreateAccountResult returnValue, string hashedAccountId, User user)
@@ -338,6 +372,39 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
                 },
                 AffectedEntity = new AuditEntity { Type = "Membership", Id = message.ExternalUserId }
             }
+        });
+    }
+
+    private async Task SignAgreement(string hashedAgreementId, User user, string correlationId)
+    {
+        var agreementId = _encodingService.Decode(hashedAgreementId, EncodingType.AccountId);
+
+        var signedAgreementDetails = new Models.EmployerAgreement.SignEmployerAgreement
+        {
+            SignedDate = DateTime.UtcNow,
+            AgreementId = agreementId,
+            SignedById = user.Id,
+            SignedByName = user.FullName
+        };
+
+        await _employerAgreementRepository.SignAgreement(signedAgreementDetails);
+
+        var agreement = await _employerAgreementRepository.GetEmployerAgreement(agreementId);
+
+        await _eventPublisher.Publish(new SignedAgreementEvent
+        {
+            AccountId = agreement.AccountId,
+            AgreementId = agreement.Id,
+            AccountLegalEntityId = agreement.AccountLegalEntityId,
+            LegalEntityId = agreement.LegalEntityId,
+            OrganisationName = agreement.LegalEntityName,
+            CohortCreated = false,
+            Created = DateTime.UtcNow,
+            UserName = user.FullName,
+            UserRef = user.Ref,
+            AgreementType = agreement.AgreementType,
+            SignedAgreementVersion = agreement.VersionNumber,
+            CorrelationId = correlationId
         });
     }
 }

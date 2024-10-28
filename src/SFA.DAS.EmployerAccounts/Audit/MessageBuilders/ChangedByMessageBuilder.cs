@@ -17,9 +17,16 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
 
     public async Task Build(AuditMessage message)
     {
-        message.ChangedBy = new Actor();
-        SetOriginIpAddess(message.ChangedBy);
-        await SetUserIdAndEmail(message.ChangedBy, message);
+        if (message.ChangedBy == null)
+        {
+            message.ChangedBy = new Actor();
+            SetOriginIpAddess(message.ChangedBy);
+            await SetUserIdAndEmail(message.ChangedBy, message);
+        }
+        else
+        {
+            SetOriginIpAddess(message.ChangedBy);
+        }
     }
 
     private void SetOriginIpAddess(Actor actor)
@@ -39,7 +46,7 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
             {
                 throw new InvalidContextException($"Unable to find the impersonated user with the email '{message.ImpersonatedUserEmail}' to populate AuditMessage.");
             }
-            
+
             actor.Id = impersonatedUser.Ref.ToString();
             actor.EmailAddress = impersonatedUser.Email;
 
@@ -51,7 +58,7 @@ public class ChangedByMessageBuilder : IAuditMessageBuilder
         {
             return;
         }
-        
+
         var userIdClaim = user.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier, StringComparison.CurrentCultureIgnoreCase));
         if (userIdClaim == null)
         {

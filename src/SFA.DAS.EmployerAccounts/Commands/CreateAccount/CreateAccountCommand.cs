@@ -5,6 +5,7 @@ namespace SFA.DAS.EmployerAccounts.Commands.CreateAccount;
 public class CreateAccountCommand : IRequest<CreateAccountCommandResponse>
 {
     public bool IsViaProviderRequest { get; set; }
+    public string CorrelationId { get; set; }
     public string ExternalUserId { get; set; }
     public OrganisationType OrganisationType { get; set; }
     public short? PublicSectorDataSource { get; set; }

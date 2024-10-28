@@ -25,7 +25,7 @@ internal class WhenIGetAccount : EmployerAccountsControllerTests
             }
         };
 
-        Mediator
+        MediatorMock
             .Setup(x => x.Send(
                 It.Is<GetEmployerAccountDetailByIdQuery>(x => x.AccountId == accountId), 
                 It.IsAny<CancellationToken>()))

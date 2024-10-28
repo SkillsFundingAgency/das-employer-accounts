@@ -16,7 +16,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
     public abstract class EmployerAccountsControllerTests
     {
         protected EmployerAccountsController Controller;
-        protected Mock<IMediator> Mediator;
+        protected Mock<IMediator> MediatorMock;
         protected Mock<ILogger<AccountsOrchestrator>> Logger;
         protected Mock<IEncodingService> EncodingService;
         protected Mock<IUrlHelper> UrlTestHelper;
@@ -25,13 +25,13 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
         [SetUp]
         public void Arrange()
         {
-            Mediator = new Mock<IMediator>();
+            MediatorMock = new Mock<IMediator>();
             Logger = new Mock<ILogger<AccountsOrchestrator>>();
             EncodingService = new Mock<IEncodingService>();
             Mapper = new Mock<IMapper>();
 
-            var orchestrator = new AccountsOrchestrator(Mediator.Object, Logger.Object, Mapper.Object, EncodingService.Object);
-            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, Mock.Of<IMediator>(), Mock.Of<ILogger<EmployerAccountsController>>());
+            var orchestrator = new AccountsOrchestrator(MediatorMock.Object, Logger.Object, Mapper.Object, EncodingService.Object);
+            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, MediatorMock.Object, Mock.Of<ILogger<EmployerAccountsController>>());
 
             UrlTestHelper = new Mock<IUrlHelper>();
             Controller.Url = UrlTestHelper.Object;
@@ -41,7 +41,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
                 Accounts = new List<Account>()
             };
 
-            Mediator.Setup(x => x.Send(It.IsAny<GetPagedEmployerAccountsQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(accountsResponse);
+            MediatorMock.Setup(x => x.Send(It.IsAny<GetPagedEmployerAccountsQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(accountsResponse);
         }
     }
 }

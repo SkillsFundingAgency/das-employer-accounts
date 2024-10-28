@@ -12,7 +12,6 @@ using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
-using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.Encoding;
 
@@ -101,7 +100,6 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         return Ok(result);
     }
 
-    [Route("createaccount")]
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateEmployerAccountViaProviderRequest([FromBody] CreateEmployerAccountViaProviderRequestModel model, CancellationToken cancellationToken)
@@ -120,6 +118,7 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         CreateAccountCommand createAccountCommand = new()
         {
             IsViaProviderRequest = true,
+            CorrelationId = model.RequestId.ToString(),
             ExternalUserId = model.UserRef.ToString(),
             OrganisationType = OrganisationType.PensionsRegulator,
             OrganisationName = model.EmployerOrganisationName,
@@ -131,19 +130,9 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
             EmployerRefName = model.EmployerOrganisationName
         };
 
-        var response = await _mediator.Send(createAccountCommand, cancellationToken);
+        var createAccountCommandResponse = await _mediator.Send(createAccountCommand, cancellationToken);
 
-        SignEmployerAgreementCommand signEmployerAgreementCommand = new()
-        {
-            ExternalUserId = model.UserRef.ToString(),
-            HashedAccountId = response.HashedAccountId,
-            HashedAgreementId = response.HashedAgreementId,
-            SignedDate = DateTime.UtcNow
-        };
-
-        await _mediator.Send(signEmployerAgreementCommand, cancellationToken);
-
-        AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(response.AccountId);
+        AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
 
         await _mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
 

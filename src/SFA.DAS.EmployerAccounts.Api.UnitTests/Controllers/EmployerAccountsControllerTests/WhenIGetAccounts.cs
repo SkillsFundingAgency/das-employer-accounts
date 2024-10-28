@@ -34,7 +34,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
                     new() { HashedId = "ABC999", Id = 987, Name = "Test 2" }
                 }
             };
-            Mediator
+            MediatorMock
                 .Setup(
                     x => x.Send(It.Is<GetPagedEmployerAccountsQuery>(q => q.PageNumber == pageNumber && q.PageSize == pageSize && q.ToDate == toDate),
                         It.IsAny<CancellationToken>())
@@ -80,7 +80,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
         {
             await Controller.GetAccounts();
 
-            Mediator.Verify(x => x.Send(It.Is<GetPagedEmployerAccountsQuery>(q => q.ToDate == DateTime.MaxValue.ToString("yyyyMMddHHmmss")), It.IsAny<CancellationToken>()));
+            MediatorMock.Verify(x => x.Send(It.Is<GetPagedEmployerAccountsQuery>(q => q.ToDate == DateTime.MaxValue.ToString("yyyyMMddHHmmss")), It.IsAny<CancellationToken>()));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
         {
             await Controller.GetAccounts(DateTime.Now.AddDays(-1).ToString("yyyyMMddHHmmss"));
 
-            Mediator.Verify(x => x.Send(It.Is<GetPagedEmployerAccountsQuery>(q => q.PageSize == 1000), It.IsAny<CancellationToken>()));
+            MediatorMock.Verify(x => x.Send(It.Is<GetPagedEmployerAccountsQuery>(q => q.PageSize == 1000), It.IsAny<CancellationToken>()));
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
         {
             await Controller.GetAccounts(DateTime.Now.AddDays(-1).ToString("yyyyMMddHHmmss"));
 
-            Mediator.Verify(x => x.Send(It.Is<GetPagedEmployerAccountsQuery>(q => q.PageNumber == 1), It.IsAny<CancellationToken>()));
+            MediatorMock.Verify(x => x.Send(It.Is<GetPagedEmployerAccountsQuery>(q => q.PageNumber == 1), It.IsAny<CancellationToken>()));
         }
     }
 }
