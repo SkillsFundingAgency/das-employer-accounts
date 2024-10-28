@@ -28,8 +28,6 @@ public class EmployerAccountsConfiguration
     public HmrcConfiguration Hmrc { get; set; }
     public PensionRegulatorConfiguration PensionRegulatorApi { get; set; }
     public ProviderRegistrationClientApiConfiguration ProviderRegistrationsApi { get; set; }
-    public string LegacyServiceBusConnectionString { get; set; }
-    public string MessageServiceBusConnectionString => LegacyServiceBusConnectionString;
     public string NServiceBusLicense { get; set; }
     public string PublicAllowedHashstringCharacters { get; set; }
     public string PublicAllowedAccountLegalEntityHashstringCharacters { get; set; }
