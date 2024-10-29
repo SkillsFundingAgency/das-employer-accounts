@@ -130,13 +130,13 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
             EmployerRefName = model.EmployerOrganisationName
         };
 
-        var createAccountCommandResponse = await _mediator.Send(createAccountCommand, cancellationToken);
+        CreateAccountCommandResponse createAccountCommandResponse = await _mediator.Send(createAccountCommand, cancellationToken);
 
         AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
 
         await _mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
 
-        return Ok();
+        return Created();
     }
 
     [Route("acknowledge-training-provider-task", Name = "AcknowledgeTrainingProviderTask")]
