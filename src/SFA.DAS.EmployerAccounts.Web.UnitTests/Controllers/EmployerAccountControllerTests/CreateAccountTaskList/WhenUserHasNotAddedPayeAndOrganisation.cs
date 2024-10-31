@@ -51,14 +51,9 @@ public class WhenUserHasNotAddedPayeAndOrganisation
         [Frozen] Mock<IUrlActionHelper> urlHelperMock,
         [Frozen] Mock<IMediator> mediatorMock,
         [NoAutoProperties] EmployerAccountController controller,
-        GetCreateAccountTaskListQueryResponse taskListResponse
+        GetUserByRefResponse userByRefResponse 
     )
     {
-        // Arrange
-        taskListResponse.HasProviderPermissions = false;
-        taskListResponse.AddTrainingProviderAcknowledged = false;
-        taskListResponse.HasPayeScheme = false;
-
         encodingServiceMock.Setup(m => m.Decode(hashedAccountId, EncodingType.AccountId)).Returns(accountId);
 
         urlHelperMock.Setup(m => m.EmployerProfileEditUserDetails(It.IsAny<string>())).Returns(editUserDetailsUri.AbsoluteUri);
@@ -69,7 +64,13 @@ public class WhenUserHasNotAddedPayeAndOrganisation
                     && x.HashedAccountId == hashedAccountId
                     && x.UserRef == userId),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(taskListResponse);
+            .ReturnsAsync(() => null);
+        
+        mediatorMock
+            .Setup(m => m.Send(It.Is<GetUserByRefQuery>(x =>
+                    x.UserRef == userId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userByRefResponse);
         
         SetControllerContextUserIdClaim(userId, controller);
         
@@ -78,7 +79,7 @@ public class WhenUserHasNotAddedPayeAndOrganisation
         var model = result.Model as OrchestratorResponse<AccountTaskListViewModel>;
 
         // Assert
-        model.Data.EditUserDetailsUrl.Should().Be($"{editUserDetailsUri.AbsoluteUri}?firstName={taskListResponse.UserFirstName}&lastName={taskListResponse.UserLastName}");
+        model.Data.EditUserDetailsUrl.Should().Be($"{editUserDetailsUri.AbsoluteUri}?firstName={userByRefResponse.User.FirstName}&lastName={userByRefResponse.User.LastName}");
     }
 
     [Test]

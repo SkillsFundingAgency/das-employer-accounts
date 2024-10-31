@@ -19,7 +19,7 @@ public static class DataRepositoryServiceRegistrations
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IInvitationRepository, InvitationRepository>();
         services.AddScoped<IAuditRepository, AuditRepository>();
-
+        services.AddScoped<IEmployerAgreementTemplatesRepository, EmployerAgreementTemplatesRepository>();
         return services;
     }
 }
