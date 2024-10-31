@@ -3,6 +3,7 @@ using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
 using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
+using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Commands.SupportCreateInvitation;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
@@ -52,6 +53,7 @@ public static class MediatorValidationServiceRegistration
         services.AddTransient<IValidator<CreateAccountCommand>, CreateAccountCommandValidator>();
         services.AddTransient<IValidator<SignEmployerAgreementCommand>, SignEmployerAgreementCommandValidator>();
         services.AddTransient<IEmployerAgreementEventFactory, EmployerAgreementEventFactory>();
+        services.AddTransient<IValidator<SignEmployerAgreementWithoutAuditCommand>, SignEmployerAgreementWithoutAuditCommandValidator>();
         return services;
     }
 }
