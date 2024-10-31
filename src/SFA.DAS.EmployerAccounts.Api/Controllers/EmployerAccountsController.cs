@@ -12,6 +12,7 @@ using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.Encoding;
 
@@ -129,11 +130,12 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
             OrganisationStatus = "active",
             EmployerRefName = model.EmployerOrganisationName
         };
-
         CreateAccountCommandResponse createAccountCommandResponse = await _mediator.Send(createAccountCommand, cancellationToken);
 
-        AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
+        SignEmployerAgreementWithoutAuditCommand signEmployerAgreementWithoutAuditCommand = new(createAccountCommandResponse.HashedAgreementId, createAccountCommandResponse.User, model.RequestId.ToString());
+        await _mediator.Send(signEmployerAgreementWithoutAuditCommand, cancellationToken);
 
+        AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
         await _mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
 
         return Created();

@@ -11,7 +11,6 @@ public class CreateEmployerAccountViaProviderRequestModel
     public string RequestId { get; set; }
     public Guid UserRef { get; set; }
     public string Email { get; set; }
-    public string EmployerName { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string EmployerOrganisationName { get; set; }

@@ -8,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsControllerTests;
@@ -52,6 +53,16 @@ public class WhenCreatingAccountViaProviderRequest : EmployerAccountsControllerT
             c.OrganisationStatus == "active" &&
             c.EmployerRefName == model.EmployerOrganisationName),
             cancellationToken), Times.Once);
+    }
+
+    [Test, AutoData]
+    public async Task Then_Signs_The_Agreement(CreateEmployerAccountViaProviderRequestModel model, CreateAccountCommandResponse createAccountResponse, CancellationToken cancellationToken)
+    {
+        MediatorMock.Setup(m => m.Send(It.IsAny<CreateAccountCommand>(), cancellationToken)).ReturnsAsync(createAccountResponse);
+
+        await Controller.CreateEmployerAccountViaProviderRequest(model, cancellationToken);
+
+        MediatorMock.Verify(m => m.Send(It.Is<SignEmployerAgreementWithoutAuditCommand>(c => c.User == createAccountResponse.User && c.HashedAgreementId == createAccountResponse.HashedAgreementId && c.CorrelationId == model.RequestId.ToString()), cancellationToken), Times.Once);
     }
 
     [Test, AutoData]

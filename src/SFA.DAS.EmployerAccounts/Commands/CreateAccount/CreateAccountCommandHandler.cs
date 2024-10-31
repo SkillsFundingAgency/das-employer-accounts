@@ -100,9 +100,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
 
         if (message.IsViaProviderRequest)
         {
-            await Task.WhenAll(
-                SignAgreement(hashedAgreementId, userResponse.User, message.CorrelationId),
-                AddAccountCreatedAuditEntry(message, createAccountResult, hashedAccountId, userResponse.User));
+            await AddAccountCreatedAuditEntry(message, createAccountResult, hashedAccountId, userResponse.User);
         }
         else
         {
@@ -125,7 +123,8 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
         {
             AccountId = createAccountResult.AccountId,
             HashedAccountId = hashedAccountId,
-            HashedAgreementId = hashedAgreementId
+            HashedAgreementId = hashedAgreementId,
+            User = userResponse.User
         };
     }
 
@@ -372,39 +371,6 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
                 },
                 AffectedEntity = new AuditEntity { Type = "Membership", Id = message.ExternalUserId }
             }
-        });
-    }
-
-    private async Task SignAgreement(string hashedAgreementId, User user, string correlationId)
-    {
-        var agreementId = _encodingService.Decode(hashedAgreementId, EncodingType.AccountId);
-
-        var signedAgreementDetails = new Models.EmployerAgreement.SignEmployerAgreement
-        {
-            SignedDate = DateTime.UtcNow,
-            AgreementId = agreementId,
-            SignedById = user.Id,
-            SignedByName = user.FullName
-        };
-
-        await _employerAgreementRepository.SignAgreement(signedAgreementDetails);
-
-        var agreement = await _employerAgreementRepository.GetEmployerAgreement(agreementId);
-
-        await _eventPublisher.Publish(new SignedAgreementEvent
-        {
-            AccountId = agreement.AccountId,
-            AgreementId = agreement.Id,
-            AccountLegalEntityId = agreement.AccountLegalEntityId,
-            LegalEntityId = agreement.LegalEntityId,
-            OrganisationName = agreement.LegalEntityName,
-            CohortCreated = false,
-            Created = DateTime.UtcNow,
-            UserName = user.FullName,
-            UserRef = user.Ref,
-            AgreementType = agreement.AgreementType,
-            SignedAgreementVersion = agreement.VersionNumber,
-            CorrelationId = correlationId
         });
     }
 }
