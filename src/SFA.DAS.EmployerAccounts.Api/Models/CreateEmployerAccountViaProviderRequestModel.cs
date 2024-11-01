@@ -9,7 +9,7 @@ public class CreateEmployerAccountViaProviderRequestModel
     ///  and will be used as CorrelationId in here
     /// </summary>
     public string RequestId { get; set; }
-    public Guid UserRef { get; set; }
+    public required Guid UserRef { get; set; }
     public string Email { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
