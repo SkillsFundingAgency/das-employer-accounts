@@ -11,6 +11,7 @@ using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Messages.Events;
@@ -60,7 +61,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             _accountRepository.Setup(x => x.CreateAccount(It.IsAny<CreateAccountParams>())).ReturnsAsync(
                 new CreateAccountResult
                 {
-                    AccountId = ExpectedAccountId, LegalEntityId = ExpectedLegalEntityId,
+                    AccountId = ExpectedAccountId,
+                    LegalEntityId = ExpectedLegalEntityId,
                     EmployerAgreementId = ExpectedEmployerAgreementId,
                     AccountLegalEntityId = ExpectedAccountLegalEntityId
                 });
@@ -75,7 +77,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
 
             _validator = new Mock<IValidator<CreateAccountCommand>>();
             _validator.Setup(x => x.ValidateAsync(It.IsAny<CreateAccountCommand>())).ReturnsAsync(new ValidationResult
-                { ValidationDictionary = new Dictionary<string, string>() });
+            { ValidationDictionary = new Dictionary<string, string>() });
 
             _encodingService = new Mock<IEncodingService>();
             _encodingService.Setup(x => x.Encode(ExpectedAccountId, EncodingType.AccountId))
@@ -113,7 +115,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Arrange
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = "123/abc,456/123", AccessToken = "123rd", RefreshToken = "45YT",
+                PayeReference = "123/abc,456/123",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
                 ExternalUserId = _user.Ref.ToString()
             };
 
@@ -130,7 +134,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Arrange
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = "123/abc,456/123", AccessToken = "123rd", RefreshToken = "45YT",
+                PayeReference = "123/abc,456/123",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
                 ExternalUserId = _user.Ref.ToString()
             };
 
@@ -148,7 +154,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Arrange
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = "123/abc,456/123", AccessToken = "123rd", RefreshToken = "45YT",
+                PayeReference = "123/abc,456/123",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
                 ExternalUserId = _user.Ref.ToString()
             };
 
@@ -167,7 +175,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Arrange
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = "123/abc,456/123", AccessToken = "123rd", RefreshToken = "45YT",
+                PayeReference = "123/abc,456/123",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
                 ExternalUserId = _user.Ref.ToString()
             };
             var agreementHash = "dfjngfddfgfd";
@@ -178,7 +188,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _handler.Handle(createAccountCommand, CancellationToken.None);
 
             //Assert
-            Assert.That(actual, Is.AssignableFrom< CreateAccountCommandResponse>());
+            Assert.That(actual, Is.AssignableFrom<CreateAccountCommandResponse>());
             Assert.That(actual.HashedAccountId, Is.EqualTo(ExpectedHashString));
         }
 
@@ -189,7 +199,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
 
             //Assert
             _validator.Setup(x => x.ValidateAsync(command)).ReturnsAsync(new ValidationResult
-                { ValidationDictionary = new Dictionary<string, string> { { "", "" } } });
+            { ValidationDictionary = new Dictionary<string, string> { { "", "" } } });
 
             //Act
             Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -291,8 +301,11 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Arrange
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = "123/abc,456/123", AccessToken = "123rd", RefreshToken = "45YT",
-                OrganisationStatus = "active", ExternalUserId = _user.Ref.ToString()
+                PayeReference = "123/abc,456/123",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                ExternalUserId = _user.Ref.ToString()
             };
 
             //Act
@@ -311,8 +324,11 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
 
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = expectedPayeRef, AccessToken = "123rd", RefreshToken = "45YT",
-                OrganisationStatus = "active", ExternalUserId = _user.Ref.ToString()
+                PayeReference = expectedPayeRef,
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                ExternalUserId = _user.Ref.ToString()
             };
 
             //Act
@@ -399,8 +415,13 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Arrange
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = "123EDC", AccessToken = "123rd", RefreshToken = "45YT", OrganisationStatus = "active",
-                OrganisationName = "Org", Aorn = "Aorn", ExternalUserId = _user.Ref.ToString()
+                PayeReference = "123EDC",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                OrganisationName = "Org",
+                Aorn = "Aorn",
+                ExternalUserId = _user.Ref.ToString()
             };
 
             //Act
@@ -419,8 +440,12 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Arrange
             var createAccountCommand = new CreateAccountCommand
             {
-                PayeReference = "123EDC", AccessToken = "123rd", RefreshToken = "45YT", OrganisationStatus = "active",
-                OrganisationName = "Org", ExternalUserId = _user.Ref.ToString()
+                PayeReference = "123EDC",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                OrganisationName = "Org",
+                ExternalUserId = _user.Ref.ToString()
             };
 
             //Act
@@ -429,6 +454,91 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             //Assert
             _mediator.Verify(x => x.Send(It.IsAny<AccountLevyStatusCommand>(), It.IsAny<CancellationToken>()),
                 Times.Never);
+        }
+
+        [Test]
+        public async Task ThenOveallAccountCreatedAuditIsRecordedWhenTheAccountIsCreatedViaProviderRequest()
+        {
+            //Arrange
+            var createAccountCommand = new CreateAccountCommand
+            {
+                IsViaProviderRequest = true,
+                PayeReference = "123EDC",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                OrganisationName = "Org",
+                ExternalUserId = _user.Ref.ToString()
+            };
+
+            //Act
+            await _handler.Handle(createAccountCommand, CancellationToken.None);
+
+            _mediator.Verify(m => m.Send(It.IsAny<CreateAuditCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mediator.Verify(m => m.Send(It.Is<CreateAuditCommand>(c => c.EasAuditMessage.Category == "CREATED" && c.EasAuditMessage.AffectedEntity.Type == "Account"), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenAccountCreatedNotificationIsNotSentWhenTheAccountIsCreatedViaProviderRequest()
+        {
+            //Arrange
+            var createAccountCommand = new CreateAccountCommand
+            {
+                IsViaProviderRequest = true,
+                PayeReference = "123EDC",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                OrganisationName = "Org",
+                ExternalUserId = _user.Ref.ToString()
+            };
+
+            //Act
+            await _handler.Handle(createAccountCommand, CancellationToken.None);
+
+            _mediator.Verify(m => m.Send(It.IsAny<PublishGenericEventCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenAgreementCreatedEventIsNotPublishedWhenTheAccountIsCreatedViaProviderRequest()
+        {
+            //Arrange
+            var createAccountCommand = new CreateAccountCommand
+            {
+                IsViaProviderRequest = true,
+                PayeReference = "123EDC",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                OrganisationName = "Org",
+                ExternalUserId = _user.Ref.ToString()
+            };
+
+            //Act
+            await _handler.Handle(createAccountCommand, CancellationToken.None);
+
+            _eventPublisher.Events.Should().NotContain(e => e.GetType() == typeof(CreatedAgreementEvent));
+        }
+
+        [Test]
+        public async Task ThenNoNeedToUpdateAccountLevyStatusWhenTheAccountIsCreatedViaProviderRequest()
+        {
+            //Arrange
+            var createAccountCommand = new CreateAccountCommand
+            {
+                IsViaProviderRequest = true,
+                PayeReference = "123EDC",
+                AccessToken = "123rd",
+                RefreshToken = "45YT",
+                OrganisationStatus = "active",
+                OrganisationName = "Org",
+                ExternalUserId = _user.Ref.ToString()
+            };
+
+            //Act
+            await _handler.Handle(createAccountCommand, CancellationToken.None);
+
+            _mediator.Verify(c => c.Send(It.IsAny<AccountLevyStatusCommand>(), It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }
