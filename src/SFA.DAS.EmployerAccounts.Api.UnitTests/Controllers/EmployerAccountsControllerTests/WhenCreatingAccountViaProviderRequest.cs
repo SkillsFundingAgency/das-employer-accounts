@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -96,5 +97,15 @@ public class WhenCreatingAccountViaProviderRequest : EmployerAccountsControllerT
             responseModel.AccountId.Should().Be(createAccountResponse.AccountId);
             responseModel.AccountLegalEntityId.Should().Be(createAccountResponse.AccountLegalEntityId);
         }
+    }
+
+    [Test, AutoData]
+    public async Task Then_If_Exception_Then_Returns_500Response(CreateEmployerAccountViaProviderRequestModel model, CreateAccountCommandResponse createAccountResponse, CancellationToken cancellationToken)
+    {
+        var result = await Controller.CreateEmployerAccountViaProviderRequest(model, cancellationToken);
+
+        var actual = result.As<StatusCodeResult>();
+        actual.Should().NotBeNull();
+        actual.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
     }
 }
