@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.EmployerAccounts.Api;
+﻿namespace SFA.DAS.EmployerAccounts.Models.Account;
 
 public class CreateEmployerAccountViaProviderRequestModel
 {

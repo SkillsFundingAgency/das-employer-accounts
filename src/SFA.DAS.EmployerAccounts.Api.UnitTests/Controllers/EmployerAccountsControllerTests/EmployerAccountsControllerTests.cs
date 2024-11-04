@@ -29,12 +29,13 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
             Logger = new Mock<ILogger<AccountsOrchestrator>>();
             EncodingService = new Mock<IEncodingService>();
             Mapper = new Mock<IMapper>();
+            UrlTestHelper = new Mock<IUrlHelper>();
 
             var orchestrator = new AccountsOrchestrator(MediatorMock.Object, Logger.Object, Mapper.Object, EncodingService.Object);
-            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, MediatorMock.Object, Mock.Of<ILogger<EmployerAccountsController>>());
-
-            UrlTestHelper = new Mock<IUrlHelper>();
-            Controller.Url = UrlTestHelper.Object;
+            Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, MediatorMock.Object, Mock.Of<ILogger<EmployerAccountsController>>())
+            {
+                Url = UrlTestHelper.Object
+            };
 
             var accountsResponse = new GetPagedEmployerAccountsResponse
             {

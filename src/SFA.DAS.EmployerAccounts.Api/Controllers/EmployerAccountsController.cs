@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Common.Domain.Types;
@@ -103,7 +104,8 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateEmployerAccountViaProviderRequest([FromBody] CreateEmployerAccountViaProviderRequestModel model, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(Models.Account.CreateEmployerAccountViaProviderResponseModel), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateEmployerAccountViaProviderRequest([FromBody] Models.Account.CreateEmployerAccountViaProviderRequestModel model, CancellationToken cancellationToken)
     {
         UpsertRegisteredUserCommand upsertRegisteredUserCommand = new()
         {
@@ -138,7 +140,10 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
         await _mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
 
-        return Created();
+        return CreatedAtAction(
+            nameof(GetAccount),
+            new { createAccountCommandResponse.AccountId },
+            new Models.Account.CreateEmployerAccountViaProviderResponseModel(createAccountCommandResponse.AccountId, createAccountCommandResponse.AccountLegalEntityId));
     }
 
     [Route("acknowledge-training-provider-task", Name = "AcknowledgeTrainingProviderTask")]

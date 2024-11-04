@@ -1,15 +1,19 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
+using SFA.DAS.EmployerAccounts.Api.Controllers;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
+using SFA.DAS.EmployerAccounts.Models.Account;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsControllerTests;
 
@@ -82,6 +86,15 @@ public class WhenCreatingAccountViaProviderRequest : EmployerAccountsControllerT
 
         var result = await Controller.CreateEmployerAccountViaProviderRequest(model, cancellationToken);
 
-        result.As<CreatedResult>().Should().NotBeNull();
+        using (new AssertionScope())
+        {
+            var controllerResponse = result.As<CreatedAtActionResult>();
+            controllerResponse.ActionName.Should().Be(nameof(EmployerAccountsController.GetAccount));
+            controllerResponse.RouteValues.First().Value.Should().Be(createAccountResponse.AccountId);
+            controllerResponse.Should().NotBeNull();
+            var responseModel = controllerResponse.Value.As<CreateEmployerAccountViaProviderResponseModel>();
+            responseModel.AccountId.Should().Be(createAccountResponse.AccountId);
+            responseModel.AccountLegalEntityId.Should().Be(createAccountResponse.AccountLegalEntityId);
+        }
     }
 }
