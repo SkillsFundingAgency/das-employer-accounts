@@ -10,9 +10,8 @@
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
         <PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.41" />
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="7.6.2" />
-        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.6.2" />
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.6.2" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.2.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.0" />
         <PackageReference Include="NLog" Version="5.3.3" />
         <PackageReference Include="NLog.Schema" Version="5.3.3" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.12" />
@@ -25,7 +24,7 @@
         <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
         <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.109" />
-        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.104" />
+        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.120-prerelease-5" />
         <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
         <PackageReference Include="SFA.DAS.InputValidation" Version="17.1.100" />
         <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
@@ -36,7 +35,7 @@
         <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.28" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
         <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="8.0.10" />
     </ItemGroup>
