@@ -14,7 +14,6 @@ using SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
 using SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 using SFA.DAS.EmployerAccounts.Configuration;
-using SFA.DAS.EmployerAccounts.Factories;
 using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntitiesByHashedAccountId;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
@@ -89,8 +88,6 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddSingleton(mockHostingEnvironment.Object);
         serviceCollection.AddSingleton(Mock.Of<IPayeSchemesService>());
         serviceCollection.AddSingleton(Mock.Of<IUserAornPayeLockService>());
-        serviceCollection.AddSingleton(Mock.Of<IGenericEventFactory>());
-        serviceCollection.AddSingleton(Mock.Of<IPayeSchemeEventFactory>());
         serviceCollection.AddSingleton(Mock.Of<IEventPublisher>());
         serviceCollection.AddSingleton(Mock.Of<IMessageSession>());
         serviceCollection.AddSingleton((IConfiguration)config);

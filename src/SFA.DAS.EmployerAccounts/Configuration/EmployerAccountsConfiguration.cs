@@ -23,7 +23,6 @@ public class EmployerAccountsConfiguration
     public string ProviderRelationshipsBaseUrl { get; set; }
     public string EmployerFeedbackBaseUrl { get; set; }
     public string EmployerAanBaseUrl { get; set; }
-    public EventsApiClientConfiguration EventsApi { get; set; }
     public string Hashstring { get; set; }
     public HmrcConfiguration Hmrc { get; set; }
     public PensionRegulatorConfiguration PensionRegulatorApi { get; set; }

@@ -73,7 +73,6 @@ public class Startup
         services.AddAuditServices();
         services.AddCachesRegistrations();
         services.AddDateTimeServices(_configuration);
-        services.AddEventsApi();
 
         services
             .AddUnitOfWork()
