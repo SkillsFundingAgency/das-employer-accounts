@@ -66,7 +66,7 @@ public class WhenCreatingAccountViaProviderRequest : EmployerAccountsControllerT
 
         await Controller.CreateEmployerAccountViaProviderRequest(model, cancellationToken);
 
-        MediatorMock.Verify(m => m.Send(It.Is<SignEmployerAgreementWithoutAuditCommand>(c => c.User == createAccountResponse.User && c.HashedAgreementId == createAccountResponse.HashedAgreementId && c.CorrelationId == model.RequestId.ToString()), cancellationToken), Times.Once);
+        MediatorMock.Verify(m => m.Send(It.Is<SignEmployerAgreementWithoutAuditCommand>(c => c.User == createAccountResponse.User && c.AgreementId == createAccountResponse.AgreementId && c.CorrelationId == model.RequestId.ToString()), cancellationToken), Times.Once);
     }
 
     [Test, AutoData]

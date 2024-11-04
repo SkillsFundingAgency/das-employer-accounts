@@ -9,31 +9,25 @@ using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
-using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SignEmployerAgreementWithoutAudit;
 
 public class WhenSigningEmployerAgreementWithOutAudit
 {
-    private Mock<IEncodingService> _encodingServiceMock;
     private Mock<IEmployerAgreementRepository> _employerAgreementRepositoryMock;
     private Mock<IEventPublisher> _eventPublisherMock;
     private Mock<IValidator<SignEmployerAgreementWithoutAuditCommand>> _validatorMock;
     private SignEmployerAgreementWithoutAuditCommandHandler _sut;
-    private const long AgreementId = 1234;
 
     [SetUp]
     public void Initialize()
     {
-        _encodingServiceMock = new();
         _employerAgreementRepositoryMock = new();
         _eventPublisherMock = new();
         _validatorMock = new();
 
-        _encodingServiceMock.Setup(e => e.Decode(It.IsAny<string>(), EncodingType.AccountId)).Returns(AgreementId);
-
-        _sut = new(_encodingServiceMock.Object, _employerAgreementRepositoryMock.Object, _eventPublisherMock.Object, _validatorMock.Object);
+        _sut = new(_employerAgreementRepositoryMock.Object, _eventPublisherMock.Object, _validatorMock.Object);
     }
 
     [Test, AutoData]
@@ -52,14 +46,14 @@ public class WhenSigningEmployerAgreementWithOutAudit
     {
         _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<SignEmployerAgreementWithoutAuditCommand>())).ReturnsAsync(new ValidationResult());
 
-        _employerAgreementRepositoryMock.Setup(r => r.GetEmployerAgreement(AgreementId)).ReturnsAsync(agreement);
+        _employerAgreementRepositoryMock.Setup(r => r.GetEmployerAgreement(command.AgreementId)).ReturnsAsync(agreement);
 
         await _sut.Handle(command, CancellationToken.None);
 
-        _employerAgreementRepositoryMock.Verify(r => r.SignAgreement(It.Is<SignEmployerAgreement>(a => a.AgreementId == AgreementId && a.SignedById == command.User.Id && a.SignedByName == command.User.FullName)));
+        _employerAgreementRepositoryMock.Verify(r => r.SignAgreement(It.Is<SignEmployerAgreement>(a => a.AgreementId == command.AgreementId && a.SignedById == command.User.Id && a.SignedByName == command.User.FullName)));
 
         _eventPublisherMock.Verify(p => p.Publish(It.Is<SignedAgreementEvent>(e =>
-            e.AgreementId == AgreementId &&
+            e.AgreementId == command.AgreementId &&
             e.AccountId == agreement.AccountId &&
             e.AccountLegalEntityId == agreement.AccountLegalEntityId &&
             e.LegalEntityId == agreement.LegalEntityId &&

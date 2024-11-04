@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -188,12 +189,12 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _handler.Handle(createAccountCommand, CancellationToken.None);
 
             //Assert
-            Assert.Multiple(() =>
+            using (new AssertionScope())
             {
-                Assert.That(actual, Is.AssignableFrom<CreateAccountCommandResponse>());
-                Assert.That(actual.HashedAccountId, Is.EqualTo(ExpectedHashString));
-                Assert.That(actual.AccountLegalEntityId, Is.EqualTo(ExpectedAccountLegalEntityId));
-            });
+                actual.HashedAccountId.Should().Be(ExpectedHashString);
+                actual.AccountLegalEntityId.Should().Be(ExpectedAccountLegalEntityId);
+                actual.AgreementId.Should().Be(ExpectedEmployerAgreementId);
+            }
         }
 
         [Test]

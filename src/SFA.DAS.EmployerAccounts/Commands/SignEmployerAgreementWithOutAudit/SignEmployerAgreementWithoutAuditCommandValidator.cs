@@ -1,13 +1,11 @@
 ﻿
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 
 public class SignEmployerAgreementWithoutAuditCommandValidator(
-    IEmployerAgreementRepository _employerAgreementRepository,
-    IEncodingService _encodingService)
+    IEmployerAgreementRepository _employerAgreementRepository)
     : IValidator<SignEmployerAgreementWithoutAuditCommand>
 {
     public ValidationResult Validate(SignEmployerAgreementWithoutAuditCommand query)
@@ -19,8 +17,8 @@ public class SignEmployerAgreementWithoutAuditCommandValidator(
     {
         var validationResult = new ValidationResult();
 
-        if (string.IsNullOrWhiteSpace(query.HashedAgreementId))
-            validationResult.AddError(nameof(query.HashedAgreementId));
+        if (query.AgreementId <= 0)
+            validationResult.AddError(nameof(query.AgreementId));
 
         if (string.IsNullOrWhiteSpace(query.CorrelationId))
             validationResult.AddError(nameof(query.CorrelationId));
@@ -28,10 +26,9 @@ public class SignEmployerAgreementWithoutAuditCommandValidator(
         if (query.User == null)
             validationResult.AddError(nameof(query.User));
 
-        if (!string.IsNullOrWhiteSpace(query.HashedAgreementId))
+        if (query.AgreementId > 0)
         {
-            var agreementId = _encodingService.Decode(query.HashedAgreementId, EncodingType.AccountId);
-            EmployerAgreementStatus? employerAgreementStatus = await _employerAgreementRepository.GetEmployerAgreementStatus(agreementId);
+            EmployerAgreementStatus? employerAgreementStatus = await _employerAgreementRepository.GetEmployerAgreementStatus(query.AgreementId);
 
             if (employerAgreementStatus == null)
             {

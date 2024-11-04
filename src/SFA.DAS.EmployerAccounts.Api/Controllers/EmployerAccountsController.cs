@@ -134,7 +134,7 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         };
         CreateAccountCommandResponse createAccountCommandResponse = await _mediator.Send(createAccountCommand, cancellationToken);
 
-        SignEmployerAgreementWithoutAuditCommand signEmployerAgreementWithoutAuditCommand = new(createAccountCommandResponse.HashedAgreementId, createAccountCommandResponse.User, model.RequestId.ToString());
+        SignEmployerAgreementWithoutAuditCommand signEmployerAgreementWithoutAuditCommand = new(createAccountCommandResponse.AgreementId, createAccountCommandResponse.User, model.RequestId.ToString());
         await _mediator.Send(signEmployerAgreementWithoutAuditCommand, cancellationToken);
 
         AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);

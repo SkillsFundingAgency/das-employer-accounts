@@ -1,13 +1,11 @@
 ﻿using System.Threading;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
-using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 
 public class SignEmployerAgreementWithoutAuditCommandHandler(
-    IEncodingService _encodingService,
     IEmployerAgreementRepository _employerAgreementRepository,
     IEventPublisher _eventPublisher,
     IValidator<SignEmployerAgreementWithoutAuditCommand> _validator)
@@ -17,23 +15,21 @@ public class SignEmployerAgreementWithoutAuditCommandHandler(
     {
         await ValidateRequest(request);
 
-        var agreementId = _encodingService.Decode(request.HashedAgreementId, EncodingType.AccountId);
-
         var signedAgreementDetails = new Models.EmployerAgreement.SignEmployerAgreement
         {
             SignedDate = DateTime.UtcNow,
-            AgreementId = agreementId,
+            AgreementId = request.AgreementId,
             SignedById = request.User.Id,
             SignedByName = request.User.FullName
         };
 
         await _employerAgreementRepository.SignAgreement(signedAgreementDetails);
 
-        EmployerAgreementView agreement = await _employerAgreementRepository.GetEmployerAgreement(agreementId);
+        EmployerAgreementView agreement = await _employerAgreementRepository.GetEmployerAgreement(request.AgreementId);
 
         await _eventPublisher.Publish(new SignedAgreementEvent
         {
-            AgreementId = agreementId,
+            AgreementId = request.AgreementId,
             AccountId = agreement.AccountId,
             AccountLegalEntityId = agreement.AccountLegalEntityId,
             LegalEntityId = agreement.LegalEntityId,

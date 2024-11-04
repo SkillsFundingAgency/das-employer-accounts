@@ -125,6 +125,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
             AccountLegalEntityId = createAccountResult.AccountLegalEntityId,
             HashedAccountId = hashedAccountId,
             HashedAgreementId = hashedAgreementId,
+            AgreementId = createAccountResult.EmployerAgreementId,
             User = userResponse.User
         };
     }
