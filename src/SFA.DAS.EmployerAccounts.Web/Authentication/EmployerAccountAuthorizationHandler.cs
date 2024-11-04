@@ -4,10 +4,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Infrastructure;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Web.Authorization;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.EmployerAccounts.Infrastructure.EmployerClaims;
+using EmployerUserAccountItem = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccountItem;
 
 namespace SFA.DAS.EmployerAccounts.Web.Authentication;
 
@@ -20,11 +22,11 @@ public interface IEmployerAccountAuthorisationHandler
 public class EmployerAccountAuthorisationHandler : IEmployerAccountAuthorisationHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IUserAccountService _accountsService;
+    private readonly IGovAuthEmployerAccountService _accountsService;
     private readonly ILogger<EmployerAccountOwnerAuthorizationHandler> _logger;
     private readonly EmployerAccountsConfiguration _configuration;
 
-    public EmployerAccountAuthorisationHandler(IHttpContextAccessor httpContextAccessor, IUserAccountService accountsService, ILogger<EmployerAccountOwnerAuthorizationHandler> logger, IOptions<EmployerAccountsConfiguration> configuration)
+    public EmployerAccountAuthorisationHandler(IHttpContextAccessor httpContextAccessor, IGovAuthEmployerAccountService accountsService, ILogger<EmployerAccountOwnerAuthorizationHandler> logger, IOptions<EmployerAccountsConfiguration> configuration)
     {
         _httpContextAccessor = httpContextAccessor;
         _accountsService = accountsService;

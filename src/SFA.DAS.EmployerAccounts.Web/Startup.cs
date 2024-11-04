@@ -14,13 +14,14 @@ using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Mappings;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
+using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Startup;
 using SFA.DAS.EmployerAccounts.Web.Extensions;
 using SFA.DAS.EmployerAccounts.Web.Filters;
-using SFA.DAS.EmployerAccounts.Web.Handlers;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerAccounts.Web.StartupExtensions;
 using SFA.DAS.GovUK.Auth.AppStart;
+using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
@@ -98,10 +99,11 @@ public class Startup
         var govConfig = _configuration.GetSection("SFA.DAS.Employer.GovSignIn");
         govConfig["ResourceEnvironmentName"] = _configuration["ResourceEnvironmentName"];
         govConfig["StubAuth"] = _configuration["StubAuth"];
-        services.AddAndConfigureGovUkAuthentication(govConfig,
-            typeof(EmployerAccountPostAuthenticationClaimsHandler),
-            "",
-            "/service/SignIn-Stub");
+        services.AddAndConfigureGovUkAuthentication(govConfig, new AuthRedirects
+        {
+            SignedOutRedirectUrl = "",
+            LocalStubLoginPath ="/service/SignIn-Stub" 
+        },null, typeof(UserAccountService));
         
 
         var staffAuthConfig = new SupportConsoleAuthenticationOptions

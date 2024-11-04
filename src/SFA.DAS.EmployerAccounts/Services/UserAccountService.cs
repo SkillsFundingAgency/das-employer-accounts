@@ -1,16 +1,12 @@
 ﻿using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.UserAccounts;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.UserAccounts;
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerUserAccounts = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccounts;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public interface IUserAccountService
-{
-    Task<EmployerUserAccounts> GetUserAccounts(string userId, string email);
-}
-
-public class UserAccountService : IUserAccountService
+public class UserAccountService : IGovAuthEmployerAccountService
 {
     private readonly IOuterApiClient _outerApiClient;
 
@@ -18,10 +14,24 @@ public class UserAccountService : IUserAccountService
     {
         _outerApiClient = outerApiClient;
     }
-    public async Task<EmployerUserAccounts> GetUserAccounts(string userId, string email)
-    {
-        var actual = await _outerApiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(email, userId));
 
-        return actual;
+    async Task<GovUK.Auth.Employer.EmployerUserAccounts> IGovAuthEmployerAccountService.GetUserAccounts(string userId, string email)
+    {
+        var result = await _outerApiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(email, userId));
+
+        return new GovUK.Auth.Employer.EmployerUserAccounts
+        {
+            EmployerAccounts = result.UserAccounts != null? result.UserAccounts.Select(c => new EmployerUserAccountItem
+            {
+                Role = c.Role,
+                AccountId = c.AccountId,
+                ApprenticeshipEmployerType = Enum.Parse<ApprenticeshipEmployerType>(c.ApprenticeshipEmployerType.ToString()),
+                EmployerName = c.EmployerName,
+            }).ToList() : [],
+            FirstName = result.FirstName,
+            IsSuspended = result.IsSuspended,
+            LastName = result.LastName,
+            EmployerUserId = result.EmployerUserId,
+        };
     }
 }
