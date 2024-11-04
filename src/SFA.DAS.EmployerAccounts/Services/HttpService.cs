@@ -10,12 +10,27 @@ namespace SFA.DAS.EmployerAccounts.Services;
 [ExcludeFromCodeCoverage]
 public class HttpService(string identifierUri) : IHttpService
 {
-    private readonly ChainedTokenCredential _azureServiceTokenProvider = new(
-        new ManagedIdentityCredential(),
-        new AzureCliCredential(),
-        new VisualStudioCodeCredential(),
-        new VisualStudioCredential()
-    );
+    private const int MaxRetries = 2;
+    private static readonly TimeSpan NetworkTimeout = TimeSpan.FromMilliseconds(500);
+    private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(100);
+    
+    private readonly ChainedTokenCredential _azureServiceTokenProvider = new ChainedTokenCredential(
+        new ManagedIdentityCredential(options: new TokenCredentialOptions
+        {
+            Retry = { NetworkTimeout = NetworkTimeout, MaxRetries = MaxRetries, Delay = Delay, Mode = RetryMode.Fixed }
+        }),
+        new AzureCliCredential(options: new AzureCliCredentialOptions
+        {
+            Retry = { NetworkTimeout = NetworkTimeout, MaxRetries = MaxRetries, Delay = Delay, Mode = RetryMode.Fixed }
+        }),
+        new VisualStudioCredential(options: new VisualStudioCredentialOptions
+        {
+            Retry = { NetworkTimeout = NetworkTimeout, MaxRetries = MaxRetries, Delay = Delay, Mode = RetryMode.Fixed }
+        }),
+        new VisualStudioCodeCredential(options: new VisualStudioCodeCredentialOptions
+        {
+            Retry = { NetworkTimeout = NetworkTimeout, MaxRetries = MaxRetries, Delay = Delay, Mode = RetryMode.Fixed }
+        }));
 
     public virtual Task<string> GetAsync(string url, bool exceptionOnNotFound = true)
     {
