@@ -188,8 +188,12 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateAccountCommandTests
             var actual = await _handler.Handle(createAccountCommand, CancellationToken.None);
 
             //Assert
-            Assert.That(actual, Is.AssignableFrom<CreateAccountCommandResponse>());
-            Assert.That(actual.HashedAccountId, Is.EqualTo(ExpectedHashString));
+            Assert.Multiple(() =>
+            {
+                Assert.That(actual, Is.AssignableFrom<CreateAccountCommandResponse>());
+                Assert.That(actual.HashedAccountId, Is.EqualTo(ExpectedHashString));
+                Assert.That(actual.AccountLegalEntityId, Is.EqualTo(ExpectedAccountLegalEntityId));
+            });
         }
 
         [Test]

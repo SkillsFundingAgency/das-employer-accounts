@@ -60,7 +60,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
             message.OrganisationReferenceNumber = Guid.NewGuid().ToString();
         }
 
-        var createAccountResult = await _accountRepository.CreateAccount(new CreateAccountParams
+        CreateAccountResult createAccountResult = await _accountRepository.CreateAccount(new CreateAccountParams
         {
             UserId = userResponse.User.Id,
             EmployerNumber = message.OrganisationReferenceNumber,
@@ -122,6 +122,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
         return new CreateAccountCommandResponse
         {
             AccountId = createAccountResult.AccountId,
+            AccountLegalEntityId = createAccountResult.AccountLegalEntityId,
             HashedAccountId = hashedAccountId,
             HashedAgreementId = hashedAgreementId,
             User = userResponse.User
