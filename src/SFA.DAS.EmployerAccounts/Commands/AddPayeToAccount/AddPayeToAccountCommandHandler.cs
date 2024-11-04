@@ -3,7 +3,6 @@ using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
@@ -12,41 +11,21 @@ using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 
-public class AddPayeToAccountCommandHandler : IRequestHandler<AddPayeToAccountCommand>
+public class AddPayeToAccountCommandHandler(
+    IValidator<AddPayeToAccountCommand> validator,
+    IPayeRepository payeRepository,
+    IEventPublisher eventPublisher,
+    IEncodingService encodingService,
+    IMediator mediator)
+    : IRequestHandler<AddPayeToAccountCommand>
 {
-    private readonly IValidator<AddPayeToAccountCommand> _validator;
-    private readonly IPayeRepository _payeRepository;
-    private readonly IEventPublisher _eventPublisher;
-    private readonly IEncodingService _encodingService;
-    private readonly IMediator _mediator;
-    private readonly IGenericEventFactory _genericEventFactory;
-    private readonly IPayeSchemeEventFactory _payeSchemeEventFactory;
-
-    public AddPayeToAccountCommandHandler(
-        IValidator<AddPayeToAccountCommand> validator,
-        IPayeRepository payeRepository,
-        IEventPublisher eventPublisher,
-        IEncodingService encodingService,
-        IMediator mediator,
-        IGenericEventFactory genericEventFactory,
-        IPayeSchemeEventFactory payeSchemeEventFactory)
-    {
-        _validator = validator;
-        _payeRepository = payeRepository;
-        _eventPublisher = eventPublisher;
-        _encodingService = encodingService;
-        _mediator = mediator;
-        _genericEventFactory = genericEventFactory;
-        _payeSchemeEventFactory = payeSchemeEventFactory;
-    }
-
     public async Task Handle(AddPayeToAccountCommand message, CancellationToken cancellationToken)
     {
         await ValidateMessage(message);
 
-        var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
+        var accountId = encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
 
-        await _payeRepository.AddPayeToAccount(
+        await payeRepository.AddPayeToAccount(
             new Paye
             {
                 AccessToken = message.AccessToken,
@@ -58,18 +37,16 @@ public class AddPayeToAccountCommandHandler : IRequestHandler<AddPayeToAccountCo
             }
         );
 
-        var userResponse = await _mediator.Send(new GetUserByRefQuery { UserRef = message.ExternalUserId }, cancellationToken);
+        var userResponse = await mediator.Send(new GetUserByRefQuery { UserRef = message.ExternalUserId }, cancellationToken);
 
         await AddAuditEntry(message, accountId);
 
         await AddPayeScheme(message.Empref, accountId, userResponse.User.FullName, userResponse.User.UserRef, message.Aorn, message.EmprefName, userResponse.User.CorrelationId);
-
-        await NotifyPayeSchemeAdded(message.HashedAccountId, message.Empref);
     }
 
     private async Task ValidateMessage(AddPayeToAccountCommand message)
     {
-        var result = await _validator.ValidateAsync(message);
+        var result = await validator.ValidateAsync(message);
 
         if (result.IsUnauthorized)
         {
@@ -81,19 +58,10 @@ public class AddPayeToAccountCommandHandler : IRequestHandler<AddPayeToAccountCo
             throw new InvalidRequestException(result.ValidationDictionary);
         }
     }
-
-    private async Task NotifyPayeSchemeAdded(string hashedAccountId, string payeRef)
-    {
-        var payeEvent = _payeSchemeEventFactory.CreatePayeSchemeAddedEvent(hashedAccountId, payeRef);
-
-        var genericEvent = _genericEventFactory.Create(payeEvent);
-
-        await _mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
-    }
-
+    
     private async Task AddPayeScheme(string payeRef, long accountId, string userName, string userRef, string aorn, string schemeName, string correlationId)
     {
-        await _eventPublisher.Publish(new AddedPayeSchemeEvent
+        await eventPublisher.Publish(new AddedPayeSchemeEvent
         {
             PayeRef = payeRef,
             AccountId = accountId,
@@ -107,7 +75,7 @@ public class AddPayeToAccountCommandHandler : IRequestHandler<AddPayeToAccountCo
 
         if (!string.IsNullOrWhiteSpace(aorn))
         {
-            await _mediator.Send(new AccountLevyStatusCommand
+            await mediator.Send(new AccountLevyStatusCommand
             {
                 AccountId = accountId,
                 ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy
@@ -117,7 +85,7 @@ public class AddPayeToAccountCommandHandler : IRequestHandler<AddPayeToAccountCo
 
     private async Task AddAuditEntry(AddPayeToAccountCommand message, long accountId)
     {
-        await _mediator.Send(new CreateAuditCommand
+        await mediator.Send(new CreateAuditCommand
         {
             EasAuditMessage = new AuditMessage
             {

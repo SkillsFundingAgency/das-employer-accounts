@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
 [Route("api/accounts")]
 [ApiController]
-public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService, IMediator _mediator, ILogger<EmployerAccountsController> logger)
+public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService, IMediator mediator, ILogger<EmployerAccountsController> logger)
     : ControllerBase
 {
     [Route("", Name = "AccountsIndex")]
@@ -116,7 +116,7 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
             UserRef = model.UserRef.ToString()
         };
 
-        await _mediator.Send(upsertRegisteredUserCommand, cancellationToken);
+        await mediator.Send(upsertRegisteredUserCommand, cancellationToken);
 
         CreateAccountCommand createAccountCommand = new()
         {
@@ -132,13 +132,13 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
             OrganisationStatus = "active",
             EmployerRefName = model.EmployerOrganisationName
         };
-        CreateAccountCommandResponse createAccountCommandResponse = await _mediator.Send(createAccountCommand, cancellationToken);
+        CreateAccountCommandResponse createAccountCommandResponse = await mediator.Send(createAccountCommand, cancellationToken);
 
         SignEmployerAgreementWithoutAuditCommand signEmployerAgreementWithoutAuditCommand = new(createAccountCommandResponse.AgreementId, createAccountCommandResponse.User, model.RequestId.ToString());
-        await _mediator.Send(signEmployerAgreementWithoutAuditCommand, cancellationToken);
+        await mediator.Send(signEmployerAgreementWithoutAuditCommand, cancellationToken);
 
         AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
-        await _mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
+        await mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
 
         return CreatedAtAction(
             nameof(GetAccount),
