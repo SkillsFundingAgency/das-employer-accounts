@@ -111,7 +111,7 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         {
             UpsertRegisteredUserCommand upsertRegisteredUserCommand = new()
             {
-                CorrelationId = model.RequestId.ToString(),
+                CorrelationId = model.RequestId,
                 EmailAddress = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -123,7 +123,7 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
             CreateAccountCommand createAccountCommand = new()
             {
                 IsViaProviderRequest = true,
-                CorrelationId = model.RequestId.ToString(),
+                CorrelationId = model.RequestId,
                 ExternalUserId = model.UserRef.ToString(),
                 OrganisationType = OrganisationType.PensionsRegulator,
                 OrganisationName = model.EmployerOrganisationName,
@@ -136,7 +136,7 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
             };
             CreateAccountCommandResponse createAccountCommandResponse = await mediator.Send(createAccountCommand, cancellationToken);
 
-            SignEmployerAgreementWithoutAuditCommand signEmployerAgreementWithoutAuditCommand = new(createAccountCommandResponse.AgreementId, createAccountCommandResponse.User, model.RequestId.ToString());
+            SignEmployerAgreementWithoutAuditCommand signEmployerAgreementWithoutAuditCommand = new(createAccountCommandResponse.AgreementId, createAccountCommandResponse.User, model.RequestId);
             await mediator.Send(signEmployerAgreementWithoutAuditCommand, cancellationToken);
 
             AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
