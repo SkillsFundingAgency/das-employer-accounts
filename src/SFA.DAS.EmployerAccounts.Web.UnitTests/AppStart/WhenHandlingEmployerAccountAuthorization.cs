@@ -6,13 +6,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.UserAccounts;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Web.Authorization;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
+using SFA.DAS.GovUK.Auth.Employer;
 using SFA.DAS.Testing.AutoFixture;
+using EmployerClaims = SFA.DAS.EmployerAccounts.Infrastructure.EmployerClaims;
+using EmployerUserAccountItem = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccountItem;
+using EmployerUserAccounts = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccounts;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart;
 
@@ -133,9 +135,9 @@ public class WhenHandlingEmployerAccountAuthorization
         string email,
         EmployerIdentifier employerIdentifier,
         EmployerAccountOwnerRequirement ownerRequirement,
-        EmployerUserAccountItem serviceResponse,
+        GovUK.Auth.Employer.EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        [Frozen] Mock<IUserAccountService> employerAccountService,
+        [Frozen] Mock<IGovAuthEmployerAccountService> employerAccountService,
         [Frozen] Mock<IOptions<EmployerAccountsConfiguration>> configuration,
         EmployerAccountAuthorisationHandler authorizationHandler)
     {
@@ -143,9 +145,9 @@ public class WhenHandlingEmployerAccountAuthorization
         serviceResponse.AccountId = accountId.ToUpper();
         serviceResponse.Role = "Owner";
         employerAccountService.Setup(x => x.GetUserAccounts(userId, email))
-            .ReturnsAsync(new EmployerUserAccounts
+            .ReturnsAsync(new GovUK.Auth.Employer.EmployerUserAccounts
             {
-                EmployerAccounts = new List<EmployerUserAccountItem> { serviceResponse }
+                EmployerAccounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem> { serviceResponse }
             });
 
         var userClaim = new Claim(ClaimTypes.NameIdentifier, userId);
@@ -172,18 +174,18 @@ public class WhenHandlingEmployerAccountAuthorization
         string userId,
         EmployerIdentifier employerIdentifier,
         EmployerAccountOwnerRequirement ownerRequirement,
-        EmployerUserAccountItem serviceResponse,
+        GovUK.Auth.Employer.EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        [Frozen] Mock<IUserAccountService> employerAccountService,
+        [Frozen] Mock<IGovAuthEmployerAccountService> employerAccountService,
         EmployerAccountAuthorisationHandler authorizationHandler)
     {
         //Arrange
         serviceResponse.AccountId = serviceResponse.AccountId.ToUpper();
         serviceResponse.Role = "Owner";
         employerAccountService.Setup(x => x.GetUserAccounts(userId, ""))
-            .ReturnsAsync(new EmployerUserAccounts
+            .ReturnsAsync(new GovUK.Auth.Employer.EmployerUserAccounts
             {
-                EmployerAccounts = new List<EmployerUserAccountItem> { serviceResponse }
+                EmployerAccounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem> { serviceResponse }
             });
 
         var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, userId);
