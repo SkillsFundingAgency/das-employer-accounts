@@ -60,7 +60,7 @@ public class EmployerTeamController : BaseController
 
     [HttpGet]
     [Route("view", Name = RouteNames.EmployerTeamView)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> ViewTeam(string hashedAccountId)
     {
         var response = await _employerTeamOrchestrator.GetTeamMembers(hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
@@ -91,7 +91,7 @@ public class EmployerTeamController : BaseController
 
     [HttpGet]
     [Route("invite", Name = RouteNames.EmployerTeamInvite)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Invite(string hashedAccountId)
     {
         var response = await _employerTeamOrchestrator.GetNewInvitation(hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
@@ -101,7 +101,7 @@ public class EmployerTeamController : BaseController
 
     [HttpPost]
     [Route("invite", Name = RouteNames.EmployerTeamInvitePost)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Invite(InviteTeamMemberViewModel model)
     {
         var response = await _employerTeamOrchestrator.InviteTeamMember(model, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
@@ -133,7 +133,7 @@ public class EmployerTeamController : BaseController
 
     [HttpGet]
     [Route("invite/next")]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public IActionResult NextSteps(string hashedAccountId)
     {
         var model = new OrchestratorResponse<InviteTeamMemberNextStepsViewModel>
@@ -150,7 +150,7 @@ public class EmployerTeamController : BaseController
 
     [HttpPost]
     [Route("invite/next", Name = RouteNames.EmployerTeamInviteNextPost)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public IActionResult NextSteps(int? choice, string hashedAccountId)
     {
         switch (choice ?? 0)
@@ -173,7 +173,7 @@ public class EmployerTeamController : BaseController
 
     [HttpGet]
     [Route("{hashedInvitationId}/cancel", Name = RouteNames.EmployerTeamCancelInvitation)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Cancel(string hashedInvitationId)
     {
         var invitation = await _employerTeamOrchestrator.GetInvitation(hashedInvitationId);
@@ -183,7 +183,7 @@ public class EmployerTeamController : BaseController
 
     [HttpPost]
     [Route("{hashedInvitationId}/cancel", Name = RouteNames.EmployerTeamCancelInvitationPost)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Cancel(string hashedInvitationId, string email, string hashedAccountId, int cancel)
     {
         if (cancel != 1)
@@ -198,7 +198,7 @@ public class EmployerTeamController : BaseController
 
     [HttpPost]
     [Route("resend", Name = RouteNames.EmployerTeamResendInvite)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Resend(string hashedAccountId, string hashedInvitationId, string name, string email)
     {
         var response = await _employerTeamOrchestrator.Resend(
@@ -213,7 +213,7 @@ public class EmployerTeamController : BaseController
 
     [HttpGet]
     [Route("{hashedUserId}/remove", Name = RouteNames.RemoveTeamMember)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Remove(string hashedAccountId, string hashedUserId)
     {
         var response = await _employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
@@ -223,7 +223,7 @@ public class EmployerTeamController : BaseController
 
     [HttpPost]
     [Route("{hashedUserId}/remove", Name = RouteNames.ConfirmRemoveTeamMember)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Remove(string hashedAccountId, string hashedUserId, int remove)
     {
         Exception exception;
@@ -263,7 +263,7 @@ public class EmployerTeamController : BaseController
 
     [HttpGet]
     [Route("{hashedUserId}/role/change", Name = RouteNames.EmployerTeamGetChangeRole)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId)
     {
         var teamMember = await _employerTeamOrchestrator.GetTeamMember(
@@ -279,7 +279,7 @@ public class EmployerTeamController : BaseController
 
     [HttpPost]
     [Route("{hashedUserId}/role/change", Name = RouteNames.EmployerTeamChangeRolePost)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId, string email, Role role)
     {
         var response = await _employerTeamOrchestrator.ChangeRole(
@@ -310,7 +310,7 @@ public class EmployerTeamController : BaseController
 
     [HttpGet]
     [Route("{hashedUserId}/review", Name = RouteNames.EmployerTeamReview)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport))]
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Review(string hashedAccountId, string hashedUserId, bool isUser)
     {
         var invitation = await _employerTeamOrchestrator.GetTeamMember(
