@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
@@ -48,31 +48,8 @@ public static class EmployerAuthenticationServiceRegistrations
                     policy.Requirements.Add(new AccountActiveRequirement());
                     policy.RequireAuthenticatedUser();
                 });
-            options.AddPolicy(
-                PolicyNames.HasEmployerViewerTransactorOwnerAccountOrSupport
-                , policy =>
-                {
-                    policy.RequireAssertion(_ =>
-                    {
-                        if (_.User.IsSupportUser())
-                        {
-                            return true;
-                        }
-
-                        policy.Requirements.Add(new EmployerAccountAllRolesRequirement());
-                        policy.Requirements.Add(new AccountActiveRequirement());
-
-                        return _.User.HasClaim(c => c.Type == EmployerClaims.AccountsClaimsTypeIdentifier);
-                    });
-                    policy.RequireAuthenticatedUser();
-                });
         });
 
         return services;
-    }
-
-    private static bool IsSupportUser(this ClaimsPrincipal user)
-    {
-        return user.HasClaim(ClaimTypes.Role, SupportUserClaimConstants.Tier1UserClaim) || user.HasClaim(ClaimTypes.Role, SupportUserClaimConstants.Tier2UserClaim);
     }
 }

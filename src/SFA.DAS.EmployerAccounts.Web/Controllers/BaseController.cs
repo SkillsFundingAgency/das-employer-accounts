@@ -82,15 +82,6 @@ public class BaseController : Controller
         _flashMessage.Delete(FlashMessageCookieName);
         return flashMessageViewModelFromCookie;
     }
-
-    /// <summary>
-    /// Default implementation for the SupportUserBanner.  Can be overridden to render based on the available IAccountIdentifier model.
-    /// </summary>
-    [NonAction]
-    public virtual IActionResult SupportUserBanner(IAccountIdentifier model = null)
-    {
-        return ViewComponent("SupportUserBanner", new SupportUserBannerViewModel());
-    }
 }
 
 [Serializable]

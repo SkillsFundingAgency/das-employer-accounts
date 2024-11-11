@@ -106,18 +106,6 @@ public class Startup
         },null, typeof(UserAccountService));
         
 
-        var staffAuthConfig = new SupportConsoleAuthenticationOptions
-        {
-            AdfsOptions = new ADFSOptions
-            {
-                MetadataAddress = employerAccountsConfiguration.AdfsMetadata,
-                Wreply = employerAccountsConfiguration.EmployerAccountsBaseUrl,
-                Wtrealm = employerAccountsConfiguration.EmployerAccountsBaseUrl,
-            }
-        };
-
-        authenticationBuilder.AddAndConfigureSupportConsoleAuthentication(staffAuthConfig);
-
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
         services.Configure<RouteOptions>(options =>
@@ -129,7 +117,6 @@ public class Startup
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             }
-
         });
 
         services.AddApplicationInsightsTelemetry();
@@ -171,8 +158,6 @@ public class Startup
         {
             app.UseExceptionHandler("/error");
         }
-
-        app.UseSupportConsoleAuthentication();
 
         app.UseUnitOfWork();
 

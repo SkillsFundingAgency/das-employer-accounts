@@ -66,7 +66,6 @@ public static class ControllerConstants
     public const string WhenDoYouWantToView = "WhenDoYouWantToView";
     public const string SearchUsingAornViewName = "SearchPensionRegulatorByAorn";
     public const string Settings = "Settings";
-    public const string Tier2UserClaim = "Tier2User";
     public const string ViewAllAgreementActionName = "ViewAllAgreements";
     public const string InsetText = "Inset";
 
