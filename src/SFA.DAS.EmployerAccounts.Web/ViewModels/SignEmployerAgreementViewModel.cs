@@ -11,4 +11,5 @@ public class SignEmployerAgreementViewModel
     public int LegalEntitiesCount { get; set; }
     public bool NoChoiceSelected { get; set; }
     public bool HasAcknowledgedAgreement { get; set; }
+    public bool IsPreviewingAgreement { get; protected set; }
 }
