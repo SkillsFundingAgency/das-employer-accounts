@@ -52,6 +52,8 @@ public class WhenSigningEmployerAgreementWithOutAudit
 
         _employerAgreementRepositoryMock.Verify(r => r.SignAgreement(It.Is<SignEmployerAgreement>(a => a.AgreementId == command.AgreementId && a.SignedById == command.User.Id && a.SignedByName == command.User.FullName)));
 
+        _employerAgreementRepositoryMock.Verify(r => r.SetAccountLegalEntityAgreementDetails(agreement.AccountLegalEntityId, null, null, agreement.Id, agreement.VersionNumber, false), Times.Once);
+
         _eventPublisherMock.Verify(p => p.Publish(It.Is<SignedAgreementEvent>(e =>
             e.AgreementId == command.AgreementId &&
             e.AccountId == agreement.AccountId &&

@@ -27,6 +27,8 @@ public class SignEmployerAgreementWithoutAuditCommandHandler(
 
         EmployerAgreementView agreement = await _employerAgreementRepository.GetEmployerAgreement(request.AgreementId);
 
+        await _employerAgreementRepository.SetAccountLegalEntityAgreementDetails(agreement.AccountLegalEntityId, null, null, agreement.Id, agreement.VersionNumber, false);
+
         await _eventPublisher.Publish(new SignedAgreementEvent
         {
             AgreementId = request.AgreementId,
