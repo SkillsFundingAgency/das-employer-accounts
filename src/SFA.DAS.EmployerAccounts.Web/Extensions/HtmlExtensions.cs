@@ -5,7 +5,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Extensions;
 
 public static class HtmlExtensions
 {
-    public static HtmlString CommaSeperatedAddressToHtml(this IHtmlHelper htmlHelper, string? commaSeperatedAddress)
+    public static HtmlString CommaSeperatedAddressToHtml(this IHtmlHelper htmlHelper, string commaSeperatedAddress)
     {
         if (string.IsNullOrWhiteSpace(commaSeperatedAddress))
         {
@@ -13,7 +13,7 @@ public static class HtmlExtensions
         }
 
         var htmlAddress = commaSeperatedAddress
-            .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Split([','], StringSplitOptions.RemoveEmptyEntries)
             .Select(line => $"{line.Trim()}<br/>")
             .Aggregate(string.Empty, (x, y) => x + y);
         return new HtmlString(htmlAddress);
