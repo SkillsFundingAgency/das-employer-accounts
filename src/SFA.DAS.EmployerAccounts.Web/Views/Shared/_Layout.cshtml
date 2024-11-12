@@ -6,6 +6,7 @@
 @using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
 @inject IHtmlHelpers HtmlHelpers;
+@inject TelemetryConfiguration TelemetryConfig;
 
 @{
     ViewBag.HideHeaderBorder = true;
@@ -84,7 +85,7 @@
                         return s !== !0 && t["_" + i](config, r, u, e, o), s
                     }), t
             }({
-                instrumentationKey: "@TelemetryConfiguration.Active.InstrumentationKey"
+                instrumentationKey: "@TelemetryConfig.InstrumentationKey"
             });
 
         window.appInsights = appInsights;
