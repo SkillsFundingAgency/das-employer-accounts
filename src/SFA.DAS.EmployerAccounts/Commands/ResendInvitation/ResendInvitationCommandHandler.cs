@@ -1,14 +1,11 @@
 ﻿using System.Threading;
 using NServiceBus;
 using SFA.DAS.EmployerAccounts.Audit.Types;
-using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Messages.Commands;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.ResendInvitation;
 
@@ -22,6 +19,7 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
     private readonly IEncodingService _encodingService;
     private readonly IMessageSession _publisher;
     private readonly IAuditService _auditService;
+    private readonly TimeProvider _timeProvider;
 
     public ResendInvitationCommandHandler(IInvitationRepository invitationRepository,
         IMembershipRepository membershipRepository,
@@ -29,7 +27,8 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         IUserAccountRepository userRepository, 
         IEncodingService encodingService,
         IMessageSession publisher,
-        IAuditService auditService)
+        IAuditService auditService,
+        TimeProvider timeProvider)
     {
         _invitationRepository = invitationRepository;
         _membershipRepository = membershipRepository;
@@ -38,6 +37,7 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         _encodingService = encodingService;
         _publisher = publisher;
         _auditService = auditService;
+        _timeProvider = timeProvider;
         _validator = new ResendInvitationCommandValidator();
     }
 
@@ -72,7 +72,7 @@ public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCo
         }
 
         invitation.Status = InvitationStatus.Pending;
-        var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
+        var expiryDate = _timeProvider.GetUtcNow().Date.AddDays(8);
         invitation.ExpiryDate = expiryDate;
 
         await _invitationRepository.Resend(invitation);

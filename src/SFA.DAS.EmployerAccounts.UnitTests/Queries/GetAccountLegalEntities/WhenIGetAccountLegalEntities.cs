@@ -48,7 +48,6 @@ public class WhenIGetAccountLegalEntities : QueryBaseTest<GetAccountLegalEntitie
             AccountId = ExpectedAccountId
         });
         _employerAgreementRepository.Setup(x => x.GetLegalEntitiesLinkedToAccount(ExpectedAccountId, false)).ReturnsAsync(_legalEntities);
-
     }
 
     [Test]
@@ -80,19 +79,19 @@ public class WhenIGetAccountLegalEntities : QueryBaseTest<GetAccountLegalEntitie
 
     private static List<AccountSpecificLegalEntity> GetListOfLegalEntities()
     {
-        return new List<AccountSpecificLegalEntity>
-        {
-            new AccountSpecificLegalEntity()
+        return
+        [
+            new AccountSpecificLegalEntity
             {
                 Id = 1,
                 Name = "LegalEntity1"
-                    
             },
-            new AccountSpecificLegalEntity()
+
+            new AccountSpecificLegalEntity
             {
                 Id = 2,
                 Name = "LegalEntity2"
             }
-        };
+        ];
     }
 }

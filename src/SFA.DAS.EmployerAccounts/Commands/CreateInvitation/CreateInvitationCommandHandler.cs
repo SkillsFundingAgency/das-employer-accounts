@@ -6,7 +6,6 @@ using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.NServiceBus.Services;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.CreateInvitation;
 
@@ -19,13 +18,17 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
     private readonly IValidator<CreateInvitationCommand> _validator;
     private readonly IUserAccountRepository _userRepository;
     private readonly IEventPublisher _eventPublisher;
+    private readonly System.TimeProvider _timeProvider;
     private readonly bool _isProdEnvironment;
 
     public CreateInvitationCommandHandler(IInvitationRepository invitationRepository,
         IMembershipRepository membershipRepository, IMediator mediator,
         EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
         IValidator<CreateInvitationCommand> validator,
-        IUserAccountRepository userRepository, IEventPublisher eventPublisher, IConfiguration configuration)
+        IUserAccountRepository userRepository, 
+        IEventPublisher eventPublisher,
+        IConfiguration configuration,
+        System.TimeProvider timeProvider)
     {
         _invitationRepository = invitationRepository;
         _membershipRepository = membershipRepository;
@@ -34,6 +37,7 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
         _validator = validator;
         _userRepository = userRepository;
         _eventPublisher = eventPublisher;
+        _timeProvider = timeProvider;
         _isProdEnvironment = configuration["ResourceEnvironmentName"]
             .Equals("prd", StringComparison.CurrentCultureIgnoreCase);
     }
@@ -58,7 +62,7 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
             throw new InvalidRequestException(new Dictionary<string, string>
                 { { "ExistingMember", $"{message.EmailOfPersonBeingInvited} is already invited" } });
 
-        var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
+        var expiryDate = _timeProvider.GetUtcNow().Date.AddDays(8);
 
         var invitationId = 0L;
 

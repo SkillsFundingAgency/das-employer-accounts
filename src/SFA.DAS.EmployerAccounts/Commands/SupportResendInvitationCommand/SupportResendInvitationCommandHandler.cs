@@ -7,7 +7,6 @@ using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Messages.Commands;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.SupportResendInvitationCommand;
 
@@ -21,6 +20,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
     private readonly SupportResendInvitationCommandValidator _validator;
     private readonly IMessageSession _publisher;
     private readonly IAuditService _auditService;
+    private readonly TimeProvider _timeProvider;
 
     public SupportResendInvitationCommandHandler(IInvitationRepository invitationRepository,
         EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
@@ -28,7 +28,8 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         IEmployerAccountRepository employerAccountRepository,
         IEncodingService encodingService,
         IMessageSession publisher,
-        IAuditService auditService)
+        IAuditService auditService,
+        TimeProvider timeProvider)
     {
         _invitationRepository = invitationRepository ?? throw new ArgumentNullException(nameof(invitationRepository));
         _employerApprenticeshipsServiceConfiguration = employerApprenticeshipsServiceConfiguration ?? throw new ArgumentNullException(nameof(employerApprenticeshipsServiceConfiguration));
@@ -37,6 +38,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
         _encodingService = encodingService;
         _publisher = publisher;
         _auditService = auditService;
+        _timeProvider = timeProvider;
         _validator = new SupportResendInvitationCommandValidator();
     }
 
@@ -53,7 +55,7 @@ public class SupportResendInvitationCommandHandler : IRequestHandler<SupportRese
 
         existingInvitation.Status = InvitationStatus.Pending;
 
-        var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
+        var expiryDate = _timeProvider.GetUtcNow().Date.AddDays(8);
         existingInvitation.ExpiryDate = expiryDate;
 
         var accountOwner = account.Memberships.First(x => x.Role == Role.Owner).User;

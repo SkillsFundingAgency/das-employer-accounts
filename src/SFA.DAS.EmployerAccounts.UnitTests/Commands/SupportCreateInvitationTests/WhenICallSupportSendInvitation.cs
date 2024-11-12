@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Elasticsearch.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -18,11 +20,9 @@ using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
-using SFA.DAS.EmployerAccounts.UnitTests.Fakes;
 using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.NServiceBus.Services;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.SupportCreateInvitationTests;
 
@@ -39,6 +39,7 @@ public class WhenICallSupportSendInvitation
     private Mock<IAuditService> _auditService;
     private Mock<IValidator<SupportCreateInvitationCommand>> _validator;
     private SupportCreateInvitationCommand _command;
+    private FakeTimeProvider _fakeTimeProvider;
 
     private const int AccountId = 14546;
     private const string HashedId = "111DEDW";
@@ -77,7 +78,7 @@ public class WhenICallSupportSendInvitation
         _employerAccountRepository.Setup(x => x.GetAccountById(AccountId)).ReturnsAsync(new Account { Id = AccountId, Name = AccountName, Memberships = memberships });
         _validator.Setup(x => x.ValidateAsync(It.IsAny<SupportCreateInvitationCommand>())).ReturnsAsync(new ValidationResult());
 
-        DateTimeProvider.Current = new FakeTimeProvider(DateTime.UtcNow);
+        _fakeTimeProvider = new FakeTimeProvider();
 
         _handler = new SupportCreateInvitationCommandHandler(
             _validator.Object,
@@ -88,16 +89,11 @@ public class WhenICallSupportSendInvitation
             _eventPublisher.Object,
             _userAccountRepository.Object,
             _employerAccountRepository.Object,
-            _publisher.Object
+            _publisher.Object,
+            _fakeTimeProvider
         );
     }
-
-    [TearDown]
-    public void Teardown()
-    {
-        DateTimeProvider.ResetToDefault();
-    }
-
+    
     [Test]
     public async Task Then_InvitedUserEventPublishedWithCorrectPersonInvited()
     {
@@ -111,7 +107,7 @@ public class WhenICallSupportSendInvitation
     {
         await _handler.Handle(_command, CancellationToken.None);
 
-        _invitationRepository.Verify(x => x.Create(It.Is<Invitation>(m => m.AccountId == AccountId && m.Email == _command.EmailOfPersonBeingInvited && m.Name == _command.NameOfPersonBeingInvited && m.Status == InvitationStatus.Pending && m.Role == _command.RoleOfPersonBeingInvited && m.ExpiryDate == DateTimeProvider.Current.UtcNow.Date.AddDays(8))), Times.Once);
+        _invitationRepository.Verify(x => x.Create(It.Is<Invitation>(m => m.AccountId == AccountId && m.Email == _command.EmailOfPersonBeingInvited && m.Name == _command.NameOfPersonBeingInvited && m.Status == InvitationStatus.Pending && m.Role == _command.RoleOfPersonBeingInvited && m.ExpiryDate == _fakeTimeProvider.GetUtcNow().Date.AddDays(8))), Times.Once);
     }
 
     [Test]

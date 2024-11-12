@@ -17,7 +17,6 @@ using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Types.Models;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Testing.Services;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AcceptInvitationTests
 {
@@ -43,7 +42,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AcceptInvitationTests
                 AccountId = 101,
                 Email = "test.user@test.local",
                 Status = InvitationStatus.Pending,
-                ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(2),
+                ExpiryDate = TimeProvider.System.GetUtcNow().AddDays(2).Date,
                 Role = Role.Owner,
                 Name = "Bob Green"
             };
@@ -73,12 +72,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AcceptInvitationTests
                 _encodingService.Object,
                 Mock.Of<ILogger<AcceptInvitationCommandHandler>>());
         }
-
-        [TearDown]
-        public void Teardown()
-        {
-            DateTimeProvider.ResetToDefault();
-        }
+        
 
         [Test]
         public async Task ThenTheInviatationWillBeAccepted()
@@ -149,7 +143,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.AcceptInvitationTests
         public void ThenIfInvitationHasExpired()
         {
             //Assign
-            _invitation.ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-2);
+            _invitation.ExpiryDate = TimeProvider.System.GetUtcNow().AddDays(-2).Date;
 
 
             //Act + Assert

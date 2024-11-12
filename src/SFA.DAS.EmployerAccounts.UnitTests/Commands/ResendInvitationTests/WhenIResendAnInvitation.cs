@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -14,10 +15,8 @@ using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
-using SFA.DAS.EmployerAccounts.UnitTests.Fakes;
 using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Messages.Commands;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.ResendInvitationTests;
 
@@ -39,10 +38,13 @@ public class WhenIResendAnInvitation
     private const long InvitationId = 3234;
     private const string HashedInvitationId = "678GAG22";
     private const string ExpectedExistingUserEmail = "registered@test.local";
+    private FakeTimeProvider _fakeTimeProvider;
 
     [SetUp]
     public void Setup()
     {
+        _fakeTimeProvider = new FakeTimeProvider();
+        
         _command = new ResendInvitationCommand
         {
             HashedInvitationId = HashedInvitationId,
@@ -78,14 +80,9 @@ public class WhenIResendAnInvitation
             _userRepository.Object,
             _encodingService.Object,
             _publisher.Object,
-            _auditService.Object
+            _auditService.Object,
+            _fakeTimeProvider
         );
-    }
-
-    [TearDown]
-    public void Teardown()
-    {
-        DateTimeProvider.ResetToDefault();
     }
 
     [Test]
@@ -152,13 +149,12 @@ public class WhenIResendAnInvitation
     public async Task ShouldResendInvitation()
     {
         //Arrange
-        DateTimeProvider.Current = new FakeTimeProvider(DateTime.Now);
         var invitation = new Invitation
         {
             Id = InvitationId,
             AccountId = ExpectedAccountId,
             Status = InvitationStatus.Deleted,
-            ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1),
+            ExpiryDate = _fakeTimeProvider.GetUtcNow().AddDays(-1).Date,
             Email = ExpectedExistingUserEmail,
         };
 
@@ -168,7 +164,7 @@ public class WhenIResendAnInvitation
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        _invitationRepository.Verify(x => x.Resend(It.Is<Invitation>(c => c.Id == InvitationId && c.Status == InvitationStatus.Pending && c.ExpiryDate == DateTimeProvider.Current.UtcNow.Date.AddDays(8))), Times.Once);
+        _invitationRepository.Verify(x => x.Resend(It.Is<Invitation>(c => c.Id == InvitationId && c.Status == InvitationStatus.Pending && c.ExpiryDate == _fakeTimeProvider.GetUtcNow().AddDays(8))), Times.Once);
     }
 
     [Test]
@@ -180,7 +176,7 @@ public class WhenIResendAnInvitation
             Id = InvitationId,
             Email = ExpectedExistingUserEmail,
             AccountId = 1,
-            ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1)
+            ExpiryDate = _fakeTimeProvider.GetUtcNow().AddDays(-1).DateTime
         };
 
         _invitationRepository.Setup(x => x.Get(ExpectedAccountId, InvitationId)).ReturnsAsync(invitation);
@@ -203,7 +199,7 @@ public class WhenIResendAnInvitation
             Id = InvitationId,
             Email = ExpectedExistingUserEmail,
             AccountId = 1,
-            ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1)
+            ExpiryDate = _fakeTimeProvider.GetUtcNow().AddDays(-1).Date
         };
 
         _invitationRepository.Setup(x => x.Get(ExpectedAccountId, InvitationId)).ReturnsAsync(invitation);
@@ -213,7 +209,7 @@ public class WhenIResendAnInvitation
 
         _auditService.Verify(x => x.SendAuditMessage(It.Is<AuditMessage>(c =>
             c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("Status") && y.NewValue.Equals(InvitationStatus.Pending.ToString())) != null &&
-            c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("ExpiryDate") && y.NewValue.Equals(DateTimeProvider.Current.UtcNow.Date.AddDays(8).ToString())) != null
+            c.ChangedProperties.SingleOrDefault(y => y.PropertyName.Equals("ExpiryDate") && y.NewValue.Equals(_fakeTimeProvider.GetUtcNow().Date.AddDays(8).ToString())) != null
         )));
     }
 
@@ -222,12 +218,13 @@ public class WhenIResendAnInvitation
     {
         //Arrange
         _command.HashedInvitationId = HashedInvitationId;
+       
         var invitation = new Invitation
         {
             Id = InvitationId,
             Email = ExpectedExistingUserEmail,
             AccountId = 1,
-            ExpiryDate = DateTimeProvider.Current.UtcNow.AddDays(-1),
+            ExpiryDate = _fakeTimeProvider.GetUtcNow().AddDays(-1).Date,
         };
 
         _invitationRepository.Setup(x => x.Get(ExpectedAccountId, InvitationId)).ReturnsAsync(invitation);

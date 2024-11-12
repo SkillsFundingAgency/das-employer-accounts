@@ -7,46 +7,26 @@ using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.Encoding;
 using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.NServiceBus.Services;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.SupportCreateInvitation;
 
-public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCreateInvitationCommand>
+public class SupportCreateInvitationCommandHandler(
+    IValidator<SupportCreateInvitationCommand> validator,
+    IInvitationRepository invitationRepository,
+    IAuditService auditService,
+    IEncodingService encodingService,
+    EmployerAccountsConfiguration employerAccountsConfiguration,
+    IEventPublisher eventPublisher,
+    IUserAccountRepository userAccountRepository,
+    IEmployerAccountRepository employerAccountRepository,
+    IMessageSession publisher,
+    TimeProvider timeProvider)
+    : IRequestHandler<SupportCreateInvitationCommand>
 {
-    private readonly IValidator<SupportCreateInvitationCommand> _validator;
-    private readonly IInvitationRepository _invitationRepository;
-    private readonly IAuditService _auditService;
-    private readonly IEncodingService _encodingService;
-    private readonly EmployerAccountsConfiguration _employerAccountsConfiguration;
-    private readonly IEventPublisher _eventPublisher;
-    private readonly IUserAccountRepository _userAccountRepository;
-    private readonly IEmployerAccountRepository _employerAccountRepository;
-    private readonly IMessageSession _publisher;
-
-    public SupportCreateInvitationCommandHandler(IValidator<SupportCreateInvitationCommand> validator,
-        IInvitationRepository invitationRepository,
-        IAuditService auditService,
-        IEncodingService encodingService,
-        EmployerAccountsConfiguration employerAccountsConfiguration,
-        IEventPublisher eventPublisher,
-        IUserAccountRepository userAccountRepository,
-        IEmployerAccountRepository employerAccountRepository, 
-        IMessageSession publisher)
-    {
-        _validator = validator;
-        _invitationRepository = invitationRepository;
-        _auditService = auditService;
-        _encodingService = encodingService;
-        _employerAccountsConfiguration = employerAccountsConfiguration;
-        _eventPublisher = eventPublisher;
-        _userAccountRepository = userAccountRepository;
-        _employerAccountRepository = employerAccountRepository;
-        _publisher = publisher;
-    }
 
     public async Task Handle(SupportCreateInvitationCommand message, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(message);
+        var validationResult = await validator.ValidateAsync(message);
 
         if (!validationResult.IsValid())
         {
@@ -58,21 +38,21 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
             throw new UnauthorizedAccessException();
         }
 
-        var accountId = _encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
+        var accountId = encodingService.Decode(message.HashedAccountId, EncodingType.AccountId);
 
         // Verify the email is not used by an existing invitation for the account
-        var existingInvitation = await _invitationRepository.Get(accountId, message.EmailOfPersonBeingInvited);
+        var existingInvitation = await invitationRepository.Get(accountId, message.EmailOfPersonBeingInvited);
 
         if (existingInvitation != null && existingInvitation.Status != InvitationStatus.Deleted && existingInvitation.Status != InvitationStatus.Accepted)
             throw new InvalidRequestException(new Dictionary<string, string> { { "ExistingMember", $"{message.EmailOfPersonBeingInvited} is already invited" } });
 
-        var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
+        var expiryDate = timeProvider.GetUtcNow().Date.AddDays(8);
 
         var invitationId = 0L;
 
         if (existingInvitation == null)
         {
-            invitationId = await _invitationRepository.Create(new Invitation
+            invitationId = await invitationRepository.Create(new Invitation
             {
                 AccountId = accountId,
                 Email = message.EmailOfPersonBeingInvited,
@@ -89,7 +69,7 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
             existingInvitation.Status = InvitationStatus.Pending;
             existingInvitation.ExpiryDate = expiryDate;
 
-            await _invitationRepository.Resend(existingInvitation);
+            await invitationRepository.Resend(existingInvitation);
 
             invitationId = existingInvitation.Id;
         }
@@ -105,32 +85,32 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
     
     private async Task<User> GetAccountOwner(long accountId)
     {
-        var account = await _employerAccountRepository.GetAccountById(accountId);
+        var account = await employerAccountRepository.GetAccountById(accountId);
         return account.Memberships.First(x => x.Role == Role.Owner).User;
     }
 
     private async Task SendInvitation(SupportCreateInvitationCommand message, DateTime expiryDate, long accountId)
     {
-        var existingUser = await _userAccountRepository.Get(message.EmailOfPersonBeingInvited);
-        var account = await _employerAccountRepository.GetAccountById(accountId);
+        var existingUser = await userAccountRepository.Get(message.EmailOfPersonBeingInvited);
+        var account = await employerAccountRepository.GetAccountById(accountId);
 
         var tokens = new Dictionary<string, string>
         {
             { "account_name", account.Name },
             { "first_name", existingUser != null ? existingUser.FirstName : message.NameOfPersonBeingInvited },
             { "inviter_name", "Apprenticeship Service Support" },
-            { "base_url", _employerAccountsConfiguration.DashboardUrl },
+            { "base_url", employerAccountsConfiguration.DashboardUrl },
             { "expiry_date", expiryDate.ToString("dd MMM yyy") }
         };
         
         var templateId = existingUser?.Ref != null ? "InvitationExistingUser" : "InvitationNewUser";
         
-        await _publisher.Send(new SendEmailCommand(templateId, message.EmailOfPersonBeingInvited, tokens));
+        await publisher.Send(new SendEmailCommand(templateId, message.EmailOfPersonBeingInvited, tokens));
     }
 
     private async Task AddAuditEntry(SupportCreateInvitationCommand message, long accountId, DateTime expiryDate, long invitationId, string accountOwnerEmail)
     {
-        await _auditService.SendAuditMessage(new AuditMessage
+        await auditService.SendAuditMessage(new AuditMessage
         {
             ImpersonatedUserEmail = accountOwnerEmail,
             Category = "CREATED",
@@ -151,7 +131,7 @@ public class SupportCreateInvitationCommandHandler : IRequestHandler<SupportCrea
 
     private Task PublishUserInvitedEvent(long accountId, string personInvited, string invitedByUserName, Guid invitedByUserRef)
     {
-        return _eventPublisher.Publish(new InvitedUserEvent
+        return eventPublisher.Publish(new InvitedUserEvent
         {
             AccountId = accountId,
             PersonInvited = personInvited,
