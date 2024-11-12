@@ -32,25 +32,37 @@ public class WhenPreviewingEmployerAgreement
 
     [Test]
     public void ThenEmployerAgreementPreviewViewIsReturned()
-        => actualResult.ViewName.Should().Be(PreviewEmployerAgreementController.AgreementPreviewViewPath);
+    {
+        actualResult.ViewName.Should().Be(PreviewEmployerAgreementController.AgreementPreviewViewPath);
+    }
 
     [Test]
     public void ThenModeIsOfTypePreviewEmployerAgreementViewModel()
-        => actualResult.Model.Should().BeOfType<PreviewEmployerAgreementViewModel>();
+    {
+        actualResult.Model.Should().BeOfType<PreviewEmployerAgreementViewModel>();
+    }
 
     [Test]
     public void ThenViewModelHasPreviewSetToTrue()
-        => actualResult.Model.As<PreviewEmployerAgreementViewModel>().IsPreviewingAgreement.Should().BeTrue();
+    {
+        actualResult.Model.As<PreviewEmployerAgreementViewModel>().IsPreviewingAgreement.Should().BeTrue();
+    }
 
     [Test]
     public void ThenViewModelHasExpectedReturnUrl()
-        => actualResult.Model.As<PreviewEmployerAgreementViewModel>().ReturnUrl.Should().Be(ExpectedReturnUrl);
+    {
+        actualResult.Model.As<PreviewEmployerAgreementViewModel>().ReturnUrl.Should().Be(ExpectedReturnUrl);
+    }
 
     [Test]
     public void ThenViewModelHasExpectedEmployerName()
-        => actualResult.Model.As<PreviewEmployerAgreementViewModel>().EmployerAgreement.LegalEntityName.Should().Be(ExpectedEmployerName.ToUpper());
+    {
+        actualResult.Model.As<PreviewEmployerAgreementViewModel>().EmployerAgreement.LegalEntityName.Should().Be(ExpectedEmployerName.ToUpper());
+    }
 
     [Test]
     public void ThenViewModelHasExpectedPartialName()
-        => actualResult.Model.As<PreviewEmployerAgreementViewModel>().EmployerAgreement.TemplatePartialViewName.Should().Be(ExpectedPartialName);
+    {
+        actualResult.Model.As<PreviewEmployerAgreementViewModel>().EmployerAgreement.TemplatePartialViewName.Should().Be(ExpectedPartialName);
+    }
 }
