@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -90,6 +91,7 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddSingleton(Mock.Of<IUserAornPayeLockService>());
         serviceCollection.AddSingleton(Mock.Of<IEventPublisher>());
         serviceCollection.AddSingleton(Mock.Of<IMessageSession>());
+        serviceCollection.AddSingleton(new FakeTimeProvider() as TimeProvider);
         serviceCollection.AddSingleton((IConfiguration)config);
         serviceCollection.AddHttpContextAccessor();
         serviceCollection.AddDatabaseRegistration();
