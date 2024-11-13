@@ -19,7 +19,7 @@ namespace SFA.DAS.EmployerAccounts.TestCommon
         public void Run(Action<T> arrange, Action<T> act, Action<T> assert)
         {
             var testFixture = new T();
-            
+
             arrange?.Invoke(testFixture);
             act?.Invoke(testFixture);
             assert(testFixture);
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerAccounts.TestCommon
             {
                 actionResult = act(testFixture);
             }
-            
+
             assert(testFixture, actionResult);
         }
 
@@ -113,14 +113,7 @@ namespace SFA.DAS.EmployerAccounts.TestCommon
 
             if (act != null)
             {
-                try
-                {
-                    actionResult = await act(testFixture);
-                }
-                catch(Exception ex)
-                {
-                    throw;
-                }
+                actionResult = await act(testFixture);
             }
 
             assert(testFixture, actionResult);
