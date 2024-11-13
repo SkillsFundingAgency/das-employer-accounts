@@ -117,7 +117,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services
         };
      
         [Test]
-        public void ItShouldReturnTheCorrectAornLockStatus([ValueSource("TestData")] TestData testData)
+        public void ItShouldReturnTheCorrectAornLockStatus([ValueSource(nameof(TestData))] TestData testData)
         {
             var userRef = Guid.NewGuid();
             var logger = Mock.Of<ILogger<UserAornPayeLockService>>();
