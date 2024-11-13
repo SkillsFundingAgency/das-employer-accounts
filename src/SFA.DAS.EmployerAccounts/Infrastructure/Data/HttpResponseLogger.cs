@@ -3,22 +3,15 @@ using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmployerAccounts.Infrastructure.Data;
 
-public class HttpResponseLogger : IHttpResponseLogger
+public class HttpResponseLogger(ILogger<HttpResponseLogger> logger) : IHttpResponseLogger
 {
-    private readonly ILogger<HttpResponseLogger> _logger;
-
-    public HttpResponseLogger(ILogger<HttpResponseLogger> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task LogResponseAsync(HttpResponseMessage response)
     {
         if (IsContentStringType(response))
         {
             var content = await response.Content.ReadAsStringAsync();
 
-            _logger.LogDebug("Logged response", new Dictionary<string, object>
+            logger.LogDebug("Logged response {Response}", new Dictionary<string, object>
             {
                 { "StatusCode", response.StatusCode },
                 { "Reason", response.ReasonPhrase },
