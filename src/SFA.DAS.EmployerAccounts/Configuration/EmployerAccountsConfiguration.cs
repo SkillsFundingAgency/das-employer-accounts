@@ -23,7 +23,6 @@ public class EmployerAccountsConfiguration
     public string ProviderRelationshipsBaseUrl { get; set; }
     public string EmployerFeedbackBaseUrl { get; set; }
     public string EmployerAanBaseUrl { get; set; }
-    public EventsApiClientConfiguration EventsApi { get; set; }
     public string Hashstring { get; set; }
     public HmrcConfiguration Hmrc { get; set; }
     public PensionRegulatorConfiguration PensionRegulatorApi { get; set; }
@@ -47,12 +46,10 @@ public class EmployerAccountsConfiguration
     public string ZenDeskCobrowsingSnippetKey { get; set; }
     public CommitmentsApiV2ClientConfiguration CommitmentsApi { get; set; }
     public RecruitClientApiConfiguration RecruitApi { get; set; }
-
     public long DefaultServiceTimeoutMilliseconds { get; set; }
     public ContentClientApiConfiguration ContentApi { get; set; }
     public string ApplicationId { get; set; }
     public int DefaultCacheExpirationInMinutes { get; set; }
-    public string SupportConsoleUsers { get; set; }
     public DateTime? LastTermsAndConditionsUpdate { get; set; }
     public string DataProtectionKeysDatabase { get; set; }
     public List<RedirectUriConfiguration> ValidRedirectUris { get; set; }

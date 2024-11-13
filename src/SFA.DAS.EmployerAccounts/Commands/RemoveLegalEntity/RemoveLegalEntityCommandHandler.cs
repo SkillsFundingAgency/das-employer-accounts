@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Audit.Types;
 using SFA.DAS.EmployerAccounts.Commands.AuditCommand;
-using SFA.DAS.EmployerAccounts.Commands.PublishGenericEvent;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.Encoding;
@@ -16,8 +15,6 @@ public class RemoveLegalEntityCommandHandler(
     IEmployerAgreementRepository employerAgreementRepository,
     IMediator mediator,
     IEncodingService encodingService,
-    IGenericEventFactory genericEventFactory,
-    IEmployerAgreementEventFactory employerAgreementEventFactory,
     IMembershipRepository membershipRepository,
     IEventPublisher eventPublisher,
     ICommitmentsV2ApiClient commitmentsV2ApiClient)
@@ -53,11 +50,8 @@ public class RemoveLegalEntityCommandHandler(
 
         await employerAgreementRepository.RemoveLegalEntityFromAccount(legalAgreement.Id);
 
-        await Task.WhenAll(
-            AddAuditEntry(hashedAccountId, hashedLegalAgreementId),
-            CreateEvent(hashedLegalAgreementId)
-        );
-
+        await AddAuditEntry(hashedAccountId, hashedLegalAgreementId);
+        
         // it appears that an agreement is created whenever we create a legal entity, so there should always be an agreement associated with a legal entity
         if (agreement == null)
         {
@@ -129,14 +123,5 @@ public class RemoveLegalEntityCommandHandler(
                 AffectedEntity = new AuditEntity { Type = "EmployerAgreement", Id = employerAgreementId }
             }
         });
-    }
-
-    private async Task CreateEvent(string hashedAgreementId)
-    {
-        var agreementEvent = employerAgreementEventFactory.RemoveAgreementEvent(hashedAgreementId);
-
-        var genericEvent = genericEventFactory.Create(agreementEvent);
-
-        await mediator.Send(new PublishGenericEventCommand { Event = genericEvent });
     }
 }
