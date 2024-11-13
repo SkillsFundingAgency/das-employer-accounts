@@ -141,7 +141,7 @@ namespace SFA.DAS.EmployerAccounts.Api.IntegrationTests.TestUtils.DataAccess
         {
             foreach (var employerAccountSetup in userSetup.Accounts)
             {
-                employerAccountSetup.AccountOutput = await CreateAccountAsync(employerAccountSetup.AccountInput);
+                employerAccountSetup.AccountOutput = await CreateAccountAsync(employerAccountSetup.AccountInput!);
 
                 await CreateLegalEntitiesForAccountsAsync(employerAccountSetup);
             }

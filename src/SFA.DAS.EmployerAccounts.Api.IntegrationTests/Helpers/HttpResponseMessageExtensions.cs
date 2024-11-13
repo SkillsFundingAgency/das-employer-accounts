@@ -6,7 +6,7 @@ namespace SFA.DAS.EmployerAccounts.Api.IntegrationTests.Helpers;
 
 public static class HttpResponseMessageExtensions
 {
-    public static TContent GetContent<TContent>(this HttpResponseMessage response)
+    public static TContent? GetContent<TContent>(this HttpResponseMessage response)
     {
         var content = response.Content.ReadAsStringAsync().Result;
 

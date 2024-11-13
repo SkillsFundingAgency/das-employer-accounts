@@ -46,14 +46,14 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
 
         var idsFromDatabase = _employerAccount?.LegalEntities
             .Select(le => le.LegalEntityWithAgreementInputOutput.LegalEntityId)
-            .Union(new[]{_employerAccount.AccountOutput.LegalEntityId})
+            .Union([_employerAccount.AccountOutput!.LegalEntityId])
             .ToArray();
 
-        Assert.That(idsFromDatabase.Length, Is.EqualTo(2),
+        Assert.That(idsFromDatabase!, Has.Length.EqualTo(2),
             "Not the correct number of legal entities created for this test");
 
-        CheckThatApiReturnedAllLegalEntitiesInDatabase(idsFromDatabase, idsFromApi);
-        CheckThatApiReturnedOnlyLegalEntitiesInTheDatabase(idsFromDatabase, idsFromApi);
+        CheckThatApiReturnedAllLegalEntitiesInDatabase(idsFromDatabase!, idsFromApi);
+        CheckThatApiReturnedOnlyLegalEntitiesInTheDatabase(idsFromDatabase!, idsFromApi);
     }
 
     private static void CheckThatApiReturnedAllLegalEntitiesInDatabase(long[] databaseIds, long[] apiIds)
