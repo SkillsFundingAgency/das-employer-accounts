@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace SFA.DAS.EmployerAccounts.Exceptions;
+﻿namespace SFA.DAS.EmployerAccounts.Exceptions;
 
 [Serializable]
 public class NotFoundException : Exception
@@ -14,12 +12,6 @@ public class NotFoundException : Exception
     }
 
     public NotFoundException(string message, Exception inner) : base(message, inner)
-    {
-    }
-
-    protected NotFoundException(
-        SerializationInfo info,
-        StreamingContext context) : base(info, context)
     {
     }
 }
