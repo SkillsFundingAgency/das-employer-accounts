@@ -54,7 +54,7 @@
     <link href="css/main.css" rel="stylesheet" />
     <link href="/css/app.css?v=1" rel="stylesheet" no-cdn />
 
-    @RenderSection("styles", required: false)
+    @await RenderSectionAsync("styles", required: false)
 
     @await Html.PartialAsync("GoogleAnalyticsInfo")
     <!-- This is from individual pages -->

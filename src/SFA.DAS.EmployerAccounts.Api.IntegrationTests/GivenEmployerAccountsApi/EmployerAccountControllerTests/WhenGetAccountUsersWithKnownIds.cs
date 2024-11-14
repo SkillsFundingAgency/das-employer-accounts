@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.IntegrationTests.Helpers;
 using SFA.DAS.EmployerAccounts.Api.IntegrationTests.ModelBuilders;
@@ -40,8 +41,9 @@ public class WhenGetAccountUsersWithKnownIds : GivenEmployerAccountsApi
     {
         var teamMembers = Response?.GetContent<List<TeamMember>>();
         Response?.ExpectStatusCodes(HttpStatusCode.OK);
-        Assert.That(teamMembers, Is.Not.Null);
-        Assert.That(teamMembers?.Count, Is.EqualTo(1));
-        Assert.That(Guid.Parse(teamMembers?[0].UserRef!), Is.EqualTo(_userRef));
+        
+        teamMembers.Should().NotBeNull();
+        teamMembers!.Count.Should().Be(1);
+        teamMembers[0].UserRef!.Should().Be(_userRef.ToString());
     }
 }

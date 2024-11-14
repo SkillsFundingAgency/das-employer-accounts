@@ -60,12 +60,11 @@ public static class HostExtensions
                 services.AddTransient<SeedAccountUsersJob>();
                 services.AddTransient<IRunOnceJobsService, RunOnceJobsService>();
                 services.AddTransient<IRetryStrategy>(_ => new ExponentialBackoffRetryAttribute(5, "00:00:10", "00:00:20"));
-                //services.AddUnitOfWork();
+
 #pragma warning disable 618
                 services.AddSingleton<IWebHookProvider>(p => null);
 #pragma warning restore 618
             });
-
 
         return hostBuilder;
     }

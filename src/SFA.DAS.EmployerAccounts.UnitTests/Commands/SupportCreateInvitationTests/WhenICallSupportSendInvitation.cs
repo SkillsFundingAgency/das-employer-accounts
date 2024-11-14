@@ -68,7 +68,6 @@ public class WhenICallSupportSendInvitation
         _auditService = new Mock<IAuditService>();
         _validator = new Mock<IValidator<SupportCreateInvitationCommand>>();
         _eventPublisher = new Mock<IEventPublisher>();
-        new Mock<IConfiguration>();
 
         _employerAccountsConfig.DashboardUrl = "https://url.test/";
         _userAccountRepository.Setup(x => x.Get(Email)).ReturnsAsync(new User { Email = Email, Ref = Guid.NewGuid(), FirstName = "Test", LastName = "User" });

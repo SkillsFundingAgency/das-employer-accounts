@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
@@ -29,7 +30,7 @@ public class WhenIGetAccountLegalEntities : QueryBaseTest<GetAccountLegalEntitie
     [SetUp]
     public void Arrange()
     {
-        base.SetUp();
+        SetUp();
 
         _legalEntities = GetListOfLegalEntities();
         _membershipRepository = new Mock<IMembershipRepository>();
@@ -67,13 +68,13 @@ public class WhenIGetAccountLegalEntities : QueryBaseTest<GetAccountLegalEntitie
         var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
         //Assert
-        Assert.That(response.LegalEntities.Count, Is.EqualTo(2));
+        response.LegalEntities.Count.Should().Be(2);
 
         foreach (var legalEntity in _legalEntities)
         {
             var returned = response.LegalEntities.SingleOrDefault(x => x.Id == legalEntity.Id);
 
-            Assert.That(returned.Name, Is.EqualTo(legalEntity.Name));
+            returned!.Name.Should().Be(legalEntity.Name);
         }
     }
 

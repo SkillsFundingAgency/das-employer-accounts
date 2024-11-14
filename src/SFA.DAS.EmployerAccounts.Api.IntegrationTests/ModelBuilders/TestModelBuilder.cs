@@ -88,7 +88,7 @@ public class TestModelBuilder
 
         var legalEntity = _fixture
             .Build<LegalEntityWithAgreementInput>()
-            .With(input => input.AccountId, () => currentAccount!.AccountOutput.AccountId)
+            .With(input => input.AccountId, () => currentAccount.AccountOutput!.AccountId)
             .Create();
             
         var legalEntitySetup = new LegalEntityWithAgreementSetup

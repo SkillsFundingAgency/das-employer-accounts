@@ -107,7 +107,7 @@ public class WhenAddingServicesToTheContainer
         return serviceCollection;
     }
 
-    private static IConfigurationRoot GenerateConfiguration()
+    private static ConfigurationRoot GenerateConfiguration()
     {
     var configSource = new MemoryConfigurationSource
     {

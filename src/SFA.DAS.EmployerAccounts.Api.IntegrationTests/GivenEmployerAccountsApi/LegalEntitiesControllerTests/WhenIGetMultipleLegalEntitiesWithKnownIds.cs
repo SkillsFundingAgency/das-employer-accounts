@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.IntegrationTests.Helpers;
 using SFA.DAS.EmployerAccounts.Api.IntegrationTests.ModelBuilders;
@@ -39,8 +40,8 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
         var resources = Response?.GetContent<ResourceList>();
 
         // Assert
-        Assert.That(resources, Is.Not.Null);
-        Assert.That(resources?.Count, Is.EqualTo(2));
+        resources.Should().NotBeNull();
+        resources.Count.Should().Be(2);
             
         var idsFromApi = resources.Select(a => long.Parse(a.Id, NumberStyles.None)).ToArray();
 
@@ -49,8 +50,7 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
             .Union([_employerAccount.AccountOutput!.LegalEntityId])
             .ToArray();
 
-        Assert.That(idsFromDatabase!, Has.Length.EqualTo(2),
-            "Not the correct number of legal entities created for this test");
+        idsFromDatabase!.Length.Should().Be(2, "Not the correct number of legal entities created for this test");
 
         CheckThatApiReturnedAllLegalEntitiesInDatabase(idsFromDatabase!, idsFromApi);
         CheckThatApiReturnedOnlyLegalEntitiesInTheDatabase(idsFromDatabase!, idsFromApi);
@@ -62,7 +62,7 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
             .Where(legalEntityId => !apiIds.Contains(legalEntityId))
             .ToArray();
 
-        Assert.That(legalEntitiesInDatabaseButNotApi.Length, Is.EqualTo(0), "Expected legal entities not returned by API");
+        legalEntitiesInDatabaseButNotApi.Length.Should().Be(0, "Expected legal entities not returned by API");
     }
 
     private static void CheckThatApiReturnedOnlyLegalEntitiesInTheDatabase(long[] databaseIds, long[] apiIds)
@@ -70,6 +70,6 @@ public class WhenIGetMultipleLegalEntitiesWithKnownIds : GivenEmployerAccountsAp
         var legalEntitiesInApiButNotDatabase =
             apiIds.Where(id => !databaseIds.Contains(id)).ToArray();
 
-        Assert.That(legalEntitiesInApiButNotDatabase.Length, Is.EqualTo(0), "Unexpected legal entities returned by API");
+        legalEntitiesInApiButNotDatabase.Length.Should().Be(0, "Unexpected legal entities returned by API");
     }
 }
