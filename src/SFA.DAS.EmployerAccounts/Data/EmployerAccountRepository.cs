@@ -30,8 +30,7 @@ public class EmployerAccountRepository : IEmployerAccountRepository
     {
         var offset = pageSize * (pageNumber - 1);
 
-        var countResult = await _db.Value.Database.GetDbConnection().QueryAsync<int>(
-            sql: "select count(*) from [employer_account].[Account] a;");
+        var countResult = await _db.Value.Accounts.CountAsync();
 
         var result = await _db.Value.Accounts
             .Include(x => x.AccountLegalEntities)
@@ -44,7 +43,7 @@ public class EmployerAccountRepository : IEmployerAccountRepository
 
         return new Accounts<Account>
         {
-            AccountsCount = countResult.First(),
+            AccountsCount = countResult,
             AccountList = result
         };
     }

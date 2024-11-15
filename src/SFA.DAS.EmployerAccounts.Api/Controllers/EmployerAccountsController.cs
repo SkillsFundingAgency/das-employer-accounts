@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
+using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
+using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
+using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
 
 [Route("api/accounts")]
 [ApiController]
-public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService, ILogger<EmployerAccountsController> logger)
+public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEncodingService encodingService, IMediator mediator, ILogger<EmployerAccountsController> logger)
     : ControllerBase
 {
     [Route("", Name = "AccountsIndex")]
@@ -93,6 +100,58 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
     {
         var result = await orchestrator.GetAccountTeamMembersWhichReceiveNotifications(accountId);
         return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ProducesResponseType(typeof(Models.Account.CreateEmployerAccountViaProviderResponseModel), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateEmployerAccountViaProviderRequest([FromBody] Models.Account.CreateEmployerAccountViaProviderRequestModel model, CancellationToken cancellationToken)
+    {
+        try
+        {
+            UpsertRegisteredUserCommand upsertRegisteredUserCommand = new()
+            {
+                CorrelationId = model.RequestId,
+                EmailAddress = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                UserRef = model.UserRef.ToString()
+            };
+
+            await mediator.Send(upsertRegisteredUserCommand, cancellationToken);
+
+            CreateAccountCommand createAccountCommand = new()
+            {
+                IsViaProviderRequest = true,
+                CorrelationId = model.RequestId,
+                ExternalUserId = model.UserRef.ToString(),
+                OrganisationType = OrganisationType.PensionsRegulator,
+                OrganisationName = model.EmployerOrganisationName,
+                OrganisationAddress = model.EmployerAddress,
+                PayeReference = model.EmployerPaye,
+                Aorn = model.EmployerAorn,
+                OrganisationReferenceNumber = model.EmployerOrganisationReferenceNumber,
+                OrganisationStatus = "active",
+                EmployerRefName = model.EmployerOrganisationName
+            };
+            CreateAccountCommandResponse createAccountCommandResponse = await mediator.Send(createAccountCommand, cancellationToken);
+
+            SignEmployerAgreementWithoutAuditCommand signEmployerAgreementWithoutAuditCommand = new(createAccountCommandResponse.AgreementId, createAccountCommandResponse.User, model.RequestId);
+            await mediator.Send(signEmployerAgreementWithoutAuditCommand, cancellationToken);
+
+            AcknowledgeTrainingProviderTaskCommand acknowledgeTrainingProviderTaskCommand = new(createAccountCommandResponse.AccountId);
+            await mediator.Send(acknowledgeTrainingProviderTaskCommand, cancellationToken);
+
+            return CreatedAtAction(
+                nameof(GetAccount),
+                new { createAccountCommandResponse.AccountId },
+                new Models.Account.CreateEmployerAccountViaProviderResponseModel(createAccountCommandResponse.AccountId, createAccountCommandResponse.AccountLegalEntityId));
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Exception occurred whilst processing {ActionName} action.", nameof(CreateEmployerAccountViaProviderRequest));
+            return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+        }
     }
 
     [Route("acknowledge-training-provider-task", Name = "AcknowledgeTrainingProviderTask")]

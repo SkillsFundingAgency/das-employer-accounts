@@ -12,7 +12,6 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IPayeSchemesService, PayeSchemesService>();
         services.AddTransient<IUserAornPayeLockService, UserAornPayeLockService>();
         services.AddTransient<IEncodingService, EncodingService>();
-
         return services;
     }
 }

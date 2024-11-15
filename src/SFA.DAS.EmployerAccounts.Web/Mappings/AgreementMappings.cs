@@ -34,7 +34,8 @@ public class AgreementMappings : Profile
             .ForMember(dest => dest.HasAcknowledgedAgreement, opts => opts.Ignore())
             .ForMember(dest => dest.Choice, opts => opts.Ignore())
             .ForMember(dest => dest.NoChoiceSelected, opts => opts.Ignore())
-            .ForMember(dest => dest.LegalEntitiesCount, opts => opts.Ignore());
+            .ForMember(dest => dest.LegalEntitiesCount, opts => opts.Ignore())
+            .ForMember(dest => dest.IsPreviewingAgreement, opts => opts.Ignore());
 
         CreateMap<AccountDetailViewModel, AgreementInfoViewModel>()
             .ConvertUsing(new AgreementInfoConverter());
