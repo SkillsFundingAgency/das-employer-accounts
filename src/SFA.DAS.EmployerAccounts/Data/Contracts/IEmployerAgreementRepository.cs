@@ -15,7 +15,7 @@ public interface IEmployerAgreementRepository
     Task<IEnumerable<EmployerAgreement>> GetAccountAgreements(long accountId);
     Task<IEnumerable<EmployerAgreement>> GetAccountLegalEntityAgreements(long accountLegalEntityId);
     Task<EmployerAgreementStatus?> GetEmployerAgreementStatus(long agreementId);
-    Task SetAccountLegalEntityAgreementDetails(long accountLegalEntityId, long? pendingAgreementId, int? pendingAgreementVersion, long? signedAgreementId, int? signedAgreementVersion);
+    Task SetAccountLegalEntityAgreementDetails(long accountLegalEntityId, long? pendingAgreementId, int? pendingAgreementVersion, long? signedAgreementId, int? signedAgreementVersion, bool commitData = true);
     Task<AccountLegalEntity> GetOrganisationsAgreements(long accountLegalEntityId);
     Task AcknowledgeEmployerAgreement(long agreementId);
 }

@@ -176,16 +176,16 @@ public class WhenISignAnEmployerAgreement
         await _handler.Handle(_command, CancellationToken.None);
 
         //Assert
-        _agreementRepository.Verify(x => x.SetAccountLegalEntityAgreementDetails(_agreement.AccountLegalEntityId, (long?)null, (int?)null, _agreement.Id, _agreement.VersionNumber));
+        _agreementRepository.Verify(x => x.SetAccountLegalEntityAgreementDetails(_agreement.AccountLegalEntityId, (long?)null, (int?)null, _agreement.Id, _agreement.VersionNumber, true));
     }
-    
+
     [Test]
     public async Task ThenTheServiceShouldBeNotified()
     {
         //Arrange
         _commitmentService.Setup(x => x.GetEmployerCommitments(It.IsAny<long>()))
             .ReturnsAsync([new Cohort()]);
-        
+
         //Act
         await _handler.Handle(_command, CancellationToken.None);
 

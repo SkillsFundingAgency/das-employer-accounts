@@ -52,7 +52,7 @@ public class CreateAccountCommandHandler(
             Sector = message.Sector,
             Aorn = message.Aorn,
             AgreementType = AgreementType.Combined,
-            ApprenticeshipEmployerType = ApprenticeshipEmployerType.Unknown
+            ApprenticeshipEmployerType = message.IsViaProviderRequest ? ApprenticeshipEmployerType.NonLevy : ApprenticeshipEmployerType.Unknown
         });
 
         var hashedAccountId = encodingService.Encode(createAccountResult.AccountId, EncodingType.AccountId);
@@ -70,26 +70,37 @@ public class CreateAccountCommandHandler(
         await Task.WhenAll(
             PublishAddPayeSchemeMessage(message.PayeReference, createAccountResult.AccountId, createdByName, userResponse.User.Ref, message.Aorn, message.EmployerRefName, userResponse.User.CorrelationId),
             PublishAccountCreatedMessage(createAccountResult.AccountId, hashedAccountId, publicHashedAccountId, message.OrganisationName, createdByName, externalUserId),
-            CreateAuditEntries(message, createAccountResult, hashedAccountId, userResponse.User),
-            PublishLegalEntityAddedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId,
-                createAccountResult.EmployerAgreementId, createAccountResult.AccountLegalEntityId, message.OrganisationName,
-                message.OrganisationReferenceNumber, message.OrganisationAddress, message.OrganisationType, createdByName, externalUserId),
-            PublishAgreementCreatedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId, createAccountResult.EmployerAgreementId, message.OrganisationName, createdByName, externalUserId)
+            PublishLegalEntityAddedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId, createAccountResult.EmployerAgreementId, createAccountResult.AccountLegalEntityId, message.OrganisationName, message.OrganisationReferenceNumber, message.OrganisationAddress, message.OrganisationType, createdByName, externalUserId)
         );
 
-        if (!string.IsNullOrWhiteSpace(message.Aorn))
+        if (message.IsViaProviderRequest)
         {
-            await mediator.Send(new AccountLevyStatusCommand
+            await AddAccountCreatedAuditEntry(message, createAccountResult, hashedAccountId, userResponse.User);
+        }
+        else
+        {
+            await Task.WhenAll(
+                CreateAuditEntries(message, createAccountResult, hashedAccountId, userResponse.User),
+                PublishAgreementCreatedMessage(createAccountResult.AccountId, createAccountResult.LegalEntityId, createAccountResult.EmployerAgreementId, message.OrganisationName, createdByName, externalUserId));
+
+            if (!string.IsNullOrWhiteSpace(message.Aorn))
             {
-                AccountId = createAccountResult.AccountId,
-                ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy
-            }, cancellationToken);
+                await mediator.Send(new AccountLevyStatusCommand
+                {
+                    AccountId = createAccountResult.AccountId,
+                    ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy
+                }, cancellationToken);
+            }
         }
 
         return new CreateAccountCommandResponse
         {
+            AccountId = createAccountResult.AccountId,
+            AccountLegalEntityId = createAccountResult.AccountLegalEntityId,
             HashedAccountId = hashedAccountId,
-            HashedAgreementId = hashedAgreementId
+            HashedAgreementId = hashedAgreementId,
+            AgreementId = createAccountResult.EmployerAgreementId,
+            User = userResponse.User
         };
     }
 
@@ -132,7 +143,7 @@ public class CreateAccountCommandHandler(
             OrganisationType = (Types.Models.OrganisationType)organisationType
         });
     }
-    
+
     private Task PublishAddPayeSchemeMessage(string empref, long accountId, string createdByName, Guid userRef, string aorn, string schemeName, string correlationId)
     {
         return eventPublisher.Publish(new AddedPayeSchemeEvent
@@ -168,6 +179,34 @@ public class CreateAccountCommandHandler(
 
         if (!validationResult.IsValid())
             throw new InvalidRequestException(validationResult.ValidationDictionary);
+    }
+
+    private async Task AddAccountCreatedAuditEntry(CreateAccountCommand message, CreateAccountResult returnValue, string hashedAccountId, User user)
+    {
+        await mediator.Send(new CreateAuditCommand
+        {
+            EasAuditMessage = new AuditMessage
+            {
+                Category = "CREATED",
+                Description = $"Account {message.OrganisationName} created with id {returnValue.AccountId}",
+                ChangedProperties = new List<PropertyUpdate>
+                {
+                    PropertyUpdate.FromLong("AccountId", returnValue.AccountId),
+                    PropertyUpdate.FromString("HashedId", hashedAccountId),
+                    PropertyUpdate.FromString("Name", message.OrganisationName),
+                    PropertyUpdate.FromDateTime("CreatedDate", DateTime.UtcNow),
+                },
+                AffectedEntity = new AuditEntity { Type = "Account", Id = returnValue.AccountId.ToString() },
+                RelatedEntities =
+                [
+                    new AuditEntity { Type = "LegalEntity", Id = returnValue.LegalEntityId.ToString() },
+                    new AuditEntity { Type = "EmployerAgreement", Id = returnValue.EmployerAgreementId.ToString() },
+                    new AuditEntity { Type = "Paye", Id = message.PayeReference },
+                    new AuditEntity { Type = "Membership", Id = message.ExternalUserId }
+                ],
+                ChangedBy = new Actor { EmailAddress = user.Email, Id = user.Ref.ToString() }
+            }
+        });
     }
 
     private async Task CreateAuditEntries(CreateAccountCommand message, CreateAccountResult returnValue, string hashedAccountId, User user)
