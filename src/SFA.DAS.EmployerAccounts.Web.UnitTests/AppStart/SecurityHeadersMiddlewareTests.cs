@@ -25,7 +25,13 @@ public class SecurityHeadersMiddlewareTests
     {
         // Arrange
         var context = new DefaultHttpContext();
-        var cspValues = new StringValues($"default-src *; script-src *; connect-src *; img-src *; style-src *; object-src *;");
+        var cspValues = new StringValues(
+                $"default-src *; " +
+                $"script-src 'self' 'unsafe-inline' 'unsafe-eval' {dasCdn} " +
+                "connect-src *; " +
+                "img-src *; " +
+                $"style-src 'self' 'unsafe-inline' {dasCdn} https://tagmanager.google.com https://fonts.googleapis.com https://*.rcrsv.io ; " +
+                "object-src *;");
         // Act
         await _middleware.InvokeAsync(context);
 
