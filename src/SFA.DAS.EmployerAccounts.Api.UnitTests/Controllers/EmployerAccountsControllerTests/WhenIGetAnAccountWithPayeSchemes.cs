@@ -34,7 +34,7 @@ public class WhenIGetAnAccountWithPayeSchemes : EmployerAccountsControllerTests
             }
         };
 
-        Mediator.Setup(x =>
+        MediatorMock.Setup(x =>
                 x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(accountsResponse);
 

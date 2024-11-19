@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -55,7 +53,7 @@ public class Startup
     {
         var employerAccountsConfiguration = _configuration.GetSection(ConfigurationKeys.EmployerAccounts).Get<EmployerAccountsConfiguration>();
         var isDevelopment = _configuration.IsDevOrLocal();
-        
+
         services.AddSingleton(_configuration);
 
         services
@@ -76,16 +74,17 @@ public class Startup
         services.AddDasDistributedMemoryCache(employerAccountsConfiguration, _environment.IsDevelopment());
         services.AddDasHealthChecks(employerAccountsConfiguration);
         services.AddOrchestrators();
-
+        
+        services.AddDatabaseRegistration();
+        services.AddDataRepositories();
+        
         services
             .AddUnitOfWork()
             .AddEntityFramework(employerAccountsConfiguration)
             .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
 
         services.AddNServiceBusClientUnitOfWork();
-
-        services.AddDatabaseRegistration();
-        services.AddDataRepositories();
+        
         services.AddExecutionPolicies();
 
         services.AddTransient<IValidator<GetUserByRefQuery>, GetUserByRefQueryValidator>();
@@ -95,6 +94,7 @@ public class Startup
         services.AddAuditServices();
 
         services.AddMediatorValidators();
+
         services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetPayeSchemeByRefQuery).Assembly));
 
         services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();

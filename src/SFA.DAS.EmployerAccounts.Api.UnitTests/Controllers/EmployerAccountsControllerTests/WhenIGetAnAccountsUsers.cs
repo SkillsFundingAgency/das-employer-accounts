@@ -31,7 +31,7 @@ public class WhenIGetAnAccountsUsers : EmployerAccountsControllerTests
             }
         };
 
-        Mediator.Setup(x => x.Send(It.IsAny<GetTeamMembersRequest>(), It.IsAny<CancellationToken>()))
+        MediatorMock.Setup(x => x.Send(It.IsAny<GetTeamMembersRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(accountsUserResponse);
 
         var response = await Controller.GetAccountUsers(hashedAccountId) as OkObjectResult;

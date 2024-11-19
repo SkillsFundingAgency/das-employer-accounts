@@ -13,7 +13,7 @@ public class EmployerAgreementRepository : IEmployerAgreementRepository
 {
     private readonly Lazy<EmployerAccountsDbContext> _db;
 
-    public EmployerAgreementRepository(Lazy<EmployerAccountsDbContext> db) 
+    public EmployerAgreementRepository(Lazy<EmployerAccountsDbContext> db)
     {
         _db = db;
     }
@@ -69,7 +69,7 @@ public class EmployerAgreementRepository : IEmployerAgreementRepository
         parameters.Add("@signedById", agreement.SignedById, DbType.Int64);
         parameters.Add("@signedByName", agreement.SignedByName, DbType.String);
         parameters.Add("@signedDate", agreement.SignedDate, DbType.DateTime);
-            
+
         return _db.Value.Database.GetDbConnection().ExecuteAsync(
             sql: "[employer_account].[SignEmployerAgreement]",
             param: parameters,
@@ -89,7 +89,7 @@ public class EmployerAgreementRepository : IEmployerAgreementRepository
             transaction: _db.Value.Database.CurrentTransaction?.GetDbTransaction(),
             commandType: CommandType.StoredProcedure);
     }
-        
+
     public async Task<AccountLegalEntityModel> GetAccountLegalEntity(long accountLegalEntityId)
     {
         var parameters = new DynamicParameters();
@@ -145,14 +145,17 @@ public class EmployerAgreementRepository : IEmployerAgreementRepository
         return await _db.Value.Agreements.Where(x => x.Id == agreementId).Select(x => x.StatusId).SingleOrDefaultAsync();
     }
 
-    public async Task SetAccountLegalEntityAgreementDetails(long accountLegalEntityId, long? pendingAgreementId, int? pendingAgreementVersion, long? signedAgreementId, int? signedAgreementVersion)
+    public async Task SetAccountLegalEntityAgreementDetails(long accountLegalEntityId, long? pendingAgreementId, int? pendingAgreementVersion, long? signedAgreementId, int? signedAgreementVersion, bool commitData = true)
     {
         var legalEntity = await _db.Value.AccountLegalEntities.SingleAsync(x => x.Id == accountLegalEntityId);
         legalEntity.PendingAgreementId = pendingAgreementId;
         legalEntity.PendingAgreementVersion = pendingAgreementVersion;
         legalEntity.SignedAgreementId = signedAgreementId;
         legalEntity.SignedAgreementVersion = signedAgreementVersion;
-        await _db.Value.SaveChangesAsync().ConfigureAwait(false);
+        if (commitData)
+        {
+            await _db.Value.SaveChangesAsync().ConfigureAwait(false);
+        }
     }
 
     public async Task<AccountLegalEntity> GetOrganisationsAgreements(long accountLegalEntityId)
