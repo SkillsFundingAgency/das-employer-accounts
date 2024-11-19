@@ -1,5 +1,4 @@
-﻿using NLog.Extensions.Logging;
-using SFA.DAS.Configuration.AzureTableStorage;
+﻿using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Jobs.RunOnceJobs;
 using SFA.DAS.EmployerAccounts.Jobs.ServiceRegistrations;
@@ -18,7 +17,6 @@ public static class HostExtensions
             var connectionString = context.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
             if (!string.IsNullOrEmpty(connectionString))
             {
-                loggingBuilder.AddNLog(context.HostingEnvironment.IsDevelopment() ? "nlog.development.config" : "nlog.config");
                 loggingBuilder.AddApplicationInsightsWebJobs(o => o.ConnectionString = connectionString);
             }
             loggingBuilder.AddConsole();
@@ -62,12 +60,11 @@ public static class HostExtensions
                 services.AddTransient<SeedAccountUsersJob>();
                 services.AddTransient<IRunOnceJobsService, RunOnceJobsService>();
                 services.AddTransient<IRetryStrategy>(_ => new ExponentialBackoffRetryAttribute(5, "00:00:10", "00:00:20"));
-                //services.AddUnitOfWork();
+
 #pragma warning disable 618
                 services.AddSingleton<IWebHookProvider>(p => null);
 #pragma warning restore 618
             });
-
 
         return hostBuilder;
     }

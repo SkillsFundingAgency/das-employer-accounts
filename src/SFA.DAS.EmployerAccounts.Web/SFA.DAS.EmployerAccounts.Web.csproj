@@ -13,9 +13,6 @@
         <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="7.6.2" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.6.2" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.6.2" />
-        <PackageReference Include="NLog" Version="5.3.3" />
-        <PackageReference Include="NLog.Schema" Version="5.3.3" />
-        <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.12" />
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
         <PackageReference Include="NETStandard.Library" Version="2.0.3" />
@@ -28,7 +25,6 @@
         <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.104" />
         <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
         <PackageReference Include="SFA.DAS.InputValidation" Version="17.1.100" />
-        <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
         <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
         <PackageReference Include="SFA.DAS.Reservations.Messages" Version="0.1.0" />
         <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />

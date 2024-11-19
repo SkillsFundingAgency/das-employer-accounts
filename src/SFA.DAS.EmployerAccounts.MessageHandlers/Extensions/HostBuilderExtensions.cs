@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging.ApplicationInsights;
-using NLog.Extensions.Logging;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
@@ -65,10 +64,7 @@ public static class HostBuilderExtensions
             var connectionString = context.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
             if (!string.IsNullOrEmpty(connectionString))
             {
-                loggingBuilder.AddNLog(context.HostingEnvironment.IsDevelopment()
-                    ? "nlog.development.config"
-                    : "nlog.config");
-                loggingBuilder.AddApplicationInsightsWebJobs(o => o.ConnectionString = connectionString);
+                loggingBuilder.AddApplicationInsightsWebJobs(options => options.ConnectionString = connectionString);
                 loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
                 loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
             }

@@ -5,7 +5,6 @@ using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Types.Models;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.AcceptInvitation;
 
@@ -46,7 +45,9 @@ public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCo
         var validationResult = _validator.Validate(message);
 
         if (!validationResult.IsValid())
+        {
             throw new InvalidRequestException(validationResult.ValidationDictionary);
+        }
 
         var invitation = await GetInvitation(message);
 
@@ -55,10 +56,14 @@ public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCo
         await CheckIfUserIsAlreadyAMember(invitation, user);
 
         if (invitation.Status != InvitationStatus.Pending)
+        {
             throw new InvalidOperationException("Invitation is not pending");
+        }
 
-        if (invitation.ExpiryDate < DateTimeProvider.Current.UtcNow)
+        if (invitation.ExpiryDate < TimeProvider.System.GetUtcNow())
+        {
             throw new InvalidOperationException("Invitation has expired");
+        }
 
         await _invitationRepository.Accept(invitation.Email, invitation.AccountId, invitation.Role);
 
@@ -72,7 +77,9 @@ public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCo
         var membership = await _membershipRepository.GetCaller(invitation.AccountId, user.UserRef);
 
         if (membership != null)
+        {
             throw new InvalidOperationException("Invited user is already a member of the Account");
+        }
     }
 
     private async Task<User> GetUser(string email)
@@ -80,7 +87,9 @@ public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCo
         var user = await _userAccountRepository.Get(email);
 
         if (user == null)
+        {
             throw new InvalidOperationException("Invited user was not found");
+        }
 
         return user;
     }
@@ -90,7 +99,9 @@ public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCo
         var invitation = await _invitationRepository.Get(message.Id);
 
         if (invitation == null)
+        {
             throw new InvalidRequestException(new Dictionary<string, string> { { "Id", "Invitation not found with given ID" } });
+        }
 
         return invitation;
     }

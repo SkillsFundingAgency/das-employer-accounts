@@ -6,6 +6,7 @@
 @using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
 @inject IHtmlHelpers HtmlHelpers;
+@inject TelemetryConfiguration TelemetryConfig;
 
 @{
     ViewBag.HideHeaderBorder = true;
@@ -53,7 +54,7 @@
     <link href="css/main.css" rel="stylesheet" />
     <link href="/css/app.css?v=1" rel="stylesheet" no-cdn />
 
-    @RenderSection("styles", required: false)
+    @await RenderSectionAsync("styles", required: false)
 
     @await Html.PartialAsync("GoogleAnalyticsInfo")
     <!-- This is from individual pages -->
@@ -84,7 +85,7 @@
                         return s !== !0 && t["_" + i](config, r, u, e, o), s
                     }), t
             }({
-                instrumentationKey: "@TelemetryConfiguration.Active.InstrumentationKey"
+                instrumentationKey: "@TelemetryConfig.InstrumentationKey"
             });
 
         window.appInsights = appInsights;

@@ -13,183 +13,182 @@ using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Helpers;
 
-namespace SFA.DAS.EmployerAccounts.Api.IntegrationTests.TestUtils.DataAccess
+namespace SFA.DAS.EmployerAccounts.Api.IntegrationTests.TestUtils.DataAccess;
+
+[ExcludeFromCodeCoverage]
+public class EmployerAccountsDbBuilder : IDbBuilder
 {
-    [ExcludeFromCodeCoverage]
-    public class EmployerAccountsDbBuilder : IDbBuilder
+    private const string ServiceName = "SFA.DAS.EmployerAccounts";
+
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IEncodingService? _encodingService;
+    private readonly EmployerAccountsDbContext _dbContext;
+    private readonly Lazy<IAccountRepository> _lazyAccountRepository;
+    private readonly Lazy<IUserRepository> _lazyUserRepository;
+    private readonly EmployerAccountsConfiguration _configuration;
+
+    public EmployerAccountsDbBuilder(IServiceProvider serviceProvider)
     {
-        private const string ServiceName = "SFA.DAS.EmployerAccounts";
+        _serviceProvider = serviceProvider;
 
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IEncodingService? _encodingService;
-        private readonly EmployerAccountsDbContext _dbContext;
-        private readonly Lazy<IAccountRepository> _lazyAccountRepository;
-        private readonly Lazy<IUserRepository> _lazyUserRepository;
-        private readonly EmployerAccountsConfiguration _configuration;
+        _configuration = ConfigurationTestHelper.GetConfiguration<EmployerAccountsConfiguration>(ServiceName);
 
-        public EmployerAccountsDbBuilder(IServiceProvider serviceProvider)
+        _encodingService = _serviceProvider.GetService<IEncodingService>();
+        var sqlConnection = DatabaseExtensions.GetSqlConnection(_configuration.DatabaseConnectionString);
+        var optionsBuilder = new DbContextOptionsBuilder<EmployerAccountsDbContext>();
+        optionsBuilder.UseSqlServer(sqlConnection);
+        _dbContext = new EmployerAccountsDbContext(optionsBuilder.Options);
+
+        _lazyAccountRepository = new Lazy<IAccountRepository>(BuildAccountRepository);
+        _lazyUserRepository = new Lazy<IUserRepository>(BuildUserRepository);
+    }
+
+    private UserRepository BuildUserRepository()
+    {
+        return new UserRepository(new Lazy<EmployerAccountsDbContext>(() => _dbContext));
+    }
+
+    private AccountRepository BuildAccountRepository()
+    {
+        return new AccountRepository(new Lazy<EmployerAccountsDbContext>(() => _dbContext), _encodingService);
+    }
+
+    private bool HasTransaction => _dbContext.Database.CurrentTransaction != null;
+
+    /// <summary>
+    ///     Persists the data defined in <see cref="TestModelBuilder"/> to the database. Keys 
+    ///     will be propagated automatically. e.g. User Ids will be add to any accounts created
+    ///     for that user;
+    /// </summary>
+    public async Task<EmployerAccountsDbBuilder> SetupDataAsync(TestModelBuilder builder)
+    {
+        foreach (var userSetup in builder.Users)
         {
-            _serviceProvider = serviceProvider;
+            userSetup.UserOutput = await CreateUserAsync(userSetup.UserInput);
 
-            _configuration = ConfigurationTestHelper.GetConfiguration<EmployerAccountsConfiguration>(ServiceName);
-
-            _encodingService = _serviceProvider.GetService<IEncodingService>();
-            var sqlConnection = DatabaseExtensions.GetSqlConnection(_configuration.DatabaseConnectionString);
-            var optionsBuilder = new DbContextOptionsBuilder<EmployerAccountsDbContext>();
-            optionsBuilder.UseSqlServer(sqlConnection);
-            _dbContext = new EmployerAccountsDbContext(optionsBuilder.Options);
-
-            _lazyAccountRepository = new Lazy<IAccountRepository>(BuildAccountRepository);
-            _lazyUserRepository = new Lazy<IUserRepository>(BuildUserRepository);
+            await CreateAccountsForUserAsync(userSetup);
         }
 
-        private IUserRepository BuildUserRepository()
-        {
-            return new UserRepository(new Lazy<EmployerAccountsDbContext>(() => _dbContext));
-        }
+        return this;
+    }
 
-        private IAccountRepository BuildAccountRepository()
-        {
-            return new AccountRepository(new Lazy<EmployerAccountsDbContext>(() => _dbContext), _encodingService);
-        }
+    private async Task<UserOutput> CreateUserAsync(UserInput input)
+    {
+        await _lazyUserRepository.Value.Upsert(new UserInputToUserAdapter(input));
+        var user = await _lazyUserRepository.Value.GetUserByRef(input.Ref);
 
-        public bool HasTransaction => _dbContext.Database.CurrentTransaction != null;
-
-        /// <summary>
-        ///     Persists the data defined in <see cref="TestModelBuilder"/> to the database. Keys 
-        ///     will be propagated automatically. e.g. User Ids will be add to any accounts created
-        ///     for that user;
-        /// </summary>
-        public async Task<EmployerAccountsDbBuilder> SetupDataAsync(TestModelBuilder builder)
+        var output = new UserOutput
         {
-            foreach (var userSetup in builder.Users)
+            UserRef = input.Ref,
+            UserId = user.Id
+        };
+
+        return output;
+    }
+
+    private async Task<EmployerAccountOutput?> CreateAccountAsync(EmployerAccountInput input)
+    {
+        var createResult = await _lazyAccountRepository.Value.CreateAccount(
+            new CreateAccountParams
             {
-                userSetup.UserOutput = await CreateUserAsync(userSetup.UserInput);
+                UserId = input.UserId(),
+                EmployerNumber = input.OrganisationReferenceNumber,
+                EmployerName = input.OrganisationName,
+                EmployerRegisteredAddress = input.OrganisationRegisteredAddress,
+                EmployerDateOfIncorporation = input.OrganisationDateOfInception,
+                EmployerRef = input.PayeReference,
+                AccessToken = input.AccessToken,
+                RefreshToken = input.RefreshToken,
+                CompanyStatus = input.OrganisationStatus,
+                EmployerRefName = input.EmployerRefName,
+                Source = input.Source,
+                PublicSectorDataSource = input.PublicSectorDataSource,
+                Sector = input.Sector,
+                Aorn = input.Aorn,
+                AgreementType = input.AgreementType
+            });
 
-                await CreateAccountsForUserAsync(userSetup);
-            }
-
-            return this;
-        }
-
-        public async Task<UserOutput> CreateUserAsync(UserInput input)
+        var output = new EmployerAccountOutput
         {
-            await _lazyUserRepository.Value.Upsert(new UserInputToUserAdapter(input));
-            var user = await _lazyUserRepository.Value.GetUserByRef(input.Ref);
+            AccountId = createResult.AccountId,
+            HashedAccountId = _encodingService?.Encode(createResult.AccountId, EncodingType.AccountId),
+            PublicHashedAccountId = _encodingService?.Encode(createResult.AccountId, EncodingType.PublicAccountId),
+            LegalEntityId = createResult.LegalEntityId
+        };
 
-            var output = new UserOutput
-            {
-                UserRef = input.Ref,
-                UserId = user.Id
-            };
+        await _lazyAccountRepository.Value.UpdateAccountHashedIds(output.AccountId, output.HashedAccountId, output.PublicHashedAccountId);
 
-            return output;
-        }
+        return output;
+    }
 
-        public async Task<EmployerAccountOutput?> CreateAccountAsync(EmployerAccountInput input)
+    private async Task<LegalEnityWithAgreementOutput> CreateLegalEntityAsync(LegalEntityWithAgreementInput input)
+    {
+        var view = await _lazyAccountRepository.Value.CreateLegalEntityWithAgreement(
+            new LegalEntityWithAgreementInputAdapter(input));
+
+        var output = new LegalEnityWithAgreementOutput
         {
-            var createResult = await _lazyAccountRepository.Value.CreateAccount(
-                new CreateAccountParams
-                {
-                    UserId = input.UserId(),
-                    EmployerNumber = input.OrganisationReferenceNumber,
-                    EmployerName = input.OrganisationName,
-                    EmployerRegisteredAddress = input.OrganisationRegisteredAddress,
-                    EmployerDateOfIncorporation = input.OrganisationDateOfInception,
-                    EmployerRef = input.PayeReference,
-                    AccessToken = input.AccessToken,
-                    RefreshToken = input.RefreshToken,
-                    CompanyStatus = input.OrganisationStatus,
-                    EmployerRefName = input.EmployerRefName,
-                    Source = input.Source,
-                    PublicSectorDataSource = input.PublicSectorDataSource,
-                    Sector = input.Sector,
-                    Aorn = input.Aorn,
-                    AgreementType = input.AgreementType
-                });
+            EmployerAgreementId = view.Id,
+            LegalEntityId = view.LegalEntityId,
+            // TODO: maybe
+            //HashedAgreementId = view.HashedAgreementId
+        };
 
-            var output = new EmployerAccountOutput
-            {
-                AccountId = createResult.AccountId,
-                HashedAccountId = _encodingService?.Encode(createResult.AccountId, EncodingType.AccountId),
-                PublicHashedAccountId = _encodingService?.Encode(createResult.AccountId, EncodingType.PublicAccountId),
-                LegalEntityId = createResult.LegalEntityId
-            };
+        return output;
+    }
 
-            await _lazyAccountRepository.Value.UpdateAccountHashedIds(output.AccountId, output.HashedAccountId, output.PublicHashedAccountId);
-
-            return output;
-        }
-
-        public async Task<LegalEnityWithAgreementOutput> CreateLegalEntityAsync(LegalEntityWithAgreementInput input)
+    private async Task CreateAccountsForUserAsync(UserSetup userSetup)
+    {
+        foreach (var employerAccountSetup in userSetup.Accounts)
         {
-            var view = await _lazyAccountRepository.Value.CreateLegalEntityWithAgreement(
-               new LegalEntityWithAgreementInputAdapter(input));
+            employerAccountSetup.AccountOutput = await CreateAccountAsync(employerAccountSetup.AccountInput!);
 
-            var output = new LegalEnityWithAgreementOutput
-            {
-                EmployerAgreementId = view.Id,
-                LegalEntityId = view.LegalEntityId,
-                // TODO: maybe
-                //HashedAgreementId = view.HashedAgreementId
-            };
-
-            return output;
+            await CreateLegalEntitiesForAccountsAsync(employerAccountSetup);
         }
+    }
 
-        private async Task CreateAccountsForUserAsync(UserSetup userSetup)
+    private async Task CreateLegalEntitiesForAccountsAsync(EmployerAccountSetup accountSetup)
+    {
+        foreach (var legalEntitySetup in accountSetup.LegalEntities)
         {
-            foreach (var employerAccountSetup in userSetup.Accounts)
-            {
-                employerAccountSetup.AccountOutput = await CreateAccountAsync(employerAccountSetup.AccountInput);
-
-                await CreateLegalEntitiesForAccountsAsync(employerAccountSetup);
-            }
+            legalEntitySetup.LegalEntityWithAgreementInputOutput = await CreateLegalEntityAsync(legalEntitySetup.LegalEntityWithAgreementInput);
         }
+    }
 
-        private async Task CreateLegalEntitiesForAccountsAsync(EmployerAccountSetup accountSetup)
+    public void BeginTransaction()
+    {
+        if (HasTransaction)
         {
-            foreach (var legalEntitySetup in accountSetup.LegalEntities)
-            {
-                legalEntitySetup.LegalEntityWithAgreementInputOutput = await CreateLegalEntityAsync(legalEntitySetup.LegalEntityWithAgreementInput);
-            }
+            throw new InvalidOperationException("Cannot begin a transaction because a transaction has already been started");
         }
 
-        public void BeginTransaction()
+        _dbContext.Database.BeginTransaction();
+    }
+
+    public void CommitTransaction()
+    {
+        if (!HasTransaction)
         {
-            if (HasTransaction)
-            {
-                throw new InvalidOperationException("Cannot begin a transaction because a transaction has already been started");
-            }
-
-            _dbContext.Database.BeginTransaction();
+            throw new InvalidOperationException("Cannot commit a transaction because a transaction has not been started");
         }
 
-        public void CommitTransaction()
+        _dbContext.Database.CurrentTransaction?.Commit();
+    }
+
+    public void RollbackTransaction()
+    {
+        if (!HasTransaction)
         {
-            if (!HasTransaction)
-            {
-                throw new InvalidOperationException("Cannot commit a transaction because a transaction has not been started");
-            }
-
-            _dbContext.Database.CurrentTransaction?.Commit();
+            throw new InvalidOperationException("Cannot rollback a transaction because a transaction has not been started");
         }
 
-        public void RollbackTransaction()
-        {
-            if (!HasTransaction)
-            {
-                throw new InvalidOperationException("Cannot rollback a transaction because a transaction has not been started");
-            }
+        _dbContext.Database.CurrentTransaction?.Rollback();
+    }
 
-            _dbContext.Database.CurrentTransaction?.Rollback();
-        }
+    public void Dispose()
+    {
+        if (!HasTransaction) return;
 
-        public void Dispose()
-        {
-            if (!HasTransaction) return;
-
-            _dbContext.Database.CurrentTransaction?.Dispose();
-        }
+        _dbContext.Database.CurrentTransaction?.Dispose();
     }
 }

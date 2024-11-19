@@ -6,7 +6,6 @@ using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.NServiceBus.Services;
-using SFA.DAS.TimeProvider;
 
 namespace SFA.DAS.EmployerAccounts.Commands.CreateInvitation;
 
@@ -19,13 +18,17 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
     private readonly IValidator<CreateInvitationCommand> _validator;
     private readonly IUserAccountRepository _userRepository;
     private readonly IEventPublisher _eventPublisher;
+    private readonly TimeProvider _timeProvider;
     private readonly bool _isProdEnvironment;
 
     public CreateInvitationCommandHandler(IInvitationRepository invitationRepository,
         IMembershipRepository membershipRepository, IMediator mediator,
         EmployerAccountsConfiguration employerApprenticeshipsServiceConfiguration,
         IValidator<CreateInvitationCommand> validator,
-        IUserAccountRepository userRepository, IEventPublisher eventPublisher, IConfiguration configuration)
+        IUserAccountRepository userRepository,
+        IEventPublisher eventPublisher,
+        IConfiguration configuration,
+        TimeProvider timeProvider)
     {
         _invitationRepository = invitationRepository;
         _membershipRepository = membershipRepository;
@@ -34,6 +37,7 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
         _validator = validator;
         _userRepository = userRepository;
         _eventPublisher = eventPublisher;
+        _timeProvider = timeProvider;
         _isProdEnvironment = configuration["ResourceEnvironmentName"]
             .Equals("prd", StringComparison.CurrentCultureIgnoreCase);
     }
@@ -58,7 +62,7 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
             throw new InvalidRequestException(new Dictionary<string, string>
                 { { "ExistingMember", $"{message.EmailOfPersonBeingInvited} is already invited" } });
 
-        var expiryDate = DateTimeProvider.Current.UtcNow.Date.AddDays(8);
+        var expiryDate = _timeProvider.GetUtcNow().Date.AddDays(8);
 
         var invitationId = 0L;
 
@@ -93,25 +97,20 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
             EasAuditMessage = new AuditMessage
             {
                 Category = "CREATED",
-                Description =
-                    $"Member {message.EmailOfPersonBeingInvited} added to account {caller.AccountId} as {message.RoleOfPersonBeingInvited}",
-                ChangedProperties = new List<PropertyUpdate>
-                {
+                Description = $"Member {message.EmailOfPersonBeingInvited} added to account {caller.AccountId} as {message.RoleOfPersonBeingInvited}",
+                ChangedProperties =
+                [
                     PropertyUpdate.FromString("AccountId", caller.AccountId.ToString()),
                     PropertyUpdate.FromString("Email", message.EmailOfPersonBeingInvited),
                     PropertyUpdate.FromString("Name", message.NameOfPersonBeingInvited),
                     PropertyUpdate.FromString("Role", message.RoleOfPersonBeingInvited.ToString()),
                     PropertyUpdate.FromString("Status", InvitationStatus.Pending.ToString()),
                     PropertyUpdate.FromDateTime("ExpiryDate", expiryDate)
-                },
-                RelatedEntities = new List<AuditEntity>
-                    { new AuditEntity { Id = caller.AccountId.ToString(), Type = "Account" } },
+                ],
+                RelatedEntities = [new AuditEntity { Id = caller.AccountId.ToString(), Type = "Account" }],
                 AffectedEntity = new AuditEntity { Type = "Invitation", Id = invitationId.ToString() }
             }
         }, cancellationToken);
-
-        var govLoginExistingUser =
-            "11cb4eb4-c22a-47c7-aa26-1074da25ff4d"; //test ---- 3c285db3-164c-4258-9180-f2d42723e155 prod
 
         var templateId = existingUser?.UserRef != null
             ? "InvitationExistingUser"
@@ -150,8 +149,7 @@ public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCo
             callerExternalUserId);
     }
 
-    private Task PublishUserInvitedEvent(long accountId, string personInvited, string invitedByUserName,
-        Guid invitedByUserRef)
+    private Task PublishUserInvitedEvent(long accountId, string personInvited, string invitedByUserName, Guid invitedByUserRef)
     {
         return _eventPublisher.Publish(new InvitedUserEvent
         {

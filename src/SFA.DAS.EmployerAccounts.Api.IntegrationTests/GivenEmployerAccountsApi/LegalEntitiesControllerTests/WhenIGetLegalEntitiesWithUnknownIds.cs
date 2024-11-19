@@ -16,8 +16,7 @@ public class WhenIGetLegalEntitiesWithUnknownIds :GivenEmployerAccountsApi
     [Test]
     public void ThenTheStatusShouldBeNotFound_ByHashedId()
     {
-        Response.ExpectStatusCodes(HttpStatusCode.NotFound);
+        Response!.ExpectStatusCodes(HttpStatusCode.NotFound);
         Assert.Pass("Verified we got http status NotFound");
     }
-
 }
