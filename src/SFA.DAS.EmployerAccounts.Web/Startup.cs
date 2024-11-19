@@ -160,6 +160,8 @@ public class Startup
 
         app.UseStaticFiles();
 
+        app.UseMiddleware<SecurityHeadersMiddleware>();
+
         app.UseMiddleware<RobotsTextMiddleware>();
 
         app.UseAuthentication();
