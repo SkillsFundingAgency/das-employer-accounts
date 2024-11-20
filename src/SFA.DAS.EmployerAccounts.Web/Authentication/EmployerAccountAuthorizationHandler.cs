@@ -21,9 +21,6 @@ public class EmployerAccountAuthorisationHandler(
     IAssociatedAccountsHelper associatedAccountsHelper)
     : IEmployerAccountAuthorisationHandler
 {
-    // To allow unit testing
-    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
-
     public async Task<bool> IsEmployerAuthorised(AuthorizationHandlerContext context, bool allowAllUserRoles)
     {
         if (!httpContextAccessor.HttpContext.Request.RouteValues.ContainsKey(RouteValueKeys.HashedAccountId))
