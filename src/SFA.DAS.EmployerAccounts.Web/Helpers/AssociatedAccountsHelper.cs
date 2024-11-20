@@ -36,27 +36,33 @@ public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttp
         }
 
         var userClaim = user.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier));
-
         var email = user.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
         var userId = userClaim.Value;
 
         var result = await accountsService.GetUserAccounts(userId, email);
         var associatedAccounts = result.EmployerAccounts.ToDictionary(k => k.AccountId);
 
-        // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
-        if (associatedAccounts.Count <= MaxPermittedNumberOfAccountsOnClaim)
-        {
-            var accountsAsJson = JsonConvert.SerializeObject(associatedAccounts);
-            var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
-
-            if (employerAccountsClaim != null)
-            {
-                userClaim.Subject!.RemoveClaim(employerAccountsClaim);
-            }
-
-            userClaim.Subject!.AddClaim(associatedAccountsClaim);
-        }
+        PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
 
         return associatedAccounts;
+    }
+
+    private void PersistToClaims(Dictionary<string, EmployerUserAccountItem> associatedAccounts, Claim employerAccountsClaim, Claim userClaim)
+    {
+        // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
+        if (associatedAccounts.Count > MaxPermittedNumberOfAccountsOnClaim)
+        {
+            return;
+        }
+        
+        var accountsAsJson = JsonConvert.SerializeObject(associatedAccounts);
+        var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
+
+        if (employerAccountsClaim != null)
+        {
+            userClaim.Subject!.RemoveClaim(employerAccountsClaim);
+        }
+
+        userClaim.Subject!.AddClaim(associatedAccountsClaim);
     }
 }
