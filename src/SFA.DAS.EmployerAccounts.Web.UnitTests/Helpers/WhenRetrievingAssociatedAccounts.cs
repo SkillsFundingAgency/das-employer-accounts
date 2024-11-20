@@ -48,7 +48,7 @@ public class WhenRetrievingAssociatedAccounts
         };
 
         //Act
-        await helper.GetAssociatedAccounts(forceRefresh: false);
+        var result = await helper.GetAssociatedAccounts(forceRefresh: false);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Never);
@@ -56,6 +56,8 @@ public class WhenRetrievingAssociatedAccounts
 
         var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
         actualClaimValue.Should().Be(serialisedAccounts);
+
+        result.Should().BeEquivalentTo(accountData);
     }
 
     [Test, MoqAutoData]
@@ -84,7 +86,7 @@ public class WhenRetrievingAssociatedAccounts
         };
 
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
-         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(updatedAccountData);
+        userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(updatedAccountData);
 
         var helper = new AssociatedAccountsHelper(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
@@ -92,7 +94,7 @@ public class WhenRetrievingAssociatedAccounts
         };
 
         //Act
-        await helper.GetAssociatedAccounts(forceRefresh: true);
+        var result = await helper.GetAssociatedAccounts(forceRefresh: true);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
@@ -101,6 +103,8 @@ public class WhenRetrievingAssociatedAccounts
         var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
         var expectedClaimValue = JsonConvert.SerializeObject(updatedAccountData.EmployerAccounts.ToDictionary(x => x.AccountId));
         actualClaimValue.Should().Be(expectedClaimValue);
+        
+        result.Should().BeEquivalentTo(updatedAccountData.EmployerAccounts.ToDictionary(x => x.AccountId));
     }
 
     [Test, MoqAutoData]
@@ -135,7 +139,7 @@ public class WhenRetrievingAssociatedAccounts
         };
 
         //Act
-        await helper.GetAssociatedAccounts(forceRefresh: false);
+        var result = await helper.GetAssociatedAccounts(forceRefresh: false);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
@@ -143,8 +147,10 @@ public class WhenRetrievingAssociatedAccounts
 
         var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
         JsonConvert.SerializeObject(accountData.EmployerAccounts.ToDictionary(k => k.AccountId)).Should().Be(actualClaimValue);
+
+        result.Should().BeEquivalentTo(accountData.EmployerAccounts.ToDictionary(x=> x.AccountId));
     }
-    
+
     [Test, MoqAutoData]
     public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_AccountsService_And_Not_Stored_When_Claim_Value_Is_Empty_And_Above_Max_Number_Of_Accounts(
         string userId,
@@ -177,10 +183,12 @@ public class WhenRetrievingAssociatedAccounts
         };
 
         //Act
-        await helper.GetAssociatedAccounts(forceRefresh: false);
+        var result = await helper.GetAssociatedAccounts(forceRefresh: false);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
         claimsPrinciple.Claims.Should().NotContain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        
+        result.Should().BeEquivalentTo(accountData.EmployerAccounts.ToDictionary(x=> x.AccountId));
     }
 }
