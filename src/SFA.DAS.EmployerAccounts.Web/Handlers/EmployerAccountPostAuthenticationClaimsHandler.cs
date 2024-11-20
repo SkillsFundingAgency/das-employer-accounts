@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.Handlers;
 
-public class EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService userAccountService) : ICustomClaims
+public class EmployerAccountPostAuthenticationClaimsHandler(IAssociatedAccountsHelper  associatedAccountsHelper, UserAccountService userAccountService) : ICustomClaims
 {
     public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
     
@@ -28,15 +28,8 @@ public class EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService 
         claims.Add(new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email));
         
         var result = await userAccountService.GetUserAccounts(userId, email);
+        associatedAccountsHelper.PersistToClaims(result.EmployerAccounts);
         
-        // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
-        if (result.EmployerAccounts.Count() <= MaxPermittedNumberOfAccountsOnClaim)
-        {
-            var accountsAsJson = JsonConvert.SerializeObject(result.EmployerAccounts.ToDictionary(k => k.AccountId));
-            var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
-            claims.Add(associatedAccountsClaim);    
-        }
-    
         if (result.IsSuspended)
         {
             claims.Add(new Claim(ClaimTypes.AuthorizationDecision, "Suspended"));
