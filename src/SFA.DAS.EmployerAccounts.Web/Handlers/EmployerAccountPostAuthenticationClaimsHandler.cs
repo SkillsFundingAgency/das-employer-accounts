@@ -9,14 +9,10 @@ using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.Handlers;
 
-public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
+public class EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService userAccountService) : ICustomClaims
 {
-    private readonly IUserAccountService _userAccountService;
-
-    public EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService userAccountService)
-    {
-        _userAccountService = userAccountService;
-    }
+    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
+    
     public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext tokenValidatedContext)
     {
         var claims = new List<Claim>();
@@ -24,17 +20,22 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
         var userId = tokenValidatedContext.Principal.Claims
             .First(c => c.Type.Equals(ClaimTypes.NameIdentifier))
             .Value;
+        
         var email = tokenValidatedContext.Principal.Claims
             .First(c => c.Type.Equals(ClaimTypes.Email))
             .Value;
+        
         claims.Add(new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email));
         
-
-        var result = await _userAccountService.GetUserAccounts(userId, email);
-
-        var accountsAsJson = JsonConvert.SerializeObject(result.EmployerAccounts.ToDictionary(k => k.AccountId));
-        var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
-        claims.Add(associatedAccountsClaim);    
+        var result = await userAccountService.GetUserAccounts(userId, email);
+        
+        // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
+        if (result.EmployerAccounts.Count() <= MaxPermittedNumberOfAccountsOnClaim)
+        {
+            var accountsAsJson = JsonConvert.SerializeObject(result.EmployerAccounts.ToDictionary(k => k.AccountId));
+            var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
+            claims.Add(associatedAccountsClaim);    
+        }
     
         if (result.IsSuspended)
         {
@@ -50,7 +51,6 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
             claims.Add(new Claim(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier, result.FirstName + " " + result.LastName));    
         }
         
-
         return claims;
     }
 }
