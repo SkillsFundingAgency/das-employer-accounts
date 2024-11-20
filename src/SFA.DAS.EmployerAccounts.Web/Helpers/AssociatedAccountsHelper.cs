@@ -10,6 +10,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 public interface IAssociatedAccountsHelper
 {
     Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh);
+    void PersistToClaims(IEnumerable<EmployerUserAccountItem> associatedAccounts);
 }
 
 public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsHelper> logger) : IAssociatedAccountsHelper
@@ -17,6 +18,12 @@ public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttp
     // To allow unit testing
     public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
 
+    /// <summary>
+    /// Retrieves a users associated employer accounts from claims.
+    /// If the claim is null, the data will be pulled from UserAccountService and persisted to the claims for caching purposes.
+    /// </summary>
+    /// <param name="forceRefresh">Forces data to be refreshed from UserAccountsService and persisted to user claims.</param>
+    /// <returns>Dictionary of string, EmployerUserAccountItem</returns>
     public async Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh)
     {
         var user = httpContextAccessor.HttpContext.User;
@@ -45,6 +52,19 @@ public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttp
         PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
 
         return associatedAccounts;
+    }
+
+    /// <summary>
+    /// Persists the users associated accounts to the claims.
+    /// </summary>
+    /// <param name="associatedAccounts">IEnumerable of EmployerUserAccountItem.</param>
+    public void PersistToClaims(IEnumerable<EmployerUserAccountItem> associatedAccounts)
+    {
+        var user = httpContextAccessor.HttpContext.User;
+        var employerAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        var userClaim = user.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier));
+        
+        PersistToClaims(associatedAccounts.ToDictionary(x=> x.AccountId), employerAccountsClaim, userClaim);
     }
 
     private void PersistToClaims(Dictionary<string, EmployerUserAccountItem> associatedAccounts, Claim employerAccountsClaim, Claim userClaim)
