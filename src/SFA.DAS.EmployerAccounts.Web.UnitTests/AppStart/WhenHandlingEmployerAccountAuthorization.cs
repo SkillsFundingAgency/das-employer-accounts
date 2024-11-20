@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Infrastructure;
@@ -22,17 +23,29 @@ public class WhenHandlingEmployerAccountAuthorization
     public async Task Then_Returns_True_If_Employer_Is_Authorized_For_Owner_Role(
         EmployerIdentifier employerIdentifier,
         EmployerAccountOwnerRequirement ownerRequirement,
+        EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
+        [Frozen] Mock<IAssociatedAccountsHelper> associatedAccountsHelper,
         EmployerAccountAuthorisationHandler authorizationHandler)
     {
         //Arrange
         employerIdentifier.Role = "Owner";
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
+        
+        var userAccounts = new EmployerUserAccounts
+        {
+            EmployerAccounts = new List<EmployerUserAccountItem> { serviceResponse }
+        };
+
+        associatedAccountsHelper.Setup(x => x.GetAssociatedAccounts(false))
+            .ReturnsAsync(userAccounts.EmployerAccounts.ToDictionary(x => x.AccountId));
+        
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var httpContext = new DefaultHttpContext(new FeatureCollection());
+        
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerIdentifier.AccountId);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
@@ -42,6 +55,7 @@ public class WhenHandlingEmployerAccountAuthorization
         //Assert
         actual.Should().BeTrue();
     }
+
     [Test]
     [MoqInlineAutoData("Transactor")]
     [MoqInlineAutoData("Viewer")]
@@ -57,8 +71,8 @@ public class WhenHandlingEmployerAccountAuthorization
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var httpContext = new DefaultHttpContext(new FeatureCollection());
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerIdentifier.AccountId);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
@@ -77,16 +91,27 @@ public class WhenHandlingEmployerAccountAuthorization
         string role,
         EmployerIdentifier employerIdentifier,
         EmployerAccountOwnerRequirement ownerRequirement,
+        EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
+        [Frozen] Mock<IAssociatedAccountsHelper> associatedAccountsHelper,
         EmployerAccountAuthorisationHandler authorizationHandler)
     {
         //Arrange
         employerIdentifier.Role = role;
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
+        var userAccounts = new EmployerUserAccounts
+        {
+            EmployerAccounts = new List<EmployerUserAccountItem> { serviceResponse }
+        };
+
+        associatedAccountsHelper.Setup(x => x.GetAssociatedAccounts(false))
+            .ReturnsAsync(userAccounts.EmployerAccounts.ToDictionary(x => x.AccountId));
+
+        
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var httpContext = new DefaultHttpContext(new FeatureCollection());
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerIdentifier.AccountId);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
@@ -111,8 +136,8 @@ public class WhenHandlingEmployerAccountAuthorization
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
@@ -125,7 +150,7 @@ public class WhenHandlingEmployerAccountAuthorization
         actual.Should().BeFalse();
     }
 
-    
+
     [Test, MoqAutoData]
     public async Task Then_If_Not_In_Context_Claims_EmployerAccountService_Checked_And_True_Returned_If_Exists_For_GovSignIn(
         string accountId,
@@ -135,24 +160,27 @@ public class WhenHandlingEmployerAccountAuthorization
         EmployerAccountOwnerRequirement ownerRequirement,
         EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        [Frozen] Mock<IUserAccountService> employerAccountService,
+        [Frozen] Mock<IAssociatedAccountsHelper> associatedAccountsHelper,
         [Frozen] Mock<IOptions<EmployerAccountsConfiguration>> configuration,
         EmployerAccountAuthorisationHandler authorizationHandler)
     {
         //Arrange
         serviceResponse.AccountId = accountId.ToUpper();
         serviceResponse.Role = "Owner";
-        employerAccountService.Setup(x => x.GetUserAccounts(userId, email))
-            .ReturnsAsync(new EmployerUserAccounts
-            {
-                EmployerAccounts = new List<EmployerUserAccountItem> { serviceResponse }
-            });
+
+        var userAccounts = new EmployerUserAccounts
+        {
+            EmployerAccounts = new List<EmployerUserAccountItem> { serviceResponse }
+        };
+
+        associatedAccountsHelper.Setup(x => x.GetAssociatedAccounts(false))
+            .ReturnsAsync(userAccounts.EmployerAccounts.ToDictionary(x => x.AccountId));
 
         var userClaim = new Claim(ClaimTypes.NameIdentifier, userId);
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var employerAccountClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { employerAccountClaim, userClaim, new Claim(ClaimTypes.Email, email) }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([employerAccountClaim, userClaim, new Claim(ClaimTypes.Email, email)])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
@@ -163,7 +191,6 @@ public class WhenHandlingEmployerAccountAuthorization
 
         //Assert
         actual.Should().BeTrue();
-
     }
 
     [Test, MoqAutoData]
@@ -189,8 +216,8 @@ public class WhenHandlingEmployerAccountAuthorization
         var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, userId);
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var employerAccountClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { employerAccountClaim, userClaim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([employerAccountClaim, userClaim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
@@ -215,8 +242,8 @@ public class WhenHandlingEmployerAccountAuthorization
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerIdentifier.AccountId);
@@ -242,8 +269,8 @@ public class WhenHandlingEmployerAccountAuthorization
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Clear();
@@ -268,8 +295,8 @@ public class WhenHandlingEmployerAccountAuthorization
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim("SomeOtherClaim", JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerIdentifier.AccountId);
@@ -295,8 +322,8 @@ public class WhenHandlingEmployerAccountAuthorization
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
         var claim = new Claim("SomeOtherClaim", JsonConvert.SerializeObject(employerAccounts));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerIdentifier.AccountId);
@@ -320,8 +347,8 @@ public class WhenHandlingEmployerAccountAuthorization
         employerIdentifier.Role = "Owner";
         employerIdentifier.AccountId = employerIdentifier.AccountId.ToUpper();
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerIdentifier));
-        var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
-        var context = new AuthorizationHandlerContext(new[] { ownerRequirement }, claimsPrinciple, null);
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
         var httpContext = new DefaultHttpContext(responseMock);
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerIdentifier.AccountId);
