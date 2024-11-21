@@ -23,6 +23,7 @@ public class WhenPopulatingAccountClaims
         string emailAddress,
         EmployerUserAccounts accountData,
         [Frozen] Mock<IUserAccountService> accountService,
+        [Frozen] Mock<IAssociatedAccountsHelper> associatedAccountsHelper,
         [Frozen] Mock<IOptions<EmployerAccountsConfiguration>> accountsConfiguration,
         EmployerAccountPostAuthenticationClaimsHandler handler)
     {
@@ -34,9 +35,15 @@ public class WhenPopulatingAccountClaims
 
         accountService.Verify(x => x.GetUserAccounts(nameIdentifier, emailAddress), Times.Once);
         accountService.Verify(x => x.GetUserAccounts(idamsIdentifier, emailAddress), Times.Never);
+        
+        associatedAccountsHelper.Verify(x=> x.PersistToClaims(accountData.EmployerAccounts.ToList()));
+        
         actual.Should().ContainSingle(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        
         var actualClaimValue = actual.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
+        
         JsonConvert.SerializeObject(accountData.EmployerAccounts.ToDictionary(k => k.AccountId)).Should().Be(actualClaimValue);
+        
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier)).Value.Should().Be(accountData.EmployerUserId);
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier)).Value.Should().Be(accountData.FirstName + " " + accountData.LastName);
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailAddress);
