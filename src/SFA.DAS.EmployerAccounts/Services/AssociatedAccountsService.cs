@@ -22,7 +22,7 @@ public class AssociatedAccountsService(IUserAccountService accountsService, IHtt
     /// Retrieves a users associated employer accounts from claims.
     /// If the claim is null, the data will be pulled from UserAccountService and persisted to the claims for caching purposes.
     /// </summary>
-    /// <param name="forceRefresh">Forces data to be refreshed from UserAccountsService and persisted to user claims.</param>
+    /// <param name="forceRefresh">Forces data to be refreshed from UserAccountsService and persisted to user claims regardless of claims state.</param>
     /// <returns>Dictionary of string, EmployerUserAccountItem</returns>
     public async Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh)
     {
