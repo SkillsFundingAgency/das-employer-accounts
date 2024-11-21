@@ -14,7 +14,8 @@ public class GetContentRequestHandler(
     ILogger<GetContentRequestHandler> logger,
     IContentApiClient contentApiClient,
     EmployerAccountsConfiguration employerAccountsConfiguration,
-    IHttpContextAccessor httpContextAccessor)
+    IHttpContextAccessor httpContextAccessor,
+    IAssociatedAccountsService associatedAccountsService)
     : IRequestHandler<GetContentRequest, GetContentResponse>
 {
     public async Task<GetContentResponse> Handle(GetContentRequest message, CancellationToken cancellationToken)
@@ -33,10 +34,10 @@ public class GetContentRequestHandler(
             logger.LogInformation("GetContentRequestHandler HashedAccountId not found on route.");
             return new GetContentResponse();
         }
-        
+
         logger.LogInformation("GetContentRequestHandler HashedAccountId: {Id}.", hashedAccountId);
-        
-        var levyStatus = GetAccountLevyStatus(hashedAccountId);
+
+        var levyStatus = await GetAccountLevyStatus(hashedAccountId);
 
         var applicationId = $"{employerAccountsConfiguration.ApplicationId}-{levyStatus.ToString().ToLower()}";
 
@@ -45,7 +46,7 @@ public class GetContentRequestHandler(
         try
         {
             var contentBanner = await contentApiClient.Get(message.ContentType, applicationId);
-            
+
             logger.LogInformation("GetContentRequestHandler ContentBanner data: '{ContentBanner}'.", contentBanner);
 
             return new GetContentResponse
@@ -64,27 +65,11 @@ public class GetContentRequestHandler(
         }
     }
 
-    private ApprenticeshipEmployerType GetAccountLevyStatus(string hashedAccountId)
+    private async Task<ApprenticeshipEmployerType> GetAccountLevyStatus(string hashedAccountId)
     {
-        var employerAccountClaim = httpContextAccessor.HttpContext.User.FindFirst(EmployerClaims.AccountsClaimsTypeIdentifier);
-        
-        logger.LogInformation("GetContentRequestHandler AccountsClaimsTypeIdentifier Claims: '{Accounts}'.", employerAccountClaim);
+        var associatedAccounts = await associatedAccountsService.GetAccounts(forceRefresh: false);
 
-        Dictionary<string, EmployerUserAccountItem> employerAccounts;
-
-        try
-        {
-            employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(employerAccountClaim.Value);
-        }
-        catch (JsonSerializationException exception)
-        {
-            logger.LogError(exception, "Could not deserialize employer account claim for user");
-            throw;
-        }
-        
-        logger.LogInformation("GetContentRequestHandler EmployerAccounts: '{Accounts}'.", JsonConvert.SerializeObject(employerAccounts));
-
-        var hasEmployerAccountsClaims = employerAccounts.TryGetValue(hashedAccountId, out var employerAccount);
+        var hasEmployerAccountsClaims = associatedAccounts.TryGetValue(hashedAccountId, out var employerAccount);
 
         return hasEmployerAccountsClaims ? employerAccount.ApprenticeshipEmployerType : ApprenticeshipEmployerType.Unknown;
     }
