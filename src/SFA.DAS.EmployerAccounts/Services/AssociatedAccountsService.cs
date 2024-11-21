@@ -16,7 +16,7 @@ public interface IAssociatedAccountsService
 public class AssociatedAccountsService(IUserAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsService> logger) : IAssociatedAccountsService
 {
     // To allow unit testing
-    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = Constants.MaxNumberOfEmployerAccountsAllowedOnClaim;
+    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = Constants.MaxNumberOfAssociatedAccountsAllowedOnClaim;
 
     /// <summary>
     /// Retrieves a users associated employer accounts from claims.

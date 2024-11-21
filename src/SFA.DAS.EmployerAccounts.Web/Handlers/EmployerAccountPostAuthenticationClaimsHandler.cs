@@ -12,7 +12,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Handlers;
 public class EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService userAccountService) : ICustomClaims
 {
     // To allow unit testing
-    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = SFA.DAS.EmployerAccounts.Constants.MaxNumberOfEmployerAccountsAllowedOnClaim;
+    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = SFA.DAS.EmployerAccounts.Constants.MaxNumberOfAssociatedAccountsAllowedOnClaim;
 
     public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext tokenValidatedContext)
     {
