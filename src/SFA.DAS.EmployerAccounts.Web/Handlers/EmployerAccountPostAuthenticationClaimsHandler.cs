@@ -28,7 +28,7 @@ public class EmployerAccountPostAuthenticationClaimsHandler(IAssociatedAccountsH
         claims.Add(new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email));
         
         var result = await userAccountService.GetUserAccounts(userId, email);
-        associatedAccountsHelper.PersistToClaims(result.EmployerAccounts);
+        associatedAccountsHelper.PersistToClaims(result.EmployerAccounts.ToList());
         
         if (result.IsSuspended)
         {

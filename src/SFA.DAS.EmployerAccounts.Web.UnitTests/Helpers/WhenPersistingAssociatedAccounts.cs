@@ -46,7 +46,7 @@ public class WhenPersistingAssociatedAccounts
         };
 
         //Act
-        helper.PersistToClaims(accountData.EmployerAccounts);
+        helper.PersistToClaims(accountData.EmployerAccounts.ToList());
 
         //Assert
         claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
@@ -88,7 +88,7 @@ public class WhenPersistingAssociatedAccounts
         };
 
         //Act
-        helper.PersistToClaims(accountData.EmployerAccounts);
+        helper.PersistToClaims(accountData.EmployerAccounts.ToList());
 
         //Assert
         claimsPrinciple.Claims.Should().NotContain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));

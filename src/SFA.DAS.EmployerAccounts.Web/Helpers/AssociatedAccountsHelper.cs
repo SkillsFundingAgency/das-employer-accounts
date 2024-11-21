@@ -10,7 +10,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 public interface IAssociatedAccountsHelper
 {
     Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh);
-    void PersistToClaims(IEnumerable<EmployerUserAccountItem> associatedAccounts);
+    void PersistToClaims(List<EmployerUserAccountItem> associatedAccounts);
 }
 
 public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsHelper> logger) : IAssociatedAccountsHelper
@@ -57,9 +57,14 @@ public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttp
     /// <summary>
     /// Persists the users associated accounts to the claims.
     /// </summary>
-    /// <param name="associatedAccounts">IEnumerable of EmployerUserAccountItem.</param>
-    public void PersistToClaims(IEnumerable<EmployerUserAccountItem> associatedAccounts)
+    /// <param name="associatedAccounts">List of EmployerUserAccountItem.</param>
+    public void PersistToClaims(List<EmployerUserAccountItem> associatedAccounts)
     {
+        if (associatedAccounts == null || associatedAccounts.Count == 0)
+        {
+            return;
+        }
+        
         var user = httpContextAccessor.HttpContext.User;
         var employerAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
         var userClaim = user.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier));
