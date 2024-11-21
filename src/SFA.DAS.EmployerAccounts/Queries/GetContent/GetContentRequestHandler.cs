@@ -65,12 +65,12 @@ public class GetContentRequestHandler(
         }
     }
 
-    private async Task<ApprenticeshipEmployerType> GetAccountLevyStatus(string hashedAccountId)
+    private async Task<GovUK.Auth.Employer.ApprenticeshipEmployerType> GetAccountLevyStatus(string hashedAccountId)
     {
         var associatedAccounts = await associatedAccountsService.GetAccounts(forceRefresh: false);
 
         var hasEmployerAccountsClaims = associatedAccounts.TryGetValue(hashedAccountId, out var employerAccount);
 
-        return hasEmployerAccountsClaims ? employerAccount.ApprenticeshipEmployerType : ApprenticeshipEmployerType.Unknown;
+        return hasEmployerAccountsClaims ? employerAccount.ApprenticeshipEmployerType : GovUK.Auth.Employer.ApprenticeshipEmployerType.Unknown;
     }
 }

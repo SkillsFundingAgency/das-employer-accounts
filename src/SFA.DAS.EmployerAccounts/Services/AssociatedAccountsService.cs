@@ -3,17 +3,18 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SFA.DAS.EmployerAccounts.Infrastructure;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.EmployerAccounts.Infrastructure.EmployerClaims;
+using EmployerUserAccountItem = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccountItem;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
 public interface IAssociatedAccountsService
 {
-    Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh);
+    Task<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>> GetAccounts(bool forceRefresh);
 }
 
-public class AssociatedAccountsService(IUserAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsService> logger) : IAssociatedAccountsService
+public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsService> logger) : IAssociatedAccountsService
 {
     // To allow unit testing
     public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = Constants.MaxNumberOfAssociatedAccountsAllowedOnClaim;
@@ -24,7 +25,7 @@ public class AssociatedAccountsService(IUserAccountService accountsService, IHtt
     /// </summary>
     /// <param name="forceRefresh">Forces data to be refreshed from UserAccountsService and persisted to user claims regardless of claims state.</param>
     /// <returns>Dictionary of string, EmployerUserAccountItem</returns>
-    public async Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh)
+    public async Task<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>> GetAccounts(bool forceRefresh)
     {
         var user = httpContextAccessor.HttpContext.User;
         var employerAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
@@ -33,7 +34,7 @@ public class AssociatedAccountsService(IUserAccountService accountsService, IHtt
         {
             try
             {
-                return JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(employerAccountsClaim.Value);
+                return JsonConvert.DeserializeObject<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>>(employerAccountsClaim.Value);
             }
             catch (JsonSerializationException e)
             {
@@ -54,7 +55,7 @@ public class AssociatedAccountsService(IUserAccountService accountsService, IHtt
         return associatedAccounts;
     }
     
-    private void PersistToClaims(Dictionary<string, EmployerUserAccountItem> associatedAccounts, Claim employerAccountsClaim, Claim userClaim)
+    private void PersistToClaims(Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem> associatedAccounts, Claim employerAccountsClaim, Claim userClaim)
     {
         // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
         if (associatedAccounts.Count > MaxPermittedNumberOfAccountsOnClaim)

@@ -10,10 +10,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Infrastructure;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Services;
+using SFA.DAS.GovUK.Auth.Employer;
 using SFA.DAS.Testing.AutoFixture;
+using EmployerClaims = SFA.DAS.EmployerAccounts.Infrastructure.EmployerClaims;
+using EmployerUserAccountItem = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccountItem;
+using EmployerUserAccounts = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccounts;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AssociatedAccounts;
 
@@ -25,7 +27,7 @@ public class WhenGettingAssociatedAccounts
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         Mock<ILogger<AssociatedAccountsService>> logger,
-        Mock<IUserAccountService> userAccountService,
+        Mock<IGovAuthEmployerAccountService> userAccountService,
         Dictionary<string, EmployerUserAccountItem> accountData
     )
     {
@@ -71,9 +73,9 @@ public class WhenGettingAssociatedAccounts
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         Mock<ILogger<AssociatedAccountsService>> logger,
-        Mock<IUserAccountService> userAccountService,
+        Mock<IGovAuthEmployerAccountService> userAccountService,
         Dictionary<string, EmployerUserAccountItem> existingAccountData,
-        EmployerUserAccounts updatedAccountData
+        GovUK.Auth.Employer.EmployerUserAccounts updatedAccountData
     )
     {
         //Arrange
@@ -118,8 +120,8 @@ public class WhenGettingAssociatedAccounts
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         Mock<ILogger<AssociatedAccountsService>> logger,
-        Mock<IUserAccountService> userAccountService,
-        EmployerUserAccounts accountData
+        Mock<IGovAuthEmployerAccountService> userAccountService,
+        GovUK.Auth.Employer.EmployerUserAccounts accountData
     )
     {
         //Arrange
@@ -162,8 +164,8 @@ public class WhenGettingAssociatedAccounts
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         Mock<ILogger<AssociatedAccountsService>> logger,
-        Mock<IUserAccountService> userAccountService,
-        EmployerUserAccounts accountData
+        Mock<IGovAuthEmployerAccountService> userAccountService,
+        GovUK.Auth.Employer.EmployerUserAccounts accountData
     )
     {
         //Arrange

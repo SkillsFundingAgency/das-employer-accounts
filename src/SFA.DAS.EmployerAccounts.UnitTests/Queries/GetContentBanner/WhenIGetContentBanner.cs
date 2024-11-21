@@ -52,13 +52,13 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
             .Setup(cbs => cbs.Get(_contentType, _clientId))
             .ReturnsAsync(_contentBanner);
 
-        var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
+        var employerUserAccountItems = new Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>
         {
             {
-                AccountId, new EmployerUserAccountItem
+                AccountId, new GovUK.Auth.Employer.EmployerUserAccountItem
                 {
                     AccountId = AccountId,
-                    ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy
+                    ApprenticeshipEmployerType = GovUK.Auth.Employer.ApprenticeshipEmployerType.Levy
                 }
             }
         };
@@ -111,13 +111,13 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         var key = $"{_employerAccountsConfiguration.ApplicationId}-levy";
         query1.ContentType = "Banner";
         
-        var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
+        var employerUserAccountItems = new Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>
         {
             {
-                AccountId, new EmployerUserAccountItem
+                AccountId, new GovUK.Auth.Employer.EmployerUserAccountItem
                 {
                     AccountId = AccountId,
-                    ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy
+                    ApprenticeshipEmployerType = GovUK.Auth.Employer.ApprenticeshipEmployerType.Levy
                 }
             }
         };
@@ -147,7 +147,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
     [MoqInlineAutoData(ApprenticeshipEmployerType.Levy)]
     [MoqInlineAutoData(ApprenticeshipEmployerType.NonLevy)]
     public async Task TheLevyStatusIsAppendedToApplicationIdFromUserClaims(
-        ApprenticeshipEmployerType levyStatus,
+        GovUK.Auth.Employer.ApprenticeshipEmployerType levyStatus,
         Mock<IValidator<GetContentRequest>> validator,
         Mock<IContentApiClient> contentApiClient,
         EmployerAccountsConfiguration configuration,
@@ -158,10 +158,10 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         string content
     )
     {
-        var employerUserAccountItems = new Dictionary<string, EmployerUserAccountItem>
+        var employerUserAccountItems = new Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>
         {
             {
-                AccountId, new EmployerUserAccountItem
+                AccountId, new GovUK.Auth.Employer.EmployerUserAccountItem
                 {
                     AccountId = AccountId,
                     ApprenticeshipEmployerType = levyStatus
@@ -193,7 +193,7 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
         GetContentRequest request,
         Mock<ILogger<GetContentRequestHandler>> logger,
         string content,
-        ApprenticeshipEmployerType levyStatus
+        GovUK.Auth.Employer.ApprenticeshipEmployerType levyStatus
     )
     {
         var httpContext = new DefaultHttpContext(new FeatureCollection());
