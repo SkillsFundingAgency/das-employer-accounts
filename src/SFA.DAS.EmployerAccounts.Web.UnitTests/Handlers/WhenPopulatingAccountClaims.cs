@@ -4,6 +4,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Infrastructure;
@@ -23,7 +25,7 @@ public class WhenPopulatingAccountClaims
         string emailAddress,
         EmployerUserAccounts accountData,
         [Frozen] Mock<IUserAccountService> accountService,
-        [Frozen] Mock<IAssociatedAccountsHelper> associatedAccountsHelper,
+        [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         [Frozen] Mock<IOptions<EmployerAccountsConfiguration>> accountsConfiguration,
         EmployerAccountPostAuthenticationClaimsHandler handler)
     {
@@ -35,15 +37,13 @@ public class WhenPopulatingAccountClaims
 
         accountService.Verify(x => x.GetUserAccounts(nameIdentifier, emailAddress), Times.Once);
         accountService.Verify(x => x.GetUserAccounts(idamsIdentifier, emailAddress), Times.Never);
-        
-        associatedAccountsHelper.Verify(x=> x.PersistToClaims(accountData.EmployerAccounts.ToList()));
-        
+
         actual.Should().ContainSingle(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
-        
+
         var actualClaimValue = actual.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
-        
+
         JsonConvert.SerializeObject(accountData.EmployerAccounts.ToDictionary(k => k.AccountId)).Should().Be(actualClaimValue);
-        
+
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier)).Value.Should().Be(accountData.EmployerUserId);
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier)).Value.Should().Be(accountData.FirstName + " " + accountData.LastName);
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailAddress);
@@ -51,7 +51,7 @@ public class WhenPopulatingAccountClaims
         actual.First(c => c.Type.Equals(DasClaimTypes.FamilyName)).Value.Should().Be(accountData.LastName);
         actual.First(c => c.Type.Equals(ClaimTypes.AuthorizationDecision)).Value.Should().Be("Suspended");
     }
-    
+
     [Test, MoqAutoData]
     public async Task Then_The_Claims_Are_Populated_For_Gov_User_With_No_Accounts(
         string nameIdentifier,
@@ -75,7 +75,7 @@ public class WhenPopulatingAccountClaims
         accountService.Verify(x => x.GetUserAccounts(idamsIdentifier, emailAddress), Times.Never);
         actual.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
         actual.FirstOrDefault(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier))?.Value.Should().Be("{}");
-        
+
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier)).Value.Should().Be(accountData.EmployerUserId);
         actual.FirstOrDefault(c => c.Type.Equals(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier))?.Value.Should().BeNull();
         actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailAddress);
@@ -83,7 +83,7 @@ public class WhenPopulatingAccountClaims
         actual.FirstOrDefault(c => c.Type.Equals(DasClaimTypes.FamilyName))?.Value.Should().BeNull();
         actual.First(c => c.Type.Equals(ClaimTypes.AuthorizationDecision)).Value.Should().Be("Suspended");
     }
-    
+
     [Test, MoqAutoData]
     public async Task Then_The_Claims_Are_Populated_For_Gov_User_And_Not_Suspended_Set(
         string nameIdentifier,
@@ -111,7 +111,25 @@ public class WhenPopulatingAccountClaims
         actual.FirstOrDefault(c => c.Type.Equals(ClaimTypes.AuthorizationDecision))?.Value.Should().BeNull();
     }
 
-    [Test, MoqAutoData]
+    private static TokenValidatedContext ArrangeTokenValidatedContext(string nameIdentifier, string idamsIdentifier, string emailAddress)
+    {
+        var identity = new ClaimsIdentity(new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, nameIdentifier),
+            new(EmployerClaims.IdamsUserIdClaimTypeIdentifier, idamsIdentifier),
+            new(ClaimTypes.Email, emailAddress),
+            new(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, emailAddress)
+        });
+
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(identity));
+        return new TokenValidatedContext(new DefaultHttpContext(), new AuthenticationScheme(",", "", typeof(TestAuthHandler)),
+            new OpenIdConnectOptions(), Mock.Of<ClaimsPrincipal>(), new AuthenticationProperties())
+        {
+            Principal = claimsPrincipal
+        };
+    }
+
+      [Test, MoqAutoData]
     public async Task Then_The_Associated_Account_Claims_Are_Populated_When_Accounts_Count_Within_Limit(
         string nameIdentifier,
         string idamsIdentifier,
@@ -136,7 +154,7 @@ public class WhenPopulatingAccountClaims
         var actualClaimValue = actual.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
         JsonConvert.SerializeObject(accountData.EmployerAccounts.ToDictionary(k => k.AccountId)).Should().Be(actualClaimValue);
     }
-    
+
     [Test, MoqAutoData]
     public async Task Then_The_Associated_Account_Claims_Are_Populated_When_Accounts_Count_Above_Limit(
         string nameIdentifier,
@@ -159,25 +177,6 @@ public class WhenPopulatingAccountClaims
         accountService.Verify(x => x.GetUserAccounts(idamsIdentifier, emailAddress), Times.Never);
         actual.Should().NotContain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
     }
-    
-    private static TokenValidatedContext ArrangeTokenValidatedContext(string nameIdentifier, string idamsIdentifier, string emailAddress)
-    {
-        var identity = new ClaimsIdentity(new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, nameIdentifier),
-            new(EmployerClaims.IdamsUserIdClaimTypeIdentifier, idamsIdentifier),
-            new(ClaimTypes.Email, emailAddress),
-            new(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, emailAddress)
-        });
-
-        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(identity));
-        return new TokenValidatedContext(new DefaultHttpContext(), new AuthenticationScheme(",", "", typeof(TestAuthHandler)),
-            new OpenIdConnectOptions(), Mock.Of<ClaimsPrincipal>(), new AuthenticationProperties())
-        {
-            Principal = claimsPrincipal
-        };
-    }
-
 
     private class TestAuthHandler : IAuthenticationHandler
     {

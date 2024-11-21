@@ -9,10 +9,12 @@ using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.Handlers;
 
-public class EmployerAccountPostAuthenticationClaimsHandler(IAssociatedAccountsHelper  associatedAccountsHelper, UserAccountService userAccountService) : ICustomClaims
+public class EmployerAccountPostAuthenticationClaimsHandler(IAssociatedAccountsHelper associatedAccountsHelper, IUserAccountService userAccountService)
+    : ICustomClaims
 {
+    // To allow unit testing
     public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
-    
+
     public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext tokenValidatedContext)
     {
         var claims = new List<Claim>();
@@ -20,30 +22,38 @@ public class EmployerAccountPostAuthenticationClaimsHandler(IAssociatedAccountsH
         var userId = tokenValidatedContext.Principal.Claims
             .First(c => c.Type.Equals(ClaimTypes.NameIdentifier))
             .Value;
-        
+
         var email = tokenValidatedContext.Principal.Claims
             .First(c => c.Type.Equals(ClaimTypes.Email))
             .Value;
-        
+
         claims.Add(new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email));
-        
+
         var result = await userAccountService.GetUserAccounts(userId, email);
-        associatedAccountsHelper.PersistToClaims(result.EmployerAccounts.ToList());
-        
+
+        // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
+        if (result.EmployerAccounts.Count() <= MaxPermittedNumberOfAccountsOnClaim)
+        {
+            var accountsAsJson = JsonConvert.SerializeObject(result.EmployerAccounts.ToDictionary(k => k.AccountId));
+            var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
+
+            claims.Add(associatedAccountsClaim);
+        }
+
         if (result.IsSuspended)
         {
             claims.Add(new Claim(ClaimTypes.AuthorizationDecision, "Suspended"));
         }
-        
+
         claims.Add(new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, result.EmployerUserId));
-        
+
         if (!string.IsNullOrEmpty(result.FirstName) && !string.IsNullOrEmpty(result.LastName))
         {
             claims.Add(new Claim(DasClaimTypes.GivenName, result.FirstName));
             claims.Add(new Claim(DasClaimTypes.FamilyName, result.LastName));
-            claims.Add(new Claim(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier, result.FirstName + " " + result.LastName));    
+            claims.Add(new Claim(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier, result.FirstName + " " + result.LastName));
         }
-        
+
         return claims;
     }
 }
