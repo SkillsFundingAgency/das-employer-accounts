@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Models.UserAccounts;
+using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Web.Authorization;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 
@@ -18,7 +19,7 @@ public interface IEmployerAccountAuthorisationHandler
 public class EmployerAccountAuthorisationHandler(
     IHttpContextAccessor httpContextAccessor,
     ILogger<EmployerAccountAuthorisationHandler> logger,
-    IAssociatedAccountsHelper associatedAccountsHelper)
+    IAssociatedAccountsService associatedAccountsService)
     : IEmployerAccountAuthorisationHandler
 {
     public async Task<bool> IsEmployerAuthorised(AuthorizationHandlerContext context, bool allowAllUserRoles)
@@ -32,7 +33,7 @@ public class EmployerAccountAuthorisationHandler(
 
         try
         {
-            employerAccounts = await associatedAccountsHelper.GetAssociatedAccounts(forceRefresh: false);
+            employerAccounts = await associatedAccountsService.GetAccounts(forceRefresh: false);
         }
         catch (Exception e)
         {
@@ -58,7 +59,7 @@ public class EmployerAccountAuthorisationHandler(
                 return false;
             }
 
-            var result = await associatedAccountsHelper.GetAssociatedAccounts(forceRefresh: true);
+            var result = await associatedAccountsService.GetAccounts(forceRefresh: true);
 
             var accountsAsJson = JsonConvert.SerializeObject(result);
             var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);

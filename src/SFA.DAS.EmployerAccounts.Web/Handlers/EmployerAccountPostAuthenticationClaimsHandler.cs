@@ -9,11 +9,10 @@ using System.Security.Claims;
 
 namespace SFA.DAS.EmployerAccounts.Web.Handlers;
 
-public class EmployerAccountPostAuthenticationClaimsHandler(IAssociatedAccountsHelper associatedAccountsHelper, IUserAccountService userAccountService)
-    : ICustomClaims
+public class EmployerAccountPostAuthenticationClaimsHandler(IUserAccountService userAccountService) : ICustomClaims
 {
     // To allow unit testing
-    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
+    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = SFA.DAS.EmployerAccounts.Constants.MaxNumberOfEmployerAccountsAllowedOnClaim;
 
     public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext tokenValidatedContext)
     {
