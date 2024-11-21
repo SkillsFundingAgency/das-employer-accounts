@@ -10,7 +10,6 @@ namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 public interface IAssociatedAccountsHelper
 {
     Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh);
-    void PersistToClaims(List<EmployerUserAccountItem> associatedAccounts);
 }
 
 public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsHelper> logger) : IAssociatedAccountsHelper
@@ -53,25 +52,7 @@ public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttp
 
         return associatedAccounts;
     }
-
-    /// <summary>
-    /// Persists the users associated accounts to the claims.
-    /// </summary>
-    /// <param name="associatedAccounts">List of EmployerUserAccountItem.</param>
-    public void PersistToClaims(List<EmployerUserAccountItem> associatedAccounts)
-    {
-        if (associatedAccounts == null || associatedAccounts.Count == 0)
-        {
-            return;
-        }
-        
-        var user = httpContextAccessor.HttpContext.User;
-        var employerAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
-        var userClaim = user.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier));
-        
-        PersistToClaims(associatedAccounts.ToDictionary(x=> x.AccountId), employerAccountsClaim, userClaim);
-    }
-
+    
     private void PersistToClaims(Dictionary<string, EmployerUserAccountItem> associatedAccounts, Claim employerAccountsClaim, Claim userClaim)
     {
         // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
