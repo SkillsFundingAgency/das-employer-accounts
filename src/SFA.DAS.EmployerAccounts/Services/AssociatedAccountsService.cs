@@ -1,21 +1,22 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Models.UserAccounts;
-using SFA.DAS.EmployerAccounts.Services;
 
-namespace SFA.DAS.EmployerAccounts.Web.Helpers;
+namespace SFA.DAS.EmployerAccounts.Services;
 
-public interface IAssociatedAccountsHelper
+public interface IAssociatedAccountsService
 {
-    Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh);
+    Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh);
 }
 
-public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsHelper> logger) : IAssociatedAccountsHelper
+public class AssociatedAccountsService(IUserAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsService> logger) : IAssociatedAccountsService
 {
     // To allow unit testing
-    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
+    public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = Constants.MaxNumberOfEmployerAccountsAllowedOnClaim;
 
     /// <summary>
     /// Retrieves a users associated employer accounts from claims.
@@ -23,7 +24,7 @@ public class AssociatedAccountsHelper(IUserAccountService accountsService, IHttp
     /// </summary>
     /// <param name="forceRefresh">Forces data to be refreshed from UserAccountsService and persisted to user claims.</param>
     /// <returns>Dictionary of string, EmployerUserAccountItem</returns>
-    public async Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh)
+    public async Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh)
     {
         var user = httpContextAccessor.HttpContext.User;
         var employerAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));

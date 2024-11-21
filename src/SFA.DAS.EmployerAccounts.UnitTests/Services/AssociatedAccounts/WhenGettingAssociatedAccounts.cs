@@ -1,25 +1,30 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Helpers;
+namespace SFA.DAS.EmployerAccounts.UnitTests.Services.AssociatedAccounts;
 
-public class WhenRetrievingAssociatedAccounts
+public class WhenGettingAssociatedAccounts
 {
     [Test, MoqAutoData]
     public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_Claims_When_Populated_And_ForceRefresh_Is_False(
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsHelper>> logger,
+        Mock<ILogger<AssociatedAccountsService>> logger,
         Mock<IUserAccountService> userAccountService,
         Dictionary<string, EmployerUserAccountItem> accountData
     )
@@ -42,13 +47,13 @@ public class WhenRetrievingAssociatedAccounts
 
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
-        var helper = new AssociatedAccountsHelper(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var helper = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = accountData.Count
         };
 
         //Act
-        var result = await helper.GetAssociatedAccounts(forceRefresh: false);
+        var result = await helper.GetAccounts(forceRefresh: false);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Never);
@@ -65,7 +70,7 @@ public class WhenRetrievingAssociatedAccounts
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsHelper>> logger,
+        Mock<ILogger<AssociatedAccountsService>> logger,
         Mock<IUserAccountService> userAccountService,
         Dictionary<string, EmployerUserAccountItem> existingAccountData,
         EmployerUserAccounts updatedAccountData
@@ -88,13 +93,13 @@ public class WhenRetrievingAssociatedAccounts
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(updatedAccountData);
 
-        var helper = new AssociatedAccountsHelper(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var helper = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = existingAccountData.Count
         };
 
         //Act
-        var result = await helper.GetAssociatedAccounts(forceRefresh: true);
+        var result = await helper.GetAccounts(forceRefresh: true);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
@@ -112,7 +117,7 @@ public class WhenRetrievingAssociatedAccounts
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsHelper>> logger,
+        Mock<ILogger<AssociatedAccountsService>> logger,
         Mock<IUserAccountService> userAccountService,
         EmployerUserAccounts accountData
     )
@@ -133,13 +138,13 @@ public class WhenRetrievingAssociatedAccounts
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(accountData);
 
-        var helper = new AssociatedAccountsHelper(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var associatedAccountsService = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = accountData.EmployerAccounts.Count()
         };
 
         //Act
-        var result = await helper.GetAssociatedAccounts(forceRefresh: false);
+        var result = await associatedAccountsService.GetAccounts(forceRefresh: false);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
@@ -156,7 +161,7 @@ public class WhenRetrievingAssociatedAccounts
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsHelper>> logger,
+        Mock<ILogger<AssociatedAccountsService>> logger,
         Mock<IUserAccountService> userAccountService,
         EmployerUserAccounts accountData
     )
@@ -177,13 +182,13 @@ public class WhenRetrievingAssociatedAccounts
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(accountData);
 
-        var helper = new AssociatedAccountsHelper(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var associatedAccountsService = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = accountData.EmployerAccounts.Count() - 1
         };
 
         //Act
-        var result = await helper.GetAssociatedAccounts(forceRefresh: false);
+        var result = await associatedAccountsService.GetAccounts(forceRefresh: false);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
