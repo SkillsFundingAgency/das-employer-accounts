@@ -156,7 +156,7 @@ public class WhenPopulatingAccountClaims
     }
 
     [Test, MoqAutoData]
-    public async Task Then_The_Associated_Account_Claims_Are_Populated_When_Accounts_Count_Above_Limit(
+    public async Task Then_The_Associated_Account_Claims_Are_Not_Populated_When_Accounts_Count_Above_Limit(
         string nameIdentifier,
         string idamsIdentifier,
         string emailAddress,
