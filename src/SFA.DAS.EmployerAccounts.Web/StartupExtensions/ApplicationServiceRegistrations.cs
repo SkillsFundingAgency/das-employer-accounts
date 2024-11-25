@@ -59,6 +59,8 @@ public static class ApplicationServiceRegistrations
 
         services.AddTransient<IPayeSchemesService, PayeSchemesService>();
 
+        services.AddTransient<IAssociatedAccountsService, AssociatedAccountsService>();
+
         services.AddTransient<IStubAuthenticationService, StubAuthenticationService>();//TODO remove once gov login live
 
         return services;
