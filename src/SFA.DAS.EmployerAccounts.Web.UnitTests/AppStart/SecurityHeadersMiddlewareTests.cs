@@ -27,7 +27,7 @@ public class SecurityHeadersMiddlewareTests
         var context = new DefaultHttpContext();
         var cspValues = new StringValues(
                 $"default-src *; " +
-                $"script-src 'self' 'unsafe-inline' 'unsafe-eval' {dasCdn}; " +
+                $"script-src 'self' 'unsafe-inline' 'unsafe-eval' {dasCdn} " +
                 "*.googletagmanager.com *.postcodeanywhere.co.uk *.google-analytics.com *.googleapis.com https://*.zdassets.com https://*.zendesk.com wss://*.zendesk.com wss://*.zopim.com https://*.rcrsv.io;" +
                 "connect-src *; " +
                 "img-src *; " +
