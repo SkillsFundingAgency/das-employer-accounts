@@ -15,7 +15,8 @@ public class SecurityHeadersMiddleware(RequestDelegate next)
         context.Response.Headers.Append("Content-Security-Policy", 
             new StringValues(
                 $"default-src *; " +
-                $"script-src 'self' 'unsafe-inline' 'unsafe-eval' {dasCdn}; " +
+                $"script-src 'self' 'unsafe-inline' 'unsafe-eval' {dasCdn} " +
+                "*.googletagmanager.com *.postcodeanywhere.co.uk *.google-analytics.com *.googleapis.com https://*.zdassets.com https://*.zendesk.com wss://*.zendesk.com wss://*.zopim.com https://*.rcrsv.io;" +
                 "connect-src *; " +
                 "img-src *; " +
                 $"style-src 'self' 'unsafe-inline' {dasCdn} https://tagmanager.google.com https://fonts.googleapis.com https://*.rcrsv.io ; " +
