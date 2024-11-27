@@ -10,7 +10,7 @@ public class SecurityHeadersMiddlewareTests
 {
     private Mock<RequestDelegate> _nextMock;
     private SecurityHeadersMiddleware _middleware;
-    const string dasCdn = "das-at-frnt-end.azureedge.net das-pp-frnt-end.azureedge.net das-mo-frnt-end.azureedge.net das-test-frnt-end.azureedge.net das-test2-frnt-end.azureedge.net das-prd-frnt-end.azureedge.net https://das-demo-frnt-end.azureedge.net";
+    private const string dasCdn = "das-at-frnt-end.azureedge.net das-pp-frnt-end.azureedge.net das-mo-frnt-end.azureedge.net das-test-frnt-end.azureedge.net das-test2-frnt-end.azureedge.net das-prd-frnt-end.azureedge.net https://das-demo-frnt-end.azureedge.net";
 
     [SetUp]
     public void Setup()
