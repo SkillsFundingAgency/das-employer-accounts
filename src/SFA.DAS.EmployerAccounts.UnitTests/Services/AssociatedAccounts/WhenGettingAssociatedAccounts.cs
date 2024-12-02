@@ -194,7 +194,10 @@ public class WhenGettingAssociatedAccounts
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
-        claimsPrinciple.Claims.Should().NotContain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        
+        var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
+        actualClaimValue.Should().BeNullOrEmpty();
         
         result.Should().BeEquivalentTo(accountData.EmployerAccounts.ToDictionary(x=> x.AccountId));
     }
