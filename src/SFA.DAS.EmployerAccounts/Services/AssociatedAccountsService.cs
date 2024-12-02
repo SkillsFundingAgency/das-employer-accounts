@@ -34,7 +34,14 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         {
             try
             {
-                return JsonConvert.DeserializeObject<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>>(employerAccountsClaim.Value);
+                var accountsFromClaim = JsonConvert.DeserializeObject<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>>(employerAccountsClaim.Value);
+
+                // Some users have 100's of employer accounts. The claims cannot handle that volume of data,
+                // so the claim may have been added for authorization purposes, but the claim itself is empty.
+                if (accountsFromClaim != null && accountsFromClaim.Count > 0)
+                {
+                    return accountsFromClaim;
+                }
             }
             catch (JsonSerializationException e)
             {
