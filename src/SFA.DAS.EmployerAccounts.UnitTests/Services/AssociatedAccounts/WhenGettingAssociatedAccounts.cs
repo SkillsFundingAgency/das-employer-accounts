@@ -159,7 +159,7 @@ public class WhenGettingAssociatedAccounts
     }
 
     [Test, MoqAutoData]
-    public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_AccountsService_And_Not_Stored_When_Claim_Value_Is_Empty_And_Above_Max_Number_Of_Accounts_But_Claim_Is_Still_Added(
+    public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_AccountsService_And_Claim_Added_But_Not_Populated_When_Claim_Value_Is_Empty_And_Above_Max_Number_Of_Accounts(
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
