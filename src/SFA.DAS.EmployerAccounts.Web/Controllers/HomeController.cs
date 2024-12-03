@@ -13,32 +13,16 @@ using SFA.DAS.GovUK.Auth.Services;
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 
 [Route("service")]
-public class HomeController : BaseController
+public class HomeController(
+    IHomeOrchestrator homeOrchestrator,
+    EmployerAccountsConfiguration configuration,
+    ICookieStorageService<FlashMessageViewModel> flashMessage,
+    ILogger<HomeController> logger,
+    IConfiguration config,
+    IStubAuthenticationService stubAuthenticationService,
+    IUrlActionHelper urlHelper)
+    : BaseController(flashMessage)
 {
-    private readonly IHomeOrchestrator _homeOrchestrator;
-    private readonly EmployerAccountsConfiguration _configuration;
-    private readonly ILogger<HomeController> _logger;
-    private readonly IConfiguration _config;
-    private readonly IStubAuthenticationService _stubAuthenticationService;
-    private readonly IUrlActionHelper _urlHelper;
-
-    public HomeController(
-        IHomeOrchestrator homeOrchestrator,
-        EmployerAccountsConfiguration configuration,
-        ICookieStorageService<FlashMessageViewModel> flashMessage,
-        ILogger<HomeController> logger,
-        IConfiguration config,
-        IStubAuthenticationService stubAuthenticationService, IUrlActionHelper urlHelper)
-        : base(flashMessage)
-    {
-        _homeOrchestrator = homeOrchestrator;
-        _configuration = configuration;
-        _logger = logger;
-        _config = config;
-        _stubAuthenticationService = stubAuthenticationService;
-        _urlHelper = urlHelper;
-    }
-
     [Route("~/")]
     [Route("Index")]
     public async Task<IActionResult> Index(
@@ -49,11 +33,11 @@ public class HomeController : BaseController
         {
             var userRef = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserIdClaimTypeIdentifier);
 
-            var userDetail = await _homeOrchestrator.GetUser(userRef);
+            var userDetail = await homeOrchestrator.GetUser(userRef);
 
             if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
             {
-                return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");
+                return Redirect(urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");
             }
         }
 
@@ -63,21 +47,21 @@ public class HomeController : BaseController
 
         if (userIdClaim != null)
         {
-            await _homeOrchestrator.RecordUserLoggedIn(userIdClaim.Value);
+            await homeOrchestrator.RecordUserLoggedIn(userIdClaim.Value);
 
-            accounts = await _homeOrchestrator.GetUserAccounts(
+            accounts = await homeOrchestrator.GetUserAccounts(
                 userIdClaim.Value,
                 gaQueryData,
                 redirectUri,
-                _configuration.ValidRedirectUris,
-                _configuration.LastTermsAndConditionsUpdate);
+                configuration.ValidRedirectUris,
+                configuration.LastTermsAndConditionsUpdate);
         }
         else
         {
-            if (_config["ResourceEnvironmentName"].Equals("prd"))
+            if (config["ResourceEnvironmentName"].Equals("prd"))
             {
                 //GDS requirement that users begin their service journey on .gov.uk
-                return Redirect(_configuration.GovUkSignInToASAccountUrl);
+                return Redirect(configuration.GovUkSignInToASAccountUrl);
             }
 
             var model = new ServiceStartPageViewModel
@@ -107,11 +91,11 @@ public class HomeController : BaseController
                     var redirectUriWithHashedAccountId = accounts.Data.RedirectUriWithHashedAccountId(account);
                     if (!string.IsNullOrEmpty(redirectUriWithHashedAccountId))
                     {
-                        _logger.LogInformation($"Redirecting to {redirectUriWithHashedAccountId}");
+                        logger.LogInformation($"Redirecting to {redirectUriWithHashedAccountId}");
                         return Redirect(redirectUriWithHashedAccountId);
                     }
 
-                    _logger.LogInformation($"Redirecting to {RouteNames.EmployerTeamIndex}");
+                    logger.LogInformation($"Redirecting to {RouteNames.EmployerTeamIndex}");
                     return RedirectToRoute(RouteNames.EmployerTeamIndex, new
                     {
                         HashedAccountId = account.HashedId,
@@ -126,7 +110,7 @@ public class HomeController : BaseController
                 }
                 else
                 {
-                    _logger.LogInformation($"Redirecting to {RouteNames.ContinueNewEmployerAccountTaskList}");
+                    logger.LogInformation($"Redirecting to {RouteNames.ContinueNewEmployerAccountTaskList}");
                     return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId = account.HashedId });
                 }
             }
@@ -145,7 +129,7 @@ public class HomeController : BaseController
             return View(accounts);
         }
 
-        _logger.LogInformation($"Redirecting to {RouteNames.NewEmployerAccountTaskList}");
+        logger.LogInformation($"Redirecting to {RouteNames.NewEmployerAccountTaskList}");
         return RedirectToRoute(RouteNames.NewEmployerAccountTaskList, gaQueryData);
     }
 
@@ -179,7 +163,7 @@ public class HomeController : BaseController
     public async Task<IActionResult> TermsAndConditions(TermsAndConditionsNewViewModel termsAndConditionViewModel)
     {
         var userRef = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        await _homeOrchestrator.UpdateTermAndConditionsAcceptedOn(userRef);
+        await homeOrchestrator.UpdateTermAndConditionsAcceptedOn(userRef);
 
         if (termsAndConditionViewModel.ReturnUrl == "EmployerTeam")
         {
@@ -194,7 +178,7 @@ public class HomeController : BaseController
     [Route("accounts", Name = RouteNames.AccountsIndex)]
     public async Task<IActionResult> ViewAccounts()
     {
-        var accounts = await _homeOrchestrator.GetUserAccounts(HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var accounts = await homeOrchestrator.GetUserAccounts(HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
         return View(ControllerConstants.IndexActionName, accounts);
     }
 
@@ -213,15 +197,15 @@ public class HomeController : BaseController
     {
         if (!correlationId.HasValue)
         {
-            return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
+            return Redirect(urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
         }
 
-        var invitation = await _homeOrchestrator.GetProviderInvitation(correlationId.Value);
+        var invitation = await homeOrchestrator.GetProviderInvitation(correlationId.Value);
 
         var queryData = invitation.Data != null
             ? $"?correlationId={correlationId}&firstname={WebUtility.UrlEncode(invitation.Data.EmployerFirstName)}&lastname={WebUtility.UrlEncode(invitation.Data.EmployerLastName)}"
             : "";
-        return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + queryData);
+        return Redirect(urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + queryData);
     }
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
@@ -262,7 +246,7 @@ public class HomeController : BaseController
             var firstName = HttpContext.User.FindFirstValue(DasClaimTypes.GivenName);
             var lastName = HttpContext.User.FindFirstValue(DasClaimTypes.FamilyName);
 
-            await _homeOrchestrator.SaveUpdatedIdentityAttributes(userRef, email, firstName, lastName);
+            await homeOrchestrator.SaveUpdatedIdentityAttributes(userRef, email, firstName, lastName);
         }
 
         return RedirectToAction(ControllerConstants.IndexActionName);
@@ -287,7 +271,7 @@ public class HomeController : BaseController
             {
                 CookieAuthenticationDefaults.AuthenticationScheme
             };
-        _ = bool.TryParse(_config["StubAuth"], out var stubAuth);
+        _ = bool.TryParse(config["StubAuth"], out var stubAuth);
         if (!stubAuth)
         {
             schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
@@ -314,7 +298,7 @@ public class HomeController : BaseController
     [Route("help")]
     public IActionResult Help()
     {
-        return RedirectPermanent(_configuration.ZenDeskHelpCentreUrl);
+        return RedirectPermanent(configuration.ZenDeskHelpCentreUrl);
     }
 
     [HttpGet]
@@ -350,7 +334,7 @@ public class HomeController : BaseController
             return View(model);
         }
 
-        await _homeOrchestrator.Unsubscribe(Guid.Parse(correlationId));
+        await homeOrchestrator.Unsubscribe(Guid.Parse(correlationId));
 
         return View(ControllerConstants.UnsubscribedViewName);
     }
@@ -368,8 +352,8 @@ public class HomeController : BaseController
     {
         var model = new SignInStubViewModel
         {
-            StubId = _config["StubId"],
-            StubEmail = _config["StubEmail"],
+            StubId = config["StubId"],
+            StubEmail = config["StubEmail"],
             ReturnUrl = returnUrl
         };
 
@@ -380,7 +364,7 @@ public class HomeController : BaseController
     [Route("SignIn-Stub")]
     public async Task<IActionResult> SigninStubPost(SignInStubViewModel model)
     {
-        var claims = await _stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
+        var claims = await stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
         {
             Email = model.StubEmail,
             Id = model.StubId
