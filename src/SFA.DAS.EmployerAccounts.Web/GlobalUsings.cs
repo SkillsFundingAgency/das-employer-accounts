@@ -18,7 +18,6 @@ global using SFA.DAS.EmployerAccounts.Models.Account;
 global using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 global using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreement;
 global using SFA.DAS.EmployerAccounts.Queries.GetLastSignedAgreement;
-global using SFA.DAS.EmployerAccounts.Queries.GetProviderInvitation;
 global using SFA.DAS.EmployerAccounts.Queries.GetUnsignedEmployerAgreement;
 global using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 global using SFA.DAS.EmployerAccounts.Web.Exceptions;

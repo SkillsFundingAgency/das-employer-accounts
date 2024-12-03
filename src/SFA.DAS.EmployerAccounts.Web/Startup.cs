@@ -86,7 +86,6 @@ public class Startup
         services.AddCommittmentsV2Client(employerAccountsConfiguration.CommitmentsApi);
         services.AddPollyPolicy(employerAccountsConfiguration);
         services.AddContentApiClient(employerAccountsConfiguration);
-        services.AddProviderRegistration(employerAccountsConfiguration);
         services.AddApprenticeshipLevyApi(employerAccountsConfiguration);
 
         services.AddAuthenticationServices();
@@ -102,9 +101,9 @@ public class Startup
         services.AddAndConfigureGovUkAuthentication(govConfig, new AuthRedirects
         {
             SignedOutRedirectUrl = "",
-            LocalStubLoginPath ="/service/SignIn-Stub" 
-        },null, typeof(UserAccountService));
-        
+            LocalStubLoginPath = "/service/SignIn-Stub"
+        }, null, typeof(UserAccountService));
+
 
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 

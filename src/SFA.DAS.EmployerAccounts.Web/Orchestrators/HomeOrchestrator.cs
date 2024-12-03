@@ -1,5 +1,4 @@
 using SFA.DAS.EmployerAccounts.Commands.RecordUserLoggedIn;
-using SFA.DAS.EmployerAccounts.Commands.UnsubscribeProviderEmail;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;
@@ -56,40 +55,6 @@ public class HomeOrchestrator : IHomeOrchestrator
                 LastTermsAndConditionsUpdate = LastTermsAndConditionsUpdate
             }
         };
-    }
-
-    public virtual async Task<OrchestratorResponse<ProviderInvitationViewModel>> GetProviderInvitation(Guid correlationId)
-    {
-        var getProviderInvitationQueryResponse = await _mediator.Send(new GetProviderInvitationQuery
-        {
-            CorrelationId = correlationId
-        });
-
-        if (getProviderInvitationQueryResponse.Result != null)
-        {
-            return new OrchestratorResponse<ProviderInvitationViewModel>
-            {
-                Data = new ProviderInvitationViewModel
-                {
-                    EmployerEmail = getProviderInvitationQueryResponse.Result.EmployerEmail,
-                    EmployerFirstName = getProviderInvitationQueryResponse.Result.EmployerFirstName,
-                    EmployerLastName = getProviderInvitationQueryResponse.Result.EmployerLastName,
-                    EmployerOrganisation = getProviderInvitationQueryResponse.Result.EmployerOrganisation,
-                    Ukprn = getProviderInvitationQueryResponse.Result.Ukprn,
-                    Status = getProviderInvitationQueryResponse.Result.Status
-                }
-            };
-        }
-
-        return new OrchestratorResponse<ProviderInvitationViewModel>();
-    }
-
-    public virtual async Task Unsubscribe(Guid correlationId)
-    {
-        await _mediator.Send(new UnsubscribeProviderEmailCommand
-        {
-            CorrelationId = correlationId
-        });
     }
 
     public virtual async Task SaveUpdatedIdentityAttributes(string userRef, string email, string firstName, string lastName, string correlationId = null)

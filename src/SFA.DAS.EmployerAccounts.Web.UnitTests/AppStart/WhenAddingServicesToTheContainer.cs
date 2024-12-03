@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using NServiceBus;
-using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Commands.AcceptInvitation;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.ChangeTeamMemberRole;
@@ -24,7 +20,6 @@ using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Commands.ResendInvitation;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Commands.UnsubscribeNotification;
-using SFA.DAS.EmployerAccounts.Commands.UnsubscribeProviderEmail;
 using SFA.DAS.EmployerAccounts.Commands.UpdateOrganisationDetails;
 using SFA.DAS.EmployerAccounts.Commands.UpdateShowWizard;
 using SFA.DAS.EmployerAccounts.Commands.UpdateUserNotificationSettings;
@@ -52,7 +47,6 @@ using SFA.DAS.EmployerAccounts.Queries.GetOrganisations;
 using SFA.DAS.EmployerAccounts.Queries.GetOrganisationsByAorn;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
 using SFA.DAS.EmployerAccounts.Queries.GetPensionRegulator;
-using SFA.DAS.EmployerAccounts.Queries.GetProviderInvitation;
 using SFA.DAS.EmployerAccounts.Queries.GetReservations;
 using SFA.DAS.EmployerAccounts.Queries.GetSignedEmployerAgreementPdf;
 using SFA.DAS.EmployerAccounts.Queries.GetSingleCohort;
@@ -67,7 +61,6 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserInvitations;
 using SFA.DAS.EmployerAccounts.Queries.GetUserNotificationSettings;
 using SFA.DAS.EmployerAccounts.Queries.GetVacancies;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart;
 
@@ -105,7 +98,6 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<CreateInvitationCommand>))]
     [TestCase(typeof(IRequestHandler<RemoveTeamMemberCommand>))]
     [TestCase(typeof(IRequestHandler<ResendInvitationCommand>))]
-    [TestCase(typeof(IRequestHandler<UnsubscribeProviderEmailCommand>))]
     [TestCase(typeof(IRequestHandler<UpsertRegisteredUserCommand>))]
     [TestCase(typeof(IRequestHandler<UpdateTermAndConditionsAcceptedOnCommand>))]
     [TestCase(typeof(IRequestHandler<AcceptInvitationCommand>))]
@@ -152,7 +144,6 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(IRequestHandler<GetGatewayTokenQuery, GetGatewayTokenQueryResponse>))]
     [TestCase(typeof(IRequestHandler<GetHmrcEmployerInformationQuery, GetHmrcEmployerInformationResponse>))]
     [TestCase(typeof(IRequestHandler<GetNumberOfUserInvitationsQuery, GetNumberOfUserInvitationsResponse>))]
-    [TestCase(typeof(IRequestHandler<GetProviderInvitationQuery, GetProviderInvitationResponse>))]
     [TestCase(typeof(IRequestHandler<GetUserInvitationsRequest, GetUserInvitationsResponse>))]
     [TestCase(typeof(IRequestHandler<CreateOrganisationAddressRequest, CreateOrganisationAddressResponse>))]
     [TestCase(typeof(IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>))]
