@@ -1,14 +1,11 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Web.Authorization;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.GovUK.Auth.Employer;
-using EmployerClaims = SFA.DAS.EmployerAccounts.Infrastructure.EmployerClaims;
-using EmployerUserAccountItem = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccountItem;
 
 namespace SFA.DAS.EmployerAccounts.Web.Authentication;
 
@@ -31,7 +28,7 @@ public class EmployerAccountAuthorisationHandler(
             return false;
         }
 
-        Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem> employerAccounts;
+        Dictionary<string, EmployerUserAccountItem> employerAccounts;
 
         try
         {
@@ -43,7 +40,7 @@ public class EmployerAccountAuthorisationHandler(
             return false;
         }
 
-        GovUK.Auth.Employer.EmployerUserAccountItem employerIdentifier = null;
+        EmployerUserAccountItem employerIdentifier = null;
 
         var accountIdFromUrl = httpContextAccessor.HttpContext.Request.RouteValues[RouteValueKeys.HashedAccountId].ToString().ToUpper();
 
@@ -61,12 +58,7 @@ public class EmployerAccountAuthorisationHandler(
                 return false;
             }
 
-            var result = await associatedAccountsService.GetAccounts(forceRefresh: true);
-
-            var accountsAsJson = JsonConvert.SerializeObject(result);
-            var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
-
-            var updatedEmployerAccounts = JsonConvert.DeserializeObject<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>>(associatedAccountsClaim.Value);
+            var updatedEmployerAccounts = await associatedAccountsService.GetAccounts(forceRefresh: true);
 
             if (!updatedEmployerAccounts.ContainsKey(accountIdFromUrl))
             {
@@ -99,7 +91,7 @@ public class EmployerAccountAuthorisationHandler(
         return Task.FromResult(true);
     }
 
-    private static bool CheckUserRoleForAccess(GovUK.Auth.Employer.EmployerUserAccountItem employerIdentifier, bool allowAllUserRoles)
+    private static bool CheckUserRoleForAccess(EmployerUserAccountItem employerIdentifier, bool allowAllUserRoles)
     {
         if (!Enum.TryParse<EmployerUserRole>(employerIdentifier.Role, true, out var userRole))
         {
