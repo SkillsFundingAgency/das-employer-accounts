@@ -7,7 +7,6 @@ using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerUsers.WebClientComponents;
-using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
@@ -368,8 +367,8 @@ public class HomeController : BaseController
     {
         var model = new SignInStubViewModel
         {
-            StubId = _config["StubId"],
-            StubEmail = _config["StubEmail"],
+            Id = _config["StubId"],
+            Email = _config["StubEmail"],
             ReturnUrl = returnUrl
         };
 
@@ -380,11 +379,7 @@ public class HomeController : BaseController
     [Route("SignIn-Stub")]
     public async Task<IActionResult> SigninStubPost(SignInStubViewModel model)
     {
-        var claims = await _stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
-        {
-            Email = model.StubEmail,
-            Id = model.StubId
-        });
+        var claims = await _stubAuthenticationService.GetStubSignInClaims(model);
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
             new AuthenticationProperties());

@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using SFA.DAS.GovUK.Auth.Models;
 
 namespace SFA.DAS.EmployerAccounts.Web.ViewModels;
 
 [ExcludeFromCodeCoverage]
-public class SignInStubViewModel
+public class SignInStubViewModel : StubAuthUserDetails
 {
-    public string StubEmail { get; set; }
-    public string StubId { get; set; }
     public string ReturnUrl { get; set; }
 }

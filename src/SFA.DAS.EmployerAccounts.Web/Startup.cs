@@ -102,9 +102,9 @@ public class Startup
         services.AddAndConfigureGovUkAuthentication(govConfig, new AuthRedirects
         {
             SignedOutRedirectUrl = "",
-            LocalStubLoginPath ="/service/SignIn-Stub" 
-        },null, typeof(UserAccountService));
-        
+            LocalStubLoginPath = "/service/SignIn-Stub"
+        }, null, typeof(UserAccountService));
+
 
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
@@ -121,10 +121,11 @@ public class Startup
 
         services.AddApplicationInsightsTelemetry();
 
+        services.AddDataProtection(_configuration, _environment.IsDevelopment());
+
         if (!_environment.IsDevelopment())
         {
             services.AddHealthChecks();
-            services.AddDataProtection(_configuration);
         }
 
 #if DEBUG
