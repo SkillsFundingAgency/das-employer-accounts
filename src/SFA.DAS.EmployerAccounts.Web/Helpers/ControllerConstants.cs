@@ -3,7 +3,7 @@
 public static class ControllerConstants
 {
     public const string AboutYourAgreementActionName = "AboutYourAgreement";
-    public const string AccessDeniedViewName = "AccessDenied";     
+    public const string AccessDeniedViewName = "AccessDenied";
     public const string AccountHashedIdRouteKeyName = "HashedAccountId";
     public const string AcceptedEmployerAgreementViewName = "AcceptedEmployerAgreement";
     public const string AmendOrganisationActionName = "AmendOrganisation";
@@ -42,12 +42,11 @@ public static class ControllerConstants
     public const string RegisterUserActionName = "RegisterUser";
     public const string RemoveViewName = "Remove";
     public const string RemoveOrganisationActionName = "ConfirmRemoveOrganisation";
-    public const string ReportTrainingProviderViewName = "ReportTrainingProvider";
     public const string SearchOrganisationControllerName = "SearchOrganisation";
     public const string SearchForOrganisationActionName = "SearchForOrganisation";
     public const string SearchForOrganisationViewName = "SearchForOrganisation";
     public const string SearchForOrganisationResultsActionName = "SearchForOrganisationResults";
-    public const string SearchForOrganisationResultsViewName = "SearchForOrganisationResults"; 
+    public const string SearchForOrganisationResultsViewName = "SearchForOrganisationResults";
     public const string SearchForOrganisationResultsConfirmActionName = "Confirm";
     public const string SearchPensionRegulatorControllerName = "SearchPensionRegulator";
     public const string SearchPensionRegulatorActionName = "SearchPensionRegulator";
@@ -57,7 +56,6 @@ public static class ControllerConstants
     public const string SignAgreementActionName = "SignAgreement";
     public const string SignAgreementViewName = "SignAgreement";
     public const string SummaryActionName = "Summary";
-    public const string UnsubscribedViewName = "Unsubscribed"; 
     public const string ViewTeamActionName = "ViewTeam";
     public const string ViewTeamViewName = "ViewTeam";
     public const string TriageSetupApprenticeshipExistingEmployeeViewName = "TriageSetupApprenticeshipExistingEmployee";

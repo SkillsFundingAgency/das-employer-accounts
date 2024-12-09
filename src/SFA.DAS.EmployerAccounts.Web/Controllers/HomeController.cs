@@ -208,20 +208,9 @@ public class HomeController : BaseController
 
     [HttpGet]
     [Route("register")]
-    [Route("register/{correlationId}")]
-    public async Task<IActionResult> RegisterUser(Guid? correlationId)
+    public IActionResult RegisterUser()
     {
-        if (!correlationId.HasValue)
-        {
-            return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
-        }
-
-        var invitation = await _homeOrchestrator.GetProviderInvitation(correlationId.Value);
-
-        var queryData = invitation.Data != null
-            ? $"?correlationId={correlationId}&firstname={WebUtility.UrlEncode(invitation.Data.EmployerFirstName)}&lastname={WebUtility.UrlEncode(invitation.Data.EmployerLastName)}"
-            : "";
-        return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + queryData);
+        return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
     }
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
@@ -327,32 +316,6 @@ public class HomeController : BaseController
         };
 
         return View(model);
-    }
-
-    [HttpGet]
-    [Route("unsubscribe/{correlationId}")]
-    public IActionResult Unsubscribe()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    [Route("unsubscribe/{correlationId}")]
-    public async Task<IActionResult> Unsubscribe(bool? unsubscribe, string correlationId)
-    {
-        if (unsubscribe == null || unsubscribe == false)
-        {
-            var model = new
-            {
-                InError = true
-            };
-
-            return View(model);
-        }
-
-        await _homeOrchestrator.Unsubscribe(Guid.Parse(correlationId));
-
-        return View(ControllerConstants.UnsubscribedViewName);
     }
 
 #if DEBUG
