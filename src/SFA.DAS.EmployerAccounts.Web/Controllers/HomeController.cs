@@ -7,7 +7,6 @@ using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerUsers.WebClientComponents;
-using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
@@ -192,20 +191,9 @@ public class HomeController(
 
     [HttpGet]
     [Route("register")]
-    [Route("register/{correlationId}")]
-    public async Task<IActionResult> RegisterUser(Guid? correlationId)
+    public IActionResult RegisterUser()
     {
-        if (!correlationId.HasValue)
-        {
-            return Redirect(urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
-        }
-
-        var invitation = await homeOrchestrator.GetProviderInvitation(correlationId.Value);
-
-        var queryData = invitation.Data != null
-            ? $"?correlationId={correlationId}&firstname={WebUtility.UrlEncode(invitation.Data.EmployerFirstName)}&lastname={WebUtility.UrlEncode(invitation.Data.EmployerLastName)}"
-            : "";
-        return Redirect(urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + queryData);
+        return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
     }
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
@@ -313,32 +301,6 @@ public class HomeController(
         return View(model);
     }
 
-    [HttpGet]
-    [Route("unsubscribe/{correlationId}")]
-    public IActionResult Unsubscribe()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    [Route("unsubscribe/{correlationId}")]
-    public async Task<IActionResult> Unsubscribe(bool? unsubscribe, string correlationId)
-    {
-        if (unsubscribe == null || unsubscribe == false)
-        {
-            var model = new
-            {
-                InError = true
-            };
-
-            return View(model);
-        }
-
-        await homeOrchestrator.Unsubscribe(Guid.Parse(correlationId));
-
-        return View(ControllerConstants.UnsubscribedViewName);
-    }
-
 #if DEBUG
     [Route("CreateLegalAgreement/{showSubFields}")]
     public IActionResult ShowLegalAgreement(bool showSubFields) //call this  with false
@@ -352,8 +314,8 @@ public class HomeController(
     {
         var model = new SignInStubViewModel
         {
-            StubId = config["StubId"],
-            StubEmail = config["StubEmail"],
+            Id = _config["StubId"],
+            Email = _config["StubEmail"],
             ReturnUrl = returnUrl
         };
 
@@ -364,11 +326,7 @@ public class HomeController(
     [Route("SignIn-Stub")]
     public async Task<IActionResult> SigninStubPost(SignInStubViewModel model)
     {
-        var claims = await stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
-        {
-            Email = model.StubEmail,
-            Id = model.StubId
-        });
+        var claims = await _stubAuthenticationService.GetStubSignInClaims(model);
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
             new AuthenticationProperties());

@@ -23,7 +23,6 @@ using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
 using SFA.DAS.EmployerAccounts.ReadStore.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
-using SFA.DAS.EmployerFinance.Messages.Events;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
 using HealthCheckEvent = SFA.DAS.EmployerAccounts.Messages.Events.HealthCheckEvent;
@@ -34,20 +33,11 @@ public class WhenAddingServicesToTheContainer
 {
     [TestCase(typeof(IHandleMessages<AccountUserRemovedEvent>))]
     [TestCase(typeof(IHandleMessages<AccountUserRolesUpdatedEvent>))]
-    [TestCase(typeof(IHandleMessages<CreatedAccountEvent>))]
+    [TestCase(typeof(IHandleMessages<CreatedAccountTaskListCompleteEvent>))]
     [TestCase(typeof(IHandleMessages<UserJoinedEvent>))]
-    [TestCase(typeof(IHandleMessages<RefreshEmployerLevyDataCompletedEvent>))]
-    [TestCase(typeof(IHandleMessages<RefreshPaymentDataCompletedEvent>))]
-    [TestCase(typeof(IHandleMessages<AddedLegalEntityEvent>))]
-    [TestCase(typeof(IHandleMessages<AddedPayeSchemeEvent>))]
     [TestCase(typeof(IHandleMessages<CreatedAccountEvent>))]
-    [TestCase(typeof(IHandleMessages<CreatedAgreementEvent>))]
-    [TestCase(typeof(IHandleMessages<DeletedPayeSchemeEvent>))]
     [TestCase(typeof(IHandleMessages<HealthCheckEvent>))]
-    [TestCase(typeof(IHandleMessages<InvitedUserEvent>))]
-    [TestCase(typeof(IHandleMessages<RemovedLegalEntityEvent>))]
-    [TestCase(typeof(IHandleMessages<SignedAgreementEvent>))]
-    [TestCase(typeof(IHandleMessages<UserJoinedEvent>))]
+
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_EventHandlers(Type toResolve)
     {
         var services = new ServiceCollection();
@@ -57,7 +47,7 @@ public class WhenAddingServicesToTheContainer
         var type = provider.GetService(toResolve);
         Assert.That(type, Is.Not.Null);
     }
-    
+
     [TestCase(typeof(IRequestHandler<CreateUserAccountCommand, CreateUserAccountCommandResponse>))]
     [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand>))]
     [TestCase(typeof(IRequestHandler<CreateAccountUserCommand>))]
@@ -119,7 +109,7 @@ public class WhenAddingServicesToTheContainer
 
         foreach (var handlerType in handlerTypes)
         {
-           var handlerInterface = handlerType.GetInterfaces().Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
+            var handlerInterface = handlerType.GetInterfaces().Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
             services.AddTransient(handlerInterface, handlerType);
         }
     }

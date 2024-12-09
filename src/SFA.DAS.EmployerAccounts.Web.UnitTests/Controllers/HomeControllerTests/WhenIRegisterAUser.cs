@@ -1,8 +1,6 @@
 ﻿using AutoFixture.NUnit3;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Authentication;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests;
 
@@ -16,7 +14,6 @@ public class WhenIRegisterAUser
     protected ControllerContext ControllerContext;
     private const string Schema = "http";
     private const string Authority = "test.local";
-    private const string BaseUrl = "https://baseaddress-hyperlink.com";
     private Mock<IUrlActionHelper> _urlActionHelper;
 
     [SetUp]
@@ -50,73 +47,20 @@ public class WhenIRegisterAUser
     }
 
     [Test, AutoData]
-    public async Task When_GovSignIn_True_CorrelationId_Is_Null_ThenTheUserIsRedirectedToEmployerProfiles_AddDetailsLink(
-        string baseUrl, 
+    public void When_GovSignIn_True_CorrelationId_Is_Null_ThenTheUserIsRedirectedToEmployerProfiles_AddDetailsLink(
+        string baseUrl,
         string redirectUrl)
     {
         //arrange
         _urlActionHelper.Setup(x => x.EmployerProfileAddUserDetails("/user/add-user-details")).Returns(redirectUrl);
 
         //Act
-        var actual = await _homeController.RegisterUser(null);
+        var actual = _homeController.RegisterUser();
 
         //Assert
         Assert.That(actual, Is.Not.Null);
         var actualRedirectResult = actual as RedirectResult;
         Assert.That(actualRedirectResult, Is.Not.Null);
         Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl));
-    }
-
-    [Test, MoqAutoData]
-    public async Task When_GovSignIn_True_CorrelationId_Is_Given_But_No_Invitation_Data_ThenTheUserIsRedirectedToEmployerProfiles(
-        string redirectUrl,
-        string baseUrl,
-        Guid correlationId)
-    {
-        //arrange
-        _urlActionHelper.Setup(x => x.EmployerProfileAddUserDetails("/user/add-user-details")).Returns(redirectUrl);
-        _homeOrchestrator.Setup(x => x.GetProviderInvitation(correlationId)).ReturnsAsync(
-            new OrchestratorResponse<ProviderInvitationViewModel>
-            {
-                Data = null
-            });
-
-        //Act
-        var actual = await _homeController.RegisterUser(correlationId);
-
-        //Assert
-        Assert.That(actual, Is.Not.Null);
-        var actualRedirectResult = actual as RedirectResult;
-        Assert.That(actualRedirectResult, Is.Not.Null);
-        Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl));
-    }
-
-    [Test, MoqAutoData]
-    public async Task When_GovSignIn_True_ProviderInvitation_Is_Given_ThenTheUserIsRedirectedToEmployerProfiles_AddDetailsLink(
-        string redirectUrl,
-        string baseUrl,
-        Guid correlationId,
-        ProviderInvitationViewModel viewModel)
-    {
-        //arrange
-        var queryParams = $"?correlationId={correlationId}&firstname={WebUtility.UrlEncode(viewModel.EmployerFirstName)}&lastname={WebUtility.UrlEncode(viewModel.EmployerLastName)}";
-        _homeOrchestrator.Setup(x => x.GetProviderInvitation(correlationId)).ReturnsAsync(
-            new OrchestratorResponse<ProviderInvitationViewModel>
-            {
-                Data = viewModel
-            });
-        _urlActionHelper.Setup(x =>
-                x.EmployerProfileAddUserDetails(
-                    $"/user/add-user-details"))
-            .Returns(redirectUrl);
-
-        //Act
-        var actual = await _homeController.RegisterUser(correlationId);
-
-        //Assert
-        Assert.That(actual, Is.Not.Null);
-        var actualRedirectResult = actual as RedirectResult;
-        Assert.That(actualRedirectResult, Is.Not.Null);
-        Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl + queryParams));
     }
 }
