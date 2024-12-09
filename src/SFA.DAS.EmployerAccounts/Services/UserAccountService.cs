@@ -2,24 +2,16 @@
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.UserAccounts;
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.GovUK.Auth.Employer;
-using EmployerUserAccounts = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccounts;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class UserAccountService : IGovAuthEmployerAccountService
+public class UserAccountService(IOuterApiClient outerApiClient) : IGovAuthEmployerAccountService
 {
-    private readonly IOuterApiClient _outerApiClient;
-
-    public UserAccountService(IOuterApiClient outerApiClient)
+    async Task<EmployerUserAccounts> IGovAuthEmployerAccountService.GetUserAccounts(string userId, string email)
     {
-        _outerApiClient = outerApiClient;
-    }
+        var result = await outerApiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(email, userId));
 
-    async Task<GovUK.Auth.Employer.EmployerUserAccounts> IGovAuthEmployerAccountService.GetUserAccounts(string userId, string email)
-    {
-        var result = await _outerApiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(email, userId));
-
-        return new GovUK.Auth.Employer.EmployerUserAccounts
+        return new EmployerUserAccounts
         {
             EmployerAccounts = result.UserAccounts != null? result.UserAccounts.Select(c => new EmployerUserAccountItem
             {
