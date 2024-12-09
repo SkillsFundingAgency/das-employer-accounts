@@ -193,7 +193,7 @@ public class HomeController(
     [Route("register")]
     public IActionResult RegisterUser()
     {
-        return Redirect(_urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
+        return Redirect(urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details"));
     }
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
@@ -314,8 +314,8 @@ public class HomeController(
     {
         var model = new SignInStubViewModel
         {
-            Id = _config["StubId"],
-            Email = _config["StubEmail"],
+            Id = config["StubId"],
+            Email = config["StubEmail"],
             ReturnUrl = returnUrl
         };
 
@@ -326,7 +326,7 @@ public class HomeController(
     [Route("SignIn-Stub")]
     public async Task<IActionResult> SigninStubPost(SignInStubViewModel model)
     {
-        var claims = await _stubAuthenticationService.GetStubSignInClaims(model);
+        var claims = await stubAuthenticationService.GetStubSignInClaims(model);
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
             new AuthenticationProperties());
