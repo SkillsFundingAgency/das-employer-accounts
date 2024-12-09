@@ -55,7 +55,10 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         var result = await accountsService.GetUserAccounts(userId, email);
         var associatedAccounts = result.EmployerAccounts.ToDictionary(k => k.AccountId);
 
-        PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
+        if (forceRefresh)
+        {
+            PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
+        }
 
         return associatedAccounts;
     }
