@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.UserAccounts;
@@ -13,9 +12,6 @@ using SFA.DAS.EmployerAccounts.Web.Authorization;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.GovUK.Auth.Employer;
 using SFA.DAS.Testing.AutoFixture;
-using EmployerClaims = SFA.DAS.EmployerAccounts.Infrastructure.EmployerClaims;
-using EmployerUserAccountItem = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccountItem;
-using EmployerUserAccounts = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccounts;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart;
 
@@ -25,7 +21,7 @@ public class WhenHandlingEmployerAccountAuthorization
     public async Task Then_Returns_True_If_Employer_Is_Authorized_For_Owner_Role(
         string accountId,
         EmployerAccountOwnerRequirement ownerRequirement,
-        GovUK.Auth.Employer.EmployerUserAccountItem serviceResponse,
+        EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         [Frozen] Mock<IAssociatedAccountsService> associatedAccountsHelper,
         EmployerAccountAuthorisationHandler authorizationHandler)
@@ -34,7 +30,7 @@ public class WhenHandlingEmployerAccountAuthorization
         serviceResponse.AccountId = accountId.ToUpper();
         serviceResponse.Role = "Owner";
 
-        var accounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem>
+        var accounts = new List<EmployerUserAccountItem>
         {
             serviceResponse
         };
@@ -65,7 +61,7 @@ public class WhenHandlingEmployerAccountAuthorization
     public async Task Then_Returns_False_If_Employer_Is_Authorized_For_Role_That_Is_Not_Owner(
         string role,
         string accountId,
-        GovUK.Auth.Employer.EmployerUserAccountItem serviceResponse,
+        EmployerUserAccountItem serviceResponse,
         EmployerAccountOwnerRequirement ownerRequirement,
         [Frozen] Mock<IAssociatedAccountsService> associatedAccountsHelper,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
@@ -75,7 +71,7 @@ public class WhenHandlingEmployerAccountAuthorization
         serviceResponse.Role = role;
         serviceResponse.AccountId = accountId.ToUpper();
 
-        var accounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem>
+        var accounts = new List<EmployerUserAccountItem>
         {
             serviceResponse
         };
@@ -107,7 +103,7 @@ public class WhenHandlingEmployerAccountAuthorization
         string role,
         string accountId,
         EmployerAccountOwnerRequirement ownerRequirement,
-        GovUK.Auth.Employer.EmployerUserAccountItem serviceResponse,
+        EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
         [Frozen] Mock<IAssociatedAccountsService> associatedAccountsHelper,
         EmployerAccountAuthorisationHandler authorizationHandler)
@@ -116,7 +112,7 @@ public class WhenHandlingEmployerAccountAuthorization
         serviceResponse.Role = role;
         serviceResponse.AccountId = accountId.ToUpper();
 
-        var accounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem>
+        var accounts = new List<EmployerUserAccountItem>
         {
             serviceResponse
         };
@@ -170,37 +166,30 @@ public class WhenHandlingEmployerAccountAuthorization
 
 
     [Test, MoqAutoData]
-    public async Task Then_If_Not_In_Context_Claims_EmployerAccountService_Checked_And_True_Returned_If_Exists_For_GovSignIn(
+    public async Task Then_If_Not_In_Context_Claims_AssociatedAccountService_Checked_And_True_Returned_If_Exists_For_GovSignIn(
         string accountId,
         string userId,
         string email,
         EmployerIdentifier employerIdentifier,
         EmployerAccountOwnerRequirement ownerRequirement,
-        GovUK.Auth.Employer.EmployerUserAccountItem serviceResponse,
+        EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsHelper,
-        [Frozen] Mock<IGovAuthEmployerAccountService> employerAccountService,
+        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsService,
         [Frozen] Mock<IOptions<EmployerAccountsConfiguration>> configuration,
         EmployerAccountAuthorisationHandler authorizationHandler)
     {
         //Arrange
         serviceResponse.AccountId = accountId.ToUpper();
         serviceResponse.Role = "Owner";
-        employerAccountService.Setup(x => x.GetUserAccounts(userId, email))
-            .ReturnsAsync(new GovUK.Auth.Employer.EmployerUserAccounts
-            {
-                EmployerAccounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem> { serviceResponse }
-            });
 
-        var accounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem>
+        var accounts = new List<EmployerUserAccountItem>
         {
             serviceResponse
         };
 
         var accountsDictionary = accounts.ToDictionary(x => x.AccountId);
 
-        associatedAccountsHelper.Setup(x => x.GetAccounts(false))
-            .ReturnsAsync(accountsDictionary);
+        associatedAccountsService.Setup(x => x.GetAccounts(false)).ReturnsAsync(accountsDictionary);
 
         var userClaim = new Claim(ClaimTypes.NameIdentifier, userId);
         var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
@@ -217,31 +206,36 @@ public class WhenHandlingEmployerAccountAuthorization
 
         //Assert
         actual.Should().BeTrue();
+        associatedAccountsService.Verify(x => x.GetAccounts(false), Times.Once);
+        associatedAccountsService.Verify(x => x.GetAccounts(true), Times.Never);
     }
 
     [Test, MoqAutoData]
-    public async Task Then_If_Not_In_Context_Claims_EmployerAccountService_Checked_And_False_Returned_If_Not_Exists(
+    public async Task Then_If_Not_In_Context_Claims_AssociatedAccountService_Checked_And_False_Returned_If_Not_Exists(
         string accountId,
         string userId,
         EmployerIdentifier employerIdentifier,
         EmployerAccountOwnerRequirement ownerRequirement,
-        GovUK.Auth.Employer.EmployerUserAccountItem serviceResponse,
+        EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        [Frozen] Mock<IGovAuthEmployerAccountService> employerAccountService,
+        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsService,
         EmployerAccountAuthorisationHandler authorizationHandler)
     {
         //Arrange
         serviceResponse.AccountId = serviceResponse.AccountId.ToUpper();
         serviceResponse.Role = "Owner";
-        employerAccountService.Setup(x => x.GetUserAccounts(userId, ""))
-            .ReturnsAsync(new GovUK.Auth.Employer.EmployerUserAccounts
-            {
-                EmployerAccounts = new List<GovUK.Auth.Employer.EmployerUserAccountItem> { serviceResponse }
-            });
 
-        var userClaim = new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, userId);
-        var employerAccounts = new Dictionary<string, EmployerIdentifier> { { employerIdentifier.AccountId, employerIdentifier } };
-        var employerAccountClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
+        var accounts = new List<EmployerUserAccountItem>
+        {
+            serviceResponse
+        };
+
+        var accountsDictionary = accounts.ToDictionary(x => x.AccountId);
+
+        associatedAccountsService.Setup(x => x.GetAccounts(false)).ReturnsAsync(accountsDictionary);
+
+        var userClaim = new Claim(ClaimTypes.NameIdentifier, userId);
+        var employerAccountClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(accountsDictionary));
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([employerAccountClaim, userClaim])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
@@ -254,6 +248,8 @@ public class WhenHandlingEmployerAccountAuthorization
 
         //Assert
         actual.Should().BeFalse();
+        associatedAccountsService.Verify(x => x.GetAccounts(false), Times.Once);
+        associatedAccountsService.Verify(x => x.GetAccounts(true), Times.Once);
     }
 
     [Test, MoqAutoData]

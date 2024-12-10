@@ -3,18 +3,11 @@ using SFA.DAS.EmployerAccounts.Web.Authentication;
 
 namespace SFA.DAS.EmployerAccounts.Web.Authorization;
 
-public class EmployerAccountOwnerAuthorizationHandler : AuthorizationHandler<EmployerAccountOwnerRequirement>
+public class EmployerAccountOwnerAuthorizationHandler(IEmployerAccountAuthorisationHandler handler) : AuthorizationHandler<EmployerAccountOwnerRequirement>
 {
-    private readonly IEmployerAccountAuthorisationHandler _handler;
-
-    public EmployerAccountOwnerAuthorizationHandler(IEmployerAccountAuthorisationHandler handler)
-    {
-        _handler = handler;
-    }
-
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, EmployerAccountOwnerRequirement ownerRequirement)
     {
-        if (!(await _handler.IsEmployerAuthorised(context, false)))
+        if (!await handler.IsEmployerAuthorised(context, false))
         {
             return;
         }

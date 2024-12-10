@@ -4,14 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.GovUK.Auth.Employer;
-using EmployerClaims = SFA.DAS.EmployerAccounts.Infrastructure.EmployerClaims;
-using EmployerUserAccountItem = SFA.DAS.EmployerAccounts.Models.UserAccounts.EmployerUserAccountItem;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
 public interface IAssociatedAccountsService
 {
-    Task<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>> GetAccounts(bool forceRefresh);
+    Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh);
 }
 
 public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsService> logger) : IAssociatedAccountsService
@@ -25,7 +23,7 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
     /// </summary>
     /// <param name="forceRefresh">Forces data to be refreshed from UserAccountsService and persisted to user claims regardless of claims state.</param>
     /// <returns>Dictionary of string, EmployerUserAccountItem</returns>
-    public async Task<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>> GetAccounts(bool forceRefresh)
+    public async Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh)
     {
         var user = httpContextAccessor.HttpContext.User;
         var employerAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
@@ -34,7 +32,14 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         {
             try
             {
-                return JsonConvert.DeserializeObject<Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem>>(employerAccountsClaim.Value);
+                var accountsFromClaim = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(employerAccountsClaim.Value);
+
+                // Some users have 100's of employer accounts. The claims cannot handle that volume of data,
+                // so the claim may have been added for authorization purposes, but the claim itself is empty.
+                if (accountsFromClaim != null && accountsFromClaim.Count > 0)
+                {
+                    return accountsFromClaim;
+                }
             }
             catch (JsonSerializationException e)
             {
@@ -50,20 +55,21 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         var result = await accountsService.GetUserAccounts(userId, email);
         var associatedAccounts = result.EmployerAccounts.ToDictionary(k => k.AccountId);
 
-        PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
+        if (forceRefresh)
+        {
+            PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
+        }
 
         return associatedAccounts;
     }
     
-    private void PersistToClaims(Dictionary<string, GovUK.Auth.Employer.EmployerUserAccountItem> associatedAccounts, Claim employerAccountsClaim, Claim userClaim)
+    private void PersistToClaims(Dictionary<string, EmployerUserAccountItem> associatedAccounts, Claim employerAccountsClaim, Claim userClaim)
     {
         // Some users have 100's of employer accounts. The claims cannot handle that volume of data.
-        if (associatedAccounts.Count > MaxPermittedNumberOfAccountsOnClaim)
-        {
-            return;
-        }
-        
-        var accountsAsJson = JsonConvert.SerializeObject(associatedAccounts);
+        var accountsAsJson = JsonConvert.SerializeObject(associatedAccounts.Count <= MaxPermittedNumberOfAccountsOnClaim
+            ? associatedAccounts
+            : new Dictionary<string, EmployerUserAccountItem>());
+
         var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
 
         if (employerAccountsClaim != null)
