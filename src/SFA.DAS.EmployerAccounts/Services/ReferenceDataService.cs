@@ -145,7 +145,7 @@ public class ReferenceDataService : IReferenceDataService
             .Where(FilterInactiveOrgs)
             .ToList();
 
-        result = SortOrganisations(convertedOrgs, searchTerm);
+        result = convertedOrgs.Any() ? SortOrganisations(convertedOrgs, searchTerm) : [];
 
         _inProcessCache.Set(cacheKey, result, new TimeSpan(0, 15, 0));
         return result;
