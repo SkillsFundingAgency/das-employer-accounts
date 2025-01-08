@@ -13,7 +13,7 @@ public static class HtmlExtensions
         }
 
         var htmlAddress = commaSeperatedAddress
-            .Split([','], StringSplitOptions.RemoveEmptyEntries)
+            .Split((char[])[','], StringSplitOptions.RemoveEmptyEntries)
             .Select(line => $"{line.Trim()}<br/>")
             .Aggregate(string.Empty, (x, y) => x + y);
         return new HtmlString(htmlAddress);
