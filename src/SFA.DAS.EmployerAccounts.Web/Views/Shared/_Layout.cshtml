@@ -153,12 +153,6 @@
     <script src="/js/das-all.min.js"></script>
     <script src="/js/app.min.js"></script>
 
-    <!-- Include the script only if the user is logged in -->
-    @if (User.Identity is { IsAuthenticated: true })
-    {
-        <script src="/js/sessionTimeout.js"></script>
-    }
-
     @await RenderSectionAsync("pageSpecificJS", required: false)
 
     <script src="/js/app.js" no-cdn></script>
