@@ -14,6 +14,16 @@
         ? (string)ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] ?? string.Empty 
         : string.Empty;
     var footerModel = new FooterModel { AccountId = hashedAccountId, UsePrivacyV2 = true };
+
+    const int defaultTimeoutMinutes = 15;
+    var sessionExpiryConfig = Configuration["SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:LoginSlidingExpiryTimeOutInMinutes"];
+    if (!int.TryParse(sessionExpiryConfig, out var slidingExpiryTimeoutMinutes))
+    {
+        slidingExpiryTimeoutMinutes = defaultTimeoutMinutes;
+    }
+
+    var modalWarningTimer = slidingExpiryTimeoutMinutes * 0.8;
+    var remainingSessionTimer = slidingExpiryTimeoutMinutes * 0.2 * 60;
 }
 <!DOCTYPE html>
 <html lang="en" class="govuk-template ">
@@ -96,7 +106,7 @@
     @await Html.PartialAsync("_ZenDeskApiPush")
 </head>
 
-<body id="@ViewBag.PageID" class="govuk-template__body">
+<body id="@ViewBag.PageID" class="govuk-template__body" data-timeout="@modalWarningTimer" data-modalcount="@remainingSessionTimer">
 
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWQBWGJ" height="0" width="0"
