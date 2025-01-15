@@ -19,14 +19,10 @@ public static class DataProtectionServiceRegistrations
 
         if (isDevelopment)
         {
-            var keysPath = Path.Combine("AS", "SharedKeys");
-
-            Directory.CreateDirectory(keysPath);
-
             services
-                .AddDataProtection()
+            .AddDataProtection()
                 .SetApplicationName(ApplicationName)
-                .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+                .PersistKeysToFileSystem(new DirectoryInfo(@"C:\Esfa\SharedKeys"));
         }
         else
         {
