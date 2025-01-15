@@ -36,13 +36,12 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
         <p>
-            You can change the employer name you use in the apprenticeship service if there is another organisation name (such as a trading name) that you are known by.
-            Your employer account name is visible to training providers and helps them to find you in the service.
+            Your apprenticeship service account name should be the same as your organisation’s trading name. This is visible to training providers and helps them to find you in the service.
         </p>
         <p>This is not the legal entity name that is registered with the Pensions regulator.</p>
         <p>You can change your employer account name at any time.</p>
         <dl class="das-definition-list">
-            <dt class="das-definition-list__title">Organisation name (legal entity)</dt>
+            <dt class="das-definition-list__title">Organisation name</dt>
             <dd class="das-definition-list__definition govuk-!-margin-bottom-4">@Model.Data.LegalEntityName</dd>
             <dt class="das-definition-list__title">Employer account name [in the apprenticeship service]</dt>
             <dd class="das-definition-list__definition govuk-!-margin-bottom-6">@Model.Data.CurrentName</dd>
@@ -80,7 +79,7 @@
                         <div class="govuk-radios__conditional" id="conditional-change-account-name">
                             <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.Data.NewNameError) ? "govuk-form-group--error" : "")">
                                 <label id="NewName-label" for="NewName" class="govuk-label">
-                                    Enter new employer account name
+                                    Enter new account name. Do not use your own name unless it is the same as your organisation’s trading name
                                 </label>
                                 @if (!string.IsNullOrEmpty(Model.Data.NewNameError))
                                 {
