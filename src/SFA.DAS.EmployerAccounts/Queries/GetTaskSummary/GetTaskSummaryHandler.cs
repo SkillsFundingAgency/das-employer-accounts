@@ -1,15 +1,22 @@
 ﻿using System.Threading;
 using SFA.DAS.EmployerAccounts.Models.Account;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 
-public class GetTaskSummaryHandler(IValidator<GetTaskSummaryQuery> validator, IEmployerAccountService employerAccountService)
+public class GetTaskSummaryHandler(IValidator<GetTaskSummaryQuery> validator, IEmployerAccountService employerAccountService, IEncodingService encodingService)
     : IRequestHandler<GetTaskSummaryQuery, GetTaskSummaryResponse>
 {
     public async Task<GetTaskSummaryResponse> Handle(GetTaskSummaryQuery message, CancellationToken cancellationToken)
     {
         ValidateMessage(message);
+        
         var taskSummary = await employerAccountService.GetTaskSummary(message.AccountId);
+
+        if (taskSummary is { SingleApprovedTransferPledgeId: not null })
+        {
+            taskSummary.SingleApprovedTransferHashedPledgeId = encodingService.Encode(taskSummary.SingleApprovedTransferPledgeId.Value, EncodingType.PledgeId);
+        }
 
         return new GetTaskSummaryResponse
         {

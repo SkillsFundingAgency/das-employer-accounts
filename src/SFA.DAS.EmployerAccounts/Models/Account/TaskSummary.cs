@@ -9,7 +9,8 @@ public class TaskSummary
     public int NumberOfTransferRequestToReview { get; set; }
     public int NumberTransferPledgeApplicationsToReview { get; set; }
     public int NumberOfTransferPledgeApplicationsApproved { get; set; }
-    public string SingleApprovedTransferPledgeHashedId { get; set; }
+    public int? SingleApprovedTransferPledgeId { get; set; }
+    public string SingleApprovedTransferHashedPledgeId { get; set; }
     public bool UnableToGetTasks { get; set; }
 
     public bool HasAnyTask()

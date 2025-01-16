@@ -9,5 +9,5 @@ public class GetTasksResponse
     public int NumberOfTransferRequestToReview { get; set; }
     public int NumberTransferPledgeApplicationsToReview { get; set; }
     public int NumberOfTransferPledgeApplicationsApproved { get; set; }
-    public string SingleApprovedTransferPledgeHashedId { get; set; }
+    public int? SingleApprovedTransferPledgeId { get; set; }
 }
