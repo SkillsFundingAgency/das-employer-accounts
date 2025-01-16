@@ -1,38 +1,29 @@
 ﻿using System.Threading;
 using SFA.DAS.EmployerAccounts.Models.Account;
 
-namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary
+namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
+
+public class GetTaskSummaryHandler(IValidator<GetTaskSummaryQuery> validator, IEmployerAccountService employerAccountService)
+    : IRequestHandler<GetTaskSummaryQuery, GetTaskSummaryResponse>
 {
-    public class GetTaskSummaryHandler : IRequestHandler<GetTaskSummaryQuery, GetTaskSummaryResponse>
+    public async Task<GetTaskSummaryResponse> Handle(GetTaskSummaryQuery message, CancellationToken cancellationToken)
     {
-        private readonly IValidator<GetTaskSummaryQuery> _validator;
-        private readonly IEmployerAccountService _employerAccountService;
+        ValidateMessage(message);
+        var taskSummary = await employerAccountService.GetTaskSummary(message.AccountId);
 
-        public GetTaskSummaryHandler(IValidator<GetTaskSummaryQuery> validator, IEmployerAccountService employerAccountService)
+        return new GetTaskSummaryResponse
         {
-            _validator = validator;
-            _employerAccountService = employerAccountService;
-        }
+            TaskSummary = taskSummary?? new TaskSummary()
+        };
+    }
 
-        public async Task<GetTaskSummaryResponse> Handle(GetTaskSummaryQuery message, CancellationToken cancellationToken)
+    private void ValidateMessage(GetTaskSummaryQuery message)
+    {
+        var validationResults = validator.Validate(message);
+
+        if (!validationResults.IsValid())
         {
-            ValidateMessage(message);
-            var taskSummary = await _employerAccountService.GetTaskSummary(message.AccountId);
-
-            return new GetTaskSummaryResponse
-            {
-                TaskSummary = taskSummary?? new TaskSummary()
-            };
-        }
-
-        private void ValidateMessage(GetTaskSummaryQuery message)
-        {
-            var validationResults = _validator.Validate(message);
-
-            if (!validationResults.IsValid())
-            {
-                throw new InvalidRequestException(validationResults.ValidationDictionary);
-            }
+            throw new InvalidRequestException(validationResults.ValidationDictionary);
         }
     }
 }
