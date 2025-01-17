@@ -49,12 +49,12 @@ public class WhenIQueryTaskSummary
         GetTaskSummaryQuery request,
         GetTaskSummaryHandler handler)
     {
-        taskSummaryResponse.SingleApprovedTransferPledgeId = pledgeId;
+        taskSummaryResponse.SingleApprovedTransferApplicationId = pledgeId;
 
         validator.Setup(v => v.Validate(request))
             .Returns(new ValidationResult { IsUnauthorized = false, ValidationDictionary = new Dictionary<string, string>() });
 
-        encodingService.Setup(x => x.Encode(taskSummaryResponse.SingleApprovedTransferPledgeId.Value, EncodingType.AccountId)).Returns(hashedPledgeId);
+        encodingService.Setup(x => x.Encode(taskSummaryResponse.SingleApprovedTransferApplicationId.Value, EncodingType.PledgeApplicationId)).Returns(hashedPledgeId);
 
         employerAccountService
             .Setup(m => m.GetTaskSummary(It.IsAny<long>()))
@@ -64,9 +64,9 @@ public class WhenIQueryTaskSummary
         var result = await handler.Handle(request, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.TaskSummary.SingleApprovedTransferHashedPledgeId.Should().Be(hashedPledgeId);
+        result.TaskSummary.SingleApprovedTransferApplicationHashedId.Should().Be(hashedPledgeId);
 
-        encodingService.Verify(x => x.Encode(taskSummaryResponse.SingleApprovedTransferPledgeId.Value, EncodingType.AccountId), Times.Once);
+        encodingService.Verify(x => x.Encode(taskSummaryResponse.SingleApprovedTransferApplicationId.Value, EncodingType.PledgeApplicationId), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -80,7 +80,7 @@ public class WhenIQueryTaskSummary
     {
         var response = new TaskSummary
         {
-            SingleApprovedTransferPledgeId = null,
+            SingleApprovedTransferApplicationId = null,
         };
         
         validator.Setup(v => v.Validate(request))
@@ -94,9 +94,9 @@ public class WhenIQueryTaskSummary
         var result = await handler.Handle(request, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.TaskSummary.SingleApprovedTransferHashedPledgeId.Should().BeNullOrEmpty();
+        result.TaskSummary.SingleApprovedTransferApplicationHashedId.Should().BeNullOrEmpty();
 
-        encodingService.Verify(x => x.Encode(It.IsAny<int>(), EncodingType.AccountId), Times.Never);
+        encodingService.Verify(x => x.Encode(It.IsAny<int>(), EncodingType.PledgeApplicationId), Times.Never);
     }
 
     [Test, MoqAutoData]

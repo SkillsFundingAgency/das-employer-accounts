@@ -16,9 +16,9 @@ public class GetTaskSummaryHandler(
 
         var taskSummary = await employerAccountService.GetTaskSummary(message.AccountId);
 
-        if (taskSummary is { SingleApprovedTransferPledgeId: not null })
+        if (taskSummary is { SingleApprovedTransferApplicationId: not null })
         {
-            taskSummary.SingleApprovedTransferHashedPledgeId = encodingService.Encode(taskSummary.SingleApprovedTransferPledgeId.Value, EncodingType.AccountId);
+            taskSummary.SingleApprovedTransferApplicationHashedId = encodingService.Encode(taskSummary.SingleApprovedTransferApplicationId.Value, EncodingType.PledgeApplicationId);
         }
 
         return new GetTaskSummaryResponse

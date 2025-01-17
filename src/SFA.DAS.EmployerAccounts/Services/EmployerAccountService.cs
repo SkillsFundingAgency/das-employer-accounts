@@ -51,7 +51,7 @@ public class EmployerAccountService(
           NumberOfTransferRequestToReview = getTasksResponse.NumberOfTransferRequestToReview,
           NumberTransferPledgeApplicationsToReview = getTasksResponse.NumberTransferPledgeApplicationsToReview,
           NumberOfTransferPledgeApplicationsApproved = getTasksResponse.NumberOfTransferPledgeApplicationsApproved,
-          SingleApprovedTransferPledgeId = getTasksResponse.SingleApprovedTransferPledgeId,
+          SingleApprovedTransferApplicationId = getTasksResponse.SingleApprovedTransferApplicationId,
         };
     }
 }

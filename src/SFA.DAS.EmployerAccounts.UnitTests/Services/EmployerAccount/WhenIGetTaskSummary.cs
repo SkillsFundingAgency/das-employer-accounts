@@ -38,7 +38,7 @@ public class WhenIGetTaskSummary
         result.NumberOfTransferRequestToReview.Should().Be(tasksResponse.NumberOfTransferRequestToReview);
         result.NumberTransferPledgeApplicationsToReview.Should().Be(tasksResponse.NumberTransferPledgeApplicationsToReview);
         result.NumberOfTransferPledgeApplicationsApproved.Should().Be(tasksResponse.NumberOfTransferPledgeApplicationsApproved);
-        result.SingleApprovedTransferPledgeId.Should().Be(tasksResponse.SingleApprovedTransferPledgeId);
+        result.SingleApprovedTransferApplicationId.Should().Be(tasksResponse.SingleApprovedTransferApplicationId);
         result.UnableToGetTasks.Should().BeFalse();
     }
 
