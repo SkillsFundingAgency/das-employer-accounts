@@ -4,13 +4,16 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 
-public class GetTaskSummaryHandler(IValidator<GetTaskSummaryQuery> validator, IEmployerAccountService employerAccountService, IEncodingService encodingService)
+public class GetTaskSummaryHandler(
+    IValidator<GetTaskSummaryQuery> validator,
+    IEmployerAccountService employerAccountService,
+    IEncodingService encodingService)
     : IRequestHandler<GetTaskSummaryQuery, GetTaskSummaryResponse>
 {
     public async Task<GetTaskSummaryResponse> Handle(GetTaskSummaryQuery message, CancellationToken cancellationToken)
     {
         ValidateMessage(message);
-        
+
         var taskSummary = await employerAccountService.GetTaskSummary(message.AccountId);
 
         if (taskSummary is { SingleApprovedTransferPledgeId: not null })
@@ -20,7 +23,7 @@ public class GetTaskSummaryHandler(IValidator<GetTaskSummaryQuery> validator, IE
 
         return new GetTaskSummaryResponse
         {
-            TaskSummary = taskSummary?? new TaskSummary()
+            TaskSummary = taskSummary ?? new TaskSummary()
         };
     }
 
