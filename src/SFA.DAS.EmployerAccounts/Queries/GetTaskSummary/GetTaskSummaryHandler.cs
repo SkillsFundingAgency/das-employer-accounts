@@ -18,7 +18,7 @@ public class GetTaskSummaryHandler(
 
         if (taskSummary is { SingleApprovedTransferPledgeId: not null })
         {
-            taskSummary.SingleApprovedTransferHashedPledgeId = encodingService.Encode(taskSummary.SingleApprovedTransferPledgeId.Value, EncodingType.PledgeId);
+            taskSummary.SingleApprovedTransferHashedPledgeId = encodingService.Encode(taskSummary.SingleApprovedTransferPledgeId.Value, EncodingType.PledgeApplicationId);
         }
 
         return new GetTaskSummaryResponse
