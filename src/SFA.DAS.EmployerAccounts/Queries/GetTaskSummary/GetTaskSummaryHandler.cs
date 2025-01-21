@@ -1,38 +1,41 @@
 ﻿using System.Threading;
 using SFA.DAS.EmployerAccounts.Models.Account;
+using SFA.DAS.Encoding;
 
-namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary
+namespace SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
+
+public class GetTaskSummaryHandler(
+    IValidator<GetTaskSummaryQuery> validator,
+    IEmployerAccountService employerAccountService,
+    IEncodingService encodingService)
+    : IRequestHandler<GetTaskSummaryQuery, GetTaskSummaryResponse>
 {
-    public class GetTaskSummaryHandler : IRequestHandler<GetTaskSummaryQuery, GetTaskSummaryResponse>
+    public async Task<GetTaskSummaryResponse> Handle(GetTaskSummaryQuery message, CancellationToken cancellationToken)
     {
-        private readonly IValidator<GetTaskSummaryQuery> _validator;
-        private readonly IEmployerAccountService _employerAccountService;
+        ValidateMessage(message);
+        var taskSummary = await employerAccountService.GetTaskSummary(message.AccountId);
 
-        public GetTaskSummaryHandler(IValidator<GetTaskSummaryQuery> validator, IEmployerAccountService employerAccountService)
+        if (taskSummary is { SingleAcceptedTransferPledgeApplicationIdWithNoApprentices: not null })
         {
-            _validator = validator;
-            _employerAccountService = employerAccountService;
+            taskSummary.SingleAcceptedTransferPledgeApplicationHashedIdWithNoApprentices = encodingService.Encode(
+                taskSummary.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices.Value,
+                EncodingType.PledgeApplicationId
+            );
         }
 
-        public async Task<GetTaskSummaryResponse> Handle(GetTaskSummaryQuery message, CancellationToken cancellationToken)
+        return new GetTaskSummaryResponse
         {
-            ValidateMessage(message);
-            var taskSummary = await _employerAccountService.GetTaskSummary(message.AccountId);
+            TaskSummary = taskSummary ?? new TaskSummary()
+        };
+    }
 
-            return new GetTaskSummaryResponse
-            {
-                TaskSummary = taskSummary?? new TaskSummary()
-            };
-        }
+    private void ValidateMessage(GetTaskSummaryQuery message)
+    {
+        var validationResults = validator.Validate(message);
 
-        private void ValidateMessage(GetTaskSummaryQuery message)
+        if (!validationResults.IsValid())
         {
-            var validationResults = _validator.Validate(message);
-
-            if (!validationResults.IsValid())
-            {
-                throw new InvalidRequestException(validationResults.ValidationDictionary);
-            }
+            throw new InvalidRequestException(validationResults.ValidationDictionary);
         }
     }
 }

@@ -295,7 +295,32 @@ else
                                         </span>
                                             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                     </li>
-                                }                               
+                                }    
+                                @if (Model.Data.TaskSummary.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices == 1)
+                                {
+                                    <li>
+                                        <span>
+                                            1 transfer available to add an apprentice
+                                            <br/><a
+                                                     href="@UrlHelpers.LevyTransfersMatchingAction($"applications/{Model.Data.TaskSummary.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices}")"
+                                                     class="govuk-link govuk-link govuk-link--no-visited-state">View details</a>
+                                        </span>
+                                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                                    </li>
+                                }
+
+                                @if (Model.Data.TaskSummary.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices > 1)
+                                {
+                                    <li>
+                                        <span>
+                                            @Model.Data.TaskSummary.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices transfers available to add an apprentice
+                                            <br/><a
+                                                     href="@UrlHelpers.LevyTransfersMatchingAction("applications")"
+                                                     class="govuk-link govuk-link govuk-link--no-visited-state">View details</a>
+                                        </span>
+                                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                                    </li>
+                                }
                             }
                             else
                             {
