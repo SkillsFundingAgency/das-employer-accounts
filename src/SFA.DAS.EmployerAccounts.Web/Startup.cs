@@ -38,7 +38,6 @@ public class Startup
     public Startup(IConfiguration configuration, IWebHostEnvironment environment, bool buildConfig = true)
     {
         _environment = environment;
-
         _configuration = buildConfig ? configuration.BuildDasConfiguration() : configuration;
     }
 
@@ -79,6 +78,7 @@ public class Startup
             .AddUnitOfWork()
             .AddEntityFramework(employerAccountsConfiguration)
             .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
+        
         services.AddNServiceBusClientUnitOfWork();
         services.AddEmployerAccountsApi();
         services.AddExecutionPolicies();
@@ -93,17 +93,15 @@ public class Startup
         services.AddMediatorValidators();
         services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssembly(typeof(GetEmployerAccountByIdQuery).Assembly));
 
-        var authenticationBuilder = services.AddAuthentication();
-
         var govConfig = _configuration.GetSection("SFA.DAS.Employer.GovSignIn");
         govConfig["ResourceEnvironmentName"] = _configuration["ResourceEnvironmentName"];
         govConfig["StubAuth"] = _configuration["StubAuth"];
+        
         services.AddAndConfigureGovUkAuthentication(govConfig, new AuthRedirects
         {
             SignedOutRedirectUrl = "",
             LocalStubLoginPath = "/service/SignIn-Stub"
         }, null, typeof(UserAccountService));
-
 
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
