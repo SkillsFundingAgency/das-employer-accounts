@@ -45,7 +45,7 @@ public class HomeController(
 
             var userDetail = await homeOrchestrator.GetUser(userRef);
             
-            logger.LogInformation("HomeController.Index userDetails: {userDetail}", JsonSerializer.Serialize(userDetail));
+            logger.LogInformation("HomeController.Index userDetails: IsNull? {IsNull}, firstName: {FirstName}, lastName: {LastName}", userDetail == null, userDetail?.FirstName, userDetail?.LastName);
 
             if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
             {
