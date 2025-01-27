@@ -33,7 +33,7 @@ public class HomeController(
         {
             var userRef = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserIdClaimTypeIdentifier);
             
-            logger.LogInformation("HomeController.Index userRef: {UserRef}", userRef);
+            logger.LogInformation("HomeController-Index userRef: {UserRef}", userRef);
             
             var userClaims = HttpContext.User.Claims.Select(x=> new
             {
@@ -41,11 +41,11 @@ public class HomeController(
                 x.Value
             });
             
-            logger.LogInformation("HomeController.Index claims: {Claims}", JsonSerializer.Serialize(userClaims));
+            logger.LogInformation("HomeController-Index claims: {Claims}", JsonSerializer.Serialize(userClaims));
 
             var userDetail = await homeOrchestrator.GetUser(userRef);
             
-            logger.LogInformation("HomeController.Index userDetails: IsNull? {IsNull}, firstName: {FirstName}, lastName: {LastName}", userDetail == null, userDetail?.FirstName, userDetail?.LastName);
+            logger.LogInformation("HomeController-Index userDetails: IsNull? {IsNull}, firstName: {FirstName}, lastName: {LastName}", userDetail == null, userDetail?.FirstName, userDetail?.LastName);
 
             if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
             {
