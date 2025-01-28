@@ -33,13 +33,23 @@
     <div class="govuk-grid-column-two-thirds">
         <form method="post">
             <h1 class="govuk-heading-xl">Rename account</h1>
+            <p>
+                Your apprenticeship service account name should be the same as your organisation’s trading name. This is visible to training providers and helps them to find you in the service.
+            </p>
 
+            <div class="govuk-form-group">
+                <dl class="das-definition-list">
+                    <dt class="das-definition-list__title">Organisation name</dt>
+                    <dd class="das-definition-list__definition">@Model.Data.LegalEntityName</dd>
+                </dl>
+            </div>
+            
             <input type="hidden" value="true" name="ChangeAccountName"/>
             <input type="hidden" value="@Model.Data.CurrentName" name="CurrentName"/>
 
             <div class="govuk-form-group">
                 <dl class="das-definition-list">
-                    <dt class="das-definition-list__title">Current name</dt>
+                    <dt class="das-definition-list__title">Account name</dt>
                     <dd class="das-definition-list__definition">@Model.Data.CurrentName</dd>
                 </dl>
             </div>
