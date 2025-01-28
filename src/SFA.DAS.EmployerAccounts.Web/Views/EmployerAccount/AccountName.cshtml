@@ -2,7 +2,7 @@
 
 @{
     ViewBag.PageID = "page-change-account-name";
-    ViewBag.Title = "Confirm your employer account name";
+    ViewBag.Title = "Set your account name";
     ViewBag.GaData.Vpv = "/page-change-account-name";
     ViewBag.ShowNav = false;
     string hashedAccountId = ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId].ToString();
@@ -43,7 +43,7 @@
         <dl class="das-definition-list">
             <dt class="das-definition-list__title">Organisation name</dt>
             <dd class="das-definition-list__definition govuk-!-margin-bottom-4">@Model.Data.LegalEntityName</dd>
-            <dt class="das-definition-list__title">Employer account name [in the apprenticeship service]</dt>
+            <dt class="das-definition-list__title">Account name</dt>
             <dd class="das-definition-list__definition govuk-!-margin-bottom-6">@Model.Data.CurrentName</dd>
         </dl>
         <form method="post" asp-route="@RouteNames.RenameAccountPost" asp-hashedAccountId="@Context.Request.RouteValues[RouteValueKeys.HashedAccountId]">
@@ -67,13 +67,13 @@
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="change-account-name-no" name="ChangeAccountName" type="radio" value="@bool.FalseString">
                             <label class="govuk-label govuk-radios__label" for="change-account-name-no">
-                                Yes, I want to use my organisation name as my employer account name
+                                Yes, I want to change my account name
                             </label>
                         </div>
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="ChangeAccountName" name="ChangeAccountName" type="radio" checked="@Model.Data.ChangeAccountName" value="@bool.TrueString" aria-controls="conditional-change-account-name" aria-expanded="true">
                             <label class="govuk-label govuk-radios__label" for="ChangeAccountName">
-                                No, I want to change my employer account name
+                                No, I don't need to change my account name
                             </label>
                         </div>
                         <div class="govuk-radios__conditional" id="conditional-change-account-name">
