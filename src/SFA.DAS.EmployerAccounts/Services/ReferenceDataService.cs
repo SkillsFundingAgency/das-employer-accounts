@@ -75,110 +75,49 @@ public class ReferenceDataService : IReferenceDataService
         return filteredOrganisationTypes;
     }
 
-    private List<OrganisationName> SortOrganisations(IEnumerable<OrganisationName> result, string searchTerm)
+    private static List<OrganisationName> SortOrganisations(List<OrganisationName> result, string searchTerm)
     {
-        var outputList = new List<OrganisationName>();
+        var totalDocuments = result.Count;
+        var averageFieldLength = result.Average(o => o.Name.Length);
 
-        //1. Bob - (exact match - start of the word)
-        var priority1RegEx = $"^({searchTerm})$";
-        AddResultsMatchingRegEx(result, priority1RegEx, outputList);
+        var scoredOrganisations = result
+            .Select(o => new
+            {
+                Organisation = o,
+                Score = CalculateBM25Score(o, searchTerm, totalDocuments, averageFieldLength)
+            })
+            .OrderByDescending(o => o.Score);
 
-        //2. Bob Ltd etc (full word match at the start of the name has company suffix)
-        var priority1ARegEx = $"^({searchTerm}\\W)({string.Join("|", _termsToRemove)})";
-        AddResultsMatchingRegEx(result, priority1ARegEx, outputList);
+        return scoredOrganisations
+            .Select(so => so.Organisation)
+            .ToList();
+    }
+    
+    private static double CalculateBM25Score(
+        OrganisationName organisation,
+        string searchTerm,
+        int totalDocuments,
+        double averageFieldLength,
+        double k1 = 1.2,
+        double b = 0.75)
+    {
+        var terms = searchTerm.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var name = organisation.Name.ToLower();
 
-        //2. Bob Hope (full word match at the start of the name)
-        var priority2RegEx = $"^({searchTerm}\\W)";
-        AddResultsMatchingRegEx(result, priority2RegEx, outputList);
-
-        //3. Bobbing Village School(Matching partial word at the start of a result - alphabetic order)
-        //4. Bobby Moore Academy(Matching partial word at the start of a result - alphabetic order)
-        //5. Bobby Moore School(Matching partial word at the start of a result - alphabetic order)
-        var priority3RegEx = $"^({searchTerm})";
-        AddResultsMatchingRegEx(result, priority3RegEx, outputList);
-
-        //6. Ling Bob Nursery School(Matching partial word 6 characters in of a result - alphabetic order)
-        //7. Bnos Zion of Bobov(Matching partial word 14 characters in of a result - alphabetic order)
-        //8. Talmud Torah Bobov Primary(Matching partial word 14 characters in of a result - alphabetic order)
-        AddOrganisationsLooselyMatchingSearchByPosition(result, searchTerm, outputList);
-
-        // Add all the other results back in
-        foreach (var item in result)
+        double score = 0;
+        foreach (var term in terms)
         {
-            if (outputList.Contains(item))
-                continue;
+            var termFrequency = name.Split(' ').Count(word => word.Equals(term));
+            if (termFrequency == 0) continue;
 
-            outputList.Add(item);
+            var docCount = totalDocuments; // In practice, you'd precompute how many documents contain the term.
+            var idf = Math.Log((totalDocuments - docCount + 0.5) / (docCount + 0.5) + 1);
+
+            var fieldLengthNormalization = 1 - b + b * (name.Length / averageFieldLength);
+            score += idf * (termFrequency * (k1 + 1) / (termFrequency + k1 * fieldLengthNormalization));
         }
 
-        return outputList;
-    }
-
-    /// <summary>
-    /// Adds any loosely matching organisations, base on the search terms location within the organisation name
-    /// </summary>
-    /// <param name="rawOrganisations">The list of matching organisations</param>
-    /// <param name="searchTerm">The search term used</param>
-    /// <param name="outputList">The output list</param>
-    private static void AddOrganisationsLooselyMatchingSearchByPosition(IEnumerable<OrganisationName> rawOrganisations, string searchTerm, List<OrganisationName> outputList)
-    {
-        var priorityRegEx = $"({searchTerm})";
-
-        var rgx = new Regex(priorityRegEx, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(Constants.RegexTimeoutMilliseconds));
-
-        var locationAwareMatches = FindLocationAwareMatches(rawOrganisations, rgx);
-
-        AgregateLocationAwareMatchesToOutList(outputList, locationAwareMatches);
-    }
-
-    /// <summary>
-    /// For each location aware match, make sure it is added to the output list alphabetically
-    /// </summary>
-    /// <param name="outputList">The output list</param>
-    /// <param name="locationAwareMatches">The location aware mathes to add</param>
-    private static void AgregateLocationAwareMatchesToOutList(ICollection<OrganisationName> outputList, IReadOnlyCollection<KeyValuePair<int, OrganisationName>> locationAwareMatches)
-    {
-        if (locationAwareMatches == null || !locationAwareMatches.Any())
-            return;
-
-        foreach (var match in locationAwareMatches.OrderBy(m => m.Key).ThenBy(m => m.Value.Name))
-        {
-            if (outputList.Contains(match.Value))
-                continue;
-
-            outputList.Add(match.Value);
-        }
-    }
-
-    private static List<KeyValuePair<int, OrganisationName>> FindLocationAwareMatches(IEnumerable<OrganisationName> result, Regex rgx)
-    {
-        var locationAwareMatches = new List<KeyValuePair<int, OrganisationName>>();
-
-        foreach (var item in result)
-        {
-            var matches = rgx.Matches(item.Name);
-            if (matches.Count <= 0)
-                continue;
-
-            locationAwareMatches.Add(new KeyValuePair<int, OrganisationName>(matches[0].Index, item));
-        }
-        return locationAwareMatches;
-    }
-
-    private static void AddResultsMatchingRegEx(IEnumerable<OrganisationName> result, string priorityRegEx, List<OrganisationName> sortedList)
-    {
-        var rgx = new Regex(priorityRegEx, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(EmployerAccounts.Constants.RegexTimeoutMilliseconds));
-
-        var priorityItems = result.Where(o => rgx.Matches(o.Name).Count > 0);
-        var outList = priorityItems.OrderBy(o => o.Name).ToList();
-
-        foreach (var item in outList)
-        {
-            if (sortedList.Contains(item))
-                continue;
-
-            sortedList.Add(item);
-        }
+        return score;
     }
 
     private static List<OrganisationName> FilterOrganisationsByType(IEnumerable<OrganisationName> result, CommonOrganisationType organisationType)
@@ -199,13 +138,14 @@ public class ReferenceDataService : IReferenceDataService
 
         var orgs = await _outerApiClient.Get<IEnumerable<Organisation>>(new SearchOrganisationRequest(searchTerm));
 
-        if (orgs == null) return new List<OrganisationName>();
+        if (orgs == null) return [];
 
         var convertedOrgs = orgs
             .Select(ConvertToOrganisation)
-            .Where(FilterInactiveOrgs);
+            .Where(FilterInactiveOrgs)
+            .ToList();
 
-        result = SortOrganisations(convertedOrgs, searchTerm);
+        result = convertedOrgs.Any() ? SortOrganisations(convertedOrgs, searchTerm) : [];
 
         _inProcessCache.Set(cacheKey, result, new TimeSpan(0, 15, 0));
         return result;
