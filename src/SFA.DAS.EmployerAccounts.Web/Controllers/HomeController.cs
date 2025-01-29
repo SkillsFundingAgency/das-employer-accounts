@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -31,12 +32,24 @@ public class HomeController(
         if (User.Identities.FirstOrDefault() != null && User.Identities.FirstOrDefault()!.IsAuthenticated)
         {
             var userRef = HttpContext.User.FindFirstValue(EmployerClaims.IdamsUserIdClaimTypeIdentifier);
+            
+            logger.LogInformation("HomeController-Index userRef: {UserRef}", userRef);
+            
+            var userClaims = HttpContext.User.Claims.Select(x=> new
+            {
+                x.Type,
+                x.Value
+            });
+            
+            logger.LogInformation("HomeController-Index claims: {Claims}", JsonSerializer.Serialize(userClaims));
 
             var userDetail = await homeOrchestrator.GetUser(userRef);
+            
+            logger.LogInformation("HomeController-Index userDetails: IsNull? {IsNull}, firstName: {FirstName}, lastName: {LastName}", userDetail == null, userDetail?.FirstName, userDetail?.LastName);
 
             if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
             {
-                return Redirect(urlHelper.EmployerProfileAddUserDetails($"/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");
+                return Redirect(urlHelper.EmployerProfileAddUserDetails("/user/add-user-details") + $"?_ga={gaQueryData._ga}&_gl={gaQueryData._gl}&utm_source={gaQueryData.utm_source}&utm_campaign={gaQueryData.utm_campaign}&utm_medium={gaQueryData.utm_medium}&utm_keywords={gaQueryData.utm_keywords}&utm_content={gaQueryData.utm_content}");
             }
         }
 

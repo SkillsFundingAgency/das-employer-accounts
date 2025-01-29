@@ -1,14 +1,17 @@
-﻿using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.UserAccounts;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.UserAccounts;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.UserAccounts;
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.GovUK.Auth.Employer;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class UserAccountService(IOuterApiClient outerApiClient) : IGovAuthEmployerAccountService
+public class UserAccountService(IOuterApiClient outerApiClient, ILogger<UserAccountService> logger) : IGovAuthEmployerAccountService
 {
     async Task<EmployerUserAccounts> IGovAuthEmployerAccountService.GetUserAccounts(string userId, string email)
     {
+        logger.LogInformation("UserAccountService userId: {Id}, email: {Email}", userId, email);
+        
         var result = await outerApiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(email, userId));
 
         return new EmployerUserAccounts
