@@ -1,27 +1,29 @@
-﻿namespace SFA.DAS.EmployerAccounts.Models.Account
+﻿namespace SFA.DAS.EmployerAccounts.Models.Account;
+
+public class TaskSummary
 {
-    public class TaskSummary
+    public bool ShowLevyDeclarationTask { get; set; }
+    public int NumberOfApprenticesToReview { get; set; }
+    public int NumberOfCohortsReadyToReview { get; set; }
+    public int NumberOfPendingTransferConnections { get; set; }
+    public int NumberOfTransferRequestToReview { get; set; }
+    public int NumberTransferPledgeApplicationsToReview { get; set; }
+    public int NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices  { get; set; }
+    public int? SingleAcceptedTransferPledgeApplicationIdWithNoApprentices { get; set; }
+    public string SingleAcceptedTransferPledgeApplicationHashedIdWithNoApprentices { get; set; }
+
+    public bool UnableToGetTasks { get; set; }
+
+    public bool HasAnyTask()
     {
-        public bool ShowLevyDeclarationTask { get; set; }
-        public int NumberOfApprenticesToReview { get; set; }
-        public int NumberOfCohortsReadyToReview { get; set; }
-        public int NumberOfPendingTransferConnections { get; set; }
-        public int NumberOfTransferRequestToReview { get; set; }
-        public int NumberTransferPledgeApplicationsToReview { get; set; }
-
-        public bool UnableToGetTasks { get; set; }
-
-        public bool HasAnyTask()
-        {
-            return ShowLevyDeclarationTask ||
-                Array.Exists(new[]
-                {
-                    NumberOfApprenticesToReview,
-                    NumberOfCohortsReadyToReview,
-                    NumberOfPendingTransferConnections,
-                    NumberOfTransferRequestToReview,
-                    NumberTransferPledgeApplicationsToReview
-                }, x => x > 0);
-        }
+        return ShowLevyDeclarationTask ||
+               Array.Exists([
+                   NumberOfApprenticesToReview,
+                   NumberOfCohortsReadyToReview,
+                   NumberOfPendingTransferConnections,
+                   NumberOfTransferRequestToReview,
+                   NumberTransferPledgeApplicationsToReview,
+                   NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices
+               ], x => x > 0);
     }
 }

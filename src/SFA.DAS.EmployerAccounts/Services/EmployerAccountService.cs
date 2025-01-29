@@ -46,7 +46,9 @@ public class EmployerAccountService(
           NumberOfCohortsReadyToReview  = getTasksResponse.NumberOfCohortsReadyToReview,
           NumberOfPendingTransferConnections = getTasksResponse.NumberOfPendingTransferConnections,
           NumberOfTransferRequestToReview = getTasksResponse.NumberOfTransferRequestToReview,
-          NumberTransferPledgeApplicationsToReview = getTasksResponse.NumberTransferPledgeApplicationsToReview
+          NumberTransferPledgeApplicationsToReview = getTasksResponse.NumberTransferPledgeApplicationsToReview,
+          NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices = getTasksResponse.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices,
+          SingleAcceptedTransferPledgeApplicationIdWithNoApprentices = getTasksResponse.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices
         };
     }
 }
