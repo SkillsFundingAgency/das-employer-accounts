@@ -67,7 +67,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(accountsDictionary));
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
-        var httpContext = new DefaultHttpContext(new FeatureCollection());
+        var httpContext = new DefaultHttpContext(new FeatureCollection())
+        {
+            User = claimsPrinciple
+        };
 
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
@@ -149,7 +152,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(accountsDictionary));
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
-        var httpContext = new DefaultHttpContext(new FeatureCollection());
+        var httpContext = new DefaultHttpContext(new FeatureCollection())
+        {
+            User = claimsPrinciple
+        };
 
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
@@ -221,7 +227,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([employerAccountClaim, userClaim, new Claim(ClaimTypes.Email, email)])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
-        var httpContext = new DefaultHttpContext(responseMock);
+        var httpContext = new DefaultHttpContext(responseMock)
+        {
+            User = claimsPrinciple
+        };
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
@@ -263,7 +272,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([employerAccountClaim, userClaim])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
-        var httpContext = new DefaultHttpContext(responseMock);
+        var httpContext = new DefaultHttpContext(responseMock)
+        {
+            User = claimsPrinciple
+        };
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
