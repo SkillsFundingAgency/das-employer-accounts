@@ -18,6 +18,30 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart;
 public class WhenHandlingEmployerAccountAuthorization
 {
     [Test, MoqAutoData]
+    public async Task Then_Returns_False_If_Claims_Are_Empty(
+        string accountId,
+        EmployerAccountOwnerRequirement ownerRequirement,
+        [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
+        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsHelper,
+        EmployerAccountAuthorisationHandler authorizationHandler)
+    {
+        //Arrange
+        var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity(new List<Claim>())]);
+        var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
+        var httpContext = new DefaultHttpContext(new FeatureCollection());
+
+        httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId);
+        httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
+
+        //Act
+        var actual = await authorizationHandler.IsEmployerAuthorised(context, false);
+
+        //Assert
+        actual.Should().BeFalse();
+        associatedAccountsHelper.Verify(x=> x.GetAccounts(false), Times.Never);
+    }
+    
+    [Test, MoqAutoData]
     public async Task Then_Returns_True_If_Employer_Is_Authorized_For_Owner_Role(
         string accountId,
         EmployerAccountOwnerRequirement ownerRequirement,
@@ -43,7 +67,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(accountsDictionary));
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
-        var httpContext = new DefaultHttpContext(new FeatureCollection());
+        var httpContext = new DefaultHttpContext(new FeatureCollection())
+        {
+            User = claimsPrinciple
+        };
 
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
@@ -125,7 +152,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(accountsDictionary));
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([claim])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
-        var httpContext = new DefaultHttpContext(new FeatureCollection());
+        var httpContext = new DefaultHttpContext(new FeatureCollection())
+        {
+            User = claimsPrinciple
+        };
 
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
@@ -197,7 +227,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([employerAccountClaim, userClaim, new Claim(ClaimTypes.Email, email)])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
-        var httpContext = new DefaultHttpContext(responseMock);
+        var httpContext = new DefaultHttpContext(responseMock)
+        {
+            User = claimsPrinciple
+        };
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
@@ -239,7 +272,10 @@ public class WhenHandlingEmployerAccountAuthorization
         var claimsPrinciple = new ClaimsPrincipal([new ClaimsIdentity([employerAccountClaim, userClaim])]);
         var context = new AuthorizationHandlerContext([ownerRequirement], claimsPrinciple, null);
         var responseMock = new FeatureCollection();
-        var httpContext = new DefaultHttpContext(responseMock);
+        var httpContext = new DefaultHttpContext(responseMock)
+        {
+            User = claimsPrinciple
+        };
         httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
