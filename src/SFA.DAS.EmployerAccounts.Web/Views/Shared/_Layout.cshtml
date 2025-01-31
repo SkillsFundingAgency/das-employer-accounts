@@ -10,9 +10,20 @@
 
 @{
     ViewBag.HideHeaderBorder = true;
-    string hashedAccountId = ViewBag.ShowNav ?? true ?
-    (string)this.ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] ?? string.Empty : string.Empty;
+    var hashedAccountId = ViewBag.ShowNav ?? true 
+        ? (string)ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] ?? string.Empty 
+        : string.Empty;
     var footerModel = new FooterModel { AccountId = hashedAccountId, UsePrivacyV2 = true };
+
+    const int defaultTimeoutMinutes = 20;
+    var sessionExpiryConfig = Configuration["SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:LoginSlidingExpiryTimeOutInMinutes"];
+    if (!int.TryParse(sessionExpiryConfig, out var slidingExpiryTimeoutMinutes))
+    {
+        slidingExpiryTimeoutMinutes = defaultTimeoutMinutes;
+    }
+
+    var modalWarningTimer = slidingExpiryTimeoutMinutes * 0.9;
+    var remainingSessionTimer = slidingExpiryTimeoutMinutes * 0.1 * 60;
 }
 <!DOCTYPE html>
 <html lang="en" class="govuk-template ">
@@ -95,7 +106,7 @@
     @await Html.PartialAsync("_ZenDeskApiPush")
 </head>
 
-<body id="@ViewBag.PageID" class="govuk-template__body">
+<body id="@ViewBag.PageID" class="govuk-template__body" data-timeout="@modalWarningTimer" data-modalcount="@remainingSessionTimer">
 
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWQBWGJ" height="0" width="0"
