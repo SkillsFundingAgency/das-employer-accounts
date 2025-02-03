@@ -10,4 +10,6 @@ public class GetTasksResponse
     public int NumberTransferPledgeApplicationsToReview { get; set; }
     public int NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices  { get; set; }
     public int? SingleAcceptedTransferPledgeApplicationIdWithNoApprentices { get; set; }
+    public int NumberOfTransferPledgeApplicationsApproved { get; set; }
+    public int? SingleApprovedTransferApplicationId { get; set; }
 }

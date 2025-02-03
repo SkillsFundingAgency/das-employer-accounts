@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.Accounts;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Accounts;
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
@@ -19,6 +20,8 @@ public class EmployerAccountService(
             logger.LogInformation("Getting TaskSummary for account ID: {accountId}", accountId);
 
             var tasksResponse = await apiClient.Get<GetTasksResponse>(new GetTasksRequest(accountId));
+            
+            logger.LogInformation("GetTaskSummary tasksResponse: {Data}", JsonSerializer.Serialize(tasksResponse));
 
             if (tasksResponse != null)
             {
@@ -48,7 +51,9 @@ public class EmployerAccountService(
           NumberOfTransferRequestToReview = getTasksResponse.NumberOfTransferRequestToReview,
           NumberTransferPledgeApplicationsToReview = getTasksResponse.NumberTransferPledgeApplicationsToReview,
           NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices = getTasksResponse.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices,
-          SingleAcceptedTransferPledgeApplicationIdWithNoApprentices = getTasksResponse.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices
+          SingleAcceptedTransferPledgeApplicationIdWithNoApprentices = getTasksResponse.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices,
+          NumberOfTransferPledgeApplicationsApproved = getTasksResponse.NumberOfTransferPledgeApplicationsApproved,
+          SingleApprovedTransferApplicationId = getTasksResponse.SingleApprovedTransferApplicationId,
         };
     }
 }

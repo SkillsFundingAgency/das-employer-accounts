@@ -59,7 +59,7 @@ public class WhenIQueryTaskSummary
         result.TaskSummary.Should().NotBeNull();
         result.TaskSummary.HasAnyTask().Should().BeFalse();
     }
-    
+
     [Test, MoqAutoData]
     public async Task Then_SingleApprovedTransferPledgeId_Should_Be_Populated_When_SingleApprovedTransferPledgeId_Has_Value(
         [Frozen] Mock<IEmployerAccountService> employerAccountService,
@@ -71,12 +71,12 @@ public class WhenIQueryTaskSummary
         GetTaskSummaryQuery request,
         GetTaskSummaryHandler handler)
     {
-        taskSummaryResponse.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices = pledgeId;
+        taskSummaryResponse.SingleApprovedTransferApplicationId = pledgeId;
 
         validator.Setup(v => v.Validate(request))
             .Returns(new ValidationResult { IsUnauthorized = false, ValidationDictionary = new Dictionary<string, string>() });
 
-        encodingService.Setup(x => x.Encode(taskSummaryResponse.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices.Value, EncodingType.PledgeApplicationId)).Returns(hashedPledgeId);
+        encodingService.Setup(x => x.Encode(taskSummaryResponse.SingleApprovedTransferApplicationId.Value, EncodingType.PledgeApplicationId)).Returns(hashedPledgeId);
 
         employerAccountService
             .Setup(m => m.GetTaskSummary(It.IsAny<long>()))
@@ -86,8 +86,38 @@ public class WhenIQueryTaskSummary
         var result = await handler.Handle(request, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result.TaskSummary.SingleAcceptedTransferPledgeApplicationHashedIdWithNoApprentices.Should().Be(hashedPledgeId);
+        result.TaskSummary.SingleApprovedTransferApplicationHashedId.Should().Be(hashedPledgeId);
 
-        encodingService.Verify(x => x.Encode(taskSummaryResponse.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices.Value, EncodingType.PledgeApplicationId), Times.Once);
+        encodingService.Verify(x => x.Encode(taskSummaryResponse.SingleApprovedTransferApplicationId.Value, EncodingType.PledgeApplicationId), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Then_SingleApprovedTransferPledgeId_Should_Be_Null_When_SingleApprovedTransferPledgeId_Is_Null(
+        [Frozen] Mock<IEmployerAccountService> employerAccountService,
+        [Frozen] Mock<IValidator<GetTaskSummaryQuery>> validator,
+        [Frozen] Mock<IEncodingService> encodingService,
+        string hashedPledgeId,
+        GetTaskSummaryQuery request,
+        GetTaskSummaryHandler handler)
+    {
+        var response = new TaskSummary
+        {
+            SingleApprovedTransferApplicationId = null,
+        };
+        
+        validator.Setup(v => v.Validate(request))
+            .Returns(new ValidationResult { IsUnauthorized = false, ValidationDictionary = new Dictionary<string, string>() });
+
+        employerAccountService
+            .Setup(m => m.GetTaskSummary(It.IsAny<long>()))
+            .ReturnsAsync(response);
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result.TaskSummary.SingleApprovedTransferApplicationHashedId.Should().BeNullOrEmpty();
+
+        encodingService.Verify(x => x.Encode(It.IsAny<int>(), EncodingType.PledgeApplicationId), Times.Never);
     }
 }

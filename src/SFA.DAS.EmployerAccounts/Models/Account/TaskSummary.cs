@@ -11,6 +11,9 @@ public class TaskSummary
     public int NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices  { get; set; }
     public int? SingleAcceptedTransferPledgeApplicationIdWithNoApprentices { get; set; }
     public string SingleAcceptedTransferPledgeApplicationHashedIdWithNoApprentices { get; set; }
+    public int NumberOfTransferPledgeApplicationsApproved { get; set; }
+    public int? SingleApprovedTransferApplicationId { get; set; }
+    public string SingleApprovedTransferApplicationHashedId { get; set; }
 
     public bool UnableToGetTasks { get; set; }
 
@@ -23,7 +26,8 @@ public class TaskSummary
                    NumberOfPendingTransferConnections,
                    NumberOfTransferRequestToReview,
                    NumberTransferPledgeApplicationsToReview,
-                   NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices
+                   NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices,
+                   NumberOfTransferPledgeApplicationsApproved
                ], x => x > 0);
     }
 }
