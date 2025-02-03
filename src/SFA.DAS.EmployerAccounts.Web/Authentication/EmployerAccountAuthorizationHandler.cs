@@ -1,9 +1,11 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
+using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Infrastructure;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Web.Authorization;
+using SFA.DAS.EmployerAccounts.Web.Extensions;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.GovUK.Auth.Employer;
 
@@ -24,6 +26,13 @@ public class EmployerAccountAuthorisationHandler(
     public async Task<bool> IsEmployerAuthorised(AuthorizationHandlerContext context, bool allowAllUserRoles)
     {
         if (!httpContextAccessor.HttpContext.Request.RouteValues.ContainsKey(RouteValueKeys.HashedAccountId))
+        {
+            return false;
+        }
+        
+        var user = httpContextAccessor.HttpContext?.User;
+        
+        if (user.ClaimsAreEmpty())
         {
             return false;
         }
