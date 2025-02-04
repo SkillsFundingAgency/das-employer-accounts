@@ -597,7 +597,7 @@
                                 },
                                 {
                                     "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
-                                    "value": "0"
+                                    "value": "1"
                                 }
                             ]
                         }
