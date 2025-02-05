@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.Extensions.Primitives;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.AutoConfiguration.DependencyResolution;
 using SFA.DAS.Employer.Shared.UI;
@@ -78,7 +79,7 @@ public class Startup
             .AddUnitOfWork()
             .AddEntityFramework(employerAccountsConfiguration)
             .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
-        
+
         services.AddNServiceBusClientUnitOfWork();
         services.AddEmployerAccountsApi();
         services.AddExecutionPolicies();
@@ -96,7 +97,7 @@ public class Startup
         var govConfig = _configuration.GetSection("SFA.DAS.Employer.GovSignIn");
         govConfig["ResourceEnvironmentName"] = _configuration["ResourceEnvironmentName"];
         govConfig["StubAuth"] = _configuration["StubAuth"];
-        
+
         services.AddAndConfigureGovUkAuthentication(govConfig, new AuthRedirects
         {
             SignedOutRedirectUrl = "",
@@ -105,9 +106,7 @@ public class Startup
 
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
-        services.Configure<RouteOptions>(options =>
-        {
-        }).AddMvc(options =>
+        services.Configure<RouteOptions>(options => { }).AddMvc(options =>
         {
             options.Filters.Add(new AnalyticsFilterAttribute());
             if (!_configuration.IsDev())
@@ -126,9 +125,7 @@ public class Startup
         }
 
 #if DEBUG
-        services.AddControllersWithViews(o =>
-        {
-        }).AddRazorRuntimeCompilation();
+        services.AddControllersWithViews(o => { }).AddRazorRuntimeCompilation();
 #endif
 
         services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
@@ -173,14 +170,20 @@ public class Startup
             HttpOnly = HttpOnlyPolicy.Always
         });
 
+        app.Use(async (context, next) =>
+        {
+            context.Response.OnStarting(() =>
+            {
+                context.Response.Headers.AddIfNotPresent("X-Permitted-Cross-Domain-Policies", new StringValues("none"));
+
+                return Task.CompletedTask;
+            });
+
+            await next();
+        });
+
         app.UseRouting();
         app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-        });
+        app.UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute());
     }
 }
