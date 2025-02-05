@@ -6,13 +6,11 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
-using Microsoft.Extensions.Primitives;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.AutoConfiguration.DependencyResolution;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.EmployerAccounts.AppStart;
 using SFA.DAS.EmployerAccounts.Data;
-using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Mappings;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
@@ -23,6 +21,7 @@ using SFA.DAS.EmployerAccounts.Web.Filters;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerAccounts.Web.StartupExtensions;
 using SFA.DAS.GovUK.Auth.AppStart;
+using SFA.DAS.GovUK.Auth.Extensions;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
@@ -174,5 +173,11 @@ public class Startup
         app.UseRouting();
         app.UseAuthorization();
         app.UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute());
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapSessionKeepAliveEndpoint();
+            endpoints.MapDefaultControllerRoute();
+        });
     }
 }

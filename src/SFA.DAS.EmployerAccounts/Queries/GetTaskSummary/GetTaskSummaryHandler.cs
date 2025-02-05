@@ -13,9 +13,16 @@ public class GetTaskSummaryHandler(
     public async Task<GetTaskSummaryResponse> Handle(GetTaskSummaryQuery message, CancellationToken cancellationToken)
     {
         ValidateMessage(message);
-
         var taskSummary = await employerAccountService.GetTaskSummary(message.AccountId);
 
+        if (taskSummary is { SingleAcceptedTransferPledgeApplicationIdWithNoApprentices: not null })
+        {
+            taskSummary.SingleAcceptedTransferPledgeApplicationHashedIdWithNoApprentices = encodingService.Encode(
+                taskSummary.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices.Value,
+                EncodingType.PledgeApplicationId
+            );
+        }
+        
         if (taskSummary is { SingleApprovedTransferApplicationId: not null })
         {
             taskSummary.SingleApprovedTransferApplicationHashedId = encodingService.Encode(taskSummary.SingleApprovedTransferApplicationId.Value, EncodingType.PledgeApplicationId);
