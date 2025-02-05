@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.Api.Common.Infrastructure;
@@ -22,6 +24,7 @@ using SFA.DAS.EmployerAccounts.AppStart;
 using SFA.DAS.EmployerAccounts.Authorisation;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data;
+using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Mappings;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
@@ -74,17 +77,17 @@ public class Startup
         services.AddDasDistributedMemoryCache(employerAccountsConfiguration, _environment.IsDevelopment());
         services.AddDasHealthChecks(employerAccountsConfiguration);
         services.AddOrchestrators();
-        
+
         services.AddDatabaseRegistration();
         services.AddDataRepositories();
-        
+
         services
             .AddUnitOfWork()
             .AddEntityFramework(employerAccountsConfiguration)
             .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
 
         services.AddNServiceBusClientUnitOfWork();
-        
+
         services.AddExecutionPolicies();
 
         services.AddTransient<IValidator<GetUserByRefQuery>, GetUserByRefQueryValidator>();
@@ -140,6 +143,18 @@ public class Startup
             app.UseAuthentication();
         }
 
+        app.Use(async (context, next) =>
+        {
+            context.Response.OnStarting(() =>
+            {
+                context.Response.Headers.AddIfNotPresent("X-Permitted-Cross-Domain-Policies", new StringValues("none"));
+
+                return Task.CompletedTask;
+            });
+
+            await next();
+        });
+
         app.UseHttpsRedirection()
             .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
             .UseStaticFiles()
@@ -148,12 +163,7 @@ public class Startup
             .UseUnitOfWork()
             .UseRouting()
             .UseAuthorization()
-            .UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            })
+            .UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute())
             .UseSwagger()
             .UseSwaggerUI(opt =>
             {

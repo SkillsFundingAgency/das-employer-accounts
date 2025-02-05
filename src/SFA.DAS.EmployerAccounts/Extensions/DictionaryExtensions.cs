@@ -1,4 +1,4 @@
-namespace SFA.DAS.EmployerAccounts.Web.Extensions;
+namespace SFA.DAS.EmployerAccounts.Extensions;
 
 public static class DictionaryExtensions
 {
