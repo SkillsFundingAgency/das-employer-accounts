@@ -170,19 +170,7 @@ public class Startup
             MinimumSameSitePolicy = SameSiteMode.None,
             HttpOnly = HttpOnlyPolicy.Always
         });
-
-        app.Use(async (context, next) =>
-        {
-            context.Response.OnStarting(() =>
-            {
-                context.Response.Headers.AddIfNotPresent("X-Permitted-Cross-Domain-Policies", new StringValues("none"));
-
-                return Task.CompletedTask;
-            });
-
-            await next();
-        });
-
+        
         app.UseRouting();
         app.UseAuthorization();
         app.UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute());
