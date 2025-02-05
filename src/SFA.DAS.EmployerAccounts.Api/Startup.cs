@@ -142,19 +142,7 @@ public class Startup
             app.UseHsts();
             app.UseAuthentication();
         }
-
-        app.Use(async (context, next) =>
-        {
-            context.Response.OnStarting(() =>
-            {
-                context.Response.Headers.AddIfNotPresent("X-Permitted-Cross-Domain-Policies", new StringValues("none"));
-
-                return Task.CompletedTask;
-            });
-
-            await next();
-        });
-
+        
         app.UseHttpsRedirection()
             .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
             .UseStaticFiles()
