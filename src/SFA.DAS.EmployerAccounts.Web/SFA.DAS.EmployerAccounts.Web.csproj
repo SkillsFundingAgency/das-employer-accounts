@@ -22,7 +22,7 @@
         <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
         <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.109" />
-        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.121" />
+        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.129" />
         <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
         <PackageReference Include="SFA.DAS.InputValidation" Version="17.1.100" />
         <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
