@@ -17,6 +17,7 @@ using SFA.DAS.EmployerAccounts.Api.Authorization;
 using SFA.DAS.EmployerAccounts.Api.ErrorHandler;
 using SFA.DAS.EmployerAccounts.Api.Extensions;
 using SFA.DAS.EmployerAccounts.Api.Filters;
+using SFA.DAS.EmployerAccounts.Api.Middleware;
 using SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.AppStart;
 using SFA.DAS.EmployerAccounts.Authorisation;
@@ -74,17 +75,17 @@ public class Startup
         services.AddDasDistributedMemoryCache(employerAccountsConfiguration, _environment.IsDevelopment());
         services.AddDasHealthChecks(employerAccountsConfiguration);
         services.AddOrchestrators();
-        
+
         services.AddDatabaseRegistration();
         services.AddDataRepositories();
-        
+
         services
             .AddUnitOfWork()
             .AddEntityFramework(employerAccountsConfiguration)
             .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
 
         services.AddNServiceBusClientUnitOfWork();
-        
+
         services.AddExecutionPolicies();
 
         services.AddTransient<IValidator<GetUserByRefQuery>, GetUserByRefQueryValidator>();
@@ -139,7 +140,9 @@ public class Startup
             app.UseHsts();
             app.UseAuthentication();
         }
-
+        
+        app.UseMiddleware<SecurityHeadersMiddleware>();
+        
         app.UseHttpsRedirection()
             .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
             .UseStaticFiles()
@@ -148,12 +151,7 @@ public class Startup
             .UseUnitOfWork()
             .UseRouting()
             .UseAuthorization()
-            .UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            })
+            .UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute())
             .UseSwagger()
             .UseSwaggerUI(opt =>
             {
