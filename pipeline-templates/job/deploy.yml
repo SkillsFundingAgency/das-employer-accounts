@@ -111,4 +111,5 @@ jobs:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             AppServiceName: $(WorkerAppServiceName)
             DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.Host.zip
+            ResourceGroupName: $(ResourceGroupName)
             DeploymentType: zipDeploy
