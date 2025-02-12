@@ -204,7 +204,8 @@ public class Startup
                 context.Response.Headers["Expires"] = "0";
 
                 await context.Response.WriteAsJsonAsync(new { success = true, message = "Session extended" });
-            }).RequireAuthorization();
+            });
+            
             endpoints.MapDefaultControllerRoute();
         });
     }
