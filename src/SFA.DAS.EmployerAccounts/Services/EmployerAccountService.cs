@@ -50,6 +50,8 @@ public class EmployerAccountService(
           NumberOfPendingTransferConnections = getTasksResponse.NumberOfPendingTransferConnections,
           NumberOfTransferRequestToReview = getTasksResponse.NumberOfTransferRequestToReview,
           NumberTransferPledgeApplicationsToReview = getTasksResponse.NumberTransferPledgeApplicationsToReview,
+          NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices = getTasksResponse.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices,
+          SingleAcceptedTransferPledgeApplicationIdWithNoApprentices = getTasksResponse.SingleAcceptedTransferPledgeApplicationIdWithNoApprentices,
           NumberOfTransferPledgeApplicationsApproved = getTasksResponse.NumberOfTransferPledgeApplicationsApproved,
           SingleApprovedTransferApplicationId = getTasksResponse.SingleApprovedTransferApplicationId,
         };

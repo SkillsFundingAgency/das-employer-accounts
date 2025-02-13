@@ -21,6 +21,7 @@ using SFA.DAS.EmployerAccounts.Web.Filters;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.EmployerAccounts.Web.StartupExtensions;
 using SFA.DAS.GovUK.Auth.AppStart;
+using SFA.DAS.GovUK.Auth.Extensions;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.NServiceBus.Features.ClientOutbox.Data;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
@@ -78,7 +79,7 @@ public class Startup
             .AddUnitOfWork()
             .AddEntityFramework(employerAccountsConfiguration)
             .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
-        
+
         services.AddNServiceBusClientUnitOfWork();
         services.AddEmployerAccountsApi();
         services.AddExecutionPolicies();
@@ -96,7 +97,7 @@ public class Startup
         var govConfig = _configuration.GetSection("SFA.DAS.Employer.GovSignIn");
         govConfig["ResourceEnvironmentName"] = _configuration["ResourceEnvironmentName"];
         govConfig["StubAuth"] = _configuration["StubAuth"];
-        
+
         services.AddAndConfigureGovUkAuthentication(govConfig, new AuthRedirects
         {
             SignedOutRedirectUrl = "",
@@ -105,9 +106,7 @@ public class Startup
 
         services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
-        services.Configure<RouteOptions>(options =>
-        {
-        }).AddMvc(options =>
+        services.Configure<RouteOptions>(options => { }).AddMvc(options =>
         {
             options.Filters.Add(new AnalyticsFilterAttribute());
             if (!_configuration.IsDev())
@@ -126,9 +125,7 @@ public class Startup
         }
 
 #if DEBUG
-        services.AddControllersWithViews(o =>
-        {
-        }).AddRazorRuntimeCompilation();
+        services.AddControllersWithViews(o => { }).AddRazorRuntimeCompilation();
 #endif
 
         services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
@@ -162,7 +159,6 @@ public class Startup
         app.UseStaticFiles();
 
         app.UseMiddleware<SecurityHeadersMiddleware>();
-
         app.UseMiddleware<RobotsTextMiddleware>();
 
         app.UseAuthentication();
@@ -172,15 +168,15 @@ public class Startup
             MinimumSameSitePolicy = SameSiteMode.None,
             HttpOnly = HttpOnlyPolicy.Always
         });
-
+        
         app.UseRouting();
         app.UseAuthorization();
+        app.UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute());
 
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+            endpoints.MapSessionKeepAliveEndpoint();
+            endpoints.MapDefaultControllerRoute();
         });
     }
 }
