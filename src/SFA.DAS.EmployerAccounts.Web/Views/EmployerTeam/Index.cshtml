@@ -309,7 +309,7 @@ else
                                     {
                                         <li>
                                             <span>
-                                                @Model.Data.TaskSummary.NumberOfCohortsReadyToReview cohort@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "") ready for approval
+                                                @Model.Data.TaskSummary.NumberOfCohortsReadyToReview apprentice request@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "") ready for review
                                                 <br/>
                                                 <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/review")"
                                                    class="govuk-link govuk-link govuk-link--no-visited-state">View cohort
