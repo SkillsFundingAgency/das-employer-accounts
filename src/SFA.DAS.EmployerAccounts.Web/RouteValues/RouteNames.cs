@@ -3,6 +3,7 @@
     public static class RouteNames
     {
         public const string AccountsIndex = "accounts-index";
+        public const string AccessibilityStatement = "accessibility-statement";
         
         public const string EmployerTeamIndex = "employer-team-index";
         public const string EmployerAccountPayBillTriage = "empoyer-account-pay-bill";

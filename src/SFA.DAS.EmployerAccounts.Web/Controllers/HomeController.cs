@@ -184,6 +184,15 @@ public class HomeController(
 
         return RedirectToAction(nameof(Index));
     }
+    
+    [AllowAnonymous]
+    [Route("accessibility-statement", Name = RouteNames.AccessibilityStatement)]
+    [HttpGet]
+    public IActionResult AccessibilityStatement()
+    {
+        return View();
+    }
+
 
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     [HttpGet]
