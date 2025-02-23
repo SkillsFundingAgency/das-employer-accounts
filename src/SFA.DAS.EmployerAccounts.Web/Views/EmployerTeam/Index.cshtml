@@ -298,8 +298,7 @@ else
                                                 <br/>
                                                 <a href="@UrlHelpers.EmployerCommitmentsV2Action("apprentices")"
                                                    class="govuk-link govuk-link govuk-link--no-visited-state">View
-                                                    <span
-                                                        class="govuk-visually-hidden">apprentice</span> change@(Model.Data.TaskSummary.NumberOfApprenticesToReview > 1 ? "s" : "")</a>
+                                                    <span class="govuk-visually-hidden">apprentice</span> change@(Model.Data.TaskSummary.NumberOfApprenticesToReview > 1 ? "s" : "")</a>
                                             </span>
                                             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                         </li>
@@ -309,12 +308,11 @@ else
                                     {
                                         <li>
                                             <span>
-                                                @Model.Data.TaskSummary.NumberOfCohortsReadyToReview cohort@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "") ready for approval
+                                                @Model.Data.TaskSummary.NumberOfCohortsReadyToReview apprentice request@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "") ready for review
                                                 <br/>
-                                                <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/review")"
-                                                   class="govuk-link govuk-link govuk-link--no-visited-state">View cohort
-                                                    <span
-                                                        class="govuk-visually-hidden"></span>@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "")</a>
+                                                <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/review")"class="govuk-link govuk-link govuk-link--no-visited-state">
+                                                    View apprentice request@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "")
+                                                </a>
                                             </span>
                                             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                         </li>
