@@ -22,7 +22,7 @@
         <PackageReference Include="Scrutor.AspNetCore" Version="3.3.0" />
         <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
-        <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.130-prerelease-9" />
+        <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.131" />
         <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.127" />
         <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
         <PackageReference Include="SFA.DAS.InputValidation" Version="17.1.100" />
