@@ -16,21 +16,21 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.2" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.4" />
     <PackageReference Include="HMRC.ESFA.Levy.Api.Client" Version="2.0.4" />
     <PackageReference Include="HMRC.ESFA.Levy.Api.Types" Version="2.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.13" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.11" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="microsoft.data.sqlclient" Version="5.2.2" />
+    <PackageReference Include="microsoft.data.sqlclient" Version="6.0.1" />
     <PackageReference Include="Polly" Version="7.2.4" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3195" />
@@ -53,12 +53,12 @@
     <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
+    <PackageReference Include="System.Formats.Asn1" Version="9.0.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
     <PackageReference Include="Aspose.Pdf" Version="23.5.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
-    <PackageReference Include="System.Text.Json" Version="9.0.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
     <PackageReference Include="SFA.DAS.Events.Api.Types" Version="2.1.31" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
