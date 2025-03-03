@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
@@ -115,7 +116,11 @@ public class Startup
             }
         });
 
-        services.AddApplicationInsightsTelemetry();
+        // https://learn.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#use-applicationinsightsserviceoptions
+        services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
 
         services.AddDataProtection(_configuration, _environment.IsDevelopment());
 
