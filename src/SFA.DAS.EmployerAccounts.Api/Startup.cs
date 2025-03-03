@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -115,7 +116,10 @@ public class Startup
                 opt.Filters.Add<StopwatchFilterAttribute>();
             });
 
-        services.AddApplicationInsightsTelemetry();
+        services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
