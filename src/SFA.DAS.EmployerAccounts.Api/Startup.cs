@@ -119,6 +119,7 @@ public class Startup
         services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
         {
             EnableAdaptiveSampling = false,
+            ConnectionString = _configuration.GetValue<string>("APPLICATIONINSIGHTS_CONNECTION_STRING")
         });
     }
 
