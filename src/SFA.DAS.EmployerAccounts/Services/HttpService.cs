@@ -39,10 +39,11 @@ public class HttpService(string identifierUri) : IHttpService
 
     public virtual async Task<string> GetAsync(string url, Func<HttpResponseMessage, bool> responseChecker)
     {
+        var accessToken = await GenerateAccessToken();
+        
         using var client = new HttpClient();
         
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-        var accessToken = await GenerateAccessToken();
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         using var response = await client.SendAsync(requestMessage);
