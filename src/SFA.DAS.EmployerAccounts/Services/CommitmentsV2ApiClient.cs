@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using Azure.Core;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.EmployerAccounts.Configuration;
@@ -12,29 +13,23 @@ using SFA.DAS.EmployerAccounts.Extensions;
 namespace SFA.DAS.EmployerAccounts.Services;
 
 [ExcludeFromCodeCoverage]
-public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
+public class CommitmentsV2ApiClient(
+    HttpClient httpClient,
+    CommitmentsApiV2ClientConfiguration config,
+    ILogger<CommitmentsV2ApiClient> logger,
+    IAzureClientCredentialHelper azureCredentialHelper)
+    : ICommitmentsV2ApiClient
 {
-    private readonly HttpClient _httpClient;
-    private readonly CommitmentsApiV2ClientConfiguration _config;
-    private readonly ILogger<CommitmentsV2ApiClient> _logger;
-
-    public CommitmentsV2ApiClient(HttpClient httpClient, CommitmentsApiV2ClientConfiguration config, ILogger<CommitmentsV2ApiClient> logger)
-    {
-        _httpClient = httpClient;
-        _config = config;
-        _logger = logger;
-    }
-
     public async Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId)
     {
         var url = $"{BaseUrl()}api/apprenticeships/{apprenticeshipId}";
 
-        _logger.LogInformation("Getting GetApprenticeship {Url}", url);
+        logger.LogInformation("Getting GetApprenticeship {Url}", url);
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
-        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -46,12 +41,12 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
     {
         var url = $"{BaseUrl()}api/apprenticeships/?accountId={request.AccountId}&reverseSort={request.ReverseSort}{request.SortField}{request.SortField}{request.SearchTerm}";
 
-        _logger.LogInformation("Getting GetApprenticeships {Url}", url);
+        logger.LogInformation("Getting GetApprenticeships {Url}", url);
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
-        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -62,12 +57,12 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
     {
         var url = $"{BaseUrl()}api/cohorts/?accountId={request.AccountId}";
 
-        _logger.LogInformation("Getting GetCohorts {Url}", url);
+        logger.LogInformation("Getting GetCohorts {Url}", url);
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
-        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -78,12 +73,12 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
     {
         var url = $"{BaseUrl()}api/cohorts/{cohortId}/draft-apprenticeships";
 
-        _logger.LogInformation("Getting GetDraftApprenticeships {Url}", url);
+        logger.LogInformation("Getting GetDraftApprenticeships {Url}", url);
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
-        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -94,12 +89,12 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
     {
         var url = $"{BaseUrl()}api/accounts/{accountId}/summary";
 
-        _logger.LogInformation("Getting GetEmployerAccountSummary {Url}", url);
+        logger.LogInformation("Getting GetEmployerAccountSummary {Url}", url);
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
         await AddAuthenticationHeader(requestMessage);
 
-        using var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+        using var response = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -108,21 +103,20 @@ public class CommitmentsV2ApiClient : ICommitmentsV2ApiClient
 
     private string BaseUrl()
     {
-        if (_config.ApiBaseUrl.EndsWith("/"))
+        if (config.ApiBaseUrl.EndsWith("/"))
         {
-            return _config.ApiBaseUrl;
+            return config.ApiBaseUrl;
         }
 
-        return _config.ApiBaseUrl + "/";
+        return config.ApiBaseUrl + "/";
     }
 
     private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
-        if (!string.IsNullOrEmpty(_config.IdentifierUri))
+        if (!string.IsNullOrEmpty(config.IdentifierUri))
         {
-            var azureServiceTokenProvider = ChainedTokenCredentialHelper.Create();
-
-            var accessToken = (await azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { _config.IdentifierUri }))).Token;
+            var accessToken = await azureCredentialHelper.GetAccessTokenAsync(config.IdentifierUri);
+            
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }

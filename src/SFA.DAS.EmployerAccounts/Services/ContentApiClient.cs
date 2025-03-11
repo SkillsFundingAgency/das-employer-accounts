@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using SFA.DAS.EmployerAccounts.Infrastructure.AzureTokenService;
+using SFA.DAS.Api.Common.Interfaces;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
@@ -9,12 +9,12 @@ public class ContentApiClient : IContentApiClient
     private readonly string _apiBaseUrl;        
     private readonly string _identifierUri;
     private readonly HttpClient _client;
-    private readonly IAzureServiceTokenProvider _azureServiceTokenProvider;
+    private readonly IAzureClientCredentialHelper _azureServiceTokenProvider;
 
     public ContentApiClient(
         HttpClient client, 
         IContentClientApiConfiguration configuration, 
-        IAzureServiceTokenProvider azureServiceTokenProvider)
+        IAzureClientCredentialHelper azureServiceTokenProvider)
     {
         _apiBaseUrl = configuration.ApiBaseUrl.EndsWith("/")
             ? configuration.ApiBaseUrl
@@ -43,7 +43,7 @@ public class ContentApiClient : IContentApiClient
     {
         if (!string.IsNullOrEmpty(_identifierUri))
         {
-            var accessToken = await _azureServiceTokenProvider.GetTokenAsync(_identifierUri);
+            var accessToken = await _azureServiceTokenProvider.GetAccessTokenAsync(_identifierUri);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
     }
