@@ -35,7 +35,7 @@
     <PackageReference Include="Scrutor" Version="4.2.2" />
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3195" />
     <PackageReference Include="SFA.DAS.ActiveDirectory" Version="1.0.3" />
-    <PackageReference Include="SFA.DAS.Api.Common" Version="17.1.107" />
+    <PackageReference Include="SFA.DAS.Api.Common" Version="17.1.135" />
     <PackageReference Include="SFA.DAS.Authentication" Version="1.1.2" />
     <PackageReference Include="SFA.DAS.AutoConfiguration" Version="2.2.17" />
     <PackageReference Include="SFA.DAS.Caches" Version="1.1.4" />
