@@ -13,7 +13,7 @@ public class HttpClientWrapper : IHttpClientWrapper
 
     public HttpClientWrapper(IHttpResponseLogger httpResponseLogger)
     {
-        MediaTypeWithQualityHeaderValueList = new List<MediaTypeWithQualityHeaderValue>();
+        MediaTypeWithQualityHeaderValueList = [];
         _httpResponseLogger = httpResponseLogger;
     }
 
@@ -26,10 +26,12 @@ public class HttpClientWrapper : IHttpClientWrapper
         using var httpClient = CreateHttpClient();
 
         var serializeObject = JsonConvert.SerializeObject(content);
+        
         using var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post, url)
         {
             Content = new StringContent(serializeObject, System.Text.Encoding.UTF8, "application/json")
         });
+        
         await EnsureSuccessfulResponse(response);
 
         return await response.Content.ReadAsStringAsync();
@@ -107,7 +109,10 @@ public class HttpClientWrapper : IHttpClientWrapper
             case 503:
                 throw new ServiceUnavailableException();
             default:
-                if ((int)response.StatusCode == 400) await _httpResponseLogger.LogResponseAsync(response);
+                if ((int)response.StatusCode == 400)
+                {
+                    await _httpResponseLogger.LogResponseAsync(response);
+                }
 
                 throw new HttpException((int)response.StatusCode, $"Unexpected HTTP exception - ({(int)response.StatusCode}): {response.ReasonPhrase}");
         }

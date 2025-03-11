@@ -8,30 +8,23 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class CommitmentsV2Service : ICommitmentV2Service
+public class CommitmentsV2Service(
+    ICommitmentsV2ApiClient commitmentsApiClient,
+    IMapper mapper,
+    IEncodingService encodingService)
+    : ICommitmentV2Service
 {
-    private readonly ICommitmentsV2ApiClient _commitmentsApiClient;
-    private readonly IMapper _mapper;
-    private readonly IEncodingService _encodingService;
-
-    public CommitmentsV2Service(ICommitmentsV2ApiClient commitmentsApiClient, IMapper mapper, IEncodingService encodingService)
-    {
-        _commitmentsApiClient = commitmentsApiClient;
-        _mapper = mapper;
-        _encodingService = encodingService;
-    }
-
     public async Task<IEnumerable<Apprenticeship>> GetDraftApprenticeships(Cohort cohort)
     {
-        var draftApprenticeshipsResponse = await _commitmentsApiClient.GetDraftApprenticeships(cohort.Id);            
-        return _mapper.Map<IEnumerable<DraftApprenticeshipDto>, IEnumerable<Apprenticeship>>(draftApprenticeshipsResponse.DraftApprenticeships,
+        var draftApprenticeshipsResponse = await commitmentsApiClient.GetDraftApprenticeships(cohort.Id);            
+        return mapper.Map<IEnumerable<DraftApprenticeshipDto>, IEnumerable<Apprenticeship>>(draftApprenticeshipsResponse.DraftApprenticeships,
             opt =>
             {
                 opt.AfterMap((src, dest) =>
                 {
                     dest.ToList().ForEach(c =>
                     {
-                        c.SetHashId(_encodingService);
+                        c.SetHashId(encodingService);
                         c.SetCohort(cohort);
                         c.SetTrainingProvider(cohort.TrainingProvider.First());
                     });
@@ -41,17 +34,17 @@ public class CommitmentsV2Service : ICommitmentV2Service
 
     public async Task<IEnumerable<Cohort>> GetCohorts(long? accountId)
     {
-        var cohortSummary = await _commitmentsApiClient.GetCohorts(new CommitmentsV2.Api.Types.Requests.GetCohortsRequest { AccountId = accountId });
-        var trainingProvider = _mapper.Map<IEnumerable<CohortSummary>, IEnumerable<TrainingProvider>>(cohortSummary.Cohorts);
+        var cohortSummary = await commitmentsApiClient.GetCohorts(new GetCohortsRequest { AccountId = accountId });
+        var trainingProvider = mapper.Map<IEnumerable<CohortSummary>, IEnumerable<TrainingProvider>>(cohortSummary.Cohorts);
 
-        return _mapper.Map<IEnumerable<CohortSummary>, IEnumerable<Cohort>>(cohortSummary.Cohorts,
+        return mapper.Map<IEnumerable<CohortSummary>, IEnumerable<Cohort>>(cohortSummary.Cohorts,
             opt =>
             {   
                 opt.AfterMap((src, dest) =>
                 {
                     dest.ToList().ForEach(c =>
                     {
-                        c.SetHashId(_encodingService);
+                        c.SetHashId(encodingService);
                         c.SetTrainingProvider(trainingProvider);
                     });                       
                 });
@@ -60,17 +53,17 @@ public class CommitmentsV2Service : ICommitmentV2Service
 
     public async Task<IEnumerable<Apprenticeship>> GetApprenticeships(long accountId)
     {
-        var apprenticeship = await _commitmentsApiClient.GetApprenticeships(new CommitmentsV2.Api.Types.Requests.GetApprenticeshipsRequest { AccountId = accountId });
-        var trainingProvider = _mapper.Map<IEnumerable<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>, IEnumerable<TrainingProvider>>(apprenticeship.Apprenticeships);
+        var apprenticeship = await commitmentsApiClient.GetApprenticeships(new GetApprenticeshipsRequest { AccountId = accountId });
+        var trainingProvider = mapper.Map<IEnumerable<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>, IEnumerable<TrainingProvider>>(apprenticeship.Apprenticeships);
 
-        return _mapper.Map<IEnumerable<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>, IEnumerable<Apprenticeship>>(apprenticeship.Apprenticeships,
+        return mapper.Map<IEnumerable<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>, IEnumerable<Apprenticeship>>(apprenticeship.Apprenticeships,
             opt =>
             {
                 opt.AfterMap((src, dest) =>
                 {
                     dest.ToList().ForEach(c =>
                     {
-                        c.SetHashId(_encodingService);
+                        c.SetHashId(encodingService);
                         c.SetTrainingProvider(trainingProvider.First());
                     });
                 });
@@ -80,11 +73,11 @@ public class CommitmentsV2Service : ICommitmentV2Service
     public async Task<List<Cohort>> GetEmployerCommitments(long employerAccountId)
     {            
         var request = new GetCohortsRequest { AccountId = employerAccountId };
-        var commitmentItems = await _commitmentsApiClient.GetCohorts(request);
+        var commitmentItems = await commitmentsApiClient.GetCohorts(request);
 
         if (commitmentItems == null || !commitmentItems.Cohorts.Any())
         {
-            return new List<Cohort>();
+            return [];
         }
 
         return commitmentItems.Cohorts.Where(x => x.CommitmentStatus != CommitmentStatus.Deleted)
