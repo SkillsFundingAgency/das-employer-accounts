@@ -13,8 +13,8 @@ public class HttpService(string identifierUri) : IHttpService
     private const int MaxRetries = 2;
     private static readonly TimeSpan NetworkTimeout = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(100);
-    
-    private readonly ChainedTokenCredential _azureServiceTokenProvider = new ChainedTokenCredential(
+
+    private readonly ChainedTokenCredential _azureServiceTokenProvider = new(
         new ManagedIdentityCredential(options: new TokenCredentialOptions
         {
             Retry = { NetworkTimeout = NetworkTimeout, MaxRetries = MaxRetries, Delay = Delay, Mode = RetryMode.Fixed }
@@ -39,12 +39,13 @@ public class HttpService(string identifierUri) : IHttpService
 
     public virtual async Task<string> GetAsync(string url, Func<HttpResponseMessage, bool> responseChecker)
     {
-        var accessToken = await GenerateAccessToken();
-
         using var client = new HttpClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+        var accessToken = await GenerateAccessToken();
+        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        using var response = await client.GetAsync(url);
+        using var response = await client.SendAsync(requestMessage);
 
         if (responseChecker != null && !responseChecker(response))
         {
@@ -55,7 +56,7 @@ public class HttpService(string identifierUri) : IHttpService
 
         return await response.Content.ReadAsStringAsync();
     }
-    
+
     private async Task<string> GenerateAccessToken()
     {
         return (await _azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: [identifierUri]))).Token;
