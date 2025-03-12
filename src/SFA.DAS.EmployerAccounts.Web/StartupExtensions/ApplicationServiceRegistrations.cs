@@ -3,9 +3,7 @@ using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
-using SFA.DAS.EmployerAccounts.Extensions;
 using SFA.DAS.EmployerAccounts.Factories;
-using SFA.DAS.EmployerAccounts.Infrastructure.AzureTokenService;
 using SFA.DAS.EmployerAccounts.Policies.Hmrc;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.Encoding;
@@ -18,7 +16,7 @@ public static class ApplicationServiceRegistrations
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
+        services.AddSingleton<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
         services.AddSingleton<IPdfService, PdfService>();
 
@@ -44,7 +42,6 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IPensionRegulatorService, PensionRegulatorService>();
 
         services.AddTransient<IDateTimeService, DateTimeService>();
-        services.AddScoped<IAzureServiceTokenProvider, AzureServiceTokenProvider>();
         services.AddSingleton<IEncodingService, EncodingService>();
 
         services.AddTransient<IUserAccountRepository, UserAccountRepository>();

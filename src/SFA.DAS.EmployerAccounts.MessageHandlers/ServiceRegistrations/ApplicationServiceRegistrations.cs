@@ -12,7 +12,7 @@ public static class ApplicationServiceRegistrations
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddSingleton<IEncodingService, EncodingService>();
-        services.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
+        services.AddSingleton<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
        
         return services;
     }
