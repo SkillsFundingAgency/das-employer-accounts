@@ -42,7 +42,7 @@
     <PackageReference Include="SFA.DAS.CommitmentsV2.Api.Types" Version="8.2.0" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.113" />
     <PackageReference Include="SFA.DAS.EmployerUsers.WebClientComponents" Version="1.0.0.52781" />
-    <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.127" />
+    <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.134" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.76" />
     <PackageReference Include="SFA.DAS.EmployerFinance.Messages" Version="1.6.3195" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
