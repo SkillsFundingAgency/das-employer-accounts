@@ -677,9 +677,47 @@
         },
         {
             "apiVersion": "2020-10-01",
-            "name": "[concat('cdb-contnr-settings-', parameters('containerArray')[copyIndex()].containerName, '-', parameters('utcValue'))]",
+            "name": "[concat('cosmos-db-container-', parameters('containerArray')[copyIndex()].containerName, '-', parameters('utcValue'))]",
             "dependsOn": [
                 "[concat('cosmos-db-resources-deployment-', parameters('utcValue'))]"
+            ],
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('resourceGroupName')]",
+            "condition": "[greater(length(parameters('containerArray')), 0)]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'cosmos-db-container.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "cosmosDbAccountName": {
+                        "value": "[variables('cosmosDbName')]"
+                    },
+                    "cosmosDatabase": {
+                        "value": "[parameters('cosmosDatabase')]"
+                    },
+                    "cosmosDBType": {
+                        "value": "GlobalDocumentDB"
+                    },
+                    "containerName": {
+                        "value": "[parameters('containerArray')[copyIndex()].containerName]"
+                    },
+                    "partitionKey": {
+                        "value": "[parameters('containerArray')[copyIndex()].partitionKey]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "containercopy",
+                "count": "[length(parameters('containerArray'))]"
+            }
+        },
+        {
+            "apiVersion": "2020-10-01",
+            "name": "[concat('cdb-contnr-settings-', parameters('containerArray')[copyIndex()].containerName, '-', parameters('utcValue'))]",
+            "dependsOn": [
+                "[concat('cosmos-db-container-', parameters('containerArray')[copyIndex()].containerName, '-', parameters('utcValue'))]"
             ],
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[variables('resourceGroupName')]",
