@@ -705,6 +705,9 @@
                     },
                     "partitionKey": {
                         "value": "[parameters('containerArray')[copyIndex()].partitionKey]"
+                    },
+                    "partitionKeyArray": {
+                        "value": "[createArray(parameters('containerArray')[copyIndex()].partitionKey)]"
                     }
                 }
             },
