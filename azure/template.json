@@ -80,8 +80,7 @@
         },
         "appServiceAllowedIPs": {
             "type": "array",
-            "defaultValue": [
-            ]
+            "defaultValue": []
         },
         "sharedSQLServerName": {
             "type": "string"
@@ -163,6 +162,19 @@
             "metadata": {
                 "description": "Enables alerting on app insights failed requests"
             }
+        },
+        "EnableRouteTableAssociation": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Determines whether to enable route table association on subnet"
+            }
+        },
+        "SharedRouteTableName": {
+            "type": "string",
+            "metadata": {
+                "description": "Determines whether to enable route table association on subnet"
+            }
         }
     },
     "variables": {
@@ -175,7 +187,11 @@
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "cosmosDbName": "[concat(variables('resourceNamePrefix'), '-cdb')]",
         "configNames": "SFA.DAS.EmployerAccounts,SFA.DAS.EmployerAccounts.ReadStore,SFA.DAS.Encoding,SFA.DAS.Employer.GovSignIn",
-        "configNamesApi": "SFA.DAS.EmployerAccounts,SFA.DAS.Encoding"
+        "configNamesApi": "SFA.DAS.EmployerAccounts,SFA.DAS.Encoding",
+        "routeTableId": {
+            "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
+        },
+        "emptyObject": {}
     },
     "resources": [
         {
@@ -184,8 +200,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "location": "[parameters('resourceGroupLocation')]",
             "tags": "[parameters('tags')]",
-            "properties": {
-            }
+            "properties": {}
         },
         {
             "apiVersion": "2020-06-01",
@@ -493,6 +508,9 @@
                     },
                     "delegations": {
                         "value": "[parameters('subnetDelegations')]"
+                    },
+                    "routeTable": {
+                        "value": "[if(parameters('enableRouteTableAssociation'), variables('routeTableId') , variables('emptyObject'))]"
                     }
                 }
             }
@@ -594,8 +612,8 @@
                                 {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
                                     "value": "1"
-                                },    
-                                {    
+                                },
+                                {
                                     "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
                                     "value": "1"
                                 }
