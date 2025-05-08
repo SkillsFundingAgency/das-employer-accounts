@@ -33,7 +33,7 @@ public class WhenIValidateTheQuery
 
         //Assert
         result.IsValid().Should().BeFalse();
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmployerName", "Employer name is required"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmployerName", "Employer name has not been supplied"));
     }
 
     [Test]
@@ -44,6 +44,6 @@ public class WhenIValidateTheQuery
 
         //Assert
         result.IsValid().Should().BeFalse();
-        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmployerName", "Employer name is required"));
+        result.ValidationDictionary.Should().Contain(new KeyValuePair<string, string>("EmployerName", "Employer name has not been supplied"));
     }
 } 

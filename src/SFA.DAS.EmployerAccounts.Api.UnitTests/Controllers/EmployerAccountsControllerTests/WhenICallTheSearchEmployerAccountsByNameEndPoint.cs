@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -20,18 +21,23 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
     private EmployerAccountsController _controller;
     private Mock<IMediator> _mediator;
     private Mock<ILogger<EmployerAccountsController>> _logger;
-    private Mock<AccountsOrchestrator> _orchestrator;
+    private Mock<ILogger<AccountsOrchestrator>> _orchestratorLogger;
+    private AccountsOrchestrator _orchestrator;
     private Mock<IEncodingService> _encodingService;
+    private Mock<IMapper> _mapper;
     private List<EmployerAccountByNameResult> _accounts;
 
     [SetUp]
     public void Setup()
     {
+        _mapper = new Mock<IMapper>();
+        _orchestratorLogger = new Mock<ILogger<AccountsOrchestrator>>();
         _mediator = new Mock<IMediator>();
         _logger = new Mock<ILogger<EmployerAccountsController>>();
-        _orchestrator = new Mock<AccountsOrchestrator>();
+      
         _encodingService = new Mock<IEncodingService>();
-
+        _orchestrator = new AccountsOrchestrator(_mediator.Object, _orchestratorLogger.Object, _mapper.Object, _encodingService.Object);
+        
         _accounts =
         [
             new()
@@ -55,7 +61,7 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
             .ReturnsAsync(_accounts);
 
         _controller = new EmployerAccountsController(
-            _orchestrator.Object,
+            _orchestrator,
             _encodingService.Object,
             _mediator.Object,
             _logger.Object);
@@ -78,7 +84,7 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
     {
         //Arrange
         _mediator.Setup(m => m.Send(It.IsAny<SearchEmployerAccountsByNameQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<EmployerAccountByNameResult>());
+            .ReturnsAsync([]);
 
         //Act
         var result = await _controller.SearchAccounts("Non Existent Employer") as OkObjectResult;
@@ -93,7 +99,7 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
     public async Task ThenShouldReturnBadRequestIfEmployerNameIsEmpty()
     {
         //Act
-        var result = await _controller.SearchAccounts(string.Empty) as BadRequestObjectResult;
+        var result = await _controller.SearchAccounts(string.Empty) as BadRequestResult;
 
         //Assert
         result.Should().NotBeNull();
@@ -104,7 +110,7 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
     public async Task ThenShouldReturnBadRequestIfEmployerNameIsNull()
     {
         //Act
-        var result = await _controller.SearchAccounts(null) as BadRequestObjectResult;
+        var result = await _controller.SearchAccounts(null) as BadRequestResult;
 
         //Assert
         result.Should().NotBeNull();

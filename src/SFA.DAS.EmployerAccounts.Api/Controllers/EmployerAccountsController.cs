@@ -176,6 +176,11 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
     [HttpGet]
     public async Task<IActionResult> SearchAccounts([FromQuery] string employerName)
     {
+        if (string.IsNullOrEmpty(employerName))
+        {
+            return BadRequest();
+        }
+        
         var result = await mediator.Send(new Queries.SearchEmployerAccountsByName.SearchEmployerAccountsByNameQuery { EmployerName = employerName });
         return Ok(result);
     }
