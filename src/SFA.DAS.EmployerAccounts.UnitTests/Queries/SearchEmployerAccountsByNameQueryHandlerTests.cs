@@ -19,7 +19,7 @@ public class WhenSearchingEmployerAccountsByName
     private Mock<EmployerAccountsDbContext> _dbContext;
     private Mock<IValidator<SearchEmployerAccountsByNameQuery>> _validator;
     private SearchEmployerAccountsByNameQuery _query;
-    private List<AccountLegalEntity> _accountLegalEntities;
+    private List<Account> _accounts;
     private SearchEmployerAccountsByNameQueryHandler _handler;
     private Lazy<EmployerAccountsDbContext> _lazyDbContext;
 
@@ -29,29 +29,16 @@ public class WhenSearchingEmployerAccountsByName
         _dbContext = new Mock<EmployerAccountsDbContext>();
         _lazyDbContext = new Lazy<EmployerAccountsDbContext>(() => _dbContext.Object);
         _validator = new Mock<IValidator<SearchEmployerAccountsByNameQuery>>();
-        _query = new SearchEmployerAccountsByNameQuery { EmployerName = "Test Employer" };
+        _query = new SearchEmployerAccountsByNameQuery { EmployerName = "Test Account" };
 
-        _accountLegalEntities =
+        _accounts =
         [
-            new()
-            {
-                Id = 1,
-                Name = "Test Employer 1",
-                AccountId = 1,
-                Account = new Account { Id = 1, Name = "Test Account 1", HashedId = "ABC123", PublicHashedId = "PUB123" }
-            },
-
-            new()
-            {
-                Id = 2,
-                Name = "Test Employer 2",
-                AccountId = 2,
-                Account = new Account { Id = 2, Name = "Test Account 2", HashedId = "DEF456", PublicHashedId = "PUB456" }
-            }
+            new Account { Id = 1, Name = "Test Account 1", HashedId = "ABC123", PublicHashedId = "PUB123" },
+            new Account { Id = 2, Name = "Test Account 2", HashedId = "DEF456", PublicHashedId = "PUB456" }
         ];
 
-        var mockDbSet = _accountLegalEntities.AsQueryable().BuildMockDbSet();
-        _dbContext.Setup(x => x.AccountLegalEntities).Returns(mockDbSet.Object);
+        var mockDbSet = _accounts.AsQueryable().BuildMockDbSet();
+        _dbContext.Setup(x => x.Accounts).Returns(mockDbSet.Object);
 
         _handler = new SearchEmployerAccountsByNameQueryHandler(_lazyDbContext, _validator.Object);
     }
@@ -67,7 +54,7 @@ public class WhenSearchingEmployerAccountsByName
         await _handler.Handle(_query, CancellationToken.None);
 
         //Assert
-        _dbContext.Verify(x => x.AccountLegalEntities, Times.Once);
+        _dbContext.Verify(x => x.Accounts, Times.Once);
     }
 
     [Test]
@@ -146,41 +133,5 @@ public class WhenSearchingEmployerAccountsByName
         //Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
-    }
-
-    [Test]
-    public async Task Then_No_Duplicates_Are_Returned()
-    {
-        //Arrange
-        _validator.Setup(x => x.Validate(It.IsAny<SearchEmployerAccountsByNameQuery>()))
-            .Returns(new ValidationResult());
-
-        var duplicateList = new List<AccountLegalEntity>
-        {
-            new()
-            {
-                Id = 1,
-                Name = "Test Employer 1",
-                AccountId = 1,
-                Account = new Account { Id = 1, Name = "Test Account 1", HashedId = "ABC123", PublicHashedId = "PUB123" }
-            },
-            new()
-            {
-                Id = 2,
-                Name = "Test Employer 1",
-                AccountId = 1,
-                Account = new Account { Id = 1, Name = "Test Account 1", HashedId = "ABC123", PublicHashedId = "PUB123" }
-            }
-        };
-
-        var mockDbSet = duplicateList.AsQueryable().BuildMockDbSet();
-        _dbContext.Setup(x => x.AccountLegalEntities).Returns(mockDbSet.Object);
-
-        //Act
-        var result = await _handler.Handle(_query, CancellationToken.None);
-
-        //Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(1);
     }
 } 
