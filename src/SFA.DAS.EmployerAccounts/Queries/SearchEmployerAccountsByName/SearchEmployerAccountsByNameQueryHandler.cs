@@ -22,18 +22,16 @@ public class SearchEmployerAccountsByNameQueryHandler(
             return [];
         }
 
-        var results = await dbContext.Value.AccountLegalEntities
-            .Where(ale => ale.Name.StartsWith(request.EmployerName))
-            .Include(ale => ale.Account)
-            .OrderBy(ale => ale.Name)
-            .Select(ale => new EmployerAccountByNameResult
+        var results = await dbContext.Value.Accounts
+            .Where(account => account.Name.StartsWith(request.EmployerName))
+            .OrderBy(account => account.Name)
+            .Select(account => new EmployerAccountByNameResult
             {
-                AccountId = ale.AccountId,
-                DasAccountName = ale.Account.Name,
-                HashedAccountId = ale.Account.HashedId,
-                PublicHashedAccountId = ale.Account.PublicHashedId
+                AccountId = account.Id,
+                DasAccountName = account.Name,
+                HashedAccountId = account.HashedId,
+                PublicHashedAccountId = account.PublicHashedId
             })
-            .DistinctBy(ea => ea.AccountId)
             .ToListAsync(cancellationToken);
 
         return results;
