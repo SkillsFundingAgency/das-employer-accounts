@@ -6,9 +6,9 @@ namespace SFA.DAS.EmployerAccounts.Queries.SearchEmployerAccountsByName;
 public class SearchEmployerAccountsByNameQueryHandler(
     Lazy<EmployerAccountsDbContext> dbContext,
     IValidator<SearchEmployerAccountsByNameQuery> validator)
-    : IRequestHandler<SearchEmployerAccountsByNameQuery, List<EmployerAccountByNameResult>>
+    : IRequestHandler<SearchEmployerAccountsByNameQuery, SearchEmployerAccountsByNameResponse>
 {
-    public async Task<List<EmployerAccountByNameResult>> Handle(SearchEmployerAccountsByNameQuery request, CancellationToken cancellationToken)
+    public async Task<SearchEmployerAccountsByNameResponse> Handle(SearchEmployerAccountsByNameQuery request, CancellationToken cancellationToken)
     {
         var validationResult = validator.Validate(request);
 
@@ -17,9 +17,11 @@ public class SearchEmployerAccountsByNameQueryHandler(
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
+        var response = new SearchEmployerAccountsByNameResponse();
+        
         if (string.IsNullOrWhiteSpace(request.EmployerName))
         {
-            return [];
+            return response;
         }
 
         var results = await dbContext.Value.Accounts
@@ -34,6 +36,8 @@ public class SearchEmployerAccountsByNameQueryHandler(
             })
             .ToListAsync(cancellationToken);
 
-        return results;
+        response.EmployerAccounts.AddRange(results);
+        
+        return response;
     }
 } 

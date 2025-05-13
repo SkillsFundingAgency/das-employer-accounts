@@ -69,7 +69,7 @@ public class WhenSearchingEmployerAccountsByName
 
         //Assert
         result.Should().NotBeNull();
-        result.Should().HaveCount(2);
+        result.EmployerAccounts.Should().HaveCount(2);
         result.Should().BeEquivalentTo(new List<EmployerAccountByNameResult>
         {
             new()
@@ -116,7 +116,7 @@ public class WhenSearchingEmployerAccountsByName
 
         //Assert
         result.Should().NotBeNull();
-        result.Should().BeEmpty();
+        result.EmployerAccounts.Should().BeEmpty();
     }
 
     [Test]
@@ -132,6 +132,6 @@ public class WhenSearchingEmployerAccountsByName
 
         //Assert
         result.Should().NotBeNull();
-        result.Should().BeEmpty();
+        result.EmployerAccounts.Should().BeEmpty();
     }
 } 

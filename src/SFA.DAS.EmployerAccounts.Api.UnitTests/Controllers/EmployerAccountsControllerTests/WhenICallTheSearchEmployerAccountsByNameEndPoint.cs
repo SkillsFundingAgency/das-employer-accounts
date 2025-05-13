@@ -18,6 +18,7 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.EmployerAccountsCon
 [TestFixture]
 public class WhenICallTheSearchEmployerAccountsByNameEndPoint
 {
+    private const string ValidSearchTerm = "Test Account";
     private EmployerAccountsController _controller;
     private Mock<IMediator> _mediator;
     private Mock<ILogger<EmployerAccountsController>> _logger;
@@ -25,11 +26,13 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
     private AccountsOrchestrator _orchestrator;
     private Mock<IEncodingService> _encodingService;
     private Mock<IMapper> _mapper;
+    private SearchEmployerAccountsByNameResponse _response;
     private List<EmployerAccountByNameResult> _accounts;
 
     [SetUp]
     public void Setup()
     {
+        _response = new SearchEmployerAccountsByNameResponse();
         _mapper = new Mock<IMapper>();
         _orchestratorLogger = new Mock<ILogger<AccountsOrchestrator>>();
         _mediator = new Mock<IMediator>();
@@ -56,9 +59,13 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
                 PublicHashedAccountId = "PUB456"
             }
         ];
+        _response.EmployerAccounts.AddRange(_accounts);
 
-        _mediator.Setup(m => m.Send(It.IsAny<SearchEmployerAccountsByNameQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_accounts);
+        _mediator
+            .Setup(m => m.Send(
+                It.Is<SearchEmployerAccountsByNameQuery>(q => q.EmployerName == ValidSearchTerm),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_response);
 
         _controller = new EmployerAccountsController(
             _orchestrator,
@@ -71,12 +78,12 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
     public async Task ThenShouldReturnAccounts()
     {
         //Act
-        var result = await _controller.SearchAccounts("Test Employer") as OkObjectResult;
+        var result = await _controller.SearchAccounts(ValidSearchTerm) as OkObjectResult;
 
         //Assert
         result.Should().NotBeNull();
-        var model = result.Value as List<EmployerAccountByNameResult>;
-        model.Should().BeEquivalentTo(_accounts);
+        var model = result.Value as SearchEmployerAccountsByNameResponse;
+        model.EmployerAccounts.Should().BeEquivalentTo(_accounts);
     }
 
     [Test]
@@ -84,15 +91,15 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
     {
         //Arrange
         _mediator.Setup(m => m.Send(It.IsAny<SearchEmployerAccountsByNameQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(new SearchEmployerAccountsByNameResponse());
 
         //Act
         var result = await _controller.SearchAccounts("Non Existent Employer") as OkObjectResult;
 
         //Assert
         result.Should().NotBeNull();
-        var model = result.Value as List<EmployerAccountByNameResult>;
-        model.Should().BeEmpty();
+        var model = result.Value as SearchEmployerAccountsByNameResponse;
+        model.EmployerAccounts.Should().BeEmpty();
     }
 
     [Test]
