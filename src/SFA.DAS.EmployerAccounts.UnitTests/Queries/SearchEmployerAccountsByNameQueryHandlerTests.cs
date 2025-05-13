@@ -29,12 +29,40 @@ public class WhenSearchingEmployerAccountsByName
         _dbContext = new Mock<EmployerAccountsDbContext>();
         _lazyDbContext = new Lazy<EmployerAccountsDbContext>(() => _dbContext.Object);
         _validator = new Mock<IValidator<SearchEmployerAccountsByNameQuery>>();
-        _query = new SearchEmployerAccountsByNameQuery { EmployerName = "Test Account" };
+        _query = new SearchEmployerAccountsByNameQuery { EmployerName = "Test Org" };
 
         _accounts =
         [
-            new Account { Id = 1, Name = "Test Account 1", HashedId = "ABC123", PublicHashedId = "PUB123" },
-            new Account { Id = 2, Name = "Test Account 2", HashedId = "DEF456", PublicHashedId = "PUB456" }
+            new Account
+            {
+                Id = 1,
+                Name = "Test Account 1",
+                HashedId = "ABC123",
+                PublicHashedId = "PUB123",
+                AccountLegalEntities =
+                [
+                    new AccountLegalEntity
+                    {
+                        Id = 776,
+                        Name = "Test Org something 776"
+                    }
+                ]
+            },
+            new Account
+            {
+                Id = 2,
+                Name = "Test Account 2",
+                HashedId = "DEF456",
+                PublicHashedId = "PUB456",
+                AccountLegalEntities =
+                [
+                    new AccountLegalEntity
+                    {
+                        Id = 111,
+                        Name = "Test Org 111"
+                    }
+                ]
+            }
         ];
 
         var mockDbSet = _accounts.AsQueryable().BuildMockDbSet();

@@ -25,7 +25,7 @@ public class SearchEmployerAccountsByNameQueryHandler(
         }
 
         var results = await dbContext.Value.Accounts
-            .Where(account => account.Name.StartsWith(request.EmployerName))
+            .Where(account => account.AccountLegalEntities.Any(ale => ale.Name.StartsWith(request.EmployerName)))
             .OrderBy(account => account.Name)
             .Select(account => new EmployerAccountByNameResult
             {
