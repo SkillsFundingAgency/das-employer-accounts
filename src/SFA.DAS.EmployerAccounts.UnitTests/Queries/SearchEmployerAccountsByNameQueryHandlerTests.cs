@@ -70,7 +70,7 @@ public class WhenSearchingEmployerAccountsByName
         //Assert
         result.Should().NotBeNull();
         result.EmployerAccounts.Should().HaveCount(2);
-        result.Should().BeEquivalentTo(new List<EmployerAccountByNameResult>
+        result.EmployerAccounts.Should().BeEquivalentTo(new List<EmployerAccountByNameResult>
         {
             new()
             {
