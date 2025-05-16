@@ -1,7 +1,8 @@
 ﻿namespace SFA.DAS.EmployerAccounts.Queries.GetAllAccountLegalEntitiesByHashedAccountId
 {
     public sealed record GetAllAccountLegalEntitiesByHashedAccountIdQuery(
-        long AccountId,
+        string SearchTerm,
+        List<long> AccountIds,
         int PageNumber,
         int PageSize,
         string SortColumn,

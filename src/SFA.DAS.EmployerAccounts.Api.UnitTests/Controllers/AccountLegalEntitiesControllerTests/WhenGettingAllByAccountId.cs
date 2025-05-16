@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.Controllers;
+using SFA.DAS.EmployerAccounts.Api.Requests;
 using SFA.DAS.EmployerAccounts.Api.Responses;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
@@ -16,34 +17,34 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.LegalEntitiesControllerTests
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.AccountLegalEntitiesControllerTests
 {
     [TestFixture]
     public class WhenGettingAllByAccountId
     {
         [Test, RecursiveMoqAutoData]
         public async Task GetAllByAccountId_ReturnsOk_WhenLegalEntitiesExist(
-        long accountId,
-        int pageNumber,
-        int pageSize,
-        string sortColumn,
-        bool isAscending,
-        GetAllAccountLegalEntitiesByHashedAccountIdQueryResult mockResponse,
-        [Frozen] Mock<IMediator> mediator,
-        [Greedy] LegalEntitiesController controller,
-        CancellationToken token)
+            GetAllLegalEntitiesRequest request,
+            GetAllAccountLegalEntitiesByHashedAccountIdQueryResult mockResponse,
+            [Frozen] Mock<IMediator> mediator,
+            [Greedy] AccountLegalEntitiesController controller,
+            CancellationToken token)
         {
             // Arrange
-            var pagedResult = new PaginatedList<AccountLegalEntity>(mockResponse.LegalEntities.Items.ToList(), 1, pageNumber, pageSize);
+            var pagedResult = new PaginatedList<AccountLegalEntity>(mockResponse.LegalEntities.Items.ToList(), 1, request.PageNumber, request.PageSize);
             mockResponse.LegalEntities = pagedResult;
 
             mediator.Setup(p => p.Send(It.Is<GetAllAccountLegalEntitiesByHashedAccountIdQuery>(q =>
-                    q.AccountId == accountId &&
-                    q.PageNumber == pageNumber && q.PageSize == pageSize && q.SortColumn == sortColumn && q.IsAscending == isAscending), It.IsAny<CancellationToken>()))
+                    q.SearchTerm == request.SearchTerm &&
+                    q.AccountIds == request.AccountIds &&
+                    q.PageNumber == request.PageNumber &&
+                    q.PageSize == request.PageSize &&
+                    q.SortColumn == request.SortColumn &&
+                    q.IsAscending == request.IsAscending), It.IsAny<CancellationToken>()))
                         .ReturnsAsync(mockResponse);
 
             // Act
-            var result = await controller.GetAllLegalEntities(accountId, pageNumber, pageSize, sortColumn, isAscending, token);
+            var result = await controller.GetAllLegalEntities(request, token);
 
             // Assert
             result.Should().BeOfType<Ok<GetAllAccountLegalEntitiesResponse>>();
@@ -51,33 +52,33 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.LegalEntitiesContro
 
             okResult!.StatusCode.Should().Be((int)HttpStatusCode.OK);
             okResult.Value!.LegalEntities.Count().Should().Be(mockResponse.LegalEntities.Items.Count);
-            okResult.Value!.PageInfo.PageSize.Should().Be(pageSize);
-            okResult.Value!.PageInfo.PageIndex.Should().Be(pageNumber);
+            okResult.Value!.PageInfo.PageSize.Should().Be(request.PageSize);
+            okResult.Value!.PageInfo.PageIndex.Should().Be(request.PageNumber);
         }
 
         [Test, RecursiveMoqAutoData]
         public async Task GetAllByAccountId_Returns_Empty_WhenNoEntitiesExist(
-            long accountId,
-            int pageNumber,
-            int pageSize,
-            string sortColumn,
-            bool isAscending,
+            GetAllLegalEntitiesRequest request,
             GetAllAccountLegalEntitiesByHashedAccountIdQueryResult mockResponse,
             [Frozen] Mock<IMediator> mediator,
-            [Greedy] LegalEntitiesController controller,
+            [Greedy] AccountLegalEntitiesController controller,
             CancellationToken token)
         {
             // Arrange
-            var pagedResult = new PaginatedList<AccountLegalEntity>([], 0, pageNumber, pageSize);
+            var pagedResult = new PaginatedList<AccountLegalEntity>([], 0, request.PageNumber, request.PageSize);
             mockResponse.LegalEntities = pagedResult;
 
             mediator.Setup(p => p.Send(It.Is<GetAllAccountLegalEntitiesByHashedAccountIdQuery>(q =>
-                    q.AccountId == accountId &&
-                    q.PageNumber == pageNumber && q.PageSize == pageSize && q.SortColumn == sortColumn && q.IsAscending == isAscending), It.IsAny<CancellationToken>()))
+                    q.SearchTerm == request.SearchTerm &&
+                    q.AccountIds == request.AccountIds &&
+                    q.PageNumber == request.PageNumber &&
+                    q.PageSize == request.PageSize &&
+                    q.SortColumn == request.SortColumn &&
+                    q.IsAscending == request.IsAscending), It.IsAny<CancellationToken>()))
                         .ReturnsAsync(mockResponse);
 
             // Act
-            var result = await controller.GetAllLegalEntities(accountId, pageNumber, pageSize, sortColumn, isAscending, token);
+            var result = await controller.GetAllLegalEntities(request, token);
 
             // Assert
             result.Should().BeOfType<Ok<GetAllAccountLegalEntitiesResponse>>();
@@ -85,33 +86,30 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Controllers.LegalEntitiesContro
 
             okResult!.StatusCode.Should().Be((int)HttpStatusCode.OK);
             okResult.Value!.LegalEntities.Count().Should().Be(0);
-            okResult.Value!.PageInfo.PageSize.Should().Be(pageSize);
-            okResult.Value!.PageInfo.PageIndex.Should().Be(pageNumber);
+            okResult.Value!.PageInfo.PageSize.Should().Be(request.PageSize);
+            okResult.Value!.PageInfo.PageIndex.Should().Be(request.PageNumber);
         }
 
         [Test, RecursiveMoqAutoData]
         public async Task GetAllByAccountId_Returns_Exception_WhenInvalidAccountId(
-            long accountId,
-            int pageNumber,
-            int pageSize,
-            string sortColumn,
-            bool isAscending,
+            GetAllLegalEntitiesRequest request,
+            GetAllAccountLegalEntitiesByHashedAccountIdQueryResult mockResponse,
             [Frozen] Mock<IMediator> mediator,
-            [Greedy] LegalEntitiesController controller,
+            [Greedy] AccountLegalEntitiesController controller,
             CancellationToken token)
         {
             // Arrange
             mediator.Setup(p => p.Send(It.Is<GetAllAccountLegalEntitiesByHashedAccountIdQuery>(q =>
-                        q.AccountId == accountId &&
-                        q.PageNumber == pageNumber &&
-                        q.PageSize == pageSize &&
-                        q.SortColumn == sortColumn &&
-                        q.IsAscending == isAscending),
-                    It.IsAny<CancellationToken>()))
+                    q.SearchTerm == request.SearchTerm &&
+                    q.AccountIds == request.AccountIds &&
+                    q.PageNumber == request.PageNumber &&
+                    q.PageSize == request.PageSize &&
+                    q.SortColumn == request.SortColumn &&
+                    q.IsAscending == request.IsAscending), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await controller.GetAllLegalEntities(accountId, pageNumber, pageSize, sortColumn, isAscending, token);
+            var result = await controller.GetAllLegalEntities(request, token);
 
             // Assert
             result.Should().BeOfType<ProblemHttpResult>();

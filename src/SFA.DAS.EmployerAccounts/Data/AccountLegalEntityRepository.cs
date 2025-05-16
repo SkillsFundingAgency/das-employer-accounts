@@ -23,7 +23,8 @@ public class AccountLegalEntityRepository(Lazy<EmployerAccountsDbContext> db) : 
     }
 
     public async Task<PaginatedList<AccountLegalEntity>> GetAccountLegalEntities(
-        long accountId,
+        string searchTerm,
+        List<long> accountIds,
         int pageNumber,
         int pageSize,
         string sortColumn,
@@ -35,9 +36,14 @@ public class AccountLegalEntityRepository(Lazy<EmployerAccountsDbContext> db) : 
             .Include(x => x.LegalEntity)
             .Include(x => x.Agreements)
             .Where(l =>
-                l.Account.Id == accountId &&
+                accountIds.Contains(l.Account.Id) &&
                 (l.PendingAgreementId != null || l.SignedAgreementId != null) &&
                 l.Deleted == null);
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            query = query.Where(x => x.Name.Contains(searchTerm));
+        }
 
         // Defensive: Ensure sortColumn is not null or empty, fallback to Name
         var safeSortColumn = string.IsNullOrWhiteSpace(sortColumn) ? nameof(AccountLegalEntity.Name) : sortColumn;

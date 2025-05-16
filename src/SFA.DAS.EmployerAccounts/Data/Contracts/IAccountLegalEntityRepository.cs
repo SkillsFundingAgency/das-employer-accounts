@@ -7,5 +7,11 @@ namespace SFA.DAS.EmployerAccounts.Data.Contracts;
 public interface IAccountLegalEntityRepository
 {
     Task<List<AccountLegalEntity>> GetAccountLegalEntities(long accountId);
-    Task<PaginatedList<AccountLegalEntity>> GetAccountLegalEntities(long accountId, int pageNumber, int pageSize, string sortColumn, bool isAscending, CancellationToken token);
+    Task<PaginatedList<AccountLegalEntity>> GetAccountLegalEntities(string searchTerm,
+        List<long> accountIds,
+        int pageNumber,
+        int pageSize,
+        string sortColumn,
+        bool isAscending,
+        CancellationToken token);
 }

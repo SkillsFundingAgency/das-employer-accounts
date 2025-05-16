@@ -19,7 +19,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAllAccountLegalEntitiesB
     {
         [Test, RecursiveMoqAutoData]
         public async Task GetAllAccountLegalEntitiesByHashedAccountId_ShouldReturnPaginatedList_WhenCalledWithValidParameters(
-            long accountId,
+            string searchTerm,
+            List<long> accountIds,
             int pageNumber,
             int pageSize,
             string sortColumn,
@@ -34,23 +35,24 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAllAccountLegalEntitiesB
             isAscending = false;
 
             var expectedList = new PaginatedList<AccountLegalEntity>(entities, 10, pageNumber, pageSize);
-            repositoryMock.Setup(repo => repo.GetAccountLegalEntities(accountId, pageNumber, pageSize, sortColumn, isAscending, token))
+            repositoryMock.Setup(repo => repo.GetAccountLegalEntities(searchTerm, accountIds, pageNumber, pageSize, sortColumn, isAscending, token))
                 .ReturnsAsync(expectedList);
 
             // Act
-            var result = await handler.Handle(new GetAllAccountLegalEntitiesByHashedAccountIdQuery(accountId, pageNumber, pageSize, sortColumn, isAscending), token);
+            var result = await handler.Handle(new GetAllAccountLegalEntitiesByHashedAccountIdQuery(searchTerm, accountIds, pageNumber, pageSize, sortColumn, isAscending), token);
 
             // Assert
             result.LegalEntities.PageIndex.Should().Be(pageNumber);
             result.LegalEntities.PageSize.Should().Be(pageSize);
             result.LegalEntities.TotalCount.Should().Be(10);
             result.LegalEntities.Items.Should().BeEquivalentTo(entities);
-            repositoryMock.Verify(repo => repo.GetAccountLegalEntities(accountId, pageNumber, pageSize, sortColumn, isAscending, token), Times.Once);
+            repositoryMock.Verify(repo => repo.GetAccountLegalEntities(searchTerm, accountIds, pageNumber, pageSize, sortColumn, isAscending, token), Times.Once);
         }
 
         [Test, RecursiveMoqAutoData]
         public void GetAllAccountLegalEntitiesByHashedAccountId_ShouldThrowException_WhenRepositoryThrowsException(
-            long accountId,
+            string searchTerm,
+            List<long> accountIds,
             int pageNumber,
             int pageSize,
             string sortColumn,
@@ -64,13 +66,13 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAllAccountLegalEntitiesB
             sortColumn = "Name";
             isAscending = false;
 
-            repositoryMock.Setup(repo => repo.GetAccountLegalEntities(accountId, pageNumber, pageSize, sortColumn, isAscending, token))
+            repositoryMock.Setup(repo => repo.GetAccountLegalEntities(searchTerm, accountIds, pageNumber, pageSize, sortColumn, isAscending, token))
                 .ThrowsAsync(new Exception("Repository exception"));
 
             // Act & Assert
-            Assert.ThrowsAsync<Exception>(() => handler.Handle(new GetAllAccountLegalEntitiesByHashedAccountIdQuery(accountId, pageNumber, pageSize, sortColumn, isAscending), token));
+            Assert.ThrowsAsync<Exception>(() => handler.Handle(new GetAllAccountLegalEntitiesByHashedAccountIdQuery(searchTerm, accountIds, pageNumber, pageSize, sortColumn, isAscending), token));
 
-            repositoryMock.Verify(repo => repo.GetAccountLegalEntities(accountId, pageNumber, pageSize, sortColumn, isAscending, token), Times.Once);
+            repositoryMock.Verify(repo => repo.GetAccountLegalEntities(searchTerm, accountIds, pageNumber, pageSize, sortColumn, isAscending, token), Times.Once);
         }
     }
 }

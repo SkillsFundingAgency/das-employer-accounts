@@ -8,7 +8,8 @@ namespace SFA.DAS.EmployerAccounts.Queries.GetAllAccountLegalEntitiesByHashedAcc
         public async Task<GetAllAccountLegalEntitiesByHashedAccountIdQueryResult> Handle(GetAllAccountLegalEntitiesByHashedAccountIdQuery request, CancellationToken cancellationToken)
         {
             var accountLegalEntities = await accountLegalEntityRepository.GetAccountLegalEntities(
-                request.AccountId,
+                request.SearchTerm,
+                request.AccountIds,
                 request.PageNumber,
                 request.PageSize,
                 request.SortColumn,
