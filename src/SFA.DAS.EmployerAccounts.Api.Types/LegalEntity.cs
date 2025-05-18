@@ -19,6 +19,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Types
         public string Status { get; set; }
         public long AccountLegalEntityId { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
+        public string AccountName { get; set; }
 
         [Obsolete]
         public string AgreementSignedByName { get; set; }
