@@ -35,6 +35,7 @@ public class AccountLegalEntityRepository(Lazy<EmployerAccountsDbContext> db) : 
             .AsNoTracking()
             .Include(x => x.LegalEntity)
             .Include(x => x.Agreements)
+            .Include(x =>x.Account)
             .Where(l =>
                 accountIds.Contains(l.Account.Id) &&
                 (l.PendingAgreementId != null || l.SignedAgreementId != null) &&
