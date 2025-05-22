@@ -21,6 +21,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamMembersWhichReceiveNotifications;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByEmail;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;
+using SFA.DAS.EmployerAccounts.Queries.SearchEmployerAccountsByName;
 using SFA.DAS.EmployerAccounts.Validation;
 
 namespace SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
@@ -29,6 +30,7 @@ public static class MediatorValidationServiceRegistration
 {
     public static IServiceCollection AddMediatorValidators(this IServiceCollection services)
     {
+        services.AddTransient<IValidator<SearchEmployerAccountsByNameQuery>, SearchEmployerAccountsByNameQueryValidator>();
         services.AddTransient<IValidator<GetPayeSchemeByRefQuery>, GetPayeSchemeByRefValidator>();
         services.AddTransient<IValidator<GetEmployerAccountDetailByIdQuery>, GetEmployerAccountDetailByHashedIdValidator>();
         services.AddTransient<IValidator<GetPagedEmployerAccountsQuery>, GetPagedEmployerAccountsValidator>();
