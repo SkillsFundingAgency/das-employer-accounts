@@ -43,7 +43,7 @@ public class AccountLegalEntityRepository(Lazy<EmployerAccountsDbContext> db) : 
 
         if (!string.IsNullOrEmpty(searchTerm))
         {
-            query = query.Where(x => x.Name.Contains(searchTerm));
+            query = query.Where(x => x.Name.Contains(searchTerm) || x.Account.Name.Contains(searchTerm));
         }
 
         // Defensive: Ensure sortColumn is not null or empty, fallback to Name
