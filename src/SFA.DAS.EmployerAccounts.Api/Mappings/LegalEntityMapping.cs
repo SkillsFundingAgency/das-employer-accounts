@@ -47,7 +47,8 @@ namespace SFA.DAS.EmployerAccounts.Api.Mappings
                     source.LegalEntity.Source == OrganisationType.Charities ? "Charities" :
                     source.LegalEntity.Source == OrganisationType.PublicBodies ? "Public Bodies" :
                     source.LegalEntity.Source == OrganisationType.PensionsRegulator ? "Pensions Regulator" : "Other",
-                SourceNumeric = (short)source.LegalEntity.Source
+                SourceNumeric = (short)source.LegalEntity.Source,
+                AccountName = source.Account.Name,
             };
             
             //TODO : These are obsolete and have been for quite a while, and should be deleted.
