@@ -10,7 +10,7 @@ public class UserAccountService(IOuterApiClient outerApiClient, ILogger<UserAcco
 {
     async Task<EmployerUserAccounts> IGovAuthEmployerAccountService.GetUserAccounts(string userId, string email)
     {
-        logger.LogInformation("UserAccountService userId: {Id}, email: {Email}", userId, email);
+        logger.LogInformation("UserAccountService userId: {Id}", userId);
         
         var result = await outerApiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(email, userId));
 
