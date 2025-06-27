@@ -40,12 +40,10 @@ public class HomeController(
                 x.Type,
                 x.Value
             });
-            
-            logger.LogInformation("HomeController-Index claims: {Claims}", JsonSerializer.Serialize(userClaims));
 
             var userDetail = await homeOrchestrator.GetUser(userRef);
             
-            logger.LogInformation("HomeController-Index userDetails: IsNull? {IsNull}, firstName: {FirstName}, lastName: {LastName}", userDetail == null, userDetail?.FirstName, userDetail?.LastName);
+            logger.LogInformation("HomeController-Index userDetails: IsNull? {IsNull}, FirstNameSet: {FirstNameSet}, LastNameSet: {LastNameSet}", userDetail == null, userDetail?.FirstName != null, userDetail?.LastName != null);
 
             if (userDetail == null || string.IsNullOrEmpty(userDetail.FirstName) || string.IsNullOrEmpty(userDetail.LastName) || string.IsNullOrEmpty(userRef))
             {
