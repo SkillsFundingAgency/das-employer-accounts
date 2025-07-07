@@ -50,14 +50,6 @@ public class UrlActionHelper : IUrlActionHelper
         return AccountAction(baseUrl, path);
     }
 
-    public string EmployerIncentivesAction(string path = "")
-    {
-        var baseUrl = _configuration.EmployerIncentivesBaseUrl;
-        var hashedAccountId = GetHashedAccountId();
-
-        return Action(baseUrl, $"{hashedAccountId}/{path}");
-    }
-
     public string EmployerProjectionsAction(string path)
     {
         var baseUrl = _configuration.EmployerProjectionsBaseUrl;
