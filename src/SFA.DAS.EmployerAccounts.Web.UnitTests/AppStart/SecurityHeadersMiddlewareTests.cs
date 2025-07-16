@@ -31,7 +31,8 @@ public class SecurityHeadersMiddlewareTests
                 "connect-src *; " +
                 "img-src *; " +
                 $"style-src 'self' 'unsafe-inline' {dasCdn} https://tagmanager.google.com https://fonts.googleapis.com https://*.rcrsv.io ; " +
-                "object-src *;");
+                "object-src *; " +
+                "worker-src 'self' blob:;");
         // Act
         await _middleware.InvokeAsync(context);
 
