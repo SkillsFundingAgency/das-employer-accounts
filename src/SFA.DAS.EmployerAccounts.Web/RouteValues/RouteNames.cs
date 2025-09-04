@@ -23,6 +23,7 @@
         public const string SearchPensionRegulatorCreateAccount = "search-pension-regulator-create-account";
 
         public const string SignOut = "SignOut";
+        public const string SignedOut = "signed-out";
         public const string EmployerAgreementIndex = "employer-agreement-index";
         public const string OrganisationWrongAddressPost = "employer-account-create";
         public const string GetSignedPdfAgreement = "get-signed-pdf-agreement";

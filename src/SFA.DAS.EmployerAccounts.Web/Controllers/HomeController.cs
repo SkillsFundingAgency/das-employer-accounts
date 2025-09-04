@@ -268,7 +268,8 @@ public class HomeController(
     }
 
     [Route("signOut", Name = RouteNames.SignOut)]
-    public async Task<IActionResult> SignOutUser()
+    [Route("service/signout")]
+    public async Task<IActionResult> SignOutUser([FromQuery] bool autoSignOut = false)
     {
         var idToken = await HttpContext.GetTokenAsync("id_token");
 
@@ -285,6 +286,11 @@ public class HomeController(
             schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
+        if (autoSignOut)
+        {
+            TempData["AutoSignOut"] = true;
+        }
+
         return SignOut(authenticationProperties, schemes.ToArray());
     }
 
@@ -292,6 +298,14 @@ public class HomeController(
     public async Task SignOutCleanup()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    }
+
+    [Route("~/signed-out", Name = RouteNames.SignedOut)]
+    [AllowAnonymous]
+    public IActionResult SignedOut()
+    {
+        var autoSignOut = TempData["AutoSignOut"] as bool? ?? false;
+        return autoSignOut ? View("AutoSignOut") : RedirectToAction(ControllerConstants.IndexActionName);
     }
 
     [HttpGet]
