@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
 {
-    public class GetAccountUpdatesHandlerTests : QueryBaseTest<GetAccountsQueryHandler, GetAccountsQuery, GetAccountsResponse>
+    public class GetAccountsHandlerTests : QueryBaseTest<GetAccountsQueryHandler, GetAccountsQuery, GetAccountsResponse>
     {
         private Mock<IEmployerAccountRepository> _employerAccountRepository;
         public override GetAccountsQuery Query { get; set; }
