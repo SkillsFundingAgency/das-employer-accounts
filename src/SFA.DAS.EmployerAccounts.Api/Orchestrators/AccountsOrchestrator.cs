@@ -12,6 +12,7 @@ using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountPayeSchemes;
+using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
 using SFA.DAS.EmployerAccounts.Queries.GetPagedEmployerAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
@@ -191,6 +192,19 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
                 (_, _, true) => AccountAgreementType.Combined,
                 (true, _, _) => AccountAgreementType.Levy,
                 _ => AccountAgreementType.Unknown
+            };
+        }
+
+        public async Task<PagedApiResponse<AccountUpdates>> GetAccountUpdates(DateTime sinceDate, int pageNumber, int pageSize)
+        {
+            _logger.LogInformation("Getting account updates since {SinceDate}.", sinceDate);
+            var accountsResult = await _mediator.Send(new GetAccountsQuery { SinceDate = sinceDate, PageNumber = pageNumber, PageSize = pageSize });
+            var totalPages = (int)Math.Ceiling(((decimal)accountsResult.Accounts.AccountsCount / (decimal)pageSize));
+            return new PagedApiResponse<AccountUpdates>
+            {
+                Data = accountsResult.Accounts.AccountList,
+                Page = pageNumber,
+                TotalPages = totalPages == 0 ? 1 : totalPages
             };
         }
     }

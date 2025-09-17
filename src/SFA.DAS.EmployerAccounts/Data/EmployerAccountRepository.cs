@@ -8,6 +8,7 @@ using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
+using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
 
 namespace SFA.DAS.EmployerAccounts.Data;
 
@@ -164,5 +165,33 @@ public class EmployerAccountRepository : IEmployerAccountRepository
     {
         var account = await _db.Value.Accounts.FindAsync(accountId);
         account.AddTrainingProviderAcknowledged = true;
+    }
+
+    public async Task<GetAccountsResponse> GetAllAccountsUpdates(string toDate, int pageNumber, int pageSize)
+    {
+        var offset = pageSize * (pageNumber - 1);
+
+        var countResult = await _db.Value.Accounts.CountAsync();
+
+        var result = await _db.Value.Accounts
+            .OrderBy(x => x.Id)
+            .Where(x => string.IsNullOrEmpty(toDate) || (x.ModifiedDate >= DateTime.Parse(toDate) || x.CreatedDate >= DateTime.Parse(toDate)))
+            .Skip(offset)
+            .Take(pageSize)
+            .ToListAsync();
+
+        GetAccountsResponse accounts = new GetAccountsResponse();
+        accounts.Accounts.AccountList = new List<AccountUpdates>();
+        foreach (var account in result) 
+        {
+            accounts.Accounts.AccountList.Add(new AccountUpdates
+            {
+                AccountId = account.Id,
+                AccountName = account.Name
+            });
+        }
+
+        accounts.Accounts.AccountsCount = countResult;
+        return accounts;
     }
 }
