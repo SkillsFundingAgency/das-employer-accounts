@@ -26,7 +26,7 @@ namespace SFA.DAS.EmployerAccounts.Queries.GetAccounts
                 throw new InvalidRequestException(result.ValidationDictionary);
             }
 
-            var employerAccount = await _employerAccountRepository.GetAllAccountsUpdates(message.SinceDate?.ToString("yyyy-MM-dd HH:mm:ss.fffff"), message.PageNumber, message.PageSize);
+            var employerAccount = await _employerAccountRepository.GetAllAccountsUpdates(message.SinceDate, message.PageNumber, message.PageSize);
             return employerAccount;
         }
     }

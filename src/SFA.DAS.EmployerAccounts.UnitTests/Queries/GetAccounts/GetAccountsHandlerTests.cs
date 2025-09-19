@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
         public override GetAccountsQueryHandler RequestHandler { get; set; }
         public override Mock<IValidator<GetAccountsQuery>> RequestValidator { get; set; }
 
-        private string SinceDate = "0001-01-01 00:00:00.00000";
+        private DateTime SinceDate = DateTime.MinValue;
         private const int PageNumber = 1;
         private const int PageSize = 1000;
 

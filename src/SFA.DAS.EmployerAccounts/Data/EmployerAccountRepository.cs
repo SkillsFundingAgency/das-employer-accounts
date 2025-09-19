@@ -167,31 +167,33 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         account.AddTrainingProviderAcknowledged = true;
     }
 
-    public async Task<GetAccountsResponse> GetAllAccountsUpdates(string toDate, int pageNumber, int pageSize)
+    public async Task<GetAccountsResponse> GetAllAccountsUpdates(DateTime? since, int pageNumber, int pageSize)
     {
+        var query = _db.Value.Accounts.AsNoTracking().AsQueryable();
+        if (since.HasValue)
+        {
+            query = query.Where(x => x.ModifiedDate >= since || x.CreatedDate >= since);
+        }
+
         var offset = pageSize * (pageNumber - 1);
 
-        var countResult = await _db.Value.Accounts.CountAsync();
+        var totalCount = await _db.Value.Accounts.CountAsync();
 
-        var result = await _db.Value.Accounts
+        var pageItems = await query
             .OrderBy(x => x.Id)
-            .Where(x => string.IsNullOrEmpty(toDate) || (x.ModifiedDate >= DateTime.Parse(toDate) || x.CreatedDate >= DateTime.Parse(toDate)))
             .Skip(offset)
             .Take(pageSize)
+            .Select(x => new AccountUpdates
+            {
+                AccountId = x.Id,
+                AccountName = x.Name
+            })
             .ToListAsync();
 
         GetAccountsResponse accounts = new GetAccountsResponse();
-        accounts.Accounts.AccountList = new List<AccountUpdates>();
-        foreach (var account in result) 
-        {
-            accounts.Accounts.AccountList.Add(new AccountUpdates
-            {
-                AccountId = account.Id,
-                AccountName = account.Name
-            });
-        }
-
-        accounts.Accounts.AccountsCount = countResult;
+        accounts.Accounts.AccountList = pageItems;
+        accounts.Accounts.AccountsCount = totalCount;
+        
         return accounts;
     }
 }

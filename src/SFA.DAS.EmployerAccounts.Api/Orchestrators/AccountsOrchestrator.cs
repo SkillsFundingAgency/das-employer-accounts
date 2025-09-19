@@ -199,7 +199,7 @@ namespace SFA.DAS.EmployerAccounts.Api.Orchestrators
         {
             _logger.LogInformation("Getting account updates since {SinceDate}.", sinceDate);
             var accountsResult = await _mediator.Send(new GetAccountsQuery { SinceDate = sinceDate, PageNumber = pageNumber, PageSize = pageSize });
-            var totalPages = (int)Math.Ceiling(((decimal)accountsResult.Accounts.AccountsCount / (decimal)pageSize));
+            var totalPages = (int)Math.Ceiling(((decimal)accountsResult.Accounts.AccountList.Count / (decimal)pageSize));
             return new PagedApiResponse<AccountUpdates>
             {
                 Data = accountsResult.Accounts.AccountList,

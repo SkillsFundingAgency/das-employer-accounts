@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Queries.GetAccountById;
 using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
 using SFA.DAS.Testing.AutoFixture;
 using System.Collections.Generic;
