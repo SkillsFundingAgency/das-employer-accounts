@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
+using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
 using SFA.DAS.Encoding;
@@ -66,56 +67,49 @@ namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestra
             result.TotalPages.Should().Be(1);
         }
 
-        [Test]
-        public async Task ThenResponseShouldContainAllAcountsOnMultiplePages()
+        [TestCase(1, 4, Description = "Get First Page")]
+        [TestCase(2, 4, Description = "Get Second Page")]
+        [TestCase(3, 4, Description = "Get Third Page")]
+        [TestCase(4, 4, Description = "Get Fourth Page")]
+        [TestCase(5, 4, Description = "Get Fifth Page")]
+        public async Task ThenResponseShouldContainAllAcountsOnMultiplePages(int pageNumber, int pageSize)
         {
             // Arrange
-            int pageSize = 4;
-            int pageNumber = 1;
             int totalExpectedPages = 5;
+            int offset = pageSize * pageNumber;
 
             DateTime toDate = DateTime.MinValue;
-            var responses = new List<GetAccountsResponse>();
+            Accounts<AccountUpdates> accounts = new Accounts<AccountUpdates>();
+            accounts.AccountList = new List<AccountUpdates>();
+            var response = new GetAccountsResponse();
 
-            for (int i = 0; i < totalExpectedPages; i++)
+            for (int j = 0; j < pageSize; j++)
             {
-                Accounts<AccountUpdates> accounts = new Accounts<AccountUpdates>();
-                accounts.AccountList = new List<AccountUpdates>();
-                var response = new GetAccountsResponse();
-
-                for (int j = 0; j < pageSize; j++)
+                accounts.AccountList.Add(new AccountUpdates
                 {
-                    accounts.AccountList.Add(new AccountUpdates
-                    {
-                        AccountId = j + (pageSize * i),
-                        AccountName = $"Test Account {j}"
-                    });
-                    accounts.AccountsCount = pageSize * totalExpectedPages;
-                }
-                response.Accounts = accounts;
-                responses.Add(response);
-                pageNumber++;
+                    AccountId = j + offset,
+                    AccountName = $"Test Account {j + offset}"
+                });
+                accounts.AccountsCount = pageSize * totalExpectedPages;
             }
+            response.Accounts = accounts;
 
             _mediator.SetupSequence(x => x.Send(It.IsAny<GetAccountsQuery>(), It.IsAny<System.Threading.CancellationToken>()))
-                .ReturnsAsync(responses[0])
-                .ReturnsAsync(responses[1])
-                .ReturnsAsync(responses[2])
-                .ReturnsAsync(responses[3])
-                .ReturnsAsync(responses[4]);
+                .ReturnsAsync(response);
 
-            for (int i = 0; i < totalExpectedPages; i++)
+            // Act
+            var result = await _orchestrator.GetAccountUpdates(toDate, pageNumber, pageSize);
+
+            // Assert
+            result.Data.Count.Should().Be(pageSize);
+            result.Page.Should().Be(pageNumber);
+            result.TotalPages.Should().Be(totalExpectedPages);
+
+            for(int j = 0; j < pageSize; j++)
             {
-                pageNumber = i + 1;
-                // Act
-                var result = await _orchestrator.GetAccountUpdates(toDate, pageNumber, pageSize);
-
-                // Assert
-                result.Data.Count.Should().Be(pageSize);
-                result.Page.Should().Be(pageNumber);
-                result.TotalPages.Should().Be(totalExpectedPages);
+                result.Data[j].AccountId.Should().Be(j + offset);
+                result.Data[j].AccountName.Should().Be($"Test Account {j + offset}");
             }
-           
         }
     }
 }

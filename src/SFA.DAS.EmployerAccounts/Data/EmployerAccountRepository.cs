@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
@@ -177,7 +178,19 @@ public class EmployerAccountRepository : IEmployerAccountRepository
 
         var offset = pageSize * (pageNumber - 1);
 
-        var totalCount = await _db.Value.Accounts.CountAsync();
+        var totalCount = await query.CountAsync();
+
+        if (offset > totalCount)
+        {
+            return new GetAccountsResponse()
+            {
+                Accounts = new Accounts<AccountUpdates>()
+                {
+                    AccountsCount = 0,
+                    AccountList = new List<AccountUpdates>()
+                }
+            };
+        }
 
         var pageItems = await query
             .OrderBy(x => x.Id)
