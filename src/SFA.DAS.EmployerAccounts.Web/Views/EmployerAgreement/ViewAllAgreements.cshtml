@@ -29,7 +29,7 @@
         <h3 class="govuk-heading-m">Accepted agreements</h3>
         @if (Model.HasSignedAgreements)
         {
-            <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
+            <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-agreements">
                 @foreach (var agreement in Model.SignedAgreements)
                 {
                     @(await Html.PartialAsync("_AcceptedAgreement", agreement, new ViewDataDictionary(ViewData){{ControllerConstants.InsetText, agreement.Template.InsetText(Model.Agreements) } }))
