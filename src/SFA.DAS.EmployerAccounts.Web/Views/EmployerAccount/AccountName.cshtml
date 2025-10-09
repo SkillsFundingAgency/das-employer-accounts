@@ -71,12 +71,12 @@
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="ChangeAccountName" name="ChangeAccountName"
                                    type="radio" checked="@Model.Data.ChangeAccountName" value="@bool.TrueString"
-                                   aria-controls="conditional-change-account-name" aria-expanded="true">
+                                   aria-controls="conditional-change-account-name">
                             <label class="govuk-label govuk-radios__label" for="ChangeAccountName">
                                 Yes, I want to change my account name
                             </label>
                         </div>
-                        <div class="govuk-radios__conditional" id="conditional-change-account-name">
+                        <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-change-account-name">
                             <div
                                 class="govuk-form-group @(!string.IsNullOrEmpty(Model.Data.NewNameError) ? "govuk-form-group--error" : "")">
                                 <label id="NewName-label" for="NewName" class="govuk-label">
@@ -91,7 +91,6 @@
                                 }
 
                                 <input id="NewName" name="NewName" type="text" maxlength="100" class="govuk-input"
-                                       aria-required="true"
                                        aria-describedby="@(!string.IsNullOrEmpty(Model.Data.NewNameError) ? "error-message-newname" : "")"
                                        value="@(string.IsNullOrEmpty(Model.Data.NewNameError) ? string.Empty : Model.Data.NewName)"/>
                             </div>
