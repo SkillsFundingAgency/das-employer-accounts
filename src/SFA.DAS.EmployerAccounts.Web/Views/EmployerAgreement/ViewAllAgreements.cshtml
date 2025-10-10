@@ -13,7 +13,7 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">Your agreements with the Department for Education (<abbr>DfE</abbr>)</h1>
-        <h3 class="govuk-heading-l">Agreement ID: @Model.AgreementId</h3>
+        <h2 class="govuk-heading-l">Agreement ID: @Model.AgreementId</h2>
     </div>
 </div>
 
@@ -29,10 +29,17 @@
         <h3 class="govuk-heading-m">Accepted agreements</h3>
         @if (Model.HasSignedAgreements)
         {
-            <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">
-                @foreach (var agreement in Model.SignedAgreements)
+            <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-agreements">
+                @foreach (var item in Model.SignedAgreements.Select((agreement, index) => new { agreement, index = index + 1 }))
                 {
-                    @(await Html.PartialAsync("_AcceptedAgreement", agreement, new ViewDataDictionary(ViewData){{ControllerConstants.InsetText, agreement.Template.InsetText(Model.Agreements) } }))
+                    @(await Html.PartialAsync(
+                        "_AcceptedAgreement",
+                        item.agreement,
+                        new ViewDataDictionary(ViewData)
+                        {
+                            { ControllerConstants.InsetText, item.agreement.Template.InsetText(Model.Agreements) },
+                            { "Index", item.index }
+                        }))
                 }
             </div>
         }
@@ -45,7 +52,7 @@
 
 @section breadcrumb {
     <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list" role="navigation">
+        <ol class="govuk-breadcrumbs__list">
             <li class="govuk-breadcrumbs__list-item">
                 <a class="govuk-breadcrumbs__link" asp-route="@RouteNames.EmployerTeamIndex" asp-route-hashedAccountId="@hashedAccountId">Home</a>
             </li>

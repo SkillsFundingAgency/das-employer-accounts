@@ -21,7 +21,7 @@
             asp-action="@ControllerConstants.SearchForOrganisationResultsActionName" 
             asp-route-hashedAccountId="@hashedAccountId"
             asp-route-organisationType="@Model.Data.OrganisationType"
-            method="POST" role="search" aria-label="On this page">
+            method="POST" role="search">
             <div class="govuk-form-group">
                 <label for="searchTerm" class="govuk-label">
                     Search results
@@ -162,7 +162,7 @@
 
         <hr class="govuk-section-break govuk-section-break--visible">
 
-        <nav class="das-pagination-simple" role="navigation" aria-label="Pagination">
+        <nav class="das-pagination-simple" aria-label="Pagination">
             <ul class="das-pagination-simple__list">
                 @if (Model.Data.Results.PageNumber > 1)
                 {

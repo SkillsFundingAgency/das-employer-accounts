@@ -1,11 +1,15 @@
 ﻿@using SFA.DAS.EmployerAccounts.Web.Helpers
 @model SFA.DAS.EmployerAccounts.Web.ViewModels.OrganisationAgreementViewModel
 @inject IUrlActionHelper UrlHelper;
+
+@{
+    var index = ViewData["Index"] as int? ?? 1;
+}
     
-<div class="govuk-accordion__section ">
+<div class="govuk-accordion__section">
     <div class="govuk-accordion__section-header">
         <h2 class="govuk-accordion__section-heading">
-            <span class="govuk-accordion__section-button" id="accordion-default-heading-@Model.Id">
+            <span class="govuk-accordion__section-button">
                 @Model.Template.PublishedInfo
             </span>
         </h2>
@@ -13,7 +17,7 @@
             Accepted on @Model.SignedDateText
         </strong>
     </div>
-    <div id="accordion-default-content-@Model.Id" class="govuk-accordion__section-content" aria-labelledby="accordion-default-heading-@Model.Id">
+    <div id="accordion-agreements-content-@index" class="govuk-accordion__section-content">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <span class="govuk-caption-m">
@@ -79,7 +83,7 @@
                                 <a asp-route="@RouteNames.AgreementView" 
                                    asp-route-hashedAccountId="@Model.HashedAccountId" 
                                    asp-route-hashedAgreementId="@Model.HashedAgreementId" 
-                                   aria-hidden="true">
+                                   >
                                     <div class="govuk-body app-document__icon-text">HTML</div>
                                     <div class="app-document__icon-image">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 283" aria-hidden="true" focusable="false">
