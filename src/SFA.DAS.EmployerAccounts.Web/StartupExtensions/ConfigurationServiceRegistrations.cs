@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SFA.DAS.EAS.Account.Api.Client;
-using SFA.DAS.EmployerAccounts.Api.Client;
 using SFA.DAS.EmployerAccounts.Interfaces.Hmrc;
-using SFA.DAS.EmployerAccounts.ReadStore.Configuration;
 using SFA.DAS.Encoding;
 using SFA.DAS.TokenService.Api.Client;
 
@@ -18,9 +16,6 @@ public static class ConfigurationServiceRegistrations
 
         services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountsConfiguration>>().Value);
 
-        services.Configure<EmployerAccountsReadStoreConfiguration>(configuration.GetSection(ConfigurationKeys.EmployerAccountsReadStore));
-        services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountsReadStoreConfiguration>>().Value);
-
         services.AddSingleton<IAccountApiConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().AccountApi);
 
         services.Configure<IdentityServerConfiguration>(configuration.GetSection("Identity"));
@@ -33,9 +28,6 @@ public static class ConfigurationServiceRegistrations
         services.AddSingleton<IHmrcConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().Hmrc);
         services.AddSingleton<EmployerAccountsOuterApiConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().EmployerAccountsOuterApiConfiguration);
         services.AddSingleton<ITokenServiceApiClientConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().TokenServiceApi);
-
-        services.Configure<IEmployerAccountsApiClientConfiguration>(configuration.GetSection(ConfigurationKeys.EmployerAccountsApiClient));
-        services.AddSingleton<IEmployerAccountsApiClientConfiguration>(cfg => cfg.GetService<IOptions<EmployerAccountsApiClientConfiguration>>().Value);
 
         return services;
     }
