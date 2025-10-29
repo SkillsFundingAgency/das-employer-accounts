@@ -2,8 +2,6 @@
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Jobs.RunOnceJobs;
 using SFA.DAS.EmployerAccounts.Jobs.ServiceRegistrations;
-using SFA.DAS.EmployerAccounts.Jobs.StartupJobs;
-using SFA.DAS.EmployerAccounts.ReadStore.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
 
 namespace SFA.DAS.EmployerAccounts.Jobs.Extensions;
@@ -53,11 +51,7 @@ public static class HostExtensions
             {
                 services.AddConfigurationOptions(context.Configuration);
                 services.AddLogging();
-                services.AddApplicationServices();
-                services.AddReadStoreServices();
                 services.AddDatabaseRegistration();
-                services.AddTransient<CreateReadStoreDatabaseJob>();
-                services.AddTransient<SeedAccountUsersJob>();
                 services.AddTransient<IRunOnceJobsService, RunOnceJobsService>();
                 services.AddTransient<IRetryStrategy>(_ => new ExponentialBackoffRetryAttribute(5, "00:00:10", "00:00:20"));
 

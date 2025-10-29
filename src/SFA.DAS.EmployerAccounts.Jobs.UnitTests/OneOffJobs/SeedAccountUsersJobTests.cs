@@ -13,8 +13,6 @@ using SFA.DAS.EmployerAccounts.Jobs.RunOnceJobs;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
-using SFA.DAS.EmployerAccounts.ReadStore.Data;
-using SFA.DAS.EmployerAccounts.ReadStore.Models;
 using SFA.DAS.EmployerAccounts.TestCommon.DatabaseMock;
 using SFA.DAS.EmployerAccounts.Types.Models;
 using SFA.DAS.Testing.Builders;
@@ -52,13 +50,10 @@ namespace SFA.DAS.EmployerAccounts.Jobs.UnitTests.OneOffJobs
     public class SeedAccountUsersJobTestsFixture
     {
         internal Mock<IRunOnceJobsService> RunOnceService { get; set; }
-        internal Mock<IAccountUsersRepository> AccountUsersRepository { get; set; }
         internal Mock<EmployerAccountsDbContext> EmployerAccountsDbContext { get; set; }
         public Mock<ILogger<SeedAccountUsersJob>> Logger { get; set; }
 
         public ICollection<Membership> Users = new List<Membership>();
-
-        public ICollection<AccountUser> ReadStoreUsers = new List<AccountUser>();
 
         public Membership UserOwnerRole = new Membership { AccountId = 1100, Role = Role.Owner, UserId = 1111, User = new User { Ref = Guid.NewGuid() } };
         public Membership UserTranasactorRole = new Membership { AccountId = 2100, Role = Role.Transactor, UserId = 1111, User = new User { Ref = Guid.NewGuid() } };
@@ -77,9 +72,6 @@ namespace SFA.DAS.EmployerAccounts.Jobs.UnitTests.OneOffJobs
             RunOnceService = new Mock<IRunOnceJobsService>();
             RunOnceService.Setup(x => x.RunOnce(It.IsAny<string>(), It.IsAny<Func<Task>>()))
                 .Returns((string jobName, Func<Task> function) => function());
-
-            AccountUsersRepository = new Mock<IAccountUsersRepository>();
-            AccountUsersRepository.SetupInMemoryCollection(ReadStoreUsers);
 
             UsersToMigrate = new List<Membership> { UserOwnerRole, UserTranasactorRole, UserNoRole };
             _usersDbSet = UsersToMigrate.AsQueryable().BuildMockDbSet().Object; ;
