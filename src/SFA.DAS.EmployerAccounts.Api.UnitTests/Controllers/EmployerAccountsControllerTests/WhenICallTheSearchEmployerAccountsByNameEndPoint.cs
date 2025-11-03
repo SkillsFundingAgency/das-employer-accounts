@@ -39,7 +39,7 @@ public class WhenICallTheSearchEmployerAccountsByNameEndPoint
         _logger = new Mock<ILogger<EmployerAccountsController>>();
       
         _encodingService = new Mock<IEncodingService>();
-        _orchestrator = new AccountsOrchestrator(_mediator.Object, _orchestratorLogger.Object, _mapper.Object, _encodingService.Object);
+        _orchestrator = new AccountsOrchestrator(_mediator.Object, _orchestratorLogger.Object, _mapper.Object);
         
         _accounts =
         [

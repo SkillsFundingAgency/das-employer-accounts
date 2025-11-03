@@ -19,7 +19,7 @@ public class GetPagedAccountsQueryHandler : IRequestHandler<GetPagedEmployerAcco
     public async Task<GetPagedEmployerAccountsResponse> Handle(GetPagedEmployerAccountsQuery message, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(message);
-
+          
         if (!validationResult.IsValid())
         {
             throw new InvalidRequestException(validationResult.ValidationDictionary);
