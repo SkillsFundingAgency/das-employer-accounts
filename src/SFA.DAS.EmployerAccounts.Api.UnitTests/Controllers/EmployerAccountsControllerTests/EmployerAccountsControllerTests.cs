@@ -32,7 +32,7 @@ public abstract class EmployerAccountsControllerTests
         Mapper = new Mock<IMapper>();
         UrlTestHelper = new Mock<IUrlHelper>();
 
-        var orchestrator = new AccountsOrchestrator(MediatorMock.Object, Logger.Object, Mapper.Object, EncodingService.Object);
+        var orchestrator = new AccountsOrchestrator(MediatorMock.Object, Logger.Object, Mapper.Object);
         Controller = new EmployerAccountsController(orchestrator, EncodingService.Object, MediatorMock.Object, Mock.Of<ILogger<EmployerAccountsController>>())
         {
             Url = UrlTestHelper.Object

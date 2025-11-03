@@ -10,7 +10,6 @@ using NUnit.Framework;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountsSinceDate;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestratorTests;
 
@@ -26,7 +25,7 @@ public class WhenIGetAccountsUpdated
     {
         _mediator = new Mock<IMediator>();
         _logger = new Mock<ILogger<AccountsOrchestrator>>();
-        _sut = new AccountsOrchestrator(_mediator.Object, _logger.Object, Mock.Of<IMapper>(), Mock.Of<IEncodingService>());
+        _sut = new AccountsOrchestrator(_mediator.Object, _logger.Object, Mock.Of<IMapper>());
     }
 
     [Test]

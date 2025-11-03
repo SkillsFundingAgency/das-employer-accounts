@@ -18,59 +18,46 @@ using SFA.DAS.EmployerAccounts.Queries.GetPagedEmployerAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamMembersWhichReceiveNotifications;
-using SFA.DAS.Encoding;
 using PayeScheme = SFA.DAS.EmployerAccounts.Api.Types.PayeScheme;
 
 namespace SFA.DAS.EmployerAccounts.Api.Orchestrators;
 
-public class AccountsOrchestrator
+public class AccountsOrchestrator(
+    IMediator mediator,
+    ILogger<AccountsOrchestrator> logger,
+    IMapper mapper)
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<AccountsOrchestrator> _logger;
-    private readonly IMapper _mapper;
-
-    public AccountsOrchestrator(
-        IMediator mediator,
-        ILogger<AccountsOrchestrator> logger,
-        IMapper mapper,
-        IEncodingService encodingService)
-    {
-        _mediator = mediator;
-        _logger = logger;
-        _mapper = mapper;
-    }
-
     public async Task<PayeScheme> GetPayeScheme(long accountId, string payeSchemeRef)
     {
-        _logger.LogInformation("Getting paye scheme {PayeSchemeRef} for account {AccountId}", payeSchemeRef, accountId);
-        
-        var payeSchemeResult = await _mediator.Send(new GetPayeSchemeByRefQuery { AccountId = accountId, Ref = payeSchemeRef });
+        logger.LogInformation("Getting paye scheme {PayeSchemeRef} for account {AccountId}", payeSchemeRef, accountId);
+
+        var payeSchemeResult = await mediator.Send(new GetPayeSchemeByRefQuery { AccountId = accountId, Ref = payeSchemeRef });
         return payeSchemeResult.PayeScheme == null ? null : ConvertToPayeScheme(accountId, payeSchemeResult);
     }
 
     public async Task<AccountDetail> GetAccount(long accountId)
     {
-        _logger.LogInformation("Getting account {AccountId}", accountId);
+        logger.LogInformation("Getting account {AccountId}", accountId);
 
-        var accountResult = await _mediator.Send(new GetEmployerAccountDetailByIdQuery { AccountId = accountId });
+        var accountResult = await mediator.Send(new GetEmployerAccountDetailByIdQuery { AccountId = accountId });
         return accountResult.Account == null ? null : ConvertToAccountDetail(accountResult);
     }
 
     public async Task<AccountDetail> GetAccountById(long accountId)
     {
-        _logger.LogInformation("Getting account {AccountId}", accountId);
+        logger.LogInformation("Getting account {AccountId}", accountId);
 
-        var accountResult = await _mediator.Send(new GetAccountByIdQuery { AccountId = accountId });
+        var accountResult = await mediator.Send(new GetAccountByIdQuery { AccountId = accountId });
         return accountResult.Account == null ? null : ConvertToAccountDetail(accountResult);
     }
 
     public async Task<PagedApiResponse<Account>> GetAccounts(string toDate, int pageSize, int pageNumber)
     {
-        _logger.LogInformation("Getting all accounts.");
+        logger.LogInformation("Getting all accounts.");
 
         toDate = toDate ?? DateTime.MaxValue.ToString("yyyyMMddHHmmss");
 
-        var accountsResult = await _mediator.Send(new GetPagedEmployerAccountsQuery { ToDate = toDate, PageSize = pageSize, PageNumber = pageNumber });
+        var accountsResult = await mediator.Send(new GetPagedEmployerAccountsQuery { ToDate = toDate, PageSize = pageSize, PageNumber = pageNumber });
 
         var data = new List<Account>();
 
@@ -99,25 +86,25 @@ public class AccountsOrchestrator
 
     public async Task<List<TeamMember>> GetAccountTeamMembers(long accountId)
     {
-        _logger.LogInformation("Requesting team members for account {AccountId}", accountId);
+        logger.LogInformation("Requesting team members for account {AccountId}", accountId);
 
-        var teamMembers = await _mediator.Send(new GetTeamMembersRequest(accountId));
-        return teamMembers.TeamMembers.Select(x => _mapper.Map<TeamMember>(x)).ToList();
+        var teamMembers = await mediator.Send(new GetTeamMembersRequest(accountId));
+        return teamMembers.TeamMembers.Select(x => mapper.Map<TeamMember>(x)).ToList();
     }
 
     public async Task<List<TeamMember>> GetAccountTeamMembersWhichReceiveNotifications(long accountId)
     {
-        _logger.LogInformation("Requesting team members which receive notifications for account {AccountId}", accountId);
+        logger.LogInformation("Requesting team members which receive notifications for account {AccountId}", accountId);
 
-        var teamMembers = await _mediator.Send(new GetTeamMembersWhichReceiveNotificationsQuery { AccountId = accountId });
-        return teamMembers.TeamMembersWhichReceiveNotifications.Select(x => _mapper.Map<TeamMember>(x)).ToList();
+        var teamMembers = await mediator.Send(new GetTeamMembersWhichReceiveNotificationsQuery { AccountId = accountId });
+        return teamMembers.TeamMembersWhichReceiveNotifications.Select(x => mapper.Map<TeamMember>(x)).ToList();
     }
 
     public async Task<IEnumerable<PayeView>> GetPayeSchemesForAccount(long accountId)
     {
         try
         {
-            var response = await _mediator.Send(new GetAccountPayeSchemesQuery { AccountId = accountId });
+            var response = await mediator.Send(new GetAccountPayeSchemesQuery { AccountId = accountId });
 
             return response.PayeSchemes;
         }
@@ -130,7 +117,7 @@ public class AccountsOrchestrator
     public async Task AcknowledgeTrainingProviderTask(long accountId)
     {
         var command = new AcknowledgeTrainingProviderTaskCommand(accountId);
-        await _mediator.Send(command);
+        await mediator.Send(command);
     }
 
     private static PayeScheme ConvertToPayeScheme(long accountId, GetPayeSchemeByRefResponse payeSchemeResult)
@@ -197,9 +184,9 @@ public class AccountsOrchestrator
 
     public async Task<PagedApiResponse<AccountNameSummary>> GetAccountsUpdated(DateTime sinceDate, int pageNumber, int pageSize)
     {
-        _logger.LogInformation("Getting accounts updated since {SinceDate}.", sinceDate);
+        logger.LogInformation("Getting accounts updated since {SinceDate}.", sinceDate);
 
-        var response = await _mediator.Send(new GetAccountsSinceDateQuery
+        var response = await mediator.Send(new GetAccountsSinceDateQuery
         {
             SinceDate = sinceDate,
             PageNumber = pageNumber,
@@ -211,15 +198,14 @@ public class AccountsOrchestrator
         return new PagedApiResponse<AccountNameSummary>
         {
             Data = response.Accounts.AccountList
-                .Select(p => new AccountNameSummary 
-                { 
-                    AccountId = p.Id, 
-                    AccountName = p.Name 
+                .Select(p => new AccountNameSummary
+                {
+                    AccountId = p.Id,
+                    AccountName = p.Name
                 })
                 .ToList(),
             Page = pageNumber,
             TotalPages = totalPages
         };
     }
-
 }
