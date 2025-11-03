@@ -1,0 +1,58 @@
+{
+	"info": {
+		"_postman_id": "daa214ec-a04b-446a-b03b-03da925efe43",
+		"name": "Inner API Tests For Employer-Accounts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21174429"
+	},
+	"item": [
+		{
+			"name": "EmployerAccounts-GetAccountUpdates",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-accounts-api.apprenticeships.education.gov.uk/api/accounts/update?sinceDate=2025-09-26T15%3A19%3A28.7121144Z&pageNumber=1&pageSize=1000",
+					"protocol": "https",
+					"host": [
+						"at-accounts-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"update"
+					],
+					"query": [
+						{
+							"key": "sinceDate",
+							"value": "2025-09-26T15%3A19%3A28.7121144Z"
+						},
+						{
+							"key": "pageNumber",
+							"value": "1"
+						},
+						{
+							"key": "pageSize",
+							"value": "1000"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
