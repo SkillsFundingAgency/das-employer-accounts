@@ -3,13 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
-using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
 
 namespace SFA.DAS.EmployerAccounts.Data;
 
@@ -168,7 +166,7 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         account.AddTrainingProviderAcknowledged = true;
     }
 
-    public async Task<GetAccountsResponse> GetAllAccountsUpdates(DateTime? since, int pageNumber, int pageSize)
+    public async Task<Accounts<AccountNameSummary>> GetAccounts(DateTime? since, int pageNumber, int pageSize)
     {
         var query = _db.Value.Accounts.AsNoTracking().AsQueryable();
         if (since.HasValue)
@@ -178,35 +176,26 @@ public class EmployerAccountRepository : IEmployerAccountRepository
 
         var offset = pageSize * (pageNumber - 1);
 
-        var totalCount = await query.CountAsync();
-
-        if (offset > totalCount)
+        var page = new Accounts<AccountNameSummary>()
         {
-            return new GetAccountsResponse()
-            {
-                Accounts = new Accounts<AccountUpdates>()
+            AccountsCount = await query.CountAsync(),
+            AccountList = new List<AccountNameSummary>()
+        };
+
+        if (offset <= page.AccountsCount)
+        {
+            page.AccountList = await query
+                .OrderBy(x => x.Id)
+                .Skip(offset)
+                .Take(pageSize)
+                .Select(x => new AccountNameSummary
                 {
-                    AccountsCount = 0,
-                    AccountList = new List<AccountUpdates>()
-                }
-            };
+                    Id = x.Id,
+                    Name = x.Name
+                })
+                .ToListAsync();
         }
 
-        var pageItems = await query
-            .OrderBy(x => x.Id)
-            .Skip(offset)
-            .Take(pageSize)
-            .Select(x => new AccountUpdates
-            {
-                AccountId = x.Id,
-                AccountName = x.Name
-            })
-            .ToListAsync();
-
-        GetAccountsResponse accounts = new GetAccountsResponse();
-        accounts.Accounts.AccountList = pageItems;
-        accounts.Accounts.AccountsCount = totalCount;
-        
-        return accounts;
+        return page;
     }
 }

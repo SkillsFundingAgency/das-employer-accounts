@@ -1,21 +1,21 @@
-﻿using Moq;
-using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Data.Contracts;
-using SFA.DAS.EmployerAccounts.Models.Account;
-using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Moq;
+using NUnit.Framework;
+using SFA.DAS.EmployerAccounts.Data.Contracts;
+using SFA.DAS.EmployerAccounts.Models.Account;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountsSinceDate;
 
-namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
+namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountsSinceDate
 {
-    public class GetAccountsHandlerTests : QueryBaseTest<GetAccountsQueryHandler, GetAccountsQuery, GetAccountsResponse>
+    public class GetAccountsSinceDateQueryHandlerTests : QueryBaseTest<GetAccountsSinceDateQueryHandler, GetAccountsSinceDateQuery, GetAccountsSinceDateResponse>
     {
         private Mock<IEmployerAccountRepository> _employerAccountRepository;
-        public override GetAccountsQuery Query { get; set; }
-        public override GetAccountsQueryHandler RequestHandler { get; set; }
-        public override Mock<IValidator<GetAccountsQuery>> RequestValidator { get; set; }
+        public override GetAccountsSinceDateQuery Query { get; set; }
+        public override GetAccountsSinceDateQueryHandler RequestHandler { get; set; }
+        public override Mock<IValidator<GetAccountsSinceDateQuery>> RequestValidator { get; set; }
 
         private DateTime SinceDate = DateTime.MinValue;
         private const int PageNumber = 1;
@@ -29,19 +29,18 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
 
             _employerAccountRepository = new Mock<IEmployerAccountRepository>();
             _employerAccountRepository
-                .Setup(x => x.GetAllAccountsUpdates(SinceDate, PageNumber, PageSize))
-                .ReturnsAsync(new GetAccountsResponse { Accounts = new Accounts<AccountUpdates> 
+                .Setup(x => x.GetAccounts(SinceDate, PageNumber, PageSize))
+                .ReturnsAsync(new Accounts<AccountNameSummary>
                 {
-                    AccountList = new List<AccountUpdates>
+                    AccountList = new List<AccountNameSummary>
                     {
-                        new AccountUpdates { AccountId = 1, AccountName = "Test1" },
-                        new AccountUpdates { AccountId = 2, AccountName = "Test2" }
+                        new AccountNameSummary { Id = 1, Name = "Test1" },
+                        new AccountNameSummary { Id = 2, Name = "Test2" }
                     }
-                } 
                 });
 
-            RequestHandler = new GetAccountsQueryHandler(_employerAccountRepository.Object, RequestValidator.Object);
-            Query = new GetAccountsQuery
+            RequestHandler = new GetAccountsSinceDateQueryHandler(_employerAccountRepository.Object, RequestValidator.Object);
+            Query = new GetAccountsSinceDateQuery
             {
                 SinceDate = DateTime.MinValue,
                 PageNumber = 1,
@@ -56,7 +55,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
             await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            _employerAccountRepository.Verify(x => x.GetAllAccountsUpdates(SinceDate, PageNumber, PageSize));
+            _employerAccountRepository.Verify(x => x.GetAccounts(SinceDate, PageNumber, PageSize));
         }
 
         [Test]
@@ -70,5 +69,4 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
             Assert.That(result.Accounts.AccountList, Is.Not.Null);
         }
     }
-
 }

@@ -1,12 +1,12 @@
-﻿using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
-using SFA.DAS.Testing.AutoFixture;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using NUnit.Framework;
+using SFA.DAS.EmployerAccounts.Queries.GetAccountsSinceDate;
+using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
+namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountsSinceDate
 {
-    public class GetAccountsValidatorTest
+    public class GetAccountsSinceDateQueryValidatorTests
     {
         [Test]
         [MoqInlineAutoData(0)]
@@ -14,8 +14,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
         [MoqInlineAutoData(-999)]
         public async Task ThenTheRequestIsNotValidWhenPageNumberIsLessThanOrEqualToZero(
            int pageNumber,
-           GetAccountsQuery query,
-           GetAccountsQueryValidator validator)
+           GetAccountsSinceDateQuery query,
+           GetAccountsSinceDateQueryValidator validator)
         {
             //Arrange
             query.PageNumber = pageNumber;
@@ -36,8 +36,8 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccounts
         [MoqInlineAutoData(-999)]
         public async Task ThenTheRequestIsNotValidWhenPageSizeIsLessThanOrEqualToZero(
            int pageSize,
-           GetAccountsQuery query,
-           GetAccountsQueryValidator validator)
+           GetAccountsSinceDateQuery query,
+           GetAccountsSinceDateQueryValidator validator)
         {
             //Arrange
             query.PageNumber = 1;

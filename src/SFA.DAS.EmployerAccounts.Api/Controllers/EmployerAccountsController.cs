@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +16,6 @@ using SFA.DAS.EmployerAccounts.Commands.CreateAccount;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreementWithOutAudit;
 using SFA.DAS.EmployerAccounts.Commands.UpsertRegisteredUser;
 using SFA.DAS.EmployerAccounts.Exceptions;
-using SFA.DAS.EmployerAccounts.Queries.GetAccounts;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Api.Controllers;
@@ -174,28 +172,27 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         }
     }
 
-    [Route("update", Name = "GetAccountUpdates")]
+    [Route("updated", Name = "GetAccountsUpdated")]
     [Authorize(Policy = ApiRoles.ReadAllAccountUsers)]
     [HttpGet]
-    public async Task<IActionResult> GetAccountUpdates([FromQuery] DateTime sinceDate, int pageNumber = 1, int pageSize = 1000)
+    public async Task<IActionResult> GetAccountsUpdated([FromQuery] DateTime sinceDate, int pageNumber = 1, int pageSize = 1000)
     {
         try
         {
-            var result = await orchestrator.GetAccountUpdates(sinceDate, pageNumber, pageSize);
+            var result = await orchestrator.GetAccountsUpdated(sinceDate, pageNumber, pageSize);
             return Ok(result);
         }
         catch (InvalidRequestException ex)
         {
-            logger.LogError(ex, "InvalidRequestException occurred whilst processing {ActionName} action.", nameof(GetAccounts));
+            logger.LogError(ex, "InvalidRequestException occurred whilst processing {ActionName} action.", nameof(GetAccountsUpdated));
             return new StatusCodeResult((int)HttpStatusCode.BadRequest);
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Exception occurred whilst processing {ActionName} action.", nameof(GetAccounts));
+            logger.LogError(exception, "Exception occurred whilst processing {ActionName} action.", nameof(GetAccountsUpdated));
             return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
         }
     }
-
 
     [Route("search")]
     [Authorize]
