@@ -10,56 +10,54 @@ using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
-using SFA.DAS.Encoding;
 using AccountDetail = SFA.DAS.EmployerAccounts.Models.Account.AccountDetail;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestratorTests
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestratorTests;
+
+internal class WhenIGetAnAccountWithMultipleAgreementTypes
 {
-    internal class WhenIGetAnAccountWithMultipleAgreementTypes
-    {
-        private AccountsOrchestrator _orchestrator;
-        private Mock<IMediator> _mediator;
-        private Mock<ILogger<AccountsOrchestrator>> _log;
-      
-        [SetUp]
-        public void Arrange()
-        {
-            _mediator = new Mock<IMediator>();
+    private AccountsOrchestrator _orchestrator;
+    private Mock<IMediator> _mediator;
+    private Mock<ILogger<AccountsOrchestrator>> _log;
   
-            _log = new Mock<ILogger<AccountsOrchestrator>>();
-          
-            _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>(), Mock.Of<IEncodingService>());
+    [SetUp]
+    public void Arrange()
+    {
+        _mediator = new Mock<IMediator>();
 
-            var response = new GetEmployerAccountDetailByIdResponse
-            {
-                Account = new AccountDetail
-                {
-                    AccountAgreementTypes = new List<AgreementType>()
-                    {
-                        AgreementType.Levy,
-                        AgreementType.Combined
-                    }
-                }
-            };
+        _log = new Mock<ILogger<AccountsOrchestrator>>();
+      
+        _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>());
 
-            _mediator
-                .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response)
-                .Verifiable("Get account was not called");
-        }
-
-        [Test]
-        public async Task ThenResponseShouldHaveAccountAgreementTypeSetToTheLatestAgreementType()
+        var response = new GetEmployerAccountDetailByIdResponse
         {
-            //Arrange
-            AccountAgreementType agreementType = AccountAgreementType.Combined;
-            const long accountId = 11223;
+            Account = new AccountDetail
+            {
+                AccountAgreementTypes = new List<AgreementType>()
+                {
+                    AgreementType.Levy,
+                    AgreementType.Combined
+                }
+            }
+        };
 
-            //Act
-            var result = await _orchestrator.GetAccount(accountId);
-
-            //Assert
-            Assert.That(result.AccountAgreementType, Is.EqualTo(agreementType));
-        }        
+        _mediator
+            .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response)
+            .Verifiable("Get account was not called");
     }
+
+    [Test]
+    public async Task ThenResponseShouldHaveAccountAgreementTypeSetToTheLatestAgreementType()
+    {
+        //Arrange
+        AccountAgreementType agreementType = AccountAgreementType.Combined;
+        const long accountId = 11223;
+
+        //Act
+        var result = await _orchestrator.GetAccount(accountId);
+
+        //Assert
+        Assert.That(result.AccountAgreementType, Is.EqualTo(agreementType));
+    }        
 }

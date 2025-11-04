@@ -11,49 +11,47 @@ using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.Types;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
-using SFA.DAS.Encoding;
 using AccountDetail = SFA.DAS.EmployerAccounts.Models.Account.AccountDetail;
 
-namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestratorTests
+namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestratorTests;
+
+internal class WhenIGetAnAccountWithNoAgreements
 {
-    internal class WhenIGetAnAccountWithNoAgreements
+    private AccountsOrchestrator _orchestrator;
+    private Mock<IMediator> _mediator;
+    private Mock<ILogger<AccountsOrchestrator>> _log;
+
+    [SetUp]
+    public void Arrange()
+    {      
+        _mediator = new Mock<IMediator>();
+        _log = new Mock<ILogger<AccountsOrchestrator>>();
+        _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>());
+    }
+
+    [Test]
+    public async Task ThenResponseShouldHaveAccountAgreementTypeSetToUnknown()
     {
-        private AccountsOrchestrator _orchestrator;
-        private Mock<IMediator> _mediator;
-        private Mock<ILogger<AccountsOrchestrator>> _log;
-
-        [SetUp]
-        public void Arrange()
-        {      
-            _mediator = new Mock<IMediator>();
-            _log = new Mock<ILogger<AccountsOrchestrator>>();
-            _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>(), Mock.Of<IEncodingService>());
-        }
-
-        [Test]
-        public async Task ThenResponseShouldHaveAccountAgreementTypeSetToUnknown()
+        //Arrange
+        var response = new GetEmployerAccountDetailByIdResponse
         {
-            //Arrange
-            var response = new GetEmployerAccountDetailByIdResponse
+            Account = new AccountDetail
             {
-                Account = new AccountDetail
-                {
-                    AccountAgreementTypes = new List<AgreementType>()
-                }
-            };
+                AccountAgreementTypes = new List<AgreementType>()
+            }
+        };
 
-            _mediator
-                .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response)
-                .Verifiable("Get account was not called");
+        _mediator
+            .Setup(x => x.Send(It.IsAny<GetEmployerAccountDetailByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response)
+            .Verifiable("Get account was not called");
 
-            //Act
-            var result = await _orchestrator.GetAccount(12);
+        //Act
+        var result = await _orchestrator.GetAccount(12);
 
-            //Assert
-            _mediator.Verify();
-            _mediator.VerifyNoOtherCalls();
-            result.AccountAgreementType.Should().Be(AccountAgreementType.Unknown);
-        }
+        //Assert
+        _mediator.Verify();
+        _mediator.VerifyNoOtherCalls();
+        result.AccountAgreementType.Should().Be(AccountAgreementType.Unknown);
     }
 }
