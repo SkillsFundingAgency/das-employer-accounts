@@ -15,13 +15,11 @@ using SFA.DAS.EmployerAccounts.Commands.CreateUserAccount;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
-using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers.EmployerAccounts;
+using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers;
 using SFA.DAS.EmployerAccounts.MessageHandlers.Extensions;
 using SFA.DAS.EmployerAccounts.MessageHandlers.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
-using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
-using SFA.DAS.EmployerAccounts.ReadStore.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.Microsoft;
@@ -31,13 +29,8 @@ namespace SFA.DAS.EmployerAccounts.MessageHandlers.UnitTests;
 
 public class WhenAddingServicesToTheContainer
 {
-    [TestCase(typeof(IHandleMessages<AccountUserRemovedEvent>))]
-    [TestCase(typeof(IHandleMessages<AccountUserRolesUpdatedEvent>))]
     [TestCase(typeof(IHandleMessages<CreatedAccountTaskListCompleteEvent>))]
-    [TestCase(typeof(IHandleMessages<UserJoinedEvent>))]
-    [TestCase(typeof(IHandleMessages<CreatedAccountEvent>))]
     [TestCase(typeof(IHandleMessages<HealthCheckEvent>))]
-
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_EventHandlers(Type toResolve)
     {
         var services = new ServiceCollection();
@@ -49,13 +42,9 @@ public class WhenAddingServicesToTheContainer
     }
 
     [TestCase(typeof(IRequestHandler<CreateUserAccountCommand, CreateUserAccountCommandResponse>))]
-    [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand>))]
-    [TestCase(typeof(IRequestHandler<CreateAccountUserCommand>))]
     [TestCase(typeof(IRequestHandler<AccountLevyStatusCommand>))]
     [TestCase(typeof(IRequestHandler<GetUserByRefQuery, GetUserByRefResponse>))]
     [TestCase(typeof(IRequestHandler<CreateAuditCommand>))]
-    [TestCase(typeof(IRequestHandler<RemoveAccountUserCommand>))]
-    [TestCase(typeof(IRequestHandler<UpdateAccountUserCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Handlers(Type toResolve)
     {
         var services = new ServiceCollection();
@@ -79,7 +68,6 @@ public class WhenAddingServicesToTheContainer
         services.AddApplicationServices();
         services.AddConfigurationSections(configuration);
         services.AddMediatorValidators();
-        services.AddReadStoreServices();
         services.AddMessageHandlerDataRepositories();
         services.AddUnitOfWork();
         services.AddNServiceBus();
@@ -92,7 +80,6 @@ public class WhenAddingServicesToTheContainer
         services.AddHttpContextAccessor();
         services.AddAuditServices();
         services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(
-            typeof(UpdateAccountUserCommand).Assembly,
             typeof(AcceptInvitationCommand).Assembly)
         );
 
@@ -101,7 +88,7 @@ public class WhenAddingServicesToTheContainer
 
     private static void RegisterEventHandlers(IServiceCollection services)
     {
-        var handlersAssembly = typeof(AccountUserRemovedEventHandler).Assembly;
+        var handlersAssembly = typeof(HealthCheckEventHandler).Assembly;
         var handlerTypes = handlersAssembly
             .GetTypes()
             .Where(x => x.GetInterfaces()
@@ -113,7 +100,6 @@ public class WhenAddingServicesToTheContainer
             services.AddTransient(handlerInterface, handlerType);
         }
     }
-
 
     private static ConfigurationRoot GenerateStubConfiguration()
     {
