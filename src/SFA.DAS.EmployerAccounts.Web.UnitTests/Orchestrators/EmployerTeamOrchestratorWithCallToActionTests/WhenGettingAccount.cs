@@ -35,6 +35,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
         private Mock<ICookieStorageService<AccountContext>> _mockAccountContext;
         private Mock<ILogger<EmployerTeamOrchestratorWithCallToAction>> _mockLogger;
         private Mock<IEncodingService> _encodingServiceMock;
+        private Mock<EmployerAccountsConfiguration> _configurationMock;
 
         [SetUp]
         public void Arrange()
@@ -122,6 +123,8 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
 
             _encodingServiceMock.Setup(e => e.Decode(HashedAccountId, EncodingType.AccountId)).Returns(AccountId);
 
+            _configurationMock = new Mock<EmployerAccountsConfiguration>();
+
             _sut = new EmployerTeamOrchestratorWithCallToAction(
                 _employerTeamOrchestrator.Object,
                 _mediator.Object,
@@ -130,7 +133,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
                 _mockMapper.Object,
                 _mockAccountContext.Object,
                 _mockLogger.Object,
-                Mock.Of<EmployerAccountsConfiguration>(),
+                _configurationMock.Object,
                 _encodingServiceMock.Object);
         }
 
@@ -512,6 +515,16 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
 
             //Assert                    
             Assert.That(result.Data.CallToActionViewModel.CohortsCount, Is.EqualTo(1));
+        }
+        
+        [Test]
+        public async Task ThenSetsLevyTransparencyFlag()
+        {
+            _configurationMock.Setup(x => x.ShowLevyTransparency).Returns(true);
+            
+            var model = await _sut.GetAccount(HashedAccountId, UserId);
+            
+            Assert.That(model.Data.ShowLevyTransparency, Is.True);
         }
     }
 }
