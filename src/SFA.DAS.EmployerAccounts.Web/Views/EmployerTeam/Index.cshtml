@@ -146,8 +146,14 @@ else
                 @if (Model.Data.ShowLevyTransparency)
                 {
                     <p class="govuk-caption-m govuk-!-width-two-thirds govuk-!-margin-bottom-2">Manage apprenticeship funds</p>
-                    <p class="govuk-inset-text">To learn how the apprenticeship levy is used to fund apprenticeships in England, 
-                        <a class="govuk-link govuk-link--no-visited-state" href="https://youtu.be/0zjyTC2bGOU?si=S2wDdtwkPg8S2hAY" target="_blank">watch this video on how the apprenticeship budget works (opens in new tab).</a></p>
+                    @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                    {
+                        <p class="govuk-inset-text">To learn how the apprenticeship levy is used to fund apprenticeships
+                            in England,
+                            <a class="govuk-link govuk-link--no-visited-state"
+                               href="https://youtu.be/0zjyTC2bGOU?si=S2wDdtwkPg8S2hAY" target="_blank">watch this video
+                                on how the apprenticeship budget works (opens in new tab).</a></p>
+                    }
                 }
                 else
                 {
