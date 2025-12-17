@@ -146,8 +146,14 @@ else
                 @if (Model.Data.ShowLevyTransparency)
                 {
                     <p class="govuk-caption-m govuk-!-width-two-thirds govuk-!-margin-bottom-2">Manage apprenticeship funds</p>
-                    <p class="govuk-inset-text">To learn how the apprenticeship levy is used to fund apprenticeships in England, 
-                        <a class="govuk-link govuk-link--no-visited-state" href="https://youtu.be/0zjyTC2bGOU?si=S2wDdtwkPg8S2hAY" target="_blank">watch this video on how the apprenticeship budget works (opens in new tab).</a></p>
+                    @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                    {
+                        <p class="govuk-inset-text">To learn how the apprenticeship levy is used to fund apprenticeships
+                            in England,
+                            <a class="govuk-link govuk-link--no-visited-state"
+                               href="https://youtu.be/0zjyTC2bGOU?si=S2wDdtwkPg8S2hAY" target="_blank">watch this video
+                                on how the apprenticeship budget works (opens in new tab).</a></p>
+                    }
                 }
                 else
                 {
@@ -157,13 +163,26 @@ else
                 <div class="das-cards">
                     @if (Model.Data.ShowYourFundingReservationsLink())
                     {
-                        <div class="das-card">
-                            <h3 class="govuk-heading-m das-card__heading">
-                                <a href="@UrlHelpers.ReservationsAction("reservations/manage")"
-                                   class="govuk-link govuk-link--no-visited-state">Your funding reservations</a>
-                            </h3>
-                            <p class="govuk-body govuk-!-font-size-16">Reserve and manage funding.</p>
-                        </div>
+                        if (Model.Data.ShowLevyTransparency)
+                        {
+                            <div class="das-card">
+                                <h3 class="govuk-heading-m das-card__heading">
+                                    <a href="@UrlHelpers.ReservationsAction("reservations/manage")"
+                                       class="govuk-link govuk-link--no-visited-state">Funding reservations</a>
+                                </h3>
+                                <p class="govuk-body govuk-!-font-size-16">Reserve and manage funding.</p>
+                            </div>    
+                        }
+                        else
+                        {
+                            <div class="das-card">
+                                <h3 class="govuk-heading-m das-card__heading">
+                                    <a href="@UrlHelpers.ReservationsAction("reservations/manage")"
+                                       class="govuk-link govuk-link--no-visited-state">Your funding reservations</a>
+                                </h3>
+                                <p class="govuk-body govuk-!-font-size-16">Reserve and manage funding.</p>
+                            </div>    
+                        }
                     }
 
                     @if (Model.Data.ShowLevyTransparency)
@@ -173,7 +192,14 @@ else
                                 <a href="@UrlHelpers.EmployerFinanceAction("finance")"
                                    class="govuk-link govuk-link--no-visited-state">Funding and payments</a>
                             </h3>
-                            <p class="govuk-body govuk-!-font-size-16">View and download any levy transactions.</p>
+                            @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">View and download any levy transactions.</p>    
+                            }
+                            else
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">View and download transactions.</p>
+                            }
                         </div>
                     }
                     else
@@ -196,7 +222,14 @@ else
                                 <a href="@UrlHelpers.EmployerFinanceAction("transfers")"
                                    class="govuk-link govuk-link--no-visited-state">Transfers</a>
                             </h3>
-                            <p class="govuk-body govuk-!-font-size-16">Check the transfer balance, find businesses to partner with, and manage levy transfers.</p>
+                            @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">Check the transfer balance, find businesses to partner with, and manage levy transfers.</p>
+                            }
+                            else
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">View your apprentices funded by a transfer. Find a large business to fund your apprenticeship training with a transfer. </p>
+                            }
                         </div>
                     }
                     else
