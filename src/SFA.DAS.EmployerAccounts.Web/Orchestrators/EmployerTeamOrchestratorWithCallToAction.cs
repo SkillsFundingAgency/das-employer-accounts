@@ -74,8 +74,8 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
             }
         }
 
+        
         accountResponse.Data.ShowLevyTransparency = _configuration.ShowLevyTransparency;
-
         SaveContext(accountResponse);
         return accountResponse;
     }
@@ -134,7 +134,7 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
 
             var vacanciesResponseTask = _mediator.Send(new GetVacanciesRequest
             {
-                HashedAccountId = hashedAccountId,
+                AccountId = accountId,
                 ExternalUserId = externalUserId
             });
 

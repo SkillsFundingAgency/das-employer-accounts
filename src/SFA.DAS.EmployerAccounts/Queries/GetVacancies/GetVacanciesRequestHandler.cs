@@ -28,18 +28,18 @@ public class GetVacanciesRequestHandler : IRequestHandler<GetVacanciesRequest, G
             throw new InvalidRequestException(validationResult.ValidationDictionary);
         }
 
-        _logger.LogInformation("Getting vacancies for hashed account id {HashedAccountId}", message.HashedAccountId);
+        _logger.LogInformation("Getting vacancies for hashed account id {AccountId}", message.AccountId);
 
         try
         {
             return new GetVacanciesResponse
             {
-                Vacancies = await _service.GetVacancies(message.HashedAccountId)
+                Vacancies = await _service.GetVacancies(message.AccountId)
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get vacancies for {HashedAccountId}", message.HashedAccountId);
+            _logger.LogError(ex, "Failed to get vacancies for {AccountId}", message.AccountId);
 
             return new GetVacanciesResponse
             {
