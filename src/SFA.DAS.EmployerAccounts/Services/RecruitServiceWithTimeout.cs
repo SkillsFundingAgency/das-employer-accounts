@@ -2,7 +2,6 @@
 using Polly;
 using Polly.Registry;
 using Polly.Timeout;
-using SFA.DAS.EmployerAccounts.Exceptions;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
@@ -18,11 +17,11 @@ public class RecruitServiceWithTimeout : IRecruitService
         _pollyPolicy = pollyRegistry.Get<IAsyncPolicy>(Constants.DefaultServiceTimeout);
     }
 
-    public async Task<IEnumerable<Vacancy>> GetVacancies(string hashedAccountId, int maxVacanciesToGet = int.MaxValue)
+    public async Task<IEnumerable<Vacancy>> GetVacancies(long accountId)
     {
         try
         {
-            return await _pollyPolicy.ExecuteAsync(() => _recruitService.GetVacancies(hashedAccountId, maxVacanciesToGet));
+            return await _pollyPolicy.ExecuteAsync(() => _recruitService.GetVacancies(accountId));
         }
         catch (TimeoutRejectedException ex)
         {

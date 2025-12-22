@@ -20,27 +20,27 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
         private Mock<IRecruitService> _recruitService;
         private Vacancy _vacancy;
         private Mock<ILogger<GetVacanciesRequestHandler>> _logger;
-        private string _hashedAccountId;
+        private long _accountId;
 
         [SetUp]
         public void Arrange()
         {
             SetUp();
 
-            _hashedAccountId = "123ABC";
+            _accountId = 99832;
 
             _vacancy = new Vacancy();
             _logger = new Mock<ILogger<GetVacanciesRequestHandler>>();
 
             _recruitService = new Mock<IRecruitService>();
             _recruitService
-                .Setup(s => s.GetVacancies(_hashedAccountId, int.MaxValue))
+                .Setup(s => s.GetVacancies(_accountId))
                 .ReturnsAsync(new List<Vacancy> { _vacancy });
             RequestHandler = new GetVacanciesRequestHandler(RequestValidator.Object, _logger.Object, _recruitService.Object);
 
             Query = new GetVacanciesRequest
             {
-                HashedAccountId = _hashedAccountId
+                AccountId = _accountId
             };
         }
 
@@ -51,7 +51,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
             await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            _recruitService.Verify(x => x.GetVacancies(_hashedAccountId, int.MaxValue), Times.Once);
+            _recruitService.Verify(x => x.GetVacancies(_accountId), Times.Once);
         }
 
      

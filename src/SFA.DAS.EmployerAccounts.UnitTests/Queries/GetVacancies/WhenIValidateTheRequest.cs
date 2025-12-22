@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
         public void ThenShouldReturnValidIfRequestIsValid()
         {
             //Act
-            var result = _validator.Validate(new GetVacanciesRequest { HashedAccountId = "123ABC", ExternalUserId = "user123" });
+            var result = _validator.Validate(new GetVacanciesRequest { AccountId = 1, ExternalUserId = "user123" });
 
             //Assert
             Assert.That(result.IsValid(), Is.True);
@@ -37,7 +37,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
         public void ThenShouldReturnInvalidIfNoExternalUserIdIsProvided()
         {
             //Act
-            var result = _validator.Validate(new GetVacanciesRequest { HashedAccountId = "123ABC" });
+            var result = _validator.Validate(new GetVacanciesRequest { AccountId = 123 });
 
             //Assert
             Assert.That(result.IsValid(), Is.False);
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
         public void ThenShouldReturnInvalidIfAccountIdIsEmpty()
         {
             //Act
-            var result = _validator.Validate(new GetVacanciesRequest { HashedAccountId = string.Empty, ExternalUserId = "user123" });
+            var result = _validator.Validate(new GetVacanciesRequest { AccountId = 0, ExternalUserId = "user123" });
 
             //Assert
             Assert.That(result.IsValid(), Is.False);
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
         public void ThenShouldReturnInvalidIfExternalUserIdIsEmpty()
         {
             //Act
-            var result = _validator.Validate(new GetVacanciesRequest { HashedAccountId = "123ABC", ExternalUserId = string.Empty });
+            var result = _validator.Validate(new GetVacanciesRequest { AccountId = 1, ExternalUserId = string.Empty });
 
             //Assert
             Assert.That(result.IsValid(), Is.False);
