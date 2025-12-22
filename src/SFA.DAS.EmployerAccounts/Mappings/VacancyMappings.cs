@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SFA.DAS.EmployerAccounts.Dtos;
+using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Vacancies;
 using SFA.DAS.EmployerAccounts.Models.Recruit;
 
 namespace SFA.DAS.EmployerAccounts.Mappings;
