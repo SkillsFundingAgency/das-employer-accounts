@@ -34,7 +34,7 @@ public class GetVacanciesRequestHandler : IRequestHandler<GetVacanciesRequest, G
         {
             return new GetVacanciesResponse
             {
-                Vacancies = await _service.GetVacancies(message.AccountId)
+                Vacancy = await _service.GetVacancies(message.AccountId)
             };
         }
         catch (Exception ex)

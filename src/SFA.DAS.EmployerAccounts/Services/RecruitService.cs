@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
-using Newtonsoft.Json;
-using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Models.Recruit;
-using SFA.DAS.EmployerAccounts.Dtos;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.Vacancies;
 using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Vacancies;
 using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
@@ -22,12 +19,13 @@ public class RecruitService : IRecruitService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<Vacancy>> GetVacancies(long accountId)
+    public async Task<Vacancy> GetVacancies(long accountId)
     {
         var request = new GetVacanciesApiRequest(accountId);
 
         var response = await _outerApiClient.Get<GetVacanciesApiResponse>(request);
-        
-        return _mapper.Map<IEnumerable<VacancySummary>, IEnumerable<Vacancy>>(response.Vacancies);
+
+        var vacancy = response.Vacancies.FirstOrDefault();
+        return vacancy == null ? null : _mapper.Map<VacancySummary, Vacancy>(vacancy);
     }
 }

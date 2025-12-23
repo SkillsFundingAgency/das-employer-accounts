@@ -3,5 +3,4 @@
 public class GetVacanciesRequest : IRequest<GetVacanciesResponse>
 {
     public long AccountId { get; set; }
-    public string ExternalUserId { get; set; }
 }

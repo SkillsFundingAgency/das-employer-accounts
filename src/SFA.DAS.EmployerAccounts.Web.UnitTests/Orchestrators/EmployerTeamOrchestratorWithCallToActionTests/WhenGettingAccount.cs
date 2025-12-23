@@ -61,7 +61,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetVacanciesResponse
                 {
-                    Vacancies = new List<Vacancy>()
+                    Vacancy = new Vacancy()
                 });
 
             _mediator.Setup(m => m.Send(It.Is<GetReservationsRequest>(q => q.AccountId == AccountId), It.IsAny<CancellationToken>()))
@@ -301,20 +301,18 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
         {
             //Arrange            
             var vacancy = new Vacancy { Title = Guid.NewGuid().ToString() };
-            var vacancies = new List<Vacancy> { vacancy };
 
             var expectedtitle = Guid.NewGuid().ToString();
             var expectedvacancy = new VacancyViewModel { Title = expectedtitle };
-            var expectedVacancies = new List<VacancyViewModel> { expectedvacancy };
-
+            
             _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
                .ReturnsAsync(new GetVacanciesResponse
                {
-                   Vacancies = vacancies
+                   Vacancy = vacancy
                });
 
-            _mockMapper.Setup(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyViewModel>>(vacancies))
-                .Returns(expectedVacancies);
+            _mockMapper.Setup(m => m.Map<Vacancy, VacancyViewModel>(vacancy))
+                .Returns(expectedvacancy);
 
             // Act
             var actual = await _sut.GetAccount(HashedAccountId, UserId);
@@ -322,8 +320,8 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             //Assert
             Assert.That(actual.Data, Is.Not.Null);
             Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount, Is.EqualTo(1));
-            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Title, Is.EqualTo(expectedvacancy.Title));
-            _mockMapper.Verify(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyViewModel>>(vacancies), Times.Once);
+            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Title, Is.EqualTo(expectedvacancy.Title));
+            _mockMapper.Verify(m => m.Map<Vacancy, VacancyViewModel>(vacancy), Times.Once);
         }
 
         [Test]

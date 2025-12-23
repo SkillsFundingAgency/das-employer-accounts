@@ -18,16 +18,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
         private IAsyncPolicy _policy;
         private long _accountId;
         private RecruitServiceWithTimeout _recruitServiceWithTimeout;
-        private IEnumerable<Vacancy> _vacancies = new List<Vacancy>()
+        private Vacancy _vacancy = new()
         {
-             new Vacancy()
-            {
-                Title = "Vacancy 1",
-            },
-             new Vacancy()
-             {
-                 Title = "Vacancy 2"
-             }
+            Title = "Vacancy 1",
         };
 
         [SetUp]
@@ -37,11 +30,13 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
             _mockRecruitService = new Mock<IRecruitService>();
 
             _mockRecruitService.Setup(rs => rs.GetVacancies(_accountId))
-                .ReturnsAsync(_vacancies);
+                .ReturnsAsync(_vacancy);
                 
             _policy = Policy.NoOpAsync();
-            var registryPolicy = new PolicyRegistry();
-            registryPolicy.Add(Constants.DefaultServiceTimeout, _policy);
+            var registryPolicy = new PolicyRegistry
+            {
+                { Constants.DefaultServiceTimeout, _policy }
+            };
 
             _recruitServiceWithTimeout = new RecruitServiceWithTimeout(_mockRecruitService.Object, registryPolicy);
         }
@@ -63,7 +58,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
             var recruitsResult = await _recruitServiceWithTimeout.GetVacancies(_accountId);
 
             // assert 
-            Assert.That(_vacancies, Is.SameAs(recruitsResult));
+            Assert.That(_vacancy, Is.SameAs(recruitsResult));
         }
 
         [Test]

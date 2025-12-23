@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Vacancies;
 
 public class GetVacanciesApiResponse
@@ -7,6 +9,7 @@ public class GetVacanciesApiResponse
 
 public class VacancySummary
 {
+    public Guid Id { get; set; }
     public string Title { get; set; }
     public string Status { get; set; }
     public int? NoOfNewApplications { get; set; }
@@ -14,5 +17,4 @@ public class VacancySummary
     public int? NoOfUnsuccessfulApplications { get; set; }
     public DateTime? ClosingDate { get; set; }
     public DateTime? ClosedDate { get; set; }
-    public string RaaManageVacancyUrl { get; set; }
 }

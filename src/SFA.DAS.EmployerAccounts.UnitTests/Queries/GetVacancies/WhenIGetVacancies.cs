@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -35,7 +36,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
             _recruitService = new Mock<IRecruitService>();
             _recruitService
                 .Setup(s => s.GetVacancies(_accountId))
-                .ReturnsAsync(new List<Vacancy> { _vacancy });
+                .ReturnsAsync(_vacancy);
             RequestHandler = new GetVacanciesRequestHandler(RequestValidator.Object, _logger.Object, _recruitService.Object);
 
             Query = new GetVacanciesRequest
@@ -62,7 +63,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetVacancies
             var response = await RequestHandler.Handle(Query, CancellationToken.None);
 
             //Assert
-            Assert.That((ICollection) response.Vacancies, Does.Contain(_vacancy));
+            response.Vacancy.Should().BeEquivalentTo(_vacancy);
         }
 
         public override Task ThenIfTheMessageIsValidTheRepositoryIsCalled()

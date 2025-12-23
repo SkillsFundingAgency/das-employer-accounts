@@ -4,5 +4,5 @@ namespace SFA.DAS.EmployerAccounts.Interfaces;
 
 public interface IRecruitService
 {
-    Task<IEnumerable<Vacancy>> GetVacancies(long accountId);
+    Task<Vacancy> GetVacancies(long accountId);
 }

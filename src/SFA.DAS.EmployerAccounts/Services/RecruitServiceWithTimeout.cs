@@ -17,7 +17,7 @@ public class RecruitServiceWithTimeout : IRecruitService
         _pollyPolicy = pollyRegistry.Get<IAsyncPolicy>(Constants.DefaultServiceTimeout);
     }
 
-    public async Task<IEnumerable<Vacancy>> GetVacancies(long accountId)
+    public async Task<Vacancy> GetVacancies(long accountId)
     {
         try
         {

@@ -13,4 +13,5 @@ public class VacancyViewModel
     public int? NoOfSuccessfulApplications { get; set; }
     public int? NoOfUnsuccessfulApplications { get; set; }
     public int? NoOfApplications => NoOfNewApplications + NoOfSuccessfulApplications + NoOfUnsuccessfulApplications;
+    public string Id { get; set; }
 }
