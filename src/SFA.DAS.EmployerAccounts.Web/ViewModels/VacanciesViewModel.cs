@@ -2,7 +2,7 @@
 
 public class VacanciesViewModel
 {
-    public int VacancyCount => Vacancies?.Count() ?? 0;
+    public int VacancyCount => Vacancy != null ? 1 : 0;
 
-    public IEnumerable<VacancyViewModel> Vacancies { get; set; }
+    public VacancyViewModel Vacancy { get; set; }
 }

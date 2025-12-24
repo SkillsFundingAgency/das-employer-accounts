@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.IO;
+using System.Security.Policy;
+using AutoMapper;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
@@ -74,8 +76,8 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
             }
         }
 
+        
         accountResponse.Data.ShowLevyTransparency = _configuration.ShowLevyTransparency;
-
         SaveContext(accountResponse);
         return accountResponse;
     }
@@ -134,8 +136,7 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
 
             var vacanciesResponseTask = _mediator.Send(new GetVacanciesRequest
             {
-                HashedAccountId = hashedAccountId,
-                ExternalUserId = externalUserId
+                AccountId = accountId
             });
 
             await Task.WhenAll(reservationsResponseTask, vacanciesResponseTask, apprenticeshipsResponseTask, accountCohortResponseTask).ConfigureAwait(false);
@@ -154,12 +155,18 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
             }
             else
             {
+                var vacancyViewModel = _mapper.Map<Vacancy, VacancyViewModel>(vacanciesResponse.Vacancy);
+                if (vacancyViewModel != null)
+                {
+                    vacancyViewModel.ManageVacancyUrl = $"{_configuration.EmployerRecruitBaseUrl}accounts/{hashedAccountId}/vacancies/{vacancyViewModel.Id}/manage";    
+                }
+                
                 viewModel = new CallToActionViewModel
                 {
                     Reservations = reservationsResponse.Reservations?.ToList(),
                     VacanciesViewModel = new VacanciesViewModel
                     {
-                        Vacancies = _mapper.Map<IEnumerable<Vacancy>, IEnumerable<VacancyViewModel>>(vacanciesResponse.Vacancies)
+                        Vacancy = vacancyViewModel
                     },
                     Apprenticeships = _mapper.Map<IEnumerable<Apprenticeship>, IEnumerable<ApprenticeshipViewModel>>(apprenticeshipsResponse?.Apprenticeships),
                     Cohorts = accountCohortResponse.Cohort != null

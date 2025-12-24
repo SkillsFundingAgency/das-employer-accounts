@@ -4,6 +4,7 @@ public class VacancyRejectedViewComponent : ViewComponent
 {
     public IViewComponentResult Invoke(AccountDashboardViewModel model)
     {
-        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancies.First(m => m.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Referred));
+        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancy.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Referred
+            ? model.CallToActionViewModel.VacanciesViewModel.Vacancy : null);
     }
 }

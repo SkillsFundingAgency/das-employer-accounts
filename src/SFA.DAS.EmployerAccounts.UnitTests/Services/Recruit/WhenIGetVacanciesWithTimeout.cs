@@ -16,32 +16,27 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
     {
         private Mock<IRecruitService> _mockRecruitService;
         private IAsyncPolicy _policy;
-        private string _hashedAccountId;
+        private long _accountId;
         private RecruitServiceWithTimeout _recruitServiceWithTimeout;
-        private IEnumerable<Vacancy> _vacancies = new List<Vacancy>()
+        private Vacancy _vacancy = new()
         {
-             new Vacancy()
-            {
-                Title = "Vacancy 1",
-            },
-             new Vacancy()
-             {
-                 Title = "Vacancy 2"
-             }
+            Title = "Vacancy 1",
         };
 
         [SetUp]
         public void Arrange()
         {
-            _hashedAccountId = Guid.NewGuid().ToString();
+            _accountId = 20002;
             _mockRecruitService = new Mock<IRecruitService>();
 
-            _mockRecruitService.Setup(rs => rs.GetVacancies(_hashedAccountId, int.MaxValue))
-                .ReturnsAsync(_vacancies);
+            _mockRecruitService.Setup(rs => rs.GetVacancies(_accountId))
+                .ReturnsAsync(_vacancy);
                 
             _policy = Policy.NoOpAsync();
-            var registryPolicy = new PolicyRegistry();
-            registryPolicy.Add(Constants.DefaultServiceTimeout, _policy);
+            var registryPolicy = new PolicyRegistry
+            {
+                { Constants.DefaultServiceTimeout, _policy }
+            };
 
             _recruitServiceWithTimeout = new RecruitServiceWithTimeout(_mockRecruitService.Object, registryPolicy);
         }
@@ -50,20 +45,20 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
         public async Task ThenTheRecruitServiceIsCalled()
         {
             //act
-            await _recruitServiceWithTimeout.GetVacancies(_hashedAccountId);
+            await _recruitServiceWithTimeout.GetVacancies(_accountId);
 
             // assert 
-            _mockRecruitService.Verify(x => x.GetVacancies(_hashedAccountId,int.MaxValue), Times.Once);
+            _mockRecruitService.Verify(x => x.GetVacancies(_accountId), Times.Once);
         }
 
         [Test]
         public async Task ThenTheRecruitServiceReturnsTheSameReservation()
         {
             //act
-            var recruitsResult = await _recruitServiceWithTimeout.GetVacancies(_hashedAccountId);
+            var recruitsResult = await _recruitServiceWithTimeout.GetVacancies(_accountId);
 
             // assert 
-            Assert.That(_vacancies, Is.SameAs(recruitsResult));
+            Assert.That(_vacancy, Is.SameAs(recruitsResult));
         }
 
         [Test]
@@ -76,9 +71,9 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
 
             try
             {
-                _mockRecruitService.Setup(p => p.GetVacancies(_hashedAccountId, int.MaxValue))
+                _mockRecruitService.Setup(p => p.GetVacancies(_accountId))
                     .Throws<TimeoutRejectedException>();
-                await _recruitServiceWithTimeout.GetVacancies(_hashedAccountId);
+                await _recruitServiceWithTimeout.GetVacancies(_accountId);
             }
             catch (Exception e)
             {

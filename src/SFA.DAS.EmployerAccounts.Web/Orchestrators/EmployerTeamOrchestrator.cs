@@ -668,7 +668,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             return false;
         }
 
-        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Status.Equals(VacancyStatus.Draft))
+        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Status.Equals(VacancyStatus.Draft))
         {
             viewModel.ComponentName = ComponentConstants.VacancyDraft;
             viewModel.PanelType = PanelType.Summary;
@@ -687,7 +687,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             return false;
         }
 
-        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Status.Equals(VacancyStatus.Submitted))
+        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Status.Equals(VacancyStatus.Submitted))
         {
             viewModel.ComponentName = ComponentConstants.VacancyPendingReview;
             viewModel.PanelType = PanelType.Summary;
@@ -706,7 +706,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             return false;
         }
 
-        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Status.Equals(VacancyStatus.Live))
+        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Status.Equals(VacancyStatus.Live))
         {
             viewModel.ComponentName = ComponentConstants.VacancyLive;
             viewModel.PanelType = PanelType.Summary;
@@ -725,7 +725,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             return false;
         }
 
-        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Status.Equals(VacancyStatus.Closed))
+        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Status.Equals(VacancyStatus.Closed))
         {
             viewModel.ComponentName = ComponentConstants.VacancyClosed;
             viewModel.PanelType = PanelType.Summary;
@@ -744,7 +744,7 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
             return false;
         }
 
-        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Status.Equals(VacancyStatus.Referred))
+        if (viewModel.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Status.Equals(VacancyStatus.Referred))
         {
             viewModel.ComponentName = ComponentConstants.VacancyRejected;
             viewModel.PanelType = PanelType.Summary;
