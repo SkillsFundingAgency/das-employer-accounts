@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.IO;
+using AutoMapper;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -35,7 +36,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
         private Mock<ICookieStorageService<AccountContext>> _mockAccountContext;
         private Mock<ILogger<EmployerTeamOrchestratorWithCallToAction>> _mockLogger;
         private Mock<IEncodingService> _encodingServiceMock;
-        private Mock<EmployerAccountsConfiguration> _configurationMock;
+        private EmployerAccountsConfiguration _configurationMock;
 
         [SetUp]
         public void Arrange()
@@ -123,7 +124,11 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
 
             _encodingServiceMock.Setup(e => e.Decode(HashedAccountId, EncodingType.AccountId)).Returns(AccountId);
 
-            _configurationMock = new Mock<EmployerAccountsConfiguration>();
+            _configurationMock = new EmployerAccountsConfiguration
+            {
+                EmployerRecruitBaseUrl = "http://localhost:5000/",
+                ShowLevyTransparency = false
+            };
 
             _sut = new EmployerTeamOrchestratorWithCallToAction(
                 _employerTeamOrchestrator.Object,
@@ -133,7 +138,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
                 _mockMapper.Object,
                 _mockAccountContext.Object,
                 _mockLogger.Object,
-                _configurationMock.Object,
+                _configurationMock,
                 _encodingServiceMock.Object);
         }
 
@@ -300,7 +305,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
         public async Task ThenShouldReturnTheVacancies()
         {
             //Arrange            
-            var vacancy = new Vacancy { Title = Guid.NewGuid().ToString() };
+            var vacancy = new Vacancy { Title = Guid.NewGuid().ToString(), Id = Guid.NewGuid()};
 
             var expectedtitle = Guid.NewGuid().ToString();
             var expectedvacancy = new VacancyViewModel { Title = expectedtitle };
@@ -321,6 +326,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
             Assert.That(actual.Data, Is.Not.Null);
             Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount, Is.EqualTo(1));
             Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Title, Is.EqualTo(expectedvacancy.Title));
+            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.ManageVacancyUrl, Is.EqualTo($"{_configurationMock.EmployerRecruitBaseUrl}accounts/{HashedAccountId}/vacancies/{actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Id}/manage"));
             _mockMapper.Verify(m => m.Map<Vacancy, VacancyViewModel>(vacancy), Times.Once);
         }
 
@@ -518,7 +524,7 @@ namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrche
         [Test]
         public async Task ThenSetsLevyTransparencyFlag()
         {
-            _configurationMock.Setup(x => x.ShowLevyTransparency).Returns(true);
+            _configurationMock.ShowLevyTransparency = true;
             
             var model = await _sut.GetAccount(HashedAccountId, UserId);
             
