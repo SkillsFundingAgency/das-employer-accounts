@@ -102,7 +102,7 @@ public class Startup
 
         services.AddAndConfigureGovUkAuthentication(govConfig, new AuthRedirects
         {
-            SignedOutRedirectUrl = "/signed-out",
+            SignedOutRedirectUrl = "/",
             LocalStubLoginPath = "/service/SignIn-Stub"
         }, null, typeof(UserAccountService));
 

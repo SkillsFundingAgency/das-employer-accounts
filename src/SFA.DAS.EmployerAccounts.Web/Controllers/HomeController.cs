@@ -51,6 +51,13 @@ public class HomeController(
             }
         }
 
+        if (TempData["AutoSignOut"] is bool autoSignOut)
+        {
+            TempData["AutoSignOut"] = autoSignOut;
+            logger.LogInformation("Index: Detected sign-out redirect. Redirecting to signed-out page. AutoSignOut: {AutoSignOut}", autoSignOut);
+            return RedirectToRoute(RouteNames.SignedOut);
+        }
+
         var userIdClaim = HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ControllerConstants.UserRefClaimKeyName));
 
         OrchestratorResponse<UserAccountsViewModel> accounts;
@@ -267,8 +274,8 @@ public class HomeController(
         return RedirectToAction(ControllerConstants.IndexActionName);
     }
 
-    [Route("signOut", Name = RouteNames.SignOut)]
-    [Route("service/signout")]
+    [Route("signout", Name = RouteNames.SignOut)]
+    [Route("~/service/signout")]
     public async Task<IActionResult> SignOutUser([FromQuery] bool autoSignOut = false)
     {
         var idToken = await HttpContext.GetTokenAsync("id_token");
@@ -289,12 +296,13 @@ public class HomeController(
         if (autoSignOut)
         {
             logger.LogInformation("AutoSignOut: User is being signed out automatically due to session timeout. Storing AutoSignOut flag in TempData.");
-            TempData["AutoSignOut"] = true;
         }
         else
         {
             logger.LogInformation("SignOut: User is signing out manually.");
         }
+        
+        TempData["AutoSignOut"] = autoSignOut;
 
         return SignOut(authenticationProperties, schemes.ToArray());
     }
