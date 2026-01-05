@@ -288,7 +288,12 @@ public class HomeController(
 
         if (autoSignOut)
         {
+            logger.LogInformation("AutoSignOut: User is being signed out automatically due to session timeout. Storing AutoSignOut flag in TempData.");
             TempData["AutoSignOut"] = true;
+        }
+        else
+        {
+            logger.LogInformation("SignOut: User is signing out manually.");
         }
 
         return SignOut(authenticationProperties, schemes.ToArray());
@@ -305,7 +310,17 @@ public class HomeController(
     public IActionResult SignedOut()
     {
         var autoSignOut = TempData["AutoSignOut"] as bool? ?? false;
-        return autoSignOut ? View("AutoSignOut") : RedirectToAction(ControllerConstants.IndexActionName);
+        
+        if (autoSignOut)
+        {
+            logger.LogInformation("AutoSignOut: User has been redirected to signed-out page after automatic sign-out. TempData flag was present. Displaying AutoSignOut view.");
+            return View("AutoSignOut");
+        }
+        else
+        {
+            logger.LogInformation("SignedOut: User has been redirected to signed-out page after manual sign-out. Displaying SignedOut view.");
+            return View("SignedOut");
+        }
     }
 
     [HttpGet]
