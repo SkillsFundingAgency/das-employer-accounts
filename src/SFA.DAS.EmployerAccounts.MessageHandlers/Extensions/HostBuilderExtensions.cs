@@ -5,8 +5,6 @@ using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.MessageHandlers.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.MessageHandlers.Startup;
-using SFA.DAS.EmployerAccounts.ReadStore.Application.Commands;
-using SFA.DAS.EmployerAccounts.ReadStore.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
 using SFA.DAS.EmployerAccounts.Startup;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
@@ -38,7 +36,6 @@ public static class HostBuilderExtensions
                 .AddEntityFramework(employerAccountsConfiguration);
 
             services.AddApplicationServices();
-            services.AddReadStoreServices();
             services.AddMessageHandlerDataRepositories();
             services.AddMediatorValidators();
             services.AddNServiceBusUnitOfWork();
@@ -48,7 +45,6 @@ public static class HostBuilderExtensions
             services.AddAuditServices();
             services.AddHttpContextAccessor();
             services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(
-                typeof(CreateAccountUserCommandHandler).Assembly,
                 typeof(AccountLevyStatusCommandHandler).Assembly)
             );
             services.AddNServiceBus();

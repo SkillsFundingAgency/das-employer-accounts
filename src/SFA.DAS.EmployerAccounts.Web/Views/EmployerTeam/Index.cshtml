@@ -143,53 +143,121 @@ else
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
             <section>
                 <h2 class="govuk-heading-l govuk-!-margin-bottom-2">Finances</h2>
-                <p class="govuk-caption-m govuk-!-width-two-thirds govuk-!-margin-bottom-6">Manage your apprenticeship
-                    funds</p>
+                @if (Model.Data.ShowLevyTransparency)
+                {
+                    <p class="govuk-caption-m govuk-!-width-two-thirds govuk-!-margin-bottom-2">Manage apprenticeship funds</p>
+                    @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                    {
+                        <p class="govuk-inset-text">To learn how the apprenticeship levy is used to fund apprenticeships
+                            in England,
+                            <a class="govuk-link govuk-link--no-visited-state"
+                               href="https://youtu.be/0zjyTC2bGOU?si=S2wDdtwkPg8S2hAY" target="_blank">watch this video
+                                on how the apprenticeship budget works (opens in new tab).</a></p>
+                    }
+                }
+                else
+                {
+                    <p class="govuk-caption-m govuk-!-width-two-thirds govuk-!-margin-bottom-6">Manage your apprenticeship funds</p>    
+                }
+                
                 <div class="das-cards">
                     @if (Model.Data.ShowYourFundingReservationsLink())
                     {
-                        <div class="das-card">
-                            <h3 class="govuk-heading-m das-card__heading">
-                                <a href="@UrlHelpers.ReservationsAction("reservations/manage")"
-                                   class="govuk-link govuk-link--no-visited-state">Your funding reservations</a>
-                            </h3>
-                            <p class="govuk-body govuk-!-font-size-16">Reserve and manage funding.</p>
-                        </div>
+                        if (Model.Data.ShowLevyTransparency)
+                        {
+                            <div class="das-card">
+                                <h3 class="govuk-heading-m das-card__heading">
+                                    <a href="@UrlHelpers.ReservationsAction("reservations/manage")"
+                                       class="govuk-link govuk-link--no-visited-state">Funding reservations</a>
+                                </h3>
+                                <p class="govuk-body govuk-!-font-size-16">Reserve and manage funding.</p>
+                            </div>    
+                        }
+                        else
+                        {
+                            <div class="das-card">
+                                <h3 class="govuk-heading-m das-card__heading">
+                                    <a href="@UrlHelpers.ReservationsAction("reservations/manage")"
+                                       class="govuk-link govuk-link--no-visited-state">Your funding reservations</a>
+                                </h3>
+                                <p class="govuk-body govuk-!-font-size-16">Reserve and manage funding.</p>
+                            </div>    
+                        }
                     }
 
-                    <div class="das-card">
-                        <h3 class="govuk-heading-m das-card__heading">
-                            <a href="@UrlHelpers.EmployerFinanceAction("finance")"
-                               class="govuk-link govuk-link--no-visited-state">Your finances</a>
-                        </h3>
-                        <p class="govuk-body govuk-!-font-size-16">View your financial transactions, connect with other
-                            employers
-                            and @(Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy ? "send or " : "")receive
-                            transfer funds.</p>
-                    </div>
-
-                    @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                    @if (Model.Data.ShowLevyTransparency)
+                    {
+                        <div class="das-card">
+                            <h3 class="govuk-heading-m das-card__heading">
+                                <a href="@UrlHelpers.EmployerFinanceAction("finance")"
+                                   class="govuk-link govuk-link--no-visited-state">Funding and payments</a>
+                            </h3>
+                            @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">View and download any levy transactions.</p>    
+                            }
+                            else
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">View and download transactions.</p>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="das-card">
+                            <h3 class="govuk-heading-m das-card__heading">
+                                <a href="@UrlHelpers.EmployerFinanceAction("finance")"
+                                   class="govuk-link govuk-link--no-visited-state">Your finances</a>
+                            </h3>
+                            <p class="govuk-body govuk-!-font-size-16">View your financial transactions, connect with other
+                                employers
+                                and @(Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy ? "send or " : "")receive
+                                transfer funds.</p>
+                        </div>    
+                    }
+                    @if (Model.Data.ShowLevyTransparency)
                     {
                         <div class="das-card">
                             <h3 class="govuk-heading-m das-card__heading">
                                 <a href="@UrlHelpers.EmployerFinanceAction("transfers")"
-                                   class="govuk-link govuk-link--no-visited-state">Your transfers</a>
+                                   class="govuk-link govuk-link--no-visited-state">Transfers</a>
                             </h3>
-                            <p class="govuk-body govuk-!-font-size-16">View your 50% transfers balance and manage your
-                                transfers, including finding a business to transfer your levy to.</p>
+                            @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">Check the transfer balance, find businesses to partner with, and manage levy transfers.</p>
+                            }
+                            else
+                            {
+                                <p class="govuk-body govuk-!-font-size-16">View your apprentices funded by a transfer. Find a large business to fund your apprenticeship training with a transfer. </p>
+                            }
                         </div>
                     }
-                    else if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.NonLevy)
+                    else
                     {
-                        <div class="das-card">
-                            <h3 class="govuk-heading-m das-card__heading">
-                                <a href="@UrlHelpers.EmployerFinanceAction("transfers")"
-                                   class="govuk-link govuk-link--no-visited-state">Your transfers</a>
-                            </h3>
-                            <p class="govuk-body govuk-!-font-size-16">View your apprentices funded by a transfer. Find
-                                a large business to fund your apprenticeship training with a transfer.</p>
-                        </div>
+                        @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                        {
+                            <div class="das-card">
+                                <h3 class="govuk-heading-m das-card__heading">
+                                    <a href="@UrlHelpers.EmployerFinanceAction("transfers")"
+                                       class="govuk-link govuk-link--no-visited-state">Your transfers</a>
+                                </h3>
+                                <p class="govuk-body govuk-!-font-size-16">View your 50% transfers balance and manage your
+                                    transfers, including finding a business to transfer your levy to.</p>
+                            </div>
+                        }
+                        else if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.NonLevy)
+                        {
+                            <div class="das-card">
+                                <h3 class="govuk-heading-m das-card__heading">
+                                    <a href="@UrlHelpers.EmployerFinanceAction("transfers")"
+                                       class="govuk-link govuk-link--no-visited-state">Your transfers</a>
+                                </h3>
+                                <p class="govuk-body govuk-!-font-size-16">View your apprentices funded by a transfer. Find
+                                    a large business to fund your apprenticeship training with a transfer.</p>
+                            </div>
+                        }
                     }
+        
                 </div>
             </section>
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
@@ -399,7 +467,7 @@ else
                             }
                             else
                             {
-                                <p>You do not have any tasks</p>
+                                <li>You do not have any tasks</li>
                             }
                             </ul>
                         }

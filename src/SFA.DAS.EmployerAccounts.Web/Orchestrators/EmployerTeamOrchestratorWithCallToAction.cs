@@ -20,6 +20,7 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
     private readonly IMapper _mapper;
     private readonly ILogger<EmployerTeamOrchestratorWithCallToAction> _logger;
     private readonly IEncodingService _encodingService;
+    private readonly EmployerAccountsConfiguration _configuration;
 
     public EmployerTeamOrchestratorWithCallToAction(
         EmployerTeamOrchestrator employerTeamOrchestrator,
@@ -39,6 +40,7 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
         _mapper = mapper;
         _logger = logger;
         _encodingService = encodingService;
+        _configuration = configuration;
     }
 
     //Needed for tests	
@@ -51,6 +53,7 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
         if (TryGetAccountContext(hashedAccountId, out var accountContext) && accountContext.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
         {
             var levyResponse = await accountResponseTask;
+            levyResponse.Data.ShowLevyTransparency = _configuration.ShowLevyTransparency;
             SaveContext(levyResponse);
             return levyResponse;
         }
@@ -70,6 +73,8 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
                 _logger.LogError(callToActionResponse.Exception, "An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", hashedAccountId);
             }
         }
+
+        accountResponse.Data.ShowLevyTransparency = _configuration.ShowLevyTransparency;
 
         SaveContext(accountResponse);
         return accountResponse;

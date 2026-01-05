@@ -11,7 +11,6 @@ using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccountDetail;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Api.UnitTests.Orchestrators.AccountsOrchestratorTests;
 
@@ -26,7 +25,7 @@ internal class WhenIGetANonLevyAccount
     {
         _mediator = new Mock<IMediator>();
         _log = new Mock<ILogger<AccountsOrchestrator>>();
-        _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>(), Mock.Of<IEncodingService>());
+        _orchestrator = new AccountsOrchestrator(_mediator.Object, _log.Object, Mock.Of<IMapper>());
     }
 
     [Test]

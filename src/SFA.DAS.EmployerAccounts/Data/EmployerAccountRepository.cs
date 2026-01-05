@@ -165,4 +165,37 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         var account = await _db.Value.Accounts.FindAsync(accountId);
         account.AddTrainingProviderAcknowledged = true;
     }
+
+    public async Task<Accounts<AccountNameSummary>> GetAccounts(DateTime? since, int pageNumber, int pageSize)
+    {
+        var query = _db.Value.Accounts.AsNoTracking().AsQueryable();
+        if (since.HasValue)
+        {
+            query = query.Where(x => x.ModifiedDate >= since || x.CreatedDate >= since);
+        }
+
+        var offset = pageSize * (pageNumber - 1);
+
+        var page = new Accounts<AccountNameSummary>()
+        {
+            AccountsCount = await query.CountAsync(),
+            AccountList = new List<AccountNameSummary>()
+        };
+
+        if (offset <= page.AccountsCount)
+        {
+            page.AccountList = await query
+                .OrderBy(x => x.Id)
+                .Skip(offset)
+                .Take(pageSize)
+                .Select(x => new AccountNameSummary
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                })
+                .ToListAsync();
+        }
+
+        return page;
+    }
 }
