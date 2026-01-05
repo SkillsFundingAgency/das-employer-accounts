@@ -51,7 +51,7 @@ public class HomeController(
             }
         }
 
-        if (TempData["AutoSignOut"] is bool autoSignOut)
+        if (TempData?.ContainsKey("AutoSignOut") == true && TempData["AutoSignOut"] is bool autoSignOut)
         {
             TempData["AutoSignOut"] = autoSignOut;
             logger.LogInformation("Index: Detected sign-out redirect. Redirecting to signed-out page. AutoSignOut: {AutoSignOut}", autoSignOut);
