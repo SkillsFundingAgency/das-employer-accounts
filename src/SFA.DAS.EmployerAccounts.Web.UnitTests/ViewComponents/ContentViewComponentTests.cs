@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Queries.GetContent;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
@@ -41,8 +42,8 @@ public class ContentViewComponentTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<ContentResult>();
-        var contentResult = result as ContentResult;
+        result.Should().BeOfType<ContentViewComponentResult>();
+        var contentResult = result as ContentViewComponentResult;
         contentResult.Content.Should().Be(expectedContent);
     }
 
@@ -66,8 +67,8 @@ public class ContentViewComponentTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<ContentResult>();
-        var contentResult = result as ContentResult;
+        result.Should().BeOfType<ContentViewComponentResult>();
+        var contentResult = result as ContentViewComponentResult;
         contentResult.Content.Should().Be(string.Empty);
     }
 
@@ -91,8 +92,8 @@ public class ContentViewComponentTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<ContentResult>();
-        var contentResult = result as ContentResult;
+        result.Should().BeOfType<ContentViewComponentResult>();
+        var contentResult = result as ContentViewComponentResult;
         contentResult.Content.Should().Be(string.Empty);
     }
 
@@ -104,8 +105,8 @@ public class ContentViewComponentTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<ContentResult>();
-        var contentResult = result as ContentResult;
+        result.Should().BeOfType<ContentViewComponentResult>();
+        var contentResult = result as ContentViewComponentResult;
         contentResult.Content.Should().Be(string.Empty);
         _mockMediator.Verify(x => x.Send(It.IsAny<GetContentRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -118,8 +119,8 @@ public class ContentViewComponentTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<ContentResult>();
-        var contentResult = result as ContentResult;
+        result.Should().BeOfType<ContentViewComponentResult>();
+        var contentResult = result as ContentViewComponentResult;
         contentResult.Content.Should().Be(string.Empty);
         _mockMediator.Verify(x => x.Send(It.IsAny<GetContentRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -132,8 +133,8 @@ public class ContentViewComponentTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<ContentResult>();
-        var contentResult = result as ContentResult;
+        result.Should().BeOfType<ContentViewComponentResult>();
+        var contentResult = result as ContentViewComponentResult;
         contentResult.Content.Should().Be(string.Empty);
         _mockMediator.Verify(x => x.Send(It.IsAny<GetContentRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -152,8 +153,8 @@ public class ContentViewComponentTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<ContentResult>();
-        var contentResult = result as ContentResult;
+        result.Should().BeOfType<ContentViewComponentResult>();
+        var contentResult = result as ContentViewComponentResult;
         contentResult.Content.Should().Be(string.Empty);
     }
 }
