@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
-using FluentAssertions;
+﻿using AutoMapper;
 using MediatR;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.Commands.RemoveTeamMember;
-using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Exceptions;
-using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetUser;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorTests;

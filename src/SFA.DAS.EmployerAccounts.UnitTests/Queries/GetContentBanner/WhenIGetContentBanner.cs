@@ -11,7 +11,6 @@ using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Interfaces;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetContent;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.Testing.AutoFixture;
@@ -126,10 +125,9 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
     
         requestValidator1.Setup(r => r.Validate(query1)).Returns(new ValidationResult());
     
-        string nullCacheString = null;
         var cacheKey = key + "_banner";
-        cacheStorageService1.Setup(c => c.TryGet(cacheKey, out nullCacheString))
-            .Returns(false);
+        cacheStorageService1.Setup(c => c.TryGetAsync(cacheKey))
+            .ReturnsAsync((false, (string)null));
     
         MockContentService.Setup(c => c.Get(query1.ContentType, key))
             .ReturnsAsync(contentBanner1);

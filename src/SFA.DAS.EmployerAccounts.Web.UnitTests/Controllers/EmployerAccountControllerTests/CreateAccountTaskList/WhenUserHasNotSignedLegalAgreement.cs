@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
-using AutoFixture.NUnit3;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccountTaskList;
 

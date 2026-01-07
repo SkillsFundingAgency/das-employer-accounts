@@ -1,8 +1,5 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.AccountName
 {

@@ -54,7 +54,7 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ContentBanner
             var result = await ContentServiceWithCaching.Get(_contentType, EmployerAccountsConfig.ApplicationId);
 
             Assert.That(result, Is.EqualTo(ContentFromCache));
-            MockCacheStorageService.Verify(c => c.TryGet(CacheKey, out ContentFromCache), Times.Once);
+            MockCacheStorageService.Verify(c => c.TryGetAsync(CacheKey), Times.Once);
         }
 
         [Test]
@@ -79,13 +79,15 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.ContentBanner
         }
         private void StoredInCacheSetup()
         {
-            MockCacheStorageService.Setup(c => c.TryGet(CacheKey, out ContentFromCache)).Returns(true);
+            MockCacheStorageService.Setup(c => c.TryGetAsync(CacheKey))
+                .ReturnsAsync((true, ContentFromCache));
             MockContentService.Setup(c => c.Get("banner", CacheKey));
         }
 
         private void NotStoredInCacheSetup()
         {
-            MockCacheStorageService.Setup(c => c.TryGet(CacheKey, out ContentFromCache)).Returns(false);
+            MockCacheStorageService.Setup(c => c.TryGetAsync(CacheKey))
+                .ReturnsAsync((false, (string)null));
             MockContentService.Setup(c => c.Get("banner", EmployerAccountsConfig.ApplicationId))
                 .ReturnsAsync(ContentFromApi);
         }

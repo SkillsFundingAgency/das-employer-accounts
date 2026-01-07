@@ -1,10 +1,8 @@
-﻿using AutoFixture.NUnit3;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.AccountTeam;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPayeOrchestratorTests
 {

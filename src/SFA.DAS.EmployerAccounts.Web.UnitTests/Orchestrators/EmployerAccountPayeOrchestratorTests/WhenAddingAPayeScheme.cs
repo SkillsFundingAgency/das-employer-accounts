@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using FluentAssertions;
 using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Models;

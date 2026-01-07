@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using AutoFixture.NUnit3;
 using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -7,7 +6,6 @@ using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementPdf;
 using SFA.DAS.EmployerAccounts.Queries.GetSignedEmployerAgreementPdf;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAgreementOrchestratorTests;
 

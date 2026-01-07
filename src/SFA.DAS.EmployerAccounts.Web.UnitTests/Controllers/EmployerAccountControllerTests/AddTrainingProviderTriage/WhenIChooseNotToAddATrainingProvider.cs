@@ -1,12 +1,9 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeTrainingProviderTask;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.AddTrainingProviderTriage;
 

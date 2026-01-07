@@ -1,5 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;

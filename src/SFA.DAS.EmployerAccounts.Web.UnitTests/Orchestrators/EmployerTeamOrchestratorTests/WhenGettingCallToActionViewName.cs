@@ -1,10 +1,7 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
+﻿using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
 using SFA.DAS.EmployerAccounts.Models.Recruit;
 using SFA.DAS.EmployerAccounts.Models.Reservations;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorTests;
 

@@ -1,5 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests;

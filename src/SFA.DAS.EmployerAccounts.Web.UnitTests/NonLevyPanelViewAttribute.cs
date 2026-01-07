@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using AutoFixture;
-using AutoFixture.NUnit3;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
 

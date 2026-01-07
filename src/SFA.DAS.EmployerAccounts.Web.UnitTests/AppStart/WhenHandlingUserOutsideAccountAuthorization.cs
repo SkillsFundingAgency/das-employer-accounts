@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using AutoFixture.NUnit3;
-using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -13,7 +11,6 @@ using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Web.Authorization;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart;
 

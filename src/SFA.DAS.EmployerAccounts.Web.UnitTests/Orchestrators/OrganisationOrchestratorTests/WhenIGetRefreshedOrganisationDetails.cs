@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using AutoMapper;
-using FluentAssertions;
 using MediatR;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Models.Organisation;
