@@ -107,6 +107,6 @@ public class WhenICreateAnAccount : ControllerTestBase
         var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectResult;
 
         //Assert
-        Assert.That(result.Url, Is.EqualTo(ExpectedReturnUrl));
+        result.Url.Should().Be(ExpectedReturnUrl);
     }
 }

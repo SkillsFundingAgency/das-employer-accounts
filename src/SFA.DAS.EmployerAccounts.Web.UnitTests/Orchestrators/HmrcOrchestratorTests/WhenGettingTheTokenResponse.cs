@@ -51,7 +51,7 @@ public class WhenGettingTheTokenResponse
 
         //Assert
         _mediator.Verify(x => x.Send(It.Is<GetGatewayTokenQuery>(c => c.AccessCode.Equals(accessCode) && c.RedirectUrl.Equals(returnUrl)), It.IsAny<CancellationToken>()));
-        Assert.That(token.Data, Is.AssignableFrom<HmrcTokenResponse>());
+        token.Data.Should().BeAssignableTo<HmrcTokenResponse>();
     }
 
     [Test]
@@ -70,10 +70,10 @@ public class WhenGettingTheTokenResponse
         var actual = await _employerAccountOrchestrator.GetGatewayTokenResponse(string.Empty, string.Empty, queryCollection);
 
         //Assert
-        Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<HmrcTokenResponse>>());
-        Assert.That(actual.FlashMessage.Headline, Is.EqualTo("Account not added"));
-        Assert.That(actual.FlashMessage.SeverityCssClass, Is.EqualTo("error-summary"));
-        Assert.That(actual.FlashMessage.Severity, Is.EqualTo(FlashMessageSeverityLevel.Error));
-        Assert.That(actual.FlashMessage.ErrorMessages, Does.Contain(new KeyValuePair<string, string>("agree_and_continue", "Agree and continue")));
+        actual.Should().BeAssignableTo<OrchestratorResponse<HmrcTokenResponse>>();
+        actual.FlashMessage.Headline.Should().Be("Account not added");
+        actual.FlashMessage.SeverityCssClass.Should().Be("error-summary");
+        actual.FlashMessage.Severity.Should().Be(FlashMessageSeverityLevel.Error);
+        actual.FlashMessage.ErrorMessages.Should().Contain(new KeyValuePair<string, string>("agree_and_continue", "Agree and continue"));
     }
 }

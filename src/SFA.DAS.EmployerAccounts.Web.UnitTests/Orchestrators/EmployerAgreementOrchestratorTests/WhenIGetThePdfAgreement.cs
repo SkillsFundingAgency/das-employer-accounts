@@ -97,8 +97,8 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.That(actual.FlashMessage.ErrorMessages, Is.Not.Empty);
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        actual.FlashMessage.ErrorMessages.Should().NotBeEmpty();
+        actual.Status.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test, MoqAutoData]
@@ -117,7 +117,7 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 
 
@@ -137,6 +137,6 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

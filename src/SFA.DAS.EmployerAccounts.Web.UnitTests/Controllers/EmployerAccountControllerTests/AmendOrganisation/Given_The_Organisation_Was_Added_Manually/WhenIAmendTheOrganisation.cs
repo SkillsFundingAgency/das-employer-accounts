@@ -41,7 +41,7 @@ public class WhenIAmendTheOrganisation
         var response =  _employerAccountController.AmendOrganisation();
         var redirectResponse = (RedirectToActionResult)response;
 
-        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SearchForOrganisationActionName));
-        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.SearchOrganisationControllerName));
+        redirectResponse.ActionName.Should().Be(ControllerConstants.SearchForOrganisationActionName);
+        redirectResponse.ControllerName.Should().Be(ControllerConstants.SearchOrganisationControllerName);
     }
 }

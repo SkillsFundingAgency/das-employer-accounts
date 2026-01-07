@@ -68,7 +68,7 @@ public class WhenIGetTheConfirmRemoveAccountLegalEntityModel
             ExpectedHashedAccountId, ExpectedUserId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        actual.Status.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -83,7 +83,7 @@ public class WhenIGetTheConfirmRemoveAccountLegalEntityModel
             ExpectedHashedAccountId, ExpectedUserId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Test]
@@ -93,8 +93,8 @@ public class WhenIGetTheConfirmRemoveAccountLegalEntityModel
         var actual = await _orchestrator.GetConfirmRemoveOrganisationViewModel(ExpectedHashedAccountId, ExpectedHashedAccountLegalEntityId, ExpectedUserId);
 
         //Assert
-        Assert.That(actual.Data.HashedAccountLegalEntitytId, Is.EqualTo(ExpectedHashedAccountLegalEntityId));
-        Assert.That(actual.Data.HashedAccountId, Is.EqualTo(ExpectedHashedAccountId));
-        Assert.That(actual.Data.Name, Is.EqualTo(ExpectedName));
+        actual.Data.HashedAccountLegalEntitytId.Should().Be(ExpectedHashedAccountLegalEntityId);
+        actual.Data.HashedAccountId.Should().Be(ExpectedHashedAccountId);
+        actual.Data.Name.Should().Be(ExpectedName);
     }
 }

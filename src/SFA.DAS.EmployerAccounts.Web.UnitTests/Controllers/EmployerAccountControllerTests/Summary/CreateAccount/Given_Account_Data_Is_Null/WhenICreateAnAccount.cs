@@ -57,8 +57,8 @@ class WhenICreateAnAccount : ControllerTestBase
         var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectToActionResult;
 
         //Assert
-        Assert.That(result.ActionName, Is.EqualTo(ControllerConstants.SearchForOrganisationActionName));
-        Assert.That(result.ControllerName, Is.EqualTo(ControllerConstants.SearchOrganisationControllerName));
+        result.ActionName.Should().Be(ControllerConstants.SearchForOrganisationActionName);
+        result.ControllerName.Should().Be(ControllerConstants.SearchOrganisationControllerName);
     }
 
     [Test]

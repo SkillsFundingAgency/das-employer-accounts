@@ -146,10 +146,10 @@ public class WhenGettingAccount
         var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        Assert.That(actual.Data, Is.Not.Null);
-        Assert.That(actual.Data.OrganisationCount, Is.EqualTo(_accountStats.OrganisationCount));
-        Assert.That(actual.Data.PayeSchemeCount, Is.EqualTo(_accountStats.PayeSchemeCount));
-        Assert.That(actual.Data.TeamMemberCount, Is.EqualTo(_accountStats.TeamMemberCount));
+        actual.Data.Should().NotBeNull();
+        actual.Data.OrganisationCount.Should().Be(_accountStats.OrganisationCount);
+        actual.Data.PayeSchemeCount.Should().Be(_accountStats.PayeSchemeCount);
+        actual.Data.TeamMemberCount.Should().Be(_accountStats.TeamMemberCount);
     }
 
     [Test]
@@ -168,8 +168,8 @@ public class WhenGettingAccount
         var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        Assert.That(actual.Data, Is.Not.Null);
-        Assert.That(actual.Data.ShowTermsAndConditionBanner, Is.EqualTo(true));
+        actual.Data.Should().NotBeNull();
+        actual.Data.ShowTermsAndConditionBanner.Should().BeTrue();
     }
 
     [Test]
@@ -188,8 +188,8 @@ public class WhenGettingAccount
         var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        Assert.That(actual.Data, Is.Not.Null);
-        Assert.That(actual.Data.ShowTermsAndConditionBanner, Is.EqualTo(false));
+        actual.Data.Should().NotBeNull();
+        actual.Data.ShowTermsAndConditionBanner.Should().BeFalse();
     }
 
     [Test]
@@ -200,9 +200,9 @@ public class WhenGettingAccount
 
         //Assert
         _mediator.Verify(m => m.Send(It.IsAny<GetTaskSummaryQuery>(), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.That(actual.Data, Is.Not.Null);
-        Assert.That(actual.Data.TaskSummary, Is.Not.Null);
-        Assert.That(actual.Data.TaskSummary.ShowLevyDeclarationTask, Is.EqualTo(true));
+        actual.Data.Should().NotBeNull();
+        actual.Data.TaskSummary.Should().NotBeNull();
+        actual.Data.TaskSummary.ShowLevyDeclarationTask.Should().BeTrue();
     }
 
     [Test]
@@ -212,7 +212,7 @@ public class WhenGettingAccount
         var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        Assert.That(actual.Data.HashedAccountId, Is.EqualTo(HashedAccountId));
+        actual.Data.HashedAccountId.Should().Be(HashedAccountId);
     }
 
     [TestCase("2017-10-19", true, Description = "Banner visible")]
@@ -227,7 +227,7 @@ public class WhenGettingAccount
         var model = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        Assert.That(model.Data.ShowAcademicYearBanner, Is.EqualTo(expectShowBanner));
+        model.Data.ShowAcademicYearBanner.Should().Be(expectShowBanner);
     }
 
     [Test]
@@ -237,8 +237,8 @@ public class WhenGettingAccount
         var actual = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        Assert.That(actual.Data.SignedAgreementCount, Is.EqualTo(3));
-        Assert.That(actual.Data.RequiresAgreementSigning, Is.EqualTo(4));
+        actual.Data.SignedAgreementCount.Should().Be(3);
+        actual.Data.RequiresAgreementSigning.Should().Be(4);
     }
 
     [TestCase(Common.Domain.Types.ApprenticeshipEmployerType.Levy, "Levy")]
@@ -255,13 +255,13 @@ public class WhenGettingAccount
         var model = await _orchestrator.GetAccount(HashedAccountId, UserId);
 
         //Assert
-        Assert.That(model.Data.ApprenticeshipEmployerType, Is.EqualTo(expectedApprenticeshipEmployerType));
+        model.Data.ApprenticeshipEmployerType.Should().Be(expectedApprenticeshipEmployerType);
     }
         
     [Test]
     public async Task ThenReturnAccountSummary()
     {
         var model = await _orchestrator.GetAccountSummary(HashedAccountId, UserId);
-        Assert.That(model.Data, Is.Not.Null);
+        model.Data.Should().NotBeNull();
     }
 }

@@ -57,8 +57,8 @@ public class WhenIConfirmAddOfOrganisation : ControllerTestBase
         var result = await _controller.Confirm("", "", "", "", null, "", OrganisationType.Other, 1, null, false) as RedirectToActionResult;
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.ActionName, Is.EqualTo("OrganisationAddedNextSteps"));
+        result.Should().NotBeNull();
+        result.ActionName.Should().Be("OrganisationAddedNextSteps");
     }
 
     [Test]
@@ -68,8 +68,8 @@ public class WhenIConfirmAddOfOrganisation : ControllerTestBase
         var result = await _controller.Confirm("", "", "", "", null, "", OrganisationType.Other, 1, null, true) as RedirectToActionResult;
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.ActionName, Is.EqualTo("OrganisationAddedNextStepsSearch"));
+        result.Should().NotBeNull();
+        result.ActionName.Should().Be("OrganisationAddedNextStepsSearch");
     }
 
     [Test]
@@ -79,7 +79,7 @@ public class WhenIConfirmAddOfOrganisation : ControllerTestBase
         var result = await _controller.Confirm("", "", "", "", null, "", OrganisationType.Other, 1, null, true) as RedirectToActionResult;
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.RouteValues["HashedAgreementId"], Is.EqualTo(TestHashedAgreementId));
+        result.Should().NotBeNull();
+        result.RouteValues["HashedAgreementId"].Should().Be(TestHashedAgreementId);
     }
 }

@@ -56,6 +56,6 @@ class WhenISearchThePensionRegulator
         var response = await _controller.SearchPensionRegulator(It.IsAny<string>());
         var viewResponse = (ViewResult) response;
 
-        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchPensionRegulatorResultsViewName));
+        viewResponse.ViewName.Should().Be(ControllerConstants.SearchPensionRegulatorResultsViewName);
     }
 }

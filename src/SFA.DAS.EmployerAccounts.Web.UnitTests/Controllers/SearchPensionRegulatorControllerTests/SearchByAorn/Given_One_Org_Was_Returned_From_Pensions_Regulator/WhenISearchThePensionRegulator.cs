@@ -76,8 +76,8 @@ class WhenISearchThePensionRegulator : ControllerTestBase
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = ExpectedAorn, PayeRef = ExpectedPayeRef });
         var redirectResponse = (RedirectToActionResult) response;
 
-        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SummaryActionName));
-        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
+        redirectResponse.ActionName.Should().Be(ControllerConstants.SummaryActionName);
+        redirectResponse.ControllerName.Should().Be(ControllerConstants.EmployerAccountControllerName);
     }
 
     [Test]
@@ -88,8 +88,8 @@ class WhenISearchThePensionRegulator : ControllerTestBase
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = ExpectedAorn, PayeRef = ExpectedPayeRef });
         var redirectResponse = (RedirectToActionResult)response;
 
-        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.PayeErrorActionName));
-        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
+        redirectResponse.ActionName.Should().Be(ControllerConstants.PayeErrorActionName);
+        redirectResponse.ControllerName.Should().Be(ControllerConstants.EmployerAccountControllerName);
     }
 
     private bool OrganisationAndPayeDataMatchesViewModel(SaveOrganisationAndPayeData saveOrganisationData)

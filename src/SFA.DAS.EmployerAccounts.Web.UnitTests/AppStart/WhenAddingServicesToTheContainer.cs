@@ -172,7 +172,7 @@ public class WhenAddingServicesToTheContainer
         var provider = serviceCollection.BuildServiceProvider();
 
         var type = provider.GetService(toResolve);
-        Assert.That(type, Is.Not.Null);
+        type.Should().NotBeNull();
     }
 
     private static ConfigurationRoot GenerateStubConfiguration()

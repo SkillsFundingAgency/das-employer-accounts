@@ -64,6 +64,6 @@ class WhenISearchThePensionRegulator
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = ExpectedAorn, PayeRef = ExpectedPayeRef });
         var viewResponse = (ViewResult) response;
 
-        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchUsingAornViewName));
+        viewResponse.ViewName.Should().Be(ControllerConstants.SearchUsingAornViewName);
     }
 }

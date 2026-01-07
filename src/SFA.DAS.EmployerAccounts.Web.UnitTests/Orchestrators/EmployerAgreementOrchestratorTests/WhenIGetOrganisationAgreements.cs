@@ -69,7 +69,7 @@ public class WhenIGetOrganisationAgreements
         var actual = await _orchestrator.GetOrganisationAgreements(AccountLegalEntityHashedId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        actual.Status.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class WhenIGetOrganisationAgreements
         var actual = await _orchestrator.GetOrganisationAgreements(AccountLegalEntityHashedId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Test]
@@ -92,6 +92,6 @@ public class WhenIGetOrganisationAgreements
         var actual = await _orchestrator.GetOrganisationAgreements(AccountLegalEntityHashedId);
 
         //Assert
-        Assert.That(actual.Data.Agreements.Any(), Is.True);            
+        actual.Data.Agreements.Any().Should().BeTrue();            
     }
 }

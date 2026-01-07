@@ -55,7 +55,7 @@ class WhenISearchThePensionRegulator
         var response = await _controller.SearchPensionRegulator(It.IsAny<string>());
         var redirectResponse = (RedirectToActionResult)response;
 
-        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SummaryActionName));
-        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
+        redirectResponse.ActionName.Should().Be(ControllerConstants.SummaryActionName);
+        redirectResponse.ControllerName.Should().Be(ControllerConstants.EmployerAccountControllerName);
     }
 }

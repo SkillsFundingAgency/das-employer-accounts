@@ -3,12 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
-using Newtonsoft.Json;
-using SFA.DAS.EmployerAccounts.Infrastructure;
-using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.UserAccounts;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
-using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.EmployerAccounts.Web.Authorization;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 

@@ -29,8 +29,8 @@ class WhenIDontProvideAValidPayeRef
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = "1234567890ABC", PayeRef = "000/" });
         var viewResponse = (ViewResult)response;
 
-        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchUsingAornViewName));
+        viewResponse.ViewName.Should().Be(ControllerConstants.SearchUsingAornViewName);
         var viewModel = viewResponse.Model as SearchPensionRegulatorByAornViewModel;
-        Assert.That(viewModel.PayeRefError, Is.EqualTo("Enter your PAYE reference in the correct format"));
+        viewModel.PayeRefError.Should().Be("Enter your PAYE reference in the correct format");
     }
 }

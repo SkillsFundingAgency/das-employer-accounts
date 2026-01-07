@@ -113,8 +113,8 @@ class WhenICreateAnAccount : ControllerTestBase
         var result = await _employerAccountController.Summary(_summaryViewModel) as RedirectToRouteResult;
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.RouteValues["HashedAccountId"], Is.EqualTo(HashedAccountId));
+        result.Should().NotBeNull();
+        result.RouteValues["HashedAccountId"].Should().Be(HashedAccountId);
     }
 
     [Test]

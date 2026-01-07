@@ -46,8 +46,8 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         var actual = _homeController.TermsAndConditions("returnUrl", "hashedId");
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual, Is.AssignableFrom<ViewResult>());
+        actual.Should().NotBeNull();
+        actual.Should().BeAssignableTo<ViewResult>();
     }
 
     [Test]
@@ -60,11 +60,11 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         var viewResult = (ViewResult)result;
         var viewModel = viewResult.Model;
 
-        Assert.That(viewModel, Is.InstanceOf<TermsAndConditionsNewViewModel>());
+        viewModel.Should().BeOfType<TermsAndConditionsNewViewModel>();
         var termsAndConditionViewModel = (TermsAndConditionsNewViewModel)viewModel;
 
-        Assert.That(termsAndConditionViewModel.ReturnUrl, Is.EqualTo("returnUrl"));
-        Assert.That(termsAndConditionViewModel.HashedAccountId, Is.EqualTo("hashedId"));
+        termsAndConditionViewModel.ReturnUrl.Should().Be("returnUrl");
+        termsAndConditionViewModel.HashedAccountId.Should().Be("hashedId");
     }
 
 
@@ -78,8 +78,8 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         //Assert
         var redirectResult = (RedirectToActionResult)result;
 
-        Assert.That(redirectResult.ActionName, Is.EqualTo("Index"));
-        Assert.That(redirectResult.ControllerName, Is.EqualTo("EmployerTeam"));
+        redirectResult.ActionName.Should().Be("Index");
+        redirectResult.ControllerName.Should().Be("EmployerTeam");
     }
 
     [Test]
@@ -92,6 +92,6 @@ public class WhenIViewTermsAndCondition : ControllerTestBase
         //Assert
         var redirectResult = (RedirectToActionResult)result;
 
-        Assert.That(redirectResult.ActionName, Is.EqualTo("Index"));
+        redirectResult.ActionName.Should().Be("Index");
     }
 }

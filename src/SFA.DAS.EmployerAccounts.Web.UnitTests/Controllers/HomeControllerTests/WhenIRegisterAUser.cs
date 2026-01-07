@@ -57,9 +57,9 @@ public class WhenIRegisterAUser
         var actual = _homeController.RegisterUser();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var actualRedirectResult = actual as RedirectResult;
-        Assert.That(actualRedirectResult, Is.Not.Null);
-        Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl));
+        actualRedirectResult.Should().NotBeNull();
+        actualRedirectResult.Url.Should().Be(redirectUrl);
     }
 }

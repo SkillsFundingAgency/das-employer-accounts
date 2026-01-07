@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.EmployerAccounts.Web.Controllers;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerTeamControllerTests;
 
@@ -44,6 +43,6 @@ public class WhenIChooseIIfIKnowApprenticeshipIsForExistingEmployee
         var result = _controller.TriageApprenticeForExistingEmployee(new TriageViewModel { TriageOption = TriageOptions.No }) as ViewResult;
 
         //Assert
-        Assert.That(result.ViewName, Is.EqualTo(ControllerConstants.TriageSetupApprenticeshipNewEmployeeViewName));
+        result.ViewName.Should().Be(ControllerConstants.TriageSetupApprenticeshipNewEmployeeViewName);
     }
 }

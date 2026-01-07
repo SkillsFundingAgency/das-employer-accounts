@@ -40,7 +40,7 @@ class WhenIDontSelectAnOrganisation
         var response = _controller.SearchPensionRegulator(It.IsAny<string>(), viewModel).Result;
         var viewResponse = (ViewResult)response;
 
-        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchPensionRegulatorResultsViewName));
-        Assert.That(viewResponse.ViewData["InError"], Is.EqualTo(true));
+        viewResponse.ViewName.Should().Be(ControllerConstants.SearchPensionRegulatorResultsViewName);
+        viewResponse.ViewData["InError"].Should().Be(true);
     }
 }

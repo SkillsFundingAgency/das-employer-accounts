@@ -54,11 +54,9 @@ public class WhenIStartTheProcess : ControllerTestBase
         var actual = await _employerAccountController.Gateway();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var actualResult = actual as RedirectResult;
-        Assert.That(actualResult, Is.Not.Null);
-        Assert.That(actualResult.Url, Is.EqualTo(_expectedRedirectUrl));
-        actualResult.Url.Should().NotBeNull();
+        actualResult.Should().NotBeNull();
         actualResult.Url.Should().Be(_expectedRedirectUrl);
     }
 

@@ -41,7 +41,7 @@ class WhenISelectOrganisationNotListed
         var response = _controller.SearchPensionRegulator(It.IsAny<string>(), viewModel).Result;
         var redirectResponse = (RedirectToActionResult) response;
 
-        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SearchForOrganisationActionName));
-        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.SearchOrganisationControllerName));
+        redirectResponse.ActionName.Should().Be(ControllerConstants.SearchForOrganisationActionName);
+        redirectResponse.ControllerName.Should().Be(ControllerConstants.SearchOrganisationControllerName);
     }
 }

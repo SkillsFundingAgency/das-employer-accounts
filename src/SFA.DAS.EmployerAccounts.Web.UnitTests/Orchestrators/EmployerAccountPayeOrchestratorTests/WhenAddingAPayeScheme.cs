@@ -12,115 +12,114 @@ using SFA.DAS.Encoding;
 using EmpRefLevyInformation = HMRC.ESFA.Levy.Api.Types.EmpRefLevyInformation;
 using Name = HMRC.ESFA.Levy.Api.Types.Name;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPayeOrchestratorTests
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAccountPayeOrchestratorTests;
+
+public class WhenAddingAPayeScheme
 {
-    public class WhenAddingAPayeScheme
+    private EmployerAccountPayeOrchestrator _employerAccountPayeOrchestrator;
+    private Mock<IMediator> _mediator;
+    private Mock<ICookieStorageService<EmployerAccountData>> _cookieService;
+    private ConfirmNewPayeSchemeViewModel _model;
+    private EmployerAccountsConfiguration _configuration;
+    private const string ExpectedHashedId = "jgdfg786";
+    private const string ExpectedEmpref = "123/DFDS";
+    private const string ExpectedEmprefName = "Paye Scheme 1";
+    private const string ExpectedUserId = "someid";
+
+    [SetUp]
+    public void Arrange()
     {
-        private EmployerAccountPayeOrchestrator _employerAccountPayeOrchestrator;
-        private Mock<IMediator> _mediator;
-        private Mock<ICookieStorageService<EmployerAccountData>> _cookieService;
-        private ConfirmNewPayeSchemeViewModel _model;
-        private EmployerAccountsConfiguration _configuration;
-        private const string ExpectedHashedId = "jgdfg786";
-        private const string ExpectedEmpref = "123/DFDS";
-        private const string ExpectedEmprefName = "Paye Scheme 1";
-        private const string ExpectedUserId = "someid";
-
-        [SetUp]
-        public void Arrange()
+        _model = new ConfirmNewPayeSchemeViewModel
         {
-            _model = new ConfirmNewPayeSchemeViewModel
-            {
-                AccessToken = Guid.NewGuid().ToString(),
-                RefreshToken = Guid.NewGuid().ToString(),
-                HashedAccountId = ExpectedHashedId,
-                PayeScheme = ExpectedEmpref,
-                PayeName = ExpectedEmprefName
-            };
+            AccessToken = Guid.NewGuid().ToString(),
+            RefreshToken = Guid.NewGuid().ToString(),
+            HashedAccountId = ExpectedHashedId,
+            PayeScheme = ExpectedEmpref,
+            PayeName = ExpectedEmprefName
+        };
 
-            _configuration = new EmployerAccountsConfiguration { Hmrc = new HmrcConfiguration() };
+        _configuration = new EmployerAccountsConfiguration { Hmrc = new HmrcConfiguration() };
 
-            _cookieService = new Mock<ICookieStorageService<EmployerAccountData>>();
+        _cookieService = new Mock<ICookieStorageService<EmployerAccountData>>();
             
-            _mediator = new Mock<IMediator>();
-            _mediator.Setup(x => x.Send(It.IsAny<GetAccountLegalEntitiesRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetAccountLegalEntitiesResponse { LegalEntities = new List<AccountSpecificLegalEntity>() });
-            _mediator.Setup(x => x.Send(It.Is<GetGatewayTokenQuery>(c => c.AccessCode.Equals("1")), It.IsAny<CancellationToken>())).ReturnsAsync(new GetGatewayTokenQueryResponse { HmrcTokenResponse = new HmrcTokenResponse { AccessToken = "1" } });
-            _mediator.Setup(x => x.Send(It.Is<GetHmrcEmployerInformationQuery>(c => c.AuthToken.Equals("1")), It.IsAny<CancellationToken>())).ReturnsAsync(new GetHmrcEmployerInformationResponse { Empref = "123/ABC", EmployerLevyInformation = new EmpRefLevyInformation { Employer = new HMRC.ESFA.Levy.Api.Types.Employer { Name = new Name { EmprefAssociatedName = ExpectedEmprefName } } } });
-            _mediator.Setup(x => x.Send(It.Is<GetHmrcEmployerInformationQuery>(c => c.AuthToken.Equals("2")), It.IsAny<CancellationToken>())).ReturnsAsync(new GetHmrcEmployerInformationResponse { Empref = "456/ABC", EmployerLevyInformation = new EmpRefLevyInformation { Employer = new HMRC.ESFA.Levy.Api.Types.Employer { Name = new Name { EmprefAssociatedName = ExpectedEmprefName } } } });
+        _mediator = new Mock<IMediator>();
+        _mediator.Setup(x => x.Send(It.IsAny<GetAccountLegalEntitiesRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetAccountLegalEntitiesResponse { LegalEntities = new List<AccountSpecificLegalEntity>() });
+        _mediator.Setup(x => x.Send(It.Is<GetGatewayTokenQuery>(c => c.AccessCode.Equals("1")), It.IsAny<CancellationToken>())).ReturnsAsync(new GetGatewayTokenQueryResponse { HmrcTokenResponse = new HmrcTokenResponse { AccessToken = "1" } });
+        _mediator.Setup(x => x.Send(It.Is<GetHmrcEmployerInformationQuery>(c => c.AuthToken.Equals("1")), It.IsAny<CancellationToken>())).ReturnsAsync(new GetHmrcEmployerInformationResponse { Empref = "123/ABC", EmployerLevyInformation = new EmpRefLevyInformation { Employer = new HMRC.ESFA.Levy.Api.Types.Employer { Name = new Name { EmprefAssociatedName = ExpectedEmprefName } } } });
+        _mediator.Setup(x => x.Send(It.Is<GetHmrcEmployerInformationQuery>(c => c.AuthToken.Equals("2")), It.IsAny<CancellationToken>())).ReturnsAsync(new GetHmrcEmployerInformationResponse { Empref = "456/ABC", EmployerLevyInformation = new EmpRefLevyInformation { Employer = new HMRC.ESFA.Levy.Api.Types.Employer { Name = new Name { EmprefAssociatedName = ExpectedEmprefName } } } });
 
-            _employerAccountPayeOrchestrator = new EmployerAccountPayeOrchestrator(_mediator.Object, _cookieService.Object, _configuration, Mock.Of<IEncodingService>());
-        }
+        _employerAccountPayeOrchestrator = new EmployerAccountPayeOrchestrator(_mediator.Object, _cookieService.Object, _configuration, Mock.Of<IEncodingService>());
+    }
         
-        [Test]
-        public async Task ThenTheAddPayeToAccountCommandIsCalled()
-        {
-            //Act
-            await _employerAccountPayeOrchestrator.AddPayeSchemeToAccount(_model, ExpectedUserId);
+    [Test]
+    public async Task ThenTheAddPayeToAccountCommandIsCalled()
+    {
+        //Act
+        await _employerAccountPayeOrchestrator.AddPayeSchemeToAccount(_model, ExpectedUserId);
 
-            //Assert
-            _mediator.Verify(x => x.Send(It.Is<AddPayeToAccountCommand>(c => c.HashedAccountId.Equals(ExpectedHashedId) && c.Empref.Equals(ExpectedEmpref) && c.ExternalUserId.Equals(ExpectedUserId) && c.EmprefName.Equals(ExpectedEmprefName)), It.IsAny<CancellationToken>()), Times.Once);
-        }
+        //Assert
+        _mediator.Verify(x => x.Send(It.Is<AddPayeToAccountCommand>(c => c.HashedAccountId.Equals(ExpectedHashedId) && c.Empref.Equals(ExpectedEmpref) && c.ExternalUserId.Equals(ExpectedUserId) && c.EmprefName.Equals(ExpectedEmprefName)), It.IsAny<CancellationToken>()), Times.Once);
+    }
         
-        [Test]
-        public async Task ThenTheCallToHmrcIsPerformed()
-        {
-            //Act
-            await _employerAccountPayeOrchestrator.GetPayeConfirmModel("1", "1", "", null);
+    [Test]
+    public async Task ThenTheCallToHmrcIsPerformed()
+    {
+        //Act
+        await _employerAccountPayeOrchestrator.GetPayeConfirmModel("1", "1", "", null);
 
-            //Assert
-            _mediator.Verify(x => x.Send(It.Is<GetHmrcEmployerInformationQuery>(c => c.AuthToken.Equals("1")), It.IsAny<CancellationToken>()), Times.Once);
-        }
+        //Assert
+        _mediator.Verify(x => x.Send(It.Is<GetHmrcEmployerInformationQuery>(c => c.AuthToken.Equals("1")), It.IsAny<CancellationToken>()), Times.Once);
+    }
         
 
-        [Test]
-        public async Task ThenIfTheSchemeExistsAConflictIsReturnedAndTheValuesAreCleared()
-        {
-            //Arrange
-            _mediator.Setup(x => x.Send(It.IsAny<GetHmrcEmployerInformationQuery>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ConstraintException());
+    [Test]
+    public async Task ThenIfTheSchemeExistsAConflictIsReturnedAndTheValuesAreCleared()
+    {
+        //Arrange
+        _mediator.Setup(x => x.Send(It.IsAny<GetHmrcEmployerInformationQuery>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ConstraintException());
             
-            //Act
-            var actual = await _employerAccountPayeOrchestrator.GetPayeConfirmModel("1", "1", "", null);
+        //Act
+        var actual = await _employerAccountPayeOrchestrator.GetPayeConfirmModel("1", "1", "", null);
 
-            //Assert
-            Assert.That(actual.Data.PayeScheme, Is.Empty);
-            Assert.That(actual.Data.AccessToken, Is.Empty);
-            Assert.That(actual.Data.RefreshToken, Is.Empty);
-            Assert.That(actual.Data.PayeName, Is.Empty);
-        }
+        //Assert
+        actual.Data.PayeScheme.Should().BeEmpty();
+        actual.Data.AccessToken.Should().BeEmpty();
+        actual.Data.RefreshToken.Should().BeEmpty();
+        actual.Data.PayeName.Should().BeEmpty();
+    }
 
-        [Test]
-        public async Task ThenTheLoggedInUserIsCheckedToMakeSureThatTheyAreAnOwner()
-        {
-            //Act
-            await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
+    [Test]
+    public async Task ThenTheLoggedInUserIsCheckedToMakeSureThatTheyAreAnOwner()
+    {
+        //Act
+        await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
 
-            //assert
-            _mediator.Verify(x => x.Send(It.IsAny<GetMemberRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-        }
+        //assert
+        _mediator.Verify(x => x.Send(It.IsAny<GetMemberRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
 
-        [Test]
-        public async Task ThenTheLoggedInUserIsOwnerAndCancelRouteAndHashedAccountIdAreReturned()
-        {
-            //Act
-            var actual = await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
+    [Test]
+    public async Task ThenTheLoggedInUserIsOwnerAndCancelRouteAndHashedAccountIdAreReturned()
+    {
+        //Act
+        var actual = await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
 
-            //assert
-            actual.Data.CancelRoute.Should().Be(RouteNames.EmployerAccountPaye);
-            actual.Data.HashedAccountId.Should().Be(ExpectedHashedId);
-        }
+        //assert
+        actual.Data.CancelRoute.Should().Be(RouteNames.EmployerAccountPaye);
+        actual.Data.HashedAccountId.Should().Be(ExpectedHashedId);
+    }
 
-        [Test]
-        public async Task ThenIfNotAuthorisedItIsReturnedInTheResponse()
-        {
-            //Arrange
-            _mediator.Setup(x => x.Send(It.IsAny<GetMemberRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetMemberResponse { TeamMember = new TeamMember { Role = Role.Viewer } });
+    [Test]
+    public async Task ThenIfNotAuthorisedItIsReturnedInTheResponse()
+    {
+        //Arrange
+        _mediator.Setup(x => x.Send(It.IsAny<GetMemberRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetMemberResponse { TeamMember = new TeamMember { Role = Role.Viewer } });
 
-            //Act
-            var actual = await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
+        //Act
+        var actual = await _employerAccountPayeOrchestrator.CheckUserIsOwner(ExpectedHashedId, ExpectedUserId, "", "");
 
-            //act
-            Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<GatewayInformViewModel>>());
-            Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
-        }
+        //act
+        actual.Should().BeAssignableTo<OrchestratorResponse<GatewayInformViewModel>>();
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

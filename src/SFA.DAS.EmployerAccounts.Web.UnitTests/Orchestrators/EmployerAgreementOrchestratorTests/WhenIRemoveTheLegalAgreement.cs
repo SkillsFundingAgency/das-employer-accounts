@@ -48,7 +48,7 @@ public class WhenIRemoveTheLegalAgreement
         var actual = await _orchestrator.RemoveLegalAgreement(new ConfirmOrganisationToRemoveViewModel(), ExpectedUserId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        actual.Status.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class WhenIRemoveTheLegalAgreement
         var actual = await _orchestrator.RemoveLegalAgreement(new ConfirmOrganisationToRemoveViewModel { Name = "TestName" }, ExpectedUserId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Test]
@@ -79,9 +79,9 @@ public class WhenIRemoveTheLegalAgreement
             c => c.AccountId.Equals(ExpectedAccountId)
                  && c.AccountLegalEntityId.Equals(ExpectedAccountLegalEntitytId)
                  && c.UserId.Equals(ExpectedUserId)), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual.FlashMessage, Is.Not.Null);
-        Assert.That(actual.FlashMessage.Headline, Is.EqualTo("You have removed TestName."));
+        actual.Should().NotBeNull();
+        actual.FlashMessage.Should().NotBeNull();
+        actual.FlashMessage.Headline.Should().Be("You have removed TestName.");
 
     }
 }

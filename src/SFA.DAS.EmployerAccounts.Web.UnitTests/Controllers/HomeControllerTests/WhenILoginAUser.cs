@@ -41,10 +41,10 @@ public class WhenILoginAUser
         var actual = _homeController.SignIn();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var actualRedirectResult = actual as RedirectToActionResult;
-        Assert.That(actualRedirectResult, Is.Not.Null);
-        Assert.That(actualRedirectResult.ActionName, Is.EqualTo(ControllerConstants.IndexActionName));
+        actualRedirectResult.Should().NotBeNull();
+        actualRedirectResult.ActionName.Should().Be(ControllerConstants.IndexActionName);
     }
 
 
@@ -55,9 +55,9 @@ public class WhenILoginAUser
         var actual = _homeController.GovSignIn(null, null);
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var actualRedirectResult = actual as RedirectToActionResult;
-        Assert.That(actualRedirectResult, Is.Not.Null);
-        Assert.That(actualRedirectResult.ActionName, Is.EqualTo("Index"));
+        actualRedirectResult.Should().NotBeNull();
+        actualRedirectResult.ActionName.Should().Be("Index");
     }
 }

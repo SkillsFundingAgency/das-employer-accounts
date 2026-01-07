@@ -79,8 +79,8 @@ class WhenISearchThePensionRegulator : ControllerTestBase
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = ExpectedAorn, PayeRef = ExpectedPayeRef });
         var viewResponse = (ViewResult) response;
 
-        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchPensionRegulatorResultsViewName));
-        Assert.That(viewResponse.Model, Is.SameAs(_expectedData));
+        viewResponse.ViewName.Should().Be(ControllerConstants.SearchPensionRegulatorResultsViewName);
+        viewResponse.Model.Should().BeSameAs(_expectedData);
     }
 
     [Test]
@@ -91,7 +91,7 @@ class WhenISearchThePensionRegulator : ControllerTestBase
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = ExpectedAorn, PayeRef = ExpectedPayeRef });
         var redirectResponse = (RedirectToActionResult)response;
 
-        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.PayeErrorActionName));
-        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
+        redirectResponse.ActionName.Should().Be(ControllerConstants.PayeErrorActionName);
+        redirectResponse.ControllerName.Should().Be(ControllerConstants.EmployerAccountControllerName);
     }
 }

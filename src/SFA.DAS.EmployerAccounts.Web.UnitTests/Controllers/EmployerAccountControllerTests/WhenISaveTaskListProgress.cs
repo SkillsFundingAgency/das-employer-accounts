@@ -1,44 +1,43 @@
 ﻿using SFA.DAS.EmployerAccounts.Web.RouteValues;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests;
+
+class WhenISaveTaskListProgress
 {
-    class WhenISaveTaskListProgress
+    [Test, MoqAutoData]
+    public void Then_HashedAccountId_Is_Persisted(string hashedAccountId, [NoAutoProperties] EmployerAccountController controller)
     {
-        [Test, MoqAutoData]
-        public void Then_HashedAccountId_Is_Persisted(string hashedAccountId, [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
+        // Arrange
 
-            // Act
-            controller.CreateAccountProgressSaved(hashedAccountId);
+        // Act
+        controller.CreateAccountProgressSaved(hashedAccountId);
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [Test, MoqAutoData]
-        public void WithAccount_ThenReturnTo_ContinueAccountSetup_TaskList(string hashedAccountId, [NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
+    [Test, MoqAutoData]
+    public void WithAccount_ThenReturnTo_ContinueAccountSetup_TaskList(string hashedAccountId, [NoAutoProperties] EmployerAccountController controller)
+    {
+        // Arrange
 
-            // Act
-            var result = controller.CreateAccountProgressSaved(hashedAccountId) as ViewResult;
-            var model = result.Model as CreateAccountProgressSavedViewModel;
+        // Act
+        var result = controller.CreateAccountProgressSaved(hashedAccountId) as ViewResult;
+        var model = result.Model as CreateAccountProgressSavedViewModel;
 
-            // Assert
-            model.ContinueTaskListRouteName.Should().Be(RouteNames.ContinueNewEmployerAccountTaskList);
-        }
+        // Assert
+        model.ContinueTaskListRouteName.Should().Be(RouteNames.ContinueNewEmployerAccountTaskList);
+    }
 
-        [Test, MoqAutoData]
-        public void WithoutAccount_ThenReturnTo_NewAccountTaskList([NoAutoProperties] EmployerAccountController controller)
-        {
-            // Arrange
+    [Test, MoqAutoData]
+    public void WithoutAccount_ThenReturnTo_NewAccountTaskList([NoAutoProperties] EmployerAccountController controller)
+    {
+        // Arrange
 
-            // Act
-            var result = controller.CreateAccountProgressSaved(string.Empty) as ViewResult;
-            var model = result.Model as CreateAccountProgressSavedViewModel;
+        // Act
+        var result = controller.CreateAccountProgressSaved(string.Empty) as ViewResult;
+        var model = result.Model as CreateAccountProgressSavedViewModel;
 
-            // Assert
-            model.ContinueTaskListRouteName.Should().Be(RouteNames.NewEmployerAccountTaskList);
-        }
+        // Assert
+        model.ContinueTaskListRouteName.Should().Be(RouteNames.NewEmployerAccountTaskList);
     }
 }
