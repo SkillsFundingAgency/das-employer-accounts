@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -275,14 +274,16 @@ public class HomeController(
     }
 
     [Route("signout", Name = RouteNames.SignOut)]
-    [Route("~/service/signout")]
     public async Task<IActionResult> SignOutUser([FromQuery] bool autoSignOut = false)
     {
+        await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        
         var idToken = await HttpContext.GetTokenAsync("id_token");
 
         var authenticationProperties = new AuthenticationProperties();
         authenticationProperties.Parameters.Clear();
         authenticationProperties.Parameters.Add("id_token", idToken);
+        
         var schemes = new List<string>
             {
                 CookieAuthenticationDefaults.AuthenticationScheme
@@ -293,15 +294,6 @@ public class HomeController(
             schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
-        if (autoSignOut)
-        {
-            logger.LogInformation("AutoSignOut: User is being signed out automatically due to session timeout. Storing AutoSignOut flag in TempData.");
-        }
-        else
-        {
-            logger.LogInformation("SignOut: User is signing out manually.");
-        }
-        
         TempData["AutoSignOut"] = autoSignOut;
 
         return SignOut(authenticationProperties, schemes.ToArray());
@@ -313,7 +305,7 @@ public class HomeController(
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
-    [Route("~/signed-out", Name = RouteNames.SignedOut)]
+    [Route("signed-out", Name = RouteNames.SignedOut)]
     [AllowAnonymous]
     public IActionResult SignedOut()
     {
@@ -321,14 +313,10 @@ public class HomeController(
         
         if (autoSignOut)
         {
-            logger.LogInformation("AutoSignOut: User has been redirected to signed-out page after automatic sign-out. TempData flag was present. Displaying AutoSignOut view.");
             return View("AutoSignOut");
         }
-        else
-        {
-            logger.LogInformation("SignedOut: User has been redirected to signed-out page after manual sign-out. Displaying SignedOut view.");
-            return View("SignedOut");
-        }
+
+        return View("SignedOut");
     }
 
     [HttpGet]
