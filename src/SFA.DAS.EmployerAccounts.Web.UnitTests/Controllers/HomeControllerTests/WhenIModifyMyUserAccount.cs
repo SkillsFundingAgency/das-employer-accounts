@@ -47,11 +47,11 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         var actual = _homeController.HandlePasswordChanged();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
+        actual.Should().NotBeNull();
+        actual.Should().BeAssignableTo<RedirectToActionResult>();
         var actualRedirect = actual as RedirectToActionResult;
-        Assert.That(actualRedirect, Is.Not.Null);
-        Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
+        actualRedirect.Should().NotBeNull();
+        actualRedirect.ActionName.Should().Be("Index");
     }
 
     [Test]
@@ -83,11 +83,11 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         var actual = _homeController.HandleNewRegistration();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
+        actual.Should().NotBeNull();
+        actual.Should().BeAssignableTo<RedirectToActionResult>();
         var actualRedirect = actual as RedirectToActionResult;
-        Assert.That(actualRedirect, Is.Not.Null);
-        Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
+        actualRedirect.Should().NotBeNull();
+        actualRedirect.ActionName.Should().Be("Index");
     }
 
     [Test]
@@ -108,11 +108,11 @@ public class WhenIModifyMyUserAccount : ControllerTestBase
         var actual = _homeController.HandleNewRegistration("123-345");
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
-        Assert.That(actual, Is.AssignableFrom<RedirectToActionResult>());
+        actual.Should().NotBeNull();
+        actual.Should().BeAssignableTo<RedirectToActionResult>();
         var actualRedirect = actual as RedirectToActionResult;
-        Assert.That(actualRedirect, Is.Not.Null);
-        Assert.That(actualRedirect.ActionName, Is.EqualTo("Index"));
+        actualRedirect.Should().NotBeNull();
+        actualRedirect.ActionName.Should().Be("Index");
         _homeOrchestrator.Verify(x => x.SaveUpdatedIdentityAttributes(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 

@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Authentication;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
-using SFA.DAS.EmployerAccounts.Web.Extensions;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.GovUK.Auth.Services;
 using System.Security.Claims;
@@ -103,8 +101,8 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualRedirectToRouteResult = actual as RedirectToRouteResult;
-        Assert.That(actualRedirectToRouteResult, Is.Not.Null);
-        Assert.That(actualRedirectToRouteResult.RouteName, Is.EqualTo("employer-team-index"));
+        actualRedirectToRouteResult.Should().NotBeNull();
+        actualRedirectToRouteResult.RouteName.Should().Be("employer-team-index");
     }
     
     [Test]
@@ -119,7 +117,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
             foreach (var attribute in attributes)
             {
                 var actual = attribute as AuthorizeAttribute;
-                Assert.That(actual, Is.Null);
+                actual.Should().BeNull();
             }
         }
     }
@@ -149,7 +147,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Asssert
         var actualViewResult = actual as RedirectResult;
-        Assert.That(actualViewResult.Url, Is.EqualTo($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}"));
+        actualViewResult.Url.Should().Be($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}");
     }
     [Test]
     public async Task ThenIfIAmAuthenticatedWithNoUserInformation()
@@ -176,7 +174,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Assert
         var actualViewResult = actual as RedirectResult;
-        Assert.That(actualViewResult.Url, Is.EqualTo($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}"));
+        actualViewResult.Url.Should().Be($"https://employerprofiles.test-eas.apprenticeships.education.gov.uk/user/add-user-details?_ga={_gaQueryData._ga}&_gl={_gaQueryData._gl}&utm_source={_gaQueryData.utm_source}&utm_campaign={_gaQueryData.utm_campaign}&utm_medium={_gaQueryData.utm_medium}&utm_keywords={_gaQueryData.utm_keywords}&utm_content={_gaQueryData.utm_content}");
     }
 
     [Test]
@@ -209,7 +207,7 @@ public class WhenIViewTheHomePage : ControllerTestBase
 
         // Assert
         var actualViewResult = actual as RedirectToRouteResult;
-        Assert.That(actualViewResult.RouteName, Is.EqualTo(RouteNames.NewEmployerAccountTaskList));
+        actualViewResult.RouteName.Should().Be(RouteNames.NewEmployerAccountTaskList);
     }
 
     private static UserAccountsViewModel SetupUserAccountsViewModel(string redirectUri = null, string redirectDescription = null)

@@ -1,21 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Moq;
-using NUnit.Framework;
+﻿using MediatR;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Exceptions;
-using SFA.DAS.EmployerAccounts.Interfaces;
-using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.Organisation;
 using SFA.DAS.EmployerAccounts.Models.ReferenceData;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntities;
 using SFA.DAS.EmployerAccounts.Queries.GetOrganisations;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
-using SFA.DAS.EmployerAccounts.Web.ViewModels;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.SearchOrganisationOrchestratorTests;
 
@@ -67,7 +56,7 @@ public class WhenISearchForAnOrganisation
         var actual = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, organisationType, null, null);
 
         //Assert
-        Assert.That(actual, Is.AssignableFrom<OrchestratorResponse<SearchOrganisationResultsViewModel>>());
+        actual.Should().BeAssignableTo<OrchestratorResponse<SearchOrganisationResultsViewModel>>();
     }
 
     [Test]
@@ -81,7 +70,7 @@ public class WhenISearchForAnOrganisation
         var actual = await _orchestrator.SearchOrganisation("Test", 1, OrganisationType.Charities, null, null);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        actual.Status.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -107,7 +96,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.False);
+        result.Data.Results.Data.Single().AddedToAccount.Should().BeFalse();
     }
 
     [Test]
@@ -134,7 +123,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
+        result.Data.Results.Data.Single().AddedToAccount.Should().BeTrue();
     }
 
     [Test]
@@ -161,7 +150,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
+        result.Data.Results.Data.Single().AddedToAccount.Should().BeTrue();
     }
 
     [Test]
@@ -188,7 +177,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
+        result.Data.Results.Data.Single().AddedToAccount.Should().BeTrue();
     }
 
     [Test]
@@ -215,7 +204,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
+        result.Data.Results.Data.Single().AddedToAccount.Should().BeTrue();
     }
 
     [Test]
@@ -242,7 +231,7 @@ public class WhenISearchForAnOrganisation
         var result = await _orchestrator.SearchOrganisation(searchTerm, pageNumber, null, hashedAccountId, userId);
 
         //Assert
-        Assert.That(result.Data.Results.Data.Single().AddedToAccount, Is.True);
+        result.Data.Results.Data.Single().AddedToAccount.Should().BeTrue();
     }
 
     [Test]

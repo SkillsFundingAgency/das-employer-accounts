@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using AutoFixture.NUnit3;
 using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -7,7 +6,6 @@ using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementPdf;
 using SFA.DAS.EmployerAccounts.Queries.GetSignedEmployerAgreementPdf;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerAgreementOrchestratorTests;
 
@@ -99,8 +97,8 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.That(actual.FlashMessage.ErrorMessages, Is.Not.Empty);
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        actual.FlashMessage.ErrorMessages.Should().NotBeEmpty();
+        actual.Status.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test, MoqAutoData]
@@ -119,7 +117,7 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetSignedPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 
 
@@ -139,6 +137,6 @@ public class WhenIGetThePdfAgreement
         var actual = await orchestrator.GetPdfEmployerAgreement(hashedAccountId, hashedAgreementId, userId);
 
         //Assert
-        Assert.That(actual.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        actual.Status.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

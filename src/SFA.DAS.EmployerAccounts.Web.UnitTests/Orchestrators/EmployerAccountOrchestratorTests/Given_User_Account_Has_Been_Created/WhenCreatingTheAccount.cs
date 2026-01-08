@@ -103,7 +103,7 @@ public class WhenCreatingTheAccount
 
         var result = await _employerAccountOrchestrator.CreateOrUpdateAccount(requestModel, It.IsAny<HttpContext>());
 
-        Assert.That(result.Data.EmployerAgreement.HashedAgreementId, Is.EqualTo(HashedAgreementId));
+        result.Data.EmployerAgreement.HashedAgreementId.Should().Be(HashedAgreementId);
     }
 
     [Test]

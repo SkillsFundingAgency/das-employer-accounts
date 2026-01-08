@@ -44,7 +44,7 @@ public class WhenViewingInvitations : ControllerTestBase
         var actual = _controller.Invite();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
     }
 
     [Test]
@@ -57,11 +57,11 @@ public class WhenViewingInvitations : ControllerTestBase
         var actual = _controller.Invite();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var actualRedirectResult = actual as RedirectToActionResult;
-        Assert.That(actualRedirectResult, Is.Not.Null);
-        Assert.That(actualRedirectResult.ActionName, Is.EqualTo("Index"));
-        Assert.That(actualRedirectResult.ControllerName, Is.EqualTo("Home"));
+        actualRedirectResult.Should().NotBeNull();
+        actualRedirectResult.ActionName.Should().Be("Index");
+        actualRedirectResult.ControllerName.Should().Be("Home");
     }
 
     [Test]
@@ -78,8 +78,8 @@ public class WhenViewingInvitations : ControllerTestBase
 
         //Assert
         _invitationOrchestrator.Verify(x => x.GetInvitation(It.Is<string>(i => i == "123")));
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var viewResult = actual as ViewResult;
-        Assert.That(viewResult, Is.Not.Null);
+        viewResult.Should().NotBeNull();
     }
 }

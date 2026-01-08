@@ -29,8 +29,8 @@ class WhenIDontProvideAValidAorn
         var response = await _controller.SearchPensionRegulatorByAorn(new SearchPensionRegulatorByAornViewModel { Aorn = "SDCXDD", PayeRef = "000/EDDEFDS" });
         var viewResponse = (ViewResult)response;
 
-        Assert.That(viewResponse.ViewName, Is.EqualTo(ControllerConstants.SearchUsingAornViewName));
+        viewResponse.ViewName.Should().Be(ControllerConstants.SearchUsingAornViewName);
         var viewModel = viewResponse.Model as SearchPensionRegulatorByAornViewModel;
-        Assert.That(viewModel.AornError, Is.EqualTo("Enter your Accounts Office reference in the correct format"));
+        viewModel.AornError.Should().Be("Enter your Accounts Office reference in the correct format");
     }
 }

@@ -1,48 +1,57 @@
 ﻿using Microsoft.AspNetCore.Http;
 using SFA.DAS.EmployerAccounts.Web.StartupExtensions;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.AppStart;
+
+[TestFixture]
+public  class RobotsTextMiddlewareTests
 {
-    [TestFixture]
-    public  class RobotsTextMiddlewareTests
+    [Test]
+    public async Task When_RobotsTextPathIsSet_ReturnPlainText_AndDontInvokeNext()
     {
-        [Test]
-        public async Task When_RobotsTextPathIsSet_ReturnPlainText_AndDontInvokeNext()
+        // Arrange
+        var context = new DefaultHttpContext
         {
-            // Arrange
-            var context = new DefaultHttpContext();
-            context.Request.Path = "/robots.txt";
+            Request =
+            {
+                Path = "/robots.txt"
+            }
+        };
 
-            var nextMock = new Mock<RequestDelegate>();
-            var middleware = new RobotsTextMiddleware(nextMock.Object);
+        var nextMock = new Mock<RequestDelegate>();
+        var middleware = new RobotsTextMiddleware(nextMock.Object);
 
-            //act
-            await middleware.InvokeAsync(context);
+        //act
+        await middleware.InvokeAsync(context);
 
-            // assert
-            Assert.That(context.Response.ContentType, Is.EqualTo("text/plain"));
-            nextMock.Verify(n => n.Invoke(context), Times.Never);
-        }
-
-        [TestCase("")]
-        [TestCase("/other-path")]
-        public async Task When_NoRobotsTextPathSet_InvokeNext(string _path)
-        {
-            // Arrange
-
-            var context = new DefaultHttpContext();
-            context.Request.Path = _path;
-
-            var nextMock = new Mock<RequestDelegate>();
-
-            var middleware = new RobotsTextMiddleware(nextMock.Object);
-
-            await middleware.InvokeAsync(context);
-
-            // assert
-            nextMock.Verify(n => n.Invoke(context), Times.Once);
-
-        }
-        
+        // assert
+        context.Response.ContentType.Should().Be("text/plain");
+        nextMock.Verify(n => n.Invoke(context), Times.Never);
     }
+
+    [TestCase("")]
+    [TestCase("/other-path")]
+    public async Task When_NoRobotsTextPathSet_InvokeNext(string _path)
+    {
+        // Arrange
+
+        var context = new DefaultHttpContext
+        {
+            Request =
+            {
+                Path = _path
+            }
+        };
+
+        var nextMock = new Mock<RequestDelegate>();
+
+        var middleware = new RobotsTextMiddleware(nextMock.Object);
+
+        await middleware.InvokeAsync(context);
+
+        // assert
+        nextMock.Verify(n => n.Invoke(context), Times.Once);
+
+    }
+        
 }

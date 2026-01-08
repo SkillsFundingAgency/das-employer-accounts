@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
-using SFA.DAS.EmployerAccounts.Interfaces;
-using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.Organisation;
 using SFA.DAS.EmployerAccounts.Models.PensionRegulator;
 using SFA.DAS.EmployerAccounts.Queries.GetOrganisationsByAorn;
 using SFA.DAS.EmployerAccounts.Queries.GetPensionRegulator;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.SearchPensionRegulatorOrchestratorTests;
 
@@ -56,9 +46,9 @@ public class WhenISearchThePensionRegulatorByAorn
         var response = await _orchestrator.GetOrganisationsByAorn(aorn, payeRef);
 
         //Assert
-        Assert.That(response.Data.PayeRef, Is.EqualTo(payeRef));
-        Assert.That(response.Data.Aorn, Is.EqualTo(aorn));
-        Assert.That(response.Data.Results.Count, Is.EqualTo(queryResponse.Organisations.Count()));
+        response.Data.PayeRef.Should().Be(payeRef);
+        response.Data.Aorn.Should().Be(aorn);
+        response.Data.Results.Count.Should().Be(queryResponse.Organisations.Count());
     }
 
     [Test]
@@ -74,9 +64,9 @@ public class WhenISearchThePensionRegulatorByAorn
         var response = await _orchestrator.GetOrganisationsByAorn(aorn, payeRef);
 
         //Assert
-        Assert.That(response.Data.PayeRef, Is.EqualTo(payeRef));
-        Assert.That(response.Data.Aorn, Is.EqualTo(aorn));
-        Assert.That(response.Data.Results.Count, Is.EqualTo(0));
+        response.Data.PayeRef.Should().Be(payeRef);
+        response.Data.Aorn.Should().Be(aorn);
+        response.Data.Results.Count.Should().Be(0);
     }
 
     [Test]
@@ -84,10 +74,10 @@ public class WhenISearchThePensionRegulatorByAorn
     {
         var actual = await _orchestrator.SearchPensionRegulator(It.IsAny<string>());
 
-        Assert.That(
-                actual
-                    .Data
-                    .Results
-                    .All( organisation => organisation.Type == OrganisationType.PensionsRegulator), Is.True);
+        actual
+            .Data
+            .Results
+            .All(organisation => organisation.Type == OrganisationType.PensionsRegulator)
+            .Should().BeTrue();
     }
 }

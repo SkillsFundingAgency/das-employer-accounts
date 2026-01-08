@@ -1,0 +1,7 @@
+@model string
+
+@if (!string.IsNullOrWhiteSpace(Model))
+{
+    @Html.Raw(Model)
+}
+

@@ -2,34 +2,29 @@
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class ContentApiClientWithCaching : IContentApiClient
+public class ContentApiClientWithCaching(
+    IContentApiClient contentService,
+    ICacheStorageService cacheStorageService,
+    EmployerAccountsConfiguration employerAccountsConfiguration)
+    : IContentApiClient
 {
-    private readonly IContentApiClient _contentService;
-    private readonly ICacheStorageService _cacheStorageService;
-    private readonly EmployerAccountsConfiguration _employerAccountsConfiguration;
-
-    public ContentApiClientWithCaching(IContentApiClient contentService, ICacheStorageService cacheStorageService, EmployerAccountsConfiguration employerAccountsConfiguration)
-    {
-        _contentService = contentService;
-        _cacheStorageService = cacheStorageService;
-        _employerAccountsConfiguration = employerAccountsConfiguration;
-    }
     public async Task<string> Get(string type, string applicationId)
     {
         var cacheKey = $"{applicationId}_{type}".ToLowerInvariant();
 
         try
         {
-            if (_cacheStorageService.TryGet(cacheKey, out string cachedContentBanner))
+            var (success, cachedContentBanner) = await cacheStorageService.TryGetAsync(cacheKey);
+            if (success && cachedContentBanner != null)
             {
                 return cachedContentBanner;
             }
 
-            var content = await _contentService.Get(type, applicationId);
+            var content = await contentService.Get(type, applicationId);
 
             if (content != null)
             {
-                await _cacheStorageService.Save(cacheKey, content, _employerAccountsConfiguration.DefaultCacheExpirationInMinutes);
+                await cacheStorageService.Save(cacheKey, content, employerAccountsConfiguration.DefaultCacheExpirationInMinutes);
             }
 
             return content;

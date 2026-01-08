@@ -49,8 +49,8 @@ class WhenIViewNextSteps : ControllerTestBase
         var model = result?.Model as OrchestratorResponse<OrganisationAddedNextStepsViewModel>;
 
         //Assert
-        Assert.That(model, Is.Not.Null);
-        Assert.That(model.Data.ShowWizard, Is.True);
+        model.Should().NotBeNull();
+        model.Data.ShowWizard.Should().BeTrue();
         _orchestrator.Verify(x => x.GetOrganisationAddedNextStepViewModel(It.IsAny<string>(), hashedAgreementId), Times.Once);
     }
 
@@ -75,8 +75,8 @@ class WhenIViewNextSteps : ControllerTestBase
         var model = result?.Model as OrchestratorResponse<OrganisationAddedNextStepsViewModel>;
 
         //Assert
-        Assert.That(model, Is.Not.Null);
-        Assert.That(model.Data.ShowWizard, Is.True);
+        model.Should().NotBeNull();
+        model.Data.ShowWizard.Should().BeTrue();
         _orchestrator.Verify(x => x.GetOrganisationAddedNextStepViewModel(It.IsAny<string>(), hashedAgreementId), Times.Once);
     }
 }

@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using MediatR;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.Commands.CreateInvitation;
-using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Exceptions;
-using SFA.DAS.EmployerAccounts.Interfaces;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountTeamMembers;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccountRole;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
-using SFA.DAS.EmployerAccounts.Web.ViewModels;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorTests;
@@ -54,8 +43,8 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.InviteTeamMember(request, "37648");
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+        result.Should().NotBeNull();
+        result.Status.Should().Be(HttpStatusCode.OK);
             
     }
 
@@ -77,8 +66,8 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.InviteTeamMember(request, "37648");
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
+        result.Should().NotBeNull();
+        result.Status.Should().Be(HttpStatusCode.BadRequest);
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -100,8 +89,8 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.InviteTeamMember(request, "37648");
 
         //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+        result.Should().NotBeNull();
+        result.Status.Should().Be(HttpStatusCode.Unauthorized);
         _mediator.Verify(x => x.Send(It.IsAny<GetAccountTeamMembersQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
         
@@ -124,6 +113,6 @@ class WhenIInviteATeamMember
         var result = await _orchestrator.GetNewInvitation(hashAccountId, externalUserId);
 
         //Assert
-        Assert.That(result.Status, Is.EqualTo(status));
+        result.Status.Should().Be(status);
     }
 }

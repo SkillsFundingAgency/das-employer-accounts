@@ -1,5 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
@@ -28,9 +27,9 @@ public class WhenRenamingAnAccount
 
         //Assert
         mediatorMock.Verify(x => x.Send(It.Is<GetEmployerAccountByIdQuery>(q => q.AccountId.Equals(account.Id)), It.IsAny<CancellationToken>()));
-        Assert.That(response.Data.HashedId, Is.EqualTo(account.HashedId));
-        Assert.That(response.Data.Name, Is.EqualTo(account.Name));
-        Assert.That(response.Status, Is.EqualTo(HttpStatusCode.OK));
+        response.Data.HashedId.Should().Be(account.HashedId);
+        response.Data.Name.Should().Be(account.Name);
+        response.Status.Should().Be(HttpStatusCode.OK);
     }
 
     [Test, DomainAutoData]
@@ -54,7 +53,7 @@ public class WhenRenamingAnAccount
         }, "ABC123");
 
         //Assert
-        Assert.That(response, Is.InstanceOf<OrchestratorResponse<RenameEmployerAccountViewModel>>());
+        response.Should().BeOfType<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
         mediatorMock.Verify(x => x.Send(It.Is<RenameEmployerAccountCommand>(c => c.NewName == "New Account Name"), It.IsAny<CancellationToken>()), Times.Once());
     }

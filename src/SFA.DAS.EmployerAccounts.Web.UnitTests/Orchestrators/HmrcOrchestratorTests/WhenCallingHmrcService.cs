@@ -79,7 +79,7 @@ public class WhenCallingHmrcService
         var result = await _employerAccountOrchestrator.GetHmrcEmployerInformation("123", scenarioUserEmail);
 
         //Assert
-        Assert.That(result.Empref, Is.EqualTo(expectedEmpRef));
+        result.Empref.Should().Be(expectedEmpRef);
     }
 
     [Test]
@@ -92,6 +92,6 @@ public class WhenCallingHmrcService
         var result = await _employerAccountOrchestrator.GetHmrcEmployerInformation("123", "test@test.com");
 
         //Assert
-        Assert.That(result.EmprefNotFound, Is.True);
+        result.EmprefNotFound.Should().BeTrue();
     }
 }

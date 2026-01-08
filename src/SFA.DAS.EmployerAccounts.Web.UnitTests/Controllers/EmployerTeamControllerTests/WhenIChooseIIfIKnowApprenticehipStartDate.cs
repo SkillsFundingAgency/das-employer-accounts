@@ -1,6 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Testing.AutoFixture;
+﻿using SFA.DAS.EmployerAccounts.Web.RouteValues;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerTeamControllerTests;
 
@@ -15,7 +13,7 @@ public class WhenIChooseIIfIKnowApprenticehipStartDate
         var result = controller.TriageWillApprenticeshipTrainingStart(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.Yes }) as RedirectToRouteResult;
 
         //Assert
-        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageWhenApprenticeshipForExistingEmployee));
+        result.RouteName.Should().Be(RouteNames.TriageWhenApprenticeshipForExistingEmployee);
     }
 
     [Test, MoqAutoData]
@@ -27,7 +25,7 @@ public class WhenIChooseIIfIKnowApprenticehipStartDate
         var result = controller.TriageWillApprenticeshipTrainingStart(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.No }) as RedirectToRouteResult;
 
         //Assert
-        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageCannotSetupWithoutStartDate));
+        result.RouteName.Should().Be(RouteNames.TriageCannotSetupWithoutStartDate);
     }
 
     [Test, MoqAutoData]
@@ -39,6 +37,6 @@ public class WhenIChooseIIfIKnowApprenticehipStartDate
         var result = controller.TriageWillApprenticeshipTrainingStart(hashedAccountId, new TriageViewModel { TriageOption = TriageOptions.Unknown }) as RedirectToRouteResult;
 
         //Assert
-        Assert.That(result.RouteName, Is.EqualTo(RouteNames.TriageCannotSetupWithoutApproximateStartDate));
+        result.RouteName.Should().Be(RouteNames.TriageCannotSetupWithoutApproximateStartDate);
     }
 }

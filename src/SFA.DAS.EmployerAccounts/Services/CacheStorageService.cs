@@ -1,45 +1,33 @@
 ﻿using SFA.DAS.Caches;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerAccounts.Configuration;
-using SFA.DAS.EmployerAccounts.Helpers;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
-public class CacheStorageService : ICacheStorageService
+public class CacheStorageService(IDistributedCache distributedCache, EmployerAccountsConfiguration config)
+    : ICacheStorageService
 {
-    private readonly IDistributedCache _distributedCache;
-    private readonly EmployerAccountsConfiguration _config;
-
-    public CacheStorageService(IDistributedCache distributedCache, EmployerAccountsConfiguration config)
-    {
-        _distributedCache = distributedCache;
-        _config = config;
-    }
-
     public async Task Save<T>(string key, T item, int expirationInMinutes)
     {
         var json = JsonConvert.SerializeObject(item);
-        await _distributedCache.SetCustomValueAsync(key, json, TimeSpan.FromMinutes(_config.DefaultCacheExpirationInMinutes));
+        await distributedCache.SetCustomValueAsync(key, json, TimeSpan.FromMinutes(config.DefaultCacheExpirationInMinutes));
     }
 
-    public bool TryGet(string key, out string value)
+    public async Task<(bool Success, string Value)> TryGetAsync(string key)
     {
-        value = AsyncHelper.RunSync(() => Get<string>(key));
-        return value != null;
-    }
-
-    private async Task<T> Get<T>(string key)
-    {
-        var json = string.Empty;
-        if (await _distributedCache.ExistsAsync(key))
+        if (!await distributedCache.ExistsAsync(key))
         {
-            json = await _distributedCache.GetCustomValueAsync<string>(key);
+            return (false, null);
         }
-        return JsonConvert.DeserializeObject<T>(json);
+
+        var json = await distributedCache.GetCustomValueAsync<string>(key);
+        var value = JsonConvert.DeserializeObject<string>(json);
+        
+        return (value != null, value);
     }
 
     public async Task Delete(string key)
     {
-        await _distributedCache.RemoveFromCache(key);
+        await distributedCache.RemoveFromCache(key);
     }
 }

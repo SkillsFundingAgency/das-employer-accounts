@@ -29,9 +29,9 @@ public class AccountDashboardViewModelExtensionsTests
         };
 
         // Act
-        var result = AccountDashboardViewModelExtensions.ShowYourFundingReservationsLink(model);
+        var result = model.ShowYourFundingReservationsLink();
 
         // Assert
-        Assert.That(result, Is.EqualTo(expectedValue));
+        result.Should().Be(expectedValue);
     }
 }

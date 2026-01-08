@@ -1,5 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.HomeControllerTests;
@@ -58,9 +57,9 @@ public class WhenIRegisterAUser
         var actual = _homeController.RegisterUser();
 
         //Assert
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var actualRedirectResult = actual as RedirectResult;
-        Assert.That(actualRedirectResult, Is.Not.Null);
-        Assert.That(actualRedirectResult.Url, Is.EqualTo(redirectUrl));
+        actualRedirectResult.Should().NotBeNull();
+        actualRedirectResult.Url.Should().Be(redirectUrl);
     }
 }

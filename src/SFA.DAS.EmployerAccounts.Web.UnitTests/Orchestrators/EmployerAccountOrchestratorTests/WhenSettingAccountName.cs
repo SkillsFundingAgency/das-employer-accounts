@@ -1,5 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccountComplete;
 using SFA.DAS.EmployerAccounts.Commands.RenameEmployerAccount;
 using SFA.DAS.EmployerAccounts.Models;
@@ -32,7 +31,7 @@ public class WhenSettingAccountName
         }, "ABC123");
 
         //Assert
-        Assert.That(response, Is.InstanceOf<OrchestratorResponse<RenameEmployerAccountViewModel>>());
+        response.Should().BeOfType<OrchestratorResponse<RenameEmployerAccountViewModel>>();
 
         mediatorMock.Verify(x => x.Send(It.Is<RenameEmployerAccountCommand>(c => c.NewName == "New Account Name"), It.IsAny<CancellationToken>()), Times.Once);
     }

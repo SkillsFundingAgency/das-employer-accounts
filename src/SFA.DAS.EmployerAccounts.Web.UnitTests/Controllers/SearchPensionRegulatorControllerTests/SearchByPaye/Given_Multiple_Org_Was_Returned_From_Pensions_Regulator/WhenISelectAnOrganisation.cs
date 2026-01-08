@@ -41,7 +41,7 @@ class WhenISelectAnOrganisation
         var response = _controller.SearchPensionRegulator(It.IsAny<string>(), viewModel).Result;
         var redirectResponse = (RedirectToActionResult) response;
 
-        Assert.That(redirectResponse.ActionName, Is.EqualTo(ControllerConstants.SummaryActionName));
-        Assert.That(redirectResponse.ControllerName, Is.EqualTo(ControllerConstants.EmployerAccountControllerName));
+        redirectResponse.ActionName.Should().Be(ControllerConstants.SummaryActionName);
+        redirectResponse.ControllerName.Should().Be(ControllerConstants.EmployerAccountControllerName);
     }
 }

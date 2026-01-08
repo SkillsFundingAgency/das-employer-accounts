@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
-using SFA.DAS.EmployerAccounts.Helpers;
-using SFA.DAS.EmployerAccounts.Queries.GetContent;
 
 namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 
 public interface IHtmlHelpers
 {
-    HtmlString GetContentByType(string type);
     bool ViewExists(IHtmlHelper html, string viewName);
     string ReturnToHomePageButtonHref(string hashedAccountId);
     string ReturnToHomePageButtonText(string hashedAccountId);
@@ -16,7 +13,6 @@ public interface IHtmlHelpers
 }
 
 public class HtmlHelpers(
-    IMediator mediator,
     ILogger<HtmlHelpers> logger,
     ICompositeViewEngine compositeViewEngine)
     : IHtmlHelpers
@@ -38,16 +34,6 @@ public class HtmlHelpers(
     private static string EscapeApostrophes(string input)
     {
         return input.Replace("'", @"\'");
-    }
-
-    public HtmlString GetContentByType(string type)
-    {
-        var userResponse = AsyncHelper.RunSync(() => mediator.Send(new GetContentRequest
-        {
-            ContentType = type
-        }));
-
-        return new HtmlString(userResponse.Content);
     }
 
     public bool ViewExists(IHtmlHelper html, string viewName)

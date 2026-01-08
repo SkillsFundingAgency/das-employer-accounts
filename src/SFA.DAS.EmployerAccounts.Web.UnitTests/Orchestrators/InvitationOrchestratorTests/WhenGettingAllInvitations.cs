@@ -40,7 +40,7 @@ public class WhenGettingAllInvitations
 
         //Assert
         _mediator.Verify(x=>x.Send(It.Is<GetUserInvitationsRequest>(c=>c.UserId.Equals(userId)), It.IsAny<CancellationToken>()), Times.Once);
-        Assert.That(actual.Data, Is.AssignableFrom<UserInvitationsViewModel>());
+        actual.Data.Should().BeAssignableTo<UserInvitationsViewModel>();
     }
 
     [TestCase(1, "Today")]
@@ -61,7 +61,7 @@ public class WhenGettingAllInvitations
         var actual = await _invitationOrchestrator.GetAllInvitationsForUser("123abc");
 
         //Assert
-        Assert.That(actual.Data.Invitations.FirstOrDefault().ExpiryDays(), Is.EqualTo(expectedValue));
+        actual.Data.Invitations.FirstOrDefault().ExpiryDays().Should().Be(expectedValue);
     }
 
     [Test]
@@ -74,7 +74,7 @@ public class WhenGettingAllInvitations
         var actual = await _invitationOrchestrator.GetAllInvitationsForUser("test");
 
         //Assert
-        Assert.That(actual.Data, Is.Null);
+        actual.Data.Should().BeNull();
     }
 
     [Test]

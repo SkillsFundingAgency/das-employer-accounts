@@ -88,8 +88,8 @@ public class WhenISubmitMyDetails : ControllerTestBase
 
         //Assert
         _orchestrator.Verify(x => x.GetSummaryViewModel(), Times.Once);
-        Assert.That(actual, Is.Not.Null);
+        actual.Should().NotBeNull();
         var model = actual.Model as OrchestratorResponse<SummaryViewModel>;
-        Assert.That(model, Is.Not.Null);
+        model.Should().NotBeNull();
     }
 }

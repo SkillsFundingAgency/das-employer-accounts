@@ -291,7 +291,7 @@ else
                     </div>
                 </div>
             </section>
-            @HtmlHelpers.GetContentByType("covid_section")
+            @await Component.InvokeAsync("Content", new { type = "covid_section" })
             <div class="das-highlight">
                 <h2 class="govuk-heading-m">Help us improve this service</h2>
                 <p class="govuk-body govuk-!-margin-bottom-0"><a
