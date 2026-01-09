@@ -50,13 +50,6 @@ public class HomeController(
             }
         }
 
-        if (TempData?.ContainsKey("AutoSignOut") == true && TempData["AutoSignOut"] is bool autoSignOut)
-        {
-            TempData["AutoSignOut"] = autoSignOut;
-            logger.LogInformation("Index: Detected sign-out redirect. Redirecting to signed-out page. AutoSignOut: {AutoSignOut}", autoSignOut);
-            return RedirectToRoute(RouteNames.SignedOut);
-        }
-
         var userIdClaim = HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ControllerConstants.UserRefClaimKeyName));
 
         OrchestratorResponse<UserAccountsViewModel> accounts;
