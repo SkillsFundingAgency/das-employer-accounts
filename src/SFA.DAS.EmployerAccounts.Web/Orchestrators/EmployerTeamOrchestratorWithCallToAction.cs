@@ -53,6 +53,7 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
         if (TryGetAccountContext(hashedAccountId, out var accountContext) && accountContext.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
         {
             var levyResponse = await accountResponseTask;
+            levyResponse.Data.ShowLevyTransparency = _configuration.ShowLevyTransparency;
             SaveContext(levyResponse);
             return levyResponse;
         }
