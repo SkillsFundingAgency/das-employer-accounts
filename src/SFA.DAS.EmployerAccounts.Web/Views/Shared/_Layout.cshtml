@@ -102,7 +102,6 @@
         window.appInsights = appInsights;
         appInsights.trackPageView();
     </script>
-    @await Html.PartialAsync("_ZenDeskWidget")
     @await Html.PartialAsync("_ZenDeskApiPush")
 </head>
 
@@ -119,14 +118,10 @@
 
     <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
-    <partial name="_CookieBanner"></partial>
+    <partial name="_CookieBanner" model="@(new CookieBannerModel { AccountId = hashedAccountId })" />
 
-    @* ReSharper disable once Mvc.PartialViewNotResolved *@
-    <partial name="_Header">
-        @* ReSharper disable once Mvc.PartialViewNotResolved *@
-        <partial name="_Menu" model="@hashedAccountId">
-        </partial>
-    </partial>
+    <partial name="_Header" model="@hashedAccountId" />
+    <partial name="_ZenDeskWidget" />
 
     <div class="govuk-width-container">
         <nav title="Journey navigation">
@@ -142,15 +137,7 @@
         </main>
     </div>
 
-    @* ReSharper disable once Mvc.PartialViewNotResolved *@
     <partial name="_Footer" model="@footerModel" />
-
-    @if (!string.IsNullOrWhiteSpace(SystemDetailsViewModel.EnvironmentName))
-    {
-        <p class="govuk-body">
-            Environment: @SystemDetailsViewModel.EnvironmentName ● Version: @SystemDetailsViewModel.VersionNumber
-        </p>
-    }
 
     <script type="module" src="/libs/govuk-frontend/govuk-frontend.min.js"></script>
     <script type="module" nws-csp-add-nonce="true">
@@ -161,12 +148,9 @@
     </script>
 
     <script src="/libs/jquery/jquery.min.js"></script>
-    <script src="/js/das-all.min.js"></script>
+    <script src="/js/das-all.js"></script>
     <script src="/js/app.min.js"></script>
 
-    @await RenderSectionAsync("pageSpecificJS", required: false)
-
-    <script src="/js/app.js" no-cdn></script>
     <script>
         window.DASFrontend.initAll();
     </script>
