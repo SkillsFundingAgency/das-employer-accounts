@@ -1,18 +1,18 @@
 @{
-    ViewBag.Title = "Signed out";
+    ViewBag.Title = "You have been signed out";
     ViewBag.PageId = "signed-out";
 }
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
-        <h1 class="govuk-heading-xl">You've signed out</h1>
+        <h1 class="govuk-heading-xl">You have been signed out</h1>
 
         <p class="govuk-body">
-            You have successfully signed out of your account.
+            Go to the <a href="https://www.gov.uk" class="govuk-link">GOV.UK homepage</a> or <a asp-route="@RouteNames.AccountsIndex" class="govuk-link">sign in</a> to your GOV.UK One Login.
         </p>
 
-        <a class="govuk-button" id="sign-in-again" asp-route="@RouteNames.AccountsIndex">Sign in again</a>
+        <a class="govuk-button" id="sign-in-again" asp-route="@RouteNames.AccountsIndex">Sign in</a>
 
     </div>
 </div>
