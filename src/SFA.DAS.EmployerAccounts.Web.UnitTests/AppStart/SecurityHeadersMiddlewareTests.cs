@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using SFA.DAS.EmployerAccounts.Web.StartupExtensions;
 

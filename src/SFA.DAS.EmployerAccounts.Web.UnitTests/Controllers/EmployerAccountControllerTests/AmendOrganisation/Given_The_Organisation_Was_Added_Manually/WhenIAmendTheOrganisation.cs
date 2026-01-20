@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Common.Domain.Types;
 

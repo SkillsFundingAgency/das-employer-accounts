@@ -1,8 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using SFA.DAS.Testing.AutoFixture;
-
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.GetApprenticeshipFunding;
+﻿namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.GetApprenticeshipFunding;
 
 class WhenIDoNotSelectAnOption
 {

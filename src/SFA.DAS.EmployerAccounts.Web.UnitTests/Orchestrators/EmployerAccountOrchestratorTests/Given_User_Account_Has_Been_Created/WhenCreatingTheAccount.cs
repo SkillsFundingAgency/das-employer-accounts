@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Commands.AddPayeToAccount;
 using SFA.DAS.EmployerAccounts.Commands.CreateAccount;

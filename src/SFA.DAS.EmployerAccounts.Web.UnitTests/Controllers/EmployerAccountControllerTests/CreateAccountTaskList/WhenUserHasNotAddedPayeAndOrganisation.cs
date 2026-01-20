@@ -1,7 +1,4 @@
 ﻿using System.Security.Claims;
-using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.EmployerAccounts.Queries.GetCreateAccountTaskList;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccounts;

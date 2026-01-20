@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.EmployerAccounts.Exceptions;
+﻿using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAccount;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeByRef;
 using SFA.DAS.EmployerAccounts.Queries.RemovePayeFromAccount;

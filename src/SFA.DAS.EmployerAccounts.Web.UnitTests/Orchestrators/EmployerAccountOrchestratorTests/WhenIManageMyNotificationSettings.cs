@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Mvc.Abstractions;
+﻿using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers;

@@ -1,19 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
-using SFA.DAS.EmployerAccounts.Interfaces;
-using SFA.DAS.EmployerAccounts.Models.Account;
 using SFA.DAS.EmployerAccounts.Models.PensionRegulator;
 using SFA.DAS.EmployerAccounts.Queries.GetPensionRegulator;
-using SFA.DAS.EmployerAccounts.Web.Orchestrators;
-using SFA.DAS.EmployerAccounts.Web.ViewModels;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.SearchPensionRegulatorOrchestratorTests;
 

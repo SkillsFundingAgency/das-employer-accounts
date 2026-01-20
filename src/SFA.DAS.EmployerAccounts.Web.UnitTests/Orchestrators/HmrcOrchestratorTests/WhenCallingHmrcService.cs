@@ -1,5 +1,4 @@
 ﻿using HMRC.ESFA.Levy.Api.Types;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.EmployerAccounts.Queries.GetGatewayInformation;

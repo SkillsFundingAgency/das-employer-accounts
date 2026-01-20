@@ -1,7 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Testing.AutoFixture;
+﻿using SFA.DAS.EmployerAccounts.Web.RouteValues;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.PayBillTriage;
 
