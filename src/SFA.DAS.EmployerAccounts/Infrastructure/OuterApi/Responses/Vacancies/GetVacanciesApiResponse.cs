@@ -1,10 +1,17 @@
-﻿namespace SFA.DAS.EmployerAccounts.Models.Recruit;
+using Newtonsoft.Json;
 
-public class Vacancy
+namespace SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Vacancies;
+
+public class GetVacanciesApiResponse
+{
+    public IEnumerable<VacancySummary> Vacancies { get; set; }
+}
+
+public class VacancySummary
 {
     public Guid Id { get; set; }
     public string Title { get; set; }
-    public VacancyStatus Status { get; set; }
+    public string Status { get; set; }
     public int? NoOfNewApplications { get; set; }
     public int? NoOfSuccessfulApplications { get; set; }
     public int? NoOfUnsuccessfulApplications { get; set; }

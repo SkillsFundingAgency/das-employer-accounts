@@ -4,6 +4,7 @@ public class VacancyClosedViewComponent: ViewComponent
 {
     public IViewComponentResult Invoke(AccountDashboardViewModel model)
     {
-        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancies.First(m => m.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Closed));
+        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancy.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Closed
+            ? model.CallToActionViewModel.VacanciesViewModel.Vacancy : null);
     }
 }
