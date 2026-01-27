@@ -2,11 +2,11 @@
   "profiles": {
     "SFA.DAS.EmployerAccounts.Web": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "applicationUrl": "https://localhost:44344;http://localhost:63171",
       //"launchUrl": "login/staff?HashedAccountId=VY6N8G",
       //"launchUrl": "accounts/VY6N8G/teams",
-      "launchUrl": "service/start",
+      //"launchUrl": "service/start",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
