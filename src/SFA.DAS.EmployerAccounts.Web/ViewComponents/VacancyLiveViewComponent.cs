@@ -4,6 +4,7 @@ public class VacancyLiveViewComponent : ViewComponent
 {
     public IViewComponentResult Invoke(AccountDashboardViewModel model)
     {
-        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancies.First(m => m.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Live));
+        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancy.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Live
+            ? model.CallToActionViewModel.VacanciesViewModel.Vacancy : null);
     }
 }

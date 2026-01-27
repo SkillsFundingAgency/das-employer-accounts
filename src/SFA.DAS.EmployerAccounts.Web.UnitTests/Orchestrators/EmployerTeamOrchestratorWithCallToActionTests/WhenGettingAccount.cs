@@ -1,4 +1,7 @@
-﻿using AutoMapper;
+﻿using System.IO;
+using AutoMapper;
+using FluentAssertions;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EAS.Account.Api.Client;
@@ -13,515 +16,519 @@ using SFA.DAS.EmployerAccounts.Queries.GetVacancies;
 using SFA.DAS.EmployerAccounts.TestCommon;
 using SFA.DAS.Encoding;
 
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorWithCallToActionTests;
-
-public class WhenGettingAccount
+namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorWithCallToActionTests
 {
-    private const long AccountId = 123789;
-    private const string HashedAccountId = "GGHY556";
-    private AccountDashboardViewModel _accountDashboardViewModel;
-
-    private const string UserId = "UserNumeroUno";
-
-    private EmployerTeamOrchestratorWithCallToAction _sut;
-    private Mock<IMediator> _mediator;
-    private Mock<EmployerTeamOrchestrator> _employerTeamOrchestrator;
-
-    private Mock<ICurrentDateTime> _mockCurrentDateTime;
-    private Mock<IAccountApiClient> _mockAccountApiClient;
-    private Mock<IMapper> _mockMapper;
-    private Mock<ICookieStorageService<AccountContext>> _mockAccountContext;
-    private Mock<ILogger<EmployerTeamOrchestratorWithCallToAction>> _mockLogger;
-    private Mock<IEncodingService> _encodingServiceMock;
-    private Mock<EmployerAccountsConfiguration> _configurationMock;
-
-    [SetUp]
-    public void Arrange()
+    public class WhenGettingAccount
     {
-        _encodingServiceMock = new Mock<IEncodingService>();
-        _mediator = new Mock<IMediator>();
-        _employerTeamOrchestrator = new Mock<EmployerTeamOrchestrator>();
-        _mockAccountContext = new Mock<ICookieStorageService<AccountContext>>();
+        private const long AccountId = 123789;
+        private const string HashedAccountId = "GGHY556";
+        private AccountDashboardViewModel _accountDashboardViewModel;
 
-        _accountDashboardViewModel = new AccountDashboardViewModel
+        private const string UserId = "UserNumeroUno";
+
+        private EmployerTeamOrchestratorWithCallToAction _sut;
+        private Mock<IMediator> _mediator;
+        private Mock<EmployerTeamOrchestrator> _employerTeamOrchestrator;
+
+        private Mock<ICurrentDateTime> _mockCurrentDateTime;
+        private Mock<IAccountApiClient> _mockAccountApiClient;
+        private Mock<IMapper> _mockMapper;
+        private Mock<ICookieStorageService<AccountContext>> _mockAccountContext;
+        private Mock<ILogger<EmployerTeamOrchestratorWithCallToAction>> _mockLogger;
+        private Mock<IEncodingService> _encodingServiceMock;
+        private EmployerAccountsConfiguration _configurationMock;
+
+        [SetUp]
+        public void Arrange()
         {
-            HashedAccountId = HashedAccountId
-        };
+            _encodingServiceMock = new Mock<IEncodingService>();
+            _mediator = new Mock<IMediator>();
+            _employerTeamOrchestrator = new Mock<EmployerTeamOrchestrator>();
+            _mockAccountContext = new Mock<ICookieStorageService<AccountContext>>();
 
-        _employerTeamOrchestrator
-            .Setup(m => m.GetAccount(HashedAccountId, UserId))
-            .ReturnsAsync(new OrchestratorResponse<AccountDashboardViewModel>
+            _accountDashboardViewModel = new AccountDashboardViewModel
             {
-                Data = _accountDashboardViewModel,
-                Status = HttpStatusCode.OK
-            });
+                HashedAccountId = HashedAccountId
+            };
 
-        _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetVacanciesResponse
-            {
-                Vacancies = new List<Vacancy>()
-            });
-
-        _mediator.Setup(m => m.Send(It.Is<GetReservationsRequest>(q => q.AccountId == AccountId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetReservationsResponse
-            {
-                Reservations = new List<Reservation>
+            _employerTeamOrchestrator
+                .Setup(m => m.GetAccount(HashedAccountId, UserId))
+                .ReturnsAsync(new OrchestratorResponse<AccountDashboardViewModel>
                 {
-                    new Reservation
+                    Data = _accountDashboardViewModel,
+                    Status = HttpStatusCode.OK
+                });
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetVacanciesResponse
+                {
+                    Vacancy = new Vacancy()
+                });
+
+            _mediator.Setup(m => m.Send(It.Is<GetReservationsRequest>(q => q.AccountId == AccountId), It.IsAny<CancellationToken>()))
+                   .ReturnsAsync(new GetReservationsResponse
+                   {
+                       Reservations = new List<Reservation>
+                       {
+                             new Reservation
+                             {
+                                 AccountId = 123
+                             }
+                       }
+                   });
+
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(q => q.AccountId == AccountId), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(new GetApprenticeshipsResponse
+                 {
+                     Apprenticeships = new List<Apprenticeship>
                     {
-                        AccountId = 123
+                        new Apprenticeship { FirstName = "FirstName" }
                     }
-                }
-            });
+                 });
 
-        _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(q => q.AccountId == AccountId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetApprenticeshipsResponse
+            var cohort = new Cohort()
             {
+                Id = 1,
+                CohortStatus = EmployerAccounts.Models.CommitmentsV2.CohortStatus.WithTrainingProvider,
+                NumberOfDraftApprentices = 1,
                 Apprenticeships = new List<Apprenticeship>
-                {
-                    new Apprenticeship { FirstName = "FirstName" }
-                }
-            });
+                        {
+                            new Apprenticeship()
+                            {
+                                Id = 2,
+                                FirstName = "FirstName",
+                                LastName = "LastName",
+                                CourseStartDate = new DateTime(2020,5,1),
+                                CourseEndDate = new DateTime(2022,1,1),
+                                CourseName = "CourseName"
+                            }
+                        }
+            };
+            _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new GetSingleCohortResponse
+                    {
+                        Cohort = cohort
 
-        var cohort = new Cohort()
-        {
-            Id = 1,
-            CohortStatus = EmployerAccounts.Models.CommitmentsV2.CohortStatus.WithTrainingProvider,
-            NumberOfDraftApprentices = 1,
-            Apprenticeships = new List<Apprenticeship>
-            {
-                new Apprenticeship()
-                {
-                    Id = 2,
-                    FirstName = "FirstName",
-                    LastName = "LastName",
-                    CourseStartDate = new DateTime(2020,5,1),
-                    CourseEndDate = new DateTime(2022,1,1),
-                    CourseName = "CourseName"
-                }
-            }
-        };
-        _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetSingleCohortResponse
-            {
-                Cohort = cohort
+                    });
 
-            });
+            _mockCurrentDateTime = new Mock<ICurrentDateTime>();
 
-        _mockCurrentDateTime = new Mock<ICurrentDateTime>();
+            _mockAccountApiClient = new Mock<IAccountApiClient>();
 
-        _mockAccountApiClient = new Mock<IAccountApiClient>();
-
-        _mockAccountApiClient.Setup(c => c.GetAccount(HashedAccountId)).ReturnsAsync(new AccountDetailViewModel
+            _mockAccountApiClient.Setup(c => c.GetAccount(HashedAccountId)).ReturnsAsync(new AccountDetailViewModel
             { ApprenticeshipEmployerType = "Levy" });
 
-        _mockMapper = new Mock<IMapper>();
+            _mockMapper = new Mock<IMapper>();
 
-        _mockLogger = new Mock<ILogger<EmployerTeamOrchestratorWithCallToAction>>();
+            _mockLogger = new Mock<ILogger<EmployerTeamOrchestratorWithCallToAction>>();
 
-        _encodingServiceMock.Setup(e => e.Decode(HashedAccountId, EncodingType.AccountId)).Returns(AccountId);
+            _encodingServiceMock.Setup(e => e.Decode(HashedAccountId, EncodingType.AccountId)).Returns(AccountId);
 
-        _configurationMock = new Mock<EmployerAccountsConfiguration>();
-
-        _sut = new EmployerTeamOrchestratorWithCallToAction(
-            _employerTeamOrchestrator.Object,
-            _mediator.Object,
-            _mockCurrentDateTime.Object,
-            _mockAccountApiClient.Object,
-            _mockMapper.Object,
-            _mockAccountContext.Object,
-            _mockLogger.Object,
-            _configurationMock.Object,
-            _encodingServiceMock.Object);
-    }
-
-    [Test]
-    public async Task ThenAccountDataIsRetrievedFromTheTeamOrchestrator()
-    {
-        // Act
-        await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _employerTeamOrchestrator.Verify(m => m.GetAccount(HashedAccountId, UserId), Times.Once);
-    }
-
-    [Test]
-    public async Task ThenExpectedAccountDataIsReturnedFromTheTeamOrchestrator()
-    {
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.Should().Be(_accountDashboardViewModel);
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsRetrievedWhenAccountContextCookieIsNotSet()
-    {
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().NotBeNull();
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsRetrievedWhenAccountContextIsNonLevy()
-    {
-        // arrange
-        _mockAccountContext
-            .Setup(m => m.Get(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName))
-            .Returns(new AccountContext { HashedAccountId = HashedAccountId, ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy });
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().NotBeNull();
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenAccountContextIsLevy()
-    {
-        // arrange
-        _mockAccountContext
-            .Setup(m => m.Get(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName))
-            .Returns(new AccountContext { HashedAccountId = HashedAccountId, ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy });
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenTheAccountContextIsSavedWhenAccountContextIsLevy()
-    {
-        // arrange
-        _accountDashboardViewModel.ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy;
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _mockAccountContext.Verify(m => m.Delete(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName), Times.Once);
-        _mockAccountContext.Verify(m => m.Create(It.Is<AccountContext>(a =>
-                    (a.HashedAccountId == HashedAccountId) && (a.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)),
-                EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName,
-                It.IsAny<int>()),
-            Times.Once);
-    }
-
-    [Test]
-    public async Task ThenTheAccountContextIsSavedWhenAccountContextIsNonLevy()
-    {
-        // arrange
-        _accountDashboardViewModel.ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy;
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _mockAccountContext.Verify(m => m.Delete(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName), Times.Once);
-        _mockAccountContext.Verify(m => m.Create(It.Is<AccountContext>(a =>
-                    (a.HashedAccountId == HashedAccountId) && (a.ApprenticeshipEmployerType == ApprenticeshipEmployerType.NonLevy)),
-                EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName,
-                It.IsAny<int>()),
-            Times.Once);
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsRetrievedWhenAccountContextAccountHasChanged()
-    {
-        // arrange
-        _mockAccountContext
-            .Setup(m => m.Get(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName))
-            .Returns(new AccountContext { HashedAccountId = Guid.NewGuid().ToString(), ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy });
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().NotBeNull();
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenVacancyServiceHasFailed()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetVacanciesResponse
+            _configurationMock = new EmployerAccountsConfiguration
             {
-                HasFailed = true
-            });
+                EmployerRecruitBaseUrl = "http://localhost:5000/",
+                ShowLevyTransparency = false
+            };
 
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
+            _sut = new EmployerTeamOrchestratorWithCallToAction(
+                _employerTeamOrchestrator.Object,
+                _mediator.Object,
+                _mockCurrentDateTime.Object,
+                _mockAccountApiClient.Object,
+                _mockMapper.Object,
+                _mockAccountContext.Object,
+                _mockLogger.Object,
+                _configurationMock,
+                _encodingServiceMock.Object);
+        }
 
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenVacancyServiceHasException()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception());
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenErrorIsLoggedWhenVacancyServiceHasException()
-    {
-        //Arrange
-        var exception = new Exception();
-        _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(exception);
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
-    }
-
-    [Test]
-    public async Task ThenShouldReturnTheVacancies()
-    {
-        //Arrange            
-        var vacancy = new Vacancy { Title = Guid.NewGuid().ToString() };
-        var vacancies = new List<Vacancy> { vacancy };
-
-        var expectedtitle = Guid.NewGuid().ToString();
-        var expectedvacancy = new VacancyViewModel { Title = expectedtitle };
-        var expectedVacancies = new List<VacancyViewModel> { expectedvacancy };
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetVacanciesResponse
-            {
-                Vacancies = vacancies
-            });
-
-        _mockMapper.Setup(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyViewModel>>(vacancies))
-            .Returns(expectedVacancies);
-
-        // Act
-        var actual = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        Assert.That(actual.Data, Is.Not.Null);
-        Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount, Is.EqualTo(1));
-        Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancies.First().Title, Is.EqualTo(expectedvacancy.Title));
-        _mockMapper.Verify(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyViewModel>>(vacancies), Times.Once);
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenReservationsServiceHasFailed()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetReservationsRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetReservationsResponse
-            {
-                HasFailed = true
-            });
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenReservationsServiceHasException()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetReservationsRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception());
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenErrorIsLoggedWhenReservationsServiceHasException()
-    {
-        //Arrange
-        var exception = new Exception();
-        _mediator.Setup(x => x.Send(It.IsAny<GetReservationsRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(exception);
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
-    }
-
-    [Test]
-    public async Task ThenShouldGetReservationsCount()
-    {
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        Assert.That(result.Data.CallToActionViewModel.ReservationsCount, Is.EqualTo(1));
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenApprenticeshipsServiceHasFailed()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipsRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetApprenticeshipsResponse
-            {
-                HasFailed = true
-            });
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenApprenticeshipsServiceHasException()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipsRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception());
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenErrorIsLoggedWhenApprenticeshipsServiceHasException()
-    {
-        //Arrange
-        var exception = new Exception();
-        _mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipsRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(exception);
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
-    }
-
-    [Test]
-    public async Task ThenShouldGetApprenticeshipResponse()
-    {
-        //Arrange
-        var apprenticeships = new List<Apprenticeship> { new Apprenticeship { FirstName = "FirstName" } };
-        _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(q => q.AccountId == AccountId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetApprenticeshipsResponse { Apprenticeships = apprenticeships });
-        var expectedApprenticeship = new List<ApprenticeshipViewModel>() { new ApprenticeshipViewModel { ApprenticeshipFullName = "FullName" } };
-        _mockMapper.Setup(m => m.Map<IEnumerable<Apprenticeship>, IEnumerable<ApprenticeshipViewModel>>(apprenticeships)).Returns(expectedApprenticeship);
-
-        //Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        Assert.That(result.Data.CallToActionViewModel.Apprenticeships.Count().Equals(1), Is.True);
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenCohortsServiceHasFailed()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetSingleCohortResponse
-            {
-                HasFailed = true
-            });
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenCallToActionDataIsNotRetrievedWhenCohortsServiceHasException()
-    {
-        //Arrange
-
-        _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception());
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        result.Data.CallToActionViewModel.Should().BeNull();
-    }
-
-    [Test]
-    public async Task ThenErrorIsLoggedWhenCohortsServiceHasException()
-    {
-        //Arrange
-        var exception = new Exception();
-        _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(exception);
-
-        // Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
-
-        //Assert
-        _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
-    }
-
-    [Test]
-    public async Task ThenShouldGetCohortResponse()
-    {
-        //Arrange 
-        var cohort = new Cohort() { Id = 1, NumberOfDraftApprentices = 1, Apprenticeships = new List<Apprenticeship> { new Apprenticeship { FirstName = "FirstName" } } };
-        _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetSingleCohortResponse { Cohort = cohort });
-        var expectedCohort = new CohortViewModel()
+        [Test]
+        public async Task ThenAccountDataIsRetrievedFromTheTeamOrchestrator()
         {
-            NumberOfDraftApprentices = 1,
-            Apprenticeships = new List<ApprenticeshipViewModel> { new ApprenticeshipViewModel { ApprenticeshipFullName = "FullName" } }
-        };
-        _mockMapper.Setup(m => m.Map<Cohort, CohortViewModel>(cohort)).Returns(expectedCohort);
+            // Act
+            await _sut.GetAccount(HashedAccountId, UserId);
 
-        //Act
-        var result = await _sut.GetAccount(HashedAccountId, UserId);
+            //Assert
+            _employerTeamOrchestrator.Verify(m => m.GetAccount(HashedAccountId, UserId), Times.Once);
+        }
 
-        //Assert                    
-        Assert.That(result.Data.CallToActionViewModel.CohortsCount, Is.EqualTo(1));
-    }
+        [Test]
+        public async Task ThenExpectedAccountDataIsReturnedFromTheTeamOrchestrator()
+        {
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.Should().Be(_accountDashboardViewModel);
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsRetrievedWhenAccountContextCookieIsNotSet()
+        {
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsRetrievedWhenAccountContextIsNonLevy()
+        {
+            // arrange
+            _mockAccountContext
+                .Setup(m => m.Get(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName))
+                .Returns(new AccountContext { HashedAccountId = HashedAccountId, ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy });
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenAccountContextIsLevy()
+        {
+            // arrange
+            _mockAccountContext
+                .Setup(m => m.Get(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName))
+                .Returns(new AccountContext { HashedAccountId = HashedAccountId, ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy });
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenTheAccountContextIsSavedWhenAccountContextIsLevy()
+        {
+            // arrange
+            _accountDashboardViewModel.ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy;
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            _mockAccountContext.Verify(m => m.Delete(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName), Times.Once);
+            _mockAccountContext.Verify(m => m.Create(It.Is<AccountContext>(a =>
+                (a.HashedAccountId == HashedAccountId) && (a.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)),
+                EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName,
+                It.IsAny<int>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task ThenTheAccountContextIsSavedWhenAccountContextIsNonLevy()
+        {
+            // arrange
+            _accountDashboardViewModel.ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy;
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            _mockAccountContext.Verify(m => m.Delete(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName), Times.Once);
+            _mockAccountContext.Verify(m => m.Create(It.Is<AccountContext>(a =>
+                (a.HashedAccountId == HashedAccountId) && (a.ApprenticeshipEmployerType == ApprenticeshipEmployerType.NonLevy)),
+                EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName,
+                It.IsAny<int>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsRetrievedWhenAccountContextAccountHasChanged()
+        {
+            // arrange
+            _mockAccountContext
+                .Setup(m => m.Get(EmployerTeamOrchestratorWithCallToAction.AccountContextCookieName))
+                .Returns(new AccountContext { HashedAccountId = Guid.NewGuid().ToString(), ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy });
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenVacancyServiceHasFailed()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(new GetVacanciesResponse
+               {
+                   HasFailed = true
+               });
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenVacancyServiceHasException()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenErrorIsLoggedWhenVacancyServiceHasException()
+        {
+            //Arrange
+            var exception = new Exception();
+            _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(exception);
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
+        }
+
+        [Test]
+        public async Task ThenShouldReturnTheVacancies()
+        {
+            //Arrange            
+            var vacancy = new Vacancy { Title = Guid.NewGuid().ToString(), Id = Guid.NewGuid()};
+
+            var expectedtitle = Guid.NewGuid().ToString();
+            var expectedvacancy = new VacancyViewModel { Title = expectedtitle };
+            
+            _mediator.Setup(x => x.Send(It.IsAny<GetVacanciesRequest>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(new GetVacanciesResponse
+               {
+                   Vacancy = vacancy
+               });
+
+            _mockMapper.Setup(m => m.Map<Vacancy, VacancyViewModel>(vacancy))
+                .Returns(expectedvacancy);
+
+            // Act
+            var actual = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            Assert.That(actual.Data, Is.Not.Null);
+            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.VacancyCount, Is.EqualTo(1));
+            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Title, Is.EqualTo(expectedvacancy.Title));
+            Assert.That(actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.ManageVacancyUrl, Is.EqualTo($"{_configurationMock.EmployerRecruitBaseUrl}accounts/{HashedAccountId}/vacancies/{actual.Data.CallToActionViewModel.VacanciesViewModel.Vacancy.Id}/manage"));
+            _mockMapper.Verify(m => m.Map<Vacancy, VacancyViewModel>(vacancy), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenReservationsServiceHasFailed()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetReservationsRequest>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(new GetReservationsResponse
+               {
+                   HasFailed = true
+               });
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenReservationsServiceHasException()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetReservationsRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenErrorIsLoggedWhenReservationsServiceHasException()
+        {
+            //Arrange
+            var exception = new Exception();
+            _mediator.Setup(x => x.Send(It.IsAny<GetReservationsRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(exception);
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
+        }
+
+        [Test]
+        public async Task ThenShouldGetReservationsCount()
+        {
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            Assert.That(result.Data.CallToActionViewModel.ReservationsCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenApprenticeshipsServiceHasFailed()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipsRequest>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(new GetApprenticeshipsResponse
+               {
+                   HasFailed = true
+               });
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenApprenticeshipsServiceHasException()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipsRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenErrorIsLoggedWhenApprenticeshipsServiceHasException()
+        {
+            //Arrange
+            var exception = new Exception();
+            _mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipsRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(exception);
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
+        }
+
+        [Test]
+        public async Task ThenShouldGetApprenticeshipResponse()
+        {
+            //Arrange
+            var apprenticeships = new List<Apprenticeship> { new Apprenticeship { FirstName = "FirstName" } };
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(q => q.AccountId == AccountId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetApprenticeshipsResponse { Apprenticeships = apprenticeships });
+            var expectedApprenticeship = new List<ApprenticeshipViewModel>() { new ApprenticeshipViewModel { ApprenticeshipFullName = "FullName" } };
+            _mockMapper.Setup(m => m.Map<IEnumerable<Apprenticeship>, IEnumerable<ApprenticeshipViewModel>>(apprenticeships)).Returns(expectedApprenticeship);
+
+            //Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            Assert.That(result.Data.CallToActionViewModel.Apprenticeships.Count().Equals(1), Is.True);
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenCohortsServiceHasFailed()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(new GetSingleCohortResponse
+               {
+                   HasFailed = true
+               });
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenCallToActionDataIsNotRetrievedWhenCohortsServiceHasException()
+        {
+            //Arrange
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            result.Data.CallToActionViewModel.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ThenErrorIsLoggedWhenCohortsServiceHasException()
+        {
+            //Arrange
+            var exception = new Exception();
+            _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>()))
+               .ThrowsAsync(exception);
+
+            // Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert
+            _mockLogger.VerifyLogging($"An error occurred whilst trying to retrieve account CallToAction: {HashedAccountId}", LogLevel.Error, Times.Once());
+        }
+
+        [Test]
+        public async Task ThenShouldGetCohortResponse()
+        {
+            //Arrange 
+            var cohort = new Cohort() { Id = 1, NumberOfDraftApprentices = 1, Apprenticeships = new List<Apprenticeship> { new Apprenticeship { FirstName = "FirstName" } } };
+            _mediator.Setup(x => x.Send(It.IsAny<GetSingleCohortRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GetSingleCohortResponse { Cohort = cohort });
+            var expectedCohort = new CohortViewModel()
+            {
+                NumberOfDraftApprentices = 1,
+                Apprenticeships = new List<ApprenticeshipViewModel> { new ApprenticeshipViewModel { ApprenticeshipFullName = "FullName" } }
+            };
+            _mockMapper.Setup(m => m.Map<Cohort, CohortViewModel>(cohort)).Returns(expectedCohort);
+
+            //Act
+            var result = await _sut.GetAccount(HashedAccountId, UserId);
+
+            //Assert                    
+            Assert.That(result.Data.CallToActionViewModel.CohortsCount, Is.EqualTo(1));
+        }
         
-    [Test]
-    public async Task ThenSetsLevyTransparencyFlag()
-    {
-        _configurationMock.Setup(x => x.ShowLevyTransparency).Returns(true);
+        [Test]
+        public async Task ThenSetsLevyTransparencyFlag()
+        {
+            _configurationMock.ShowLevyTransparency = true;
             
-        var model = await _sut.GetAccount(HashedAccountId, UserId);
+            var model = await _sut.GetAccount(HashedAccountId, UserId);
             
-        Assert.That(model.Data.ShowLevyTransparency, Is.True);
+            Assert.That(model.Data.ShowLevyTransparency, Is.True);
+        }
     }
 }
