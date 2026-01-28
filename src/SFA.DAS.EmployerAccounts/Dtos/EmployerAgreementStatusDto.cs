@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmployerAccounts.Dtos;
+namespace SFA.DAS.EmployerAccounts.Dtos;
 
 public class EmployerAgreementStatusDto
 {
@@ -9,5 +9,5 @@ public class EmployerAgreementStatusDto
     public EmployerAgreementDetailsDto Pending { get; set; }
     public bool HasPendingAgreement => Pending != null;
     public bool HasSignedAgreement => Signed!= null;
-    public bool? Acknowledged => Pending?.Acknowledged;
+    public bool Acknowledged => HasSignedAgreement || (Pending?.Acknowledged ?? false);
 }

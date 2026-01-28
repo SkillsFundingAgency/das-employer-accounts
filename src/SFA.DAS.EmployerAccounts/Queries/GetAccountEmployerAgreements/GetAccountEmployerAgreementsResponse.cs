@@ -1,29 +1,14 @@
-﻿using SFA.DAS.EmployerAccounts.Dtos;
+using SFA.DAS.EmployerAccounts.Dtos;
 
 namespace SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 
 public class GetAccountEmployerAgreementsResponse
 {
-    public List<EmployerAgreementStatusDto> EmployerAgreements { get; set; }
+    public List<EmployerAgreementStatusDto> EmployerAgreements { get; init; }
 
     public bool HasPendingAgreements => EmployerAgreements != null && EmployerAgreements.Any(ag => ag.HasPendingAgreement);
     
-    public bool HasAcknowledgedAgreements => EmployerAgreements != null && EmployerAgreements.Any(ag => ag.Acknowledged ?? true);
+    public bool HasAcknowledgedAgreements => EmployerAgreements != null && EmployerAgreements.Any(ag => ag.Acknowledged);
 
-    public int MinimumSignedAgreementVersion => EmployerAgreements == null ? 0 : EmployerAgreements.Min(ea => ea.Signed?.VersionNumber ?? 0);
-
-
-    public EmployerAgreementStatusDto TryGetSinglePendingAgreement()
-    {
-        var onlyPendingAgreement = EmployerAgreements?.Where(x => x.HasPendingAgreement)
-            .Take(2)
-            .ToArray();
-
-        if (onlyPendingAgreement?.Length == 1)
-        {
-            return onlyPendingAgreement[0];
-        }
-
-        return null;
-    }
+    public int MinimumSignedAgreementVersion => EmployerAgreements?.Min(ea => ea.Signed?.VersionNumber ?? 0) ?? 0;
 }

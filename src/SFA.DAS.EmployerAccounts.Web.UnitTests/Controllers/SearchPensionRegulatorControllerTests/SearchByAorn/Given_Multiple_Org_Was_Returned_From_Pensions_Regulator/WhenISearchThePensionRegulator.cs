@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.EmployerAccounts.Commands.PayeRefData;
+﻿using SFA.DAS.EmployerAccounts.Commands.PayeRefData;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeInUse;
 using SFA.DAS.EmployerAccounts.Queries.UpdateUserAornLock;

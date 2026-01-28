@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.ViewModels;
+﻿namespace SFA.DAS.EmployerAccounts.Web.UnitTests.ViewModels;
 public class PreviewEmployerAgreementViewModelTests
 {
     [Test]
