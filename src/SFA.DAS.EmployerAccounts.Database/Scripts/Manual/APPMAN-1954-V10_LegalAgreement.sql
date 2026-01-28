@@ -18,8 +18,9 @@ SET    PendingAgreementVersion = 10
 WHERE  PendingAgreementVersion IN (3,4,5,6,7,8,9)
 
 -- Create a pending v10 agreement for all account legal entities (except those that have them)
-INSERT INTO [employer_account].[EmployerAgreement] (TemplateId, StatusId, AccountLegalEntityId)
-SELECT 11, 1, Id
+-- Set Acknowledged = 1 since these are only created where there was a signed previous agreement
+INSERT INTO [employer_account].[EmployerAgreement] (TemplateId, StatusId, AccountLegalEntityId, Acknowledged)
+SELECT 11, 1, Id, 1
 FROM   [employer_account].[AccountLegalEntity] 
 WHERE  PendingAgreementVersion IS NULL AND PendingAgreementId IS NULL AND Deleted IS NULL
 
