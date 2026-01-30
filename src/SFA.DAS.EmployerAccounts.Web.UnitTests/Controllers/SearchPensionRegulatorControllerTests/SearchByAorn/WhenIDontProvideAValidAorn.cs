@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.SearchPensionRegulatorControllerTests.SearchByAorn;
+﻿namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.SearchPensionRegulatorControllerTests.SearchByAorn;
 
 [TestFixture]
 class WhenIDontProvideAValidAorn

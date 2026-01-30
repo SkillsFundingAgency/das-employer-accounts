@@ -1,17 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
-using FluentAssertions;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using NUnit.Framework;
+﻿using AutoMapper;
 using SFA.DAS.EmployerAccounts.Commands.RunHealthCheckCommand;
 using SFA.DAS.EmployerAccounts.Dtos;
 using SFA.DAS.EmployerAccounts.Queries.GetHealthCheck;
-using SFA.DAS.EmployerAccounts.Web.Controllers;
 using SFA.DAS.EmployerAccounts.Web.Mappings;
-using SFA.DAS.EmployerAccounts.Web.ViewModels;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers;

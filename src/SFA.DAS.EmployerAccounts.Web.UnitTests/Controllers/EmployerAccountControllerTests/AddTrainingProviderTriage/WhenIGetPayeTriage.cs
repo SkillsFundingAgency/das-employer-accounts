@@ -1,9 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using SFA.DAS.EmployerAccounts.Web.RouteValues;
-using SFA.DAS.Testing.AutoFixture;
-
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.AddTrainingProviderTriage;
+﻿namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.AddTrainingProviderTriage;
 
 [TestFixture]
 class WhenIGetAddTrainingProviderTriage

@@ -4,6 +4,7 @@ public class VacancyPendingReviewViewComponent :ViewComponent
 {
     public IViewComponentResult Invoke(AccountDashboardViewModel model)
     {
-        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancies.First(m => m.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Submitted));
+        return View(model.CallToActionViewModel.VacanciesViewModel.Vacancy.Status == EmployerAccounts.Models.Recruit.VacancyStatus.Submitted
+            ? model.CallToActionViewModel.VacanciesViewModel.Vacancy : null);
     }
 }

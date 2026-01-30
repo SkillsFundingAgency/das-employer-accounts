@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using SFA.DAS.EmployerAccounts.Dtos;
@@ -36,7 +36,8 @@ public class GetLastSignedAgreementQueryHandler : IRequestHandler<GetLastSignedA
         }
 
         var lastSignedAgreement = _database.Value.Agreements
-            .Where(x => x.AccountLegalEntityId == message.AccountLegalEntityId && x.StatusId == EmployerAgreementStatus.Signed)
+            .Where(x => x.AccountLegalEntityId == message.AccountLegalEntityId 
+                && x.SignedDate != null)
             .OrderByDescending(x => x.TemplateId)
             .ProjectTo<AgreementDto>(_configurationProvider)
             .FirstOrDefault();

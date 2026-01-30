@@ -1,13 +1,9 @@
 ﻿using System.Security.Claims;
-using AutoFixture.NUnit3;
-using FluentAssertions;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.EmployerAccounts.Queries.GetCreateAccountTaskList;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.EmployerAccountControllerTests.CreateAccountTaskList;
 

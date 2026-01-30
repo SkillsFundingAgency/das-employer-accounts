@@ -1,8 +1,9 @@
-﻿using AutoMapper;
+using AutoMapper;
 using SFA.DAS.EmployerAccounts.Commands.AcknowledgeEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Commands.RemoveLegalEntity;
 using SFA.DAS.EmployerAccounts.Commands.SignEmployerAgreement;
 using SFA.DAS.EmployerAccounts.Dtos;
+using SFA.DAS.EmployerAccounts.Models.EmployerAgreement;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountEmployerAgreements;
 using SFA.DAS.EmployerAccounts.Queries.GetAccountLegalEntityRemove;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementPdf;
@@ -419,23 +420,17 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         try
         {
             var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
-            var employerAgreementsResponse = await _mediator.Send(new GetAccountEmployerAgreementsRequest { AccountId = accountId, ExternalUserId = externalUserId });
-
-            var result = await _mediator.Send(new GetEmployerAgreementRequest
-            {
-                HashedAccountId = hashedAccountId,
-                HashedAgreementId = agreementId,
-                ExternalUserId = externalUserId
-            });
-            var viewModel = _mapper.Map<GetEmployerAgreementResponse, SignEmployerAgreementViewModel>(result);
-
-            var signedAgreementResponse = await _mediator.Send(new GetLastSignedAgreementRequest
-            { AccountLegalEntityId = result.EmployerAgreement.LegalEntity.AccountLegalEntityId });
-            viewModel.PreviouslySignedEmployerAgreement =
-                _mapper.Map<EmployerAccounts.Models.EmployerAgreement.EmployerAgreementView>(signedAgreementResponse
-                    .LastSignedAgreement);
-
-            viewModel.HasAcknowledgedAgreement = employerAgreementsResponse.HasAcknowledgedAgreements;
+            var accountAgreements = await GetAccountEmployerAgreements(accountId, externalUserId);
+            var currentAgreement = await GetCurrentEmployerAgreement(hashedAccountId, agreementId, externalUserId);
+            
+            var viewModel = _mapper.Map<GetEmployerAgreementResponse, SignEmployerAgreementViewModel>(currentAgreement);
+            viewModel.PreviouslySignedEmployerAgreement = await GetPreviouslySignedAgreementForLegalEntity(
+                currentAgreement.EmployerAgreement.LegalEntity.AccountLegalEntityId);
+            
+            viewModel.HasAcknowledgedAgreement = AccountHasAcknowledgedAgreements(
+                viewModel.PreviouslySignedEmployerAgreement, 
+                accountAgreements);
+            
             response.Data = viewModel;
         }
         catch (InvalidRequestException ex)
@@ -455,6 +450,52 @@ public class EmployerAgreementOrchestrator : UserVerificationOrchestratorBase
         }
 
         return response;
+    }
+
+    private async Task<GetAccountEmployerAgreementsResponse> GetAccountEmployerAgreements(long accountId, string externalUserId)
+    {
+        return await _mediator.Send(new GetAccountEmployerAgreementsRequest 
+        { 
+            AccountId = accountId, 
+            ExternalUserId = externalUserId 
+        });
+    }
+
+    private async Task<GetEmployerAgreementResponse> GetCurrentEmployerAgreement(
+        string hashedAccountId, string agreementId, string externalUserId)
+    {
+        return await _mediator.Send(new GetEmployerAgreementRequest
+        {
+            HashedAccountId = hashedAccountId,
+            HashedAgreementId = agreementId,
+            ExternalUserId = externalUserId
+        });
+    }
+
+    private async Task<EmployerAgreementView> GetPreviouslySignedAgreementForLegalEntity(
+        long accountLegalEntityId)
+    {
+        var signedAgreementResponse = await _mediator.Send(new GetLastSignedAgreementRequest
+        { 
+            AccountLegalEntityId = accountLegalEntityId 
+        });
+        
+        return _mapper.Map<EmployerAgreementView>(signedAgreementResponse.LastSignedAgreement);
+    }
+
+    private static bool AccountHasAcknowledgedAgreements(
+        EmployerAgreementView previouslySignedAgreement,
+        GetAccountEmployerAgreementsResponse accountAgreements)
+    {
+        var hasPreviouslySignedAgreementForThisLegalEntity = previouslySignedAgreement != null;
+        var hasCurrentSignedAgreements = accountAgreements.EmployerAgreements?
+            .Any(ag => ag.HasSignedAgreement) ?? false;
+        var hasAcknowledgedPendingAgreements = accountAgreements.EmployerAgreements?
+            .Any(ag => ag.Pending?.Acknowledged == true) ?? false;
+
+        return hasPreviouslySignedAgreementForThisLegalEntity 
+            || hasCurrentSignedAgreements 
+            || hasAcknowledgedPendingAgreements;
     }
 
     public virtual async Task<OrchestratorResponse<NextUnsignedAgreementViewModel>> GetNextUnsignedAgreement(

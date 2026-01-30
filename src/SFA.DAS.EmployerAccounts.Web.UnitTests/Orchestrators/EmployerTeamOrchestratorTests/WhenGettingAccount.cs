@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MediatR;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmployerAccounts.Dtos;

@@ -1,6 +1,4 @@
 ﻿using System.Web;
-using FluentAssertions;
-using MediatR;
 using SFA.DAS.EmployerAccounts.Infrastructure.DataProtection;
 using SFA.DAS.EmployerAccounts.Queries.GetEmployerAgreementTemplates;
 

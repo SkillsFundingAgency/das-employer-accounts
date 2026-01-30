@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.Authentication;
+﻿using SFA.DAS.Authentication;
 using SFA.DAS.EmployerAccounts.Models.UserProfile;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeInUse;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAornLock;

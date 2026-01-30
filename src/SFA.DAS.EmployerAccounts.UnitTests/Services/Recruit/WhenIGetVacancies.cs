@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.EmployerAccounts.Configuration;
-using SFA.DAS.EmployerAccounts.Dtos;
-using SFA.DAS.EmployerAccounts.Interfaces;
+using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Requests.Vacancies;
+using SFA.DAS.EmployerAccounts.Infrastructure.OuterApi.Responses.Vacancies;
+using SFA.DAS.EmployerAccounts.Interfaces.OuterApi;
 using SFA.DAS.EmployerAccounts.Models.Recruit;
 using SFA.DAS.EmployerAccounts.Services;
 
@@ -15,76 +14,31 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
 {
     public class GetVacancies
     {   
-        private Mock<IHttpService> _mockHttpService;
-        private Mock<IHttpServiceFactory> _mockHttpServiceFactory;
-        private EmployerAccountsConfiguration _employerAccountsConfiguration;
         private Mock<IMapper> _mockMapper;
 
+        private long _accountId;
         private string _hashedAccountId;
-        private string _apiBaseUrl;
-        private string _identifierUri;        
-        private string _serviceJson;
         private List<VacancySummary> _vacancies;
 
         private RecruitService _sut;
+        private Mock<IOuterApiClient> _outerApiClient;
 
         [SetUp]
         public void Arrange()
         {
-            _hashedAccountId = Guid.NewGuid().ToString();
-            _apiBaseUrl = $"http://{Guid.NewGuid().ToString()}";
-            _identifierUri = Guid.NewGuid().ToString();            
-            _vacancies = new List<VacancySummary> { new VacancySummary { } };
-            _serviceJson = JsonConvert.SerializeObject(new VacanciesSummary { Vacancies = _vacancies });
-            _mockHttpService = new Mock<IHttpService>();
-            _mockHttpServiceFactory = new Mock<IHttpServiceFactory>();
-            _employerAccountsConfiguration = new EmployerAccountsConfiguration
-            {
-                RecruitApi = new RecruitClientApiConfiguration
-                {
-                    ApiBaseUrl = _apiBaseUrl,                                  
-                    IdentifierUri = _identifierUri,                    
-                }
-            };
+            _accountId = 1001;
+            _hashedAccountId = "ABC123";
+            _vacancies = [new VacancySummary { Title = "Test Vacancy" }];
 
             _mockMapper = new Mock<IMapper>();
 
-            _mockHttpServiceFactory
-                .Setup(m => m.Create(_identifierUri))
-                .Returns(_mockHttpService.Object);
+            _outerApiClient = new Mock<IOuterApiClient>();
+            _outerApiClient
+                .Setup(x => x.Get<GetVacanciesApiResponse>(
+                    It.Is<GetVacanciesApiRequest>(c => c.GetUrl.Contains(_accountId.ToString()))))
+                .ReturnsAsync(new GetVacanciesApiResponse { Vacancies = _vacancies });
 
-            _mockHttpService
-              .Setup(m => m.GetAsync(It.IsAny<string>(), It.IsAny<bool>()))
-              .ReturnsAsync(_serviceJson);
-
-            _mockMapper
-                .Setup(m => m.Map<IEnumerable<VacancySummary>, IEnumerable<Vacancy>>(It.IsAny<List<VacancySummary>>()))
-                .Returns(new List<Vacancy>());
-
-            _sut = new RecruitService(_mockHttpServiceFactory.Object, _employerAccountsConfiguration, _mockMapper.Object);
-        }
-
-        [Test]
-        public async Task ThenTheServiceIsCalled()
-        {
-            //Arrange
-            var expectedUrl = $"{_apiBaseUrl}/api/vacancies?employerAccountId={_hashedAccountId}&pageSize={int.MaxValue}";
-
-            //Act
-            await _sut.GetVacancies(_hashedAccountId);
-
-            //Assert
-            _mockHttpService.Verify(x => x.GetAsync(expectedUrl, false), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenTheServiceDataIsMapped()
-        {
-            //Act
-            await _sut.GetVacancies(_hashedAccountId);
-
-            //Assert
-            _mockMapper.Verify(m => m.Map<IEnumerable<VacancySummary>, IEnumerable<Vacancy>>(It.IsAny<List<VacancySummary>>()), Times.Once);
+            _sut = new RecruitService(_outerApiClient.Object, _mockMapper.Object);
         }
 
         [Test]
@@ -93,23 +47,44 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Services.Recruit
             //Arrange
             var testTitle = Guid.NewGuid().ToString();
 
-            var vacancies = new List<Vacancy>
-            {
-                new Vacancy { Title = testTitle }
-            };
+            var vacancy =
+                new Vacancy
+                {
+                    Title = testTitle,
+                    NoOfSuccessfulApplications = 100,
+                    NoOfNewApplications = 10,
+                    NoOfUnsuccessfulApplications = 20
+                };
 
             _mockMapper
-                .Setup(m => m.Map<IEnumerable<VacancySummary>, IEnumerable<Vacancy>>(It.IsAny<List<VacancySummary>>()))
-                .Returns(vacancies);
+                .Setup(m => m.Map<VacancySummary, Vacancy>(It.Is<VacancySummary>(c=>c.Title == "Test Vacancy")))
+                .Returns(vacancy);
 
             //Act
-            var result = await _sut.GetVacancies(_hashedAccountId) as List<Vacancy>;
+            var result = await _sut.GetVacancies(_accountId);
 
             //Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.Not.Empty);
-            Assert.That(result.Count, Is.EqualTo(1));
-            Assert.That(result[0].Title, Is.EqualTo(testTitle));
+            Assert.That(result.Title, Is.EqualTo(testTitle));
+            Assert.That(result.NoOfSuccessfulApplications, Is.EqualTo(100));
+            Assert.That(result.NoOfNewApplications, Is.EqualTo(10));
+            Assert.That(result.NoOfUnsuccessfulApplications, Is.EqualTo(20));
+        }
+        
+        [Test]
+        public async Task Then_If_No_Items_Null_Returned()
+        {
+            //Arrange
+            _outerApiClient
+                .Setup(x => x.Get<GetVacanciesApiResponse>(
+                    It.Is<GetVacanciesApiRequest>(c => c.GetUrl.Contains(_accountId.ToString()))))
+                .ReturnsAsync(new GetVacanciesApiResponse { Vacancies = [] });
+
+            //Act
+            var result = await _sut.GetVacancies(_accountId);
+
+            //Assert
+            Assert.That(result, Is.Null);
         }
     }
 }

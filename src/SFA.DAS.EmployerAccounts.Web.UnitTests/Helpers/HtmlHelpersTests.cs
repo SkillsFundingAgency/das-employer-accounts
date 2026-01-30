@@ -1,6 +1,4 @@
 ﻿using System.Security.Claims;
-using FluentAssertions;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Claim = System.Security.Claims.Claim;
 

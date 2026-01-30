@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.SearchPensionRegulatorControllerTests.SearchByPaye.Given_The_Paye_Is_Invalid;
+﻿namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Controllers.SearchPensionRegulatorControllerTests.SearchByPaye.Given_The_Paye_Is_Invalid;
 
 [TestFixture]
 class WhenISearchThePensionRegulator

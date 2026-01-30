@@ -1,10 +1,7 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
-using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
+﻿using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
 using SFA.DAS.EmployerAccounts.Models.Recruit;
 using SFA.DAS.EmployerAccounts.Models.Reservations;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorTests;
 
@@ -62,23 +59,6 @@ public class WhenGettingCallToActionViewName
         panelViewModel.Data.CallToActionViewModel.Apprenticeships = apprenticeships;
         panelViewModel.Data.CallToActionViewModel.Reservations = [];
         panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel();
-
-        // Act
-        sut.GetCallToActionViewName(panelViewModel);
-
-        //Assert
-        panelViewModel.ComponentName.Should().Be(ComponentConstants.Empty);
-    }
-
-    [Test, RecursiveMoqAutoData]
-    public void WhenMultipleVacancies_ThenShouldGetCheckFundingViewNameNotDisplayCallToAction(
-        [NonLevyPanelView] PanelViewModel<AccountDashboardViewModel> panelViewModel,
-        EmployerTeamOrchestrator sut)
-    {
-        // Arrange
-        panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
-        panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
-        panelViewModel.Data.CallToActionViewModel.Reservations = [];
 
         // Act
         sut.GetCallToActionViewName(panelViewModel);
@@ -333,7 +313,7 @@ public class WhenGettingCallToActionViewName
         panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
         panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
         panelViewModel.Data.CallToActionViewModel.Reservations = [singleReservation];
-        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel {  Vacancies = new List<VacancyViewModel> { singleVacancy } };
+        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel {  Vacancy = singleVacancy };
 
         // Act
         sut.GetCallToActionViewName(panelViewModel);
@@ -355,7 +335,7 @@ public class WhenGettingCallToActionViewName
         panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
         panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
         panelViewModel.Data.CallToActionViewModel.Reservations = [singleReservation];
-        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancies = new List<VacancyViewModel> { singleVacancy } };
+        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancy =  singleVacancy };
 
         // Act
         sut.GetCallToActionViewName(panelViewModel);
@@ -377,7 +357,7 @@ public class WhenGettingCallToActionViewName
         panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
         panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
         panelViewModel.Data.CallToActionViewModel.Reservations = [singleReservation];
-        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancies = new List<VacancyViewModel> { singleVacancy } };
+        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancy = singleVacancy };
 
         // Act
         sut.GetCallToActionViewName(panelViewModel);
@@ -399,7 +379,7 @@ public class WhenGettingCallToActionViewName
         panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
         panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
         panelViewModel.Data.CallToActionViewModel.Reservations = [singleReservation];
-        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancies = new List<VacancyViewModel> { singleVacancy } };
+        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancy = singleVacancy };
 
         // Act
         sut.GetCallToActionViewName(panelViewModel);
@@ -421,7 +401,7 @@ public class WhenGettingCallToActionViewName
         panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
         panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
         panelViewModel.Data.CallToActionViewModel.Reservations = [singleReservation];
-        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancies = new List<VacancyViewModel> { singleVacancy } };
+        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel { Vacancy = singleVacancy };
 
         // Act
         sut.GetCallToActionViewName(panelViewModel);

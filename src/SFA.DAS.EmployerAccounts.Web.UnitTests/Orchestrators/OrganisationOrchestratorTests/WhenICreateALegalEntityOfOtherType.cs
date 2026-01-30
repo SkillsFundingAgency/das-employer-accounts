@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MediatR;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.OrganisationOrchestratorTests;

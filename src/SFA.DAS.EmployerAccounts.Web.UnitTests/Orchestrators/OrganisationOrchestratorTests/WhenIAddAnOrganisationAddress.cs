@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MediatR;
 using SFA.DAS.EmployerAccounts.Commands.CreateOrganisationAddress;
 using SFA.DAS.EmployerAccounts.Exceptions;
 using SFA.DAS.Encoding;

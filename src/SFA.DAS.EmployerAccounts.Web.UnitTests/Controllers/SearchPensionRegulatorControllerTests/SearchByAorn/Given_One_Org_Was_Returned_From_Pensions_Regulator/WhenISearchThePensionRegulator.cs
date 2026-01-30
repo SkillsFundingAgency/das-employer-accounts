@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.Common.Domain.Types;
+﻿using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Commands.OrganisationAndPayeRefData;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 using SFA.DAS.EmployerAccounts.Queries.GetPayeSchemeInUse;
