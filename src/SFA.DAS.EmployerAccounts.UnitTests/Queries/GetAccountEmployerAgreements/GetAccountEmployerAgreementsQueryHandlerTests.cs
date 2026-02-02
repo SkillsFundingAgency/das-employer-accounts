@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -182,6 +182,25 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Queries.GetAccountEmployerAgreement
 
             // Assert
             response.MinimumSignedAgreementVersion.Should().Be(signedAgreementVersions.Min());
+        }
+
+        [Test]
+        public async Task Handle_WhenNoAccountLegalEntities_ThenMinimumSignedAgreementVersionReturnsZero()
+        {
+            // Arrange
+            var request = _fixture.Create<GetAccountEmployerAgreementsRequest>();
+
+            _mockValidator.Setup(x => x.ValidateAsync(request))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockEncodingService.Setup(x => x.Encode(request.AccountId, EncodingType.AccountId))
+                .Returns<long, EncodingType>((id, et) => $"encoded_{id}");
+
+            // Act
+            var response = await _handler.Handle(request, CancellationToken.None);
+
+            // Assert
+            response.MinimumSignedAgreementVersion.Should().Be(0);
         }
         
         [Test]
