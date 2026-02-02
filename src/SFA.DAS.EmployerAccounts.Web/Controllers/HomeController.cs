@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -267,14 +266,17 @@ public class HomeController(
         return RedirectToAction(ControllerConstants.IndexActionName);
     }
 
-    [Route("signOut", Name = RouteNames.SignOut)]
-    public async Task<IActionResult> SignOutUser()
+    [Route("signout", Name = RouteNames.SignOut)]
+    public async Task<IActionResult> SignOutUser([FromQuery] bool autoSignOut = false)
     {
+        await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        
         var idToken = await HttpContext.GetTokenAsync("id_token");
 
         var authenticationProperties = new AuthenticationProperties();
         authenticationProperties.Parameters.Clear();
         authenticationProperties.Parameters.Add("id_token", idToken);
+        
         var schemes = new List<string>
             {
                 CookieAuthenticationDefaults.AuthenticationScheme
@@ -285,6 +287,8 @@ public class HomeController(
             schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
         }
 
+        TempData["AutoSignOut"] = autoSignOut;
+
         return SignOut(authenticationProperties, schemes.ToArray());
     }
 
@@ -292,6 +296,20 @@ public class HomeController(
     public async Task SignOutCleanup()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    }
+
+    [Route("signed-out", Name = RouteNames.SignedOut)]
+    [AllowAnonymous]
+    public IActionResult SignedOut()
+    {
+        var autoSignOut = TempData["AutoSignOut"] as bool? ?? false;
+        
+        if (autoSignOut)
+        {
+            return View("AutoSignOut");
+        }
+
+        return View("SignedOut");
     }
 
     [HttpGet]
