@@ -16,11 +16,14 @@
     var footerModel = new FooterModel { AccountId = hashedAccountId, UsePrivacyV2 = true };
 
     const int defaultTimeoutMinutes = 20;
-    var sessionExpiryConfig = Configuration["SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:LoginSlidingExpiryTimeOutInMinutes"];
+    var sessionExpiryConfig =  Configuration["SFA.DAS.Employer.GovSignIn:GovUkOidcConfiguration:LoginSlidingExpiryTimeOutInMinutes"];
     if (!int.TryParse(sessionExpiryConfig, out var slidingExpiryTimeoutMinutes))
     {
         slidingExpiryTimeoutMinutes = defaultTimeoutMinutes;
     }
+
+    // modal timeout should be shorter than OIDC session.
+    slidingExpiryTimeoutMinutes -= 10;
 
     var modalWarningTimer = slidingExpiryTimeoutMinutes * 0.9;
     var remainingSessionTimer = slidingExpiryTimeoutMinutes * 0.1 * 60;
