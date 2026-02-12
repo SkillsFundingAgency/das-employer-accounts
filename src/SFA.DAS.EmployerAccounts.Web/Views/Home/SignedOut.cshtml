@@ -9,10 +9,10 @@
         <h1 class="govuk-heading-xl">You have been signed out</h1>
 
         <p class="govuk-body">
-            Go to the <a href="https://www.gov.uk" class="govuk-link">GOV.UK homepage</a> or <a asp-route="@RouteNames.AccountsIndex" class="govuk-link">sign in</a> to your GOV.UK One Login.
+            Go to the <a href="https://www.gov.uk" class="govuk-link">GOV.UK homepage</a> or <a asp-controller="@ControllerConstants.HomeControllerName" asp-action="@ControllerConstants.GovSignIn" class="govuk-link">sign in</a> to your GOV.UK One Login.
         </p>
 
-        <a class="govuk-button" id="sign-in-again" asp-route="@RouteNames.AccountsIndex">Sign in</a>
+        <a class="govuk-button" id="sign-in-again" asp-controller="@ControllerConstants.HomeControllerName" asp-action="@ControllerConstants.GovSignIn">Sign in</a>
 
     </div>
 </div>
