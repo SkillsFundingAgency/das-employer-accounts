@@ -3,9 +3,7 @@
     "SFA.DAS.EmployerAccounts.Web": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:44344;http://localhost:63171",
-      //"launchUrl": "login/staff?HashedAccountId=VY6N8G",
-      //"launchUrl": "accounts/VY6N8G/teams",
+      "applicationUrl": "https://localhost:5001;http://localhost:63171",
       "launchUrl": "service/start",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

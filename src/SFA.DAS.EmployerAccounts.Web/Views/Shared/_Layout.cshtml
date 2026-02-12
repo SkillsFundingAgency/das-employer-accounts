@@ -29,7 +29,7 @@
     var remainingSessionTimer = slidingExpiryTimeoutMinutes * 0.1 * 60;
 }
 <!DOCTYPE html>
-<html lang="en" class="govuk-template ">
+<html lang="en" class="govuk-template govuk-template--rebranded">
 
 <head>
     <!-- Google Tag Manager -->
@@ -59,11 +59,11 @@
     }
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b0c0c" />
-    <link rel="icon" sizes="48x48" href="/assets/images/favicon.ico" />
-    <link rel="icon" sizes="any" href="/assets/images/favicon.svg" type="image/svg+xml" />
-    <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#0b0c0c" />
-    <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png" />
+    <meta name="theme-color" content="#1d70b8" />
+    <link rel="icon" sizes="48x48" href="/assets/rebrand/images/favicon.ico" />
+    <link rel="icon" sizes="any" href="/assets/rebrand/images/favicon.svg" type="image/svg+xml" />
+    <link rel="mask-icon" href="/assets/rebrand/images/govuk-icon-mask.svg" color="#1d70b8" />
+    <link rel="apple-touch-icon" href="/assets/rebrand/images/govuk-icon-180.png" />
 
     <link href="css/main.css" rel="stylesheet" />
     <link href="/css/app.css?v=1" rel="stylesheet" no-cdn />
@@ -105,7 +105,6 @@
         window.appInsights = appInsights;
         appInsights.trackPageView();
     </script>
-    @await Html.PartialAsync("_ZenDeskWidget")
     @await Html.PartialAsync("_ZenDeskApiPush")
 </head>
 
@@ -122,14 +121,10 @@
 
     <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
-    <partial name="_CookieBanner"></partial>
+    <partial name="_CookieBanner" model="@(new CookieBannerModel { AccountId = hashedAccountId })" />
 
-    @* ReSharper disable once Mvc.PartialViewNotResolved *@
-    <partial name="_Header">
-        @* ReSharper disable once Mvc.PartialViewNotResolved *@
-        <partial name="_Menu" model="@hashedAccountId">
-        </partial>
-    </partial>
+    <partial name="_Header" model="@hashedAccountId" />
+    <partial name="_ZenDeskWidget" />
 
     <div class="govuk-width-container">
         <nav title="Journey navigation">
@@ -145,18 +140,10 @@
         </main>
     </div>
 
-    @* ReSharper disable once Mvc.PartialViewNotResolved *@
     <partial name="_Footer" model="@footerModel" />
 
-    @if (!string.IsNullOrWhiteSpace(SystemDetailsViewModel.EnvironmentName))
-    {
-        <p class="govuk-body">
-            Environment: @SystemDetailsViewModel.EnvironmentName ● Version: @SystemDetailsViewModel.VersionNumber
-        </p>
-    }
-
     <script type="module" src="/libs/govuk-frontend/govuk-frontend.min.js"></script>
-    <script type="module">
+    <script type="module" nws-csp-add-nonce="true">
         import {
             initAll
         } from '@Configuration["cdn:url"]/libs/govuk-frontend/govuk-frontend.min.js'
@@ -164,15 +151,14 @@
     </script>
 
     <script src="/libs/jquery/jquery.min.js"></script>
-    <script src="/js/das-all.min.js"></script>
+    <script src="/js/das-all.js"></script>
     <script src="/js/app.min.js"></script>
 
-    @await RenderSectionAsync("pageSpecificJS", required: false)
-
-    <script src="/js/app.js" no-cdn></script>
     <script>
         window.DASFrontend.initAll();
     </script>
+
+    @await RenderSectionAsync("pageSpecificJS", required: false)
 
 </body>
 
