@@ -12,7 +12,7 @@
             To keep your account secure, we signed you out because you did not do anything for 20 minutes.
         </p>
 
-        <a class="govuk-button" id="sign-in-again" asp-route="@RouteNames.AccountsIndex">Sign in again</a>
+        <a class="govuk-button" id="sign-in-again" asp-controller="@ControllerConstants.HomeControllerName" asp-action="@ControllerConstants.GovSignIn">Sign in again</a>
 
     </div>
 </div>

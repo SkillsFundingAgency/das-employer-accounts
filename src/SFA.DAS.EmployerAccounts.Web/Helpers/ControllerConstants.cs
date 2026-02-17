@@ -71,4 +71,5 @@ public static class ControllerConstants
     public const string CookieConsentDetailsActionName = "Details";
     public const string CookieConsentSettingsActionName = "Settings";
     public const string PreAuthActionName = "PreAuth";
+    public const string GovSignIn = "GovSignIn";
 }
