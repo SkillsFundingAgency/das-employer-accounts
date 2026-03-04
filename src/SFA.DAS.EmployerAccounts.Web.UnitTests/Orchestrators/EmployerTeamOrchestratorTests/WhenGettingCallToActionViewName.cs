@@ -1,4 +1,4 @@
-﻿using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
+using SFA.DAS.EmployerAccounts.Models.CommitmentsV2;
 using SFA.DAS.EmployerAccounts.Models.Recruit;
 using SFA.DAS.EmployerAccounts.Models.Reservations;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
@@ -148,6 +148,34 @@ public class WhenGettingCallToActionViewName
 
         //Assert
         panelViewModel.ComponentName.Should().Be(ComponentConstants.ContinueSetupForSingleReservation);
+    }
+
+    [Test, RecursiveMoqAutoData]
+    public void WhenSingleReservationIsExpired_ThenShouldNotGetContinueSetupForSingleReservationViewName(
+        [NonLevyPanelView] PanelViewModel<AccountDashboardViewModel> panelViewModel,
+        EmployerTeamOrchestrator sut)
+    {
+        // Arrange
+        var expiredReservation = new Reservation
+        {
+            Id = Guid.NewGuid(),
+            AccountId = 1,
+            Status = ReservationStatus.Pending,
+            ExpiryDate = DateTime.UtcNow.AddDays(-1),
+            CreatedDate = DateTime.UtcNow.AddDays(-30),
+            AccountLegalEntityId = 1,
+            AccountLegalEntityName = "Test"
+        };
+        panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
+        panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
+        panelViewModel.Data.CallToActionViewModel.Reservations = [expiredReservation];
+        panelViewModel.Data.CallToActionViewModel.VacanciesViewModel = new VacanciesViewModel();
+
+        // Act
+        sut.GetCallToActionViewName(panelViewModel);
+
+        // Assert
+        panelViewModel.ComponentName.Should().NotBe(ComponentConstants.ContinueSetupForSingleReservation);
     }
 
     [Test, RecursiveMoqAutoData]
