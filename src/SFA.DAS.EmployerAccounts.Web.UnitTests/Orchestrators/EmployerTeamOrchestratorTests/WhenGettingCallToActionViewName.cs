@@ -138,6 +138,7 @@ public class WhenGettingCallToActionViewName
         EmployerTeamOrchestrator sut)
     {
         // Arrange
+        singleReservation.ExpiryDate = DateTime.UtcNow.AddMonths(1);
         panelViewModel.Data.CallToActionViewModel.Cohorts = new List<CohortViewModel>();
         panelViewModel.Data.CallToActionViewModel.Apprenticeships = new List<ApprenticeshipViewModel>();
         panelViewModel.Data.CallToActionViewModel.Reservations = [singleReservation];
@@ -287,6 +288,7 @@ public class WhenGettingCallToActionViewName
         [Frozen]EmployerTeamOrchestrator sut)
     {
         // Arrange
+        singleReservation.ExpiryDate = DateTime.UtcNow.AddMonths(1);
         singleCohort.Apprenticeships = new List<ApprenticeshipViewModel>();
         singleCohort.CohortStatus = CohortStatus.WithTrainingProvider;
         singleApprenticeship.ApprenticeshipStatus = ApprenticeshipStatus.Draft;
