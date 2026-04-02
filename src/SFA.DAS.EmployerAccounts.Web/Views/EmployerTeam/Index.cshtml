@@ -85,22 +85,23 @@ else
             @await Component.InvokeAsync(ComponentConstants.Row1Panel1, new { model = Model.Data })
 
             <section>
-                <h2 class="govuk-heading-l govuk-!-margin-bottom-2">Apprenticeships</h2>
-                <p class="govuk-caption-m govuk-!-width-two-thirds govuk-!-margin-bottom-6">Manage your apprentices,
+                <h2 class="govuk-heading-l govuk-!-margin-bottom-2">Training</h2>
+                <p class="govuk-caption-m govuk-!-width-two-thirds govuk-!-margin-bottom-6">Manage your learners,
                     advertise apprenticeships and set training provider permissions</p>
                 <div class="das-cards">
                     <div class="das-card">
                         <h3 class="govuk-heading-m das-card__heading">
                             <a href="@UrlHelpers.EmployerCommitmentsV2Action("")"
-                               class="govuk-link govuk-link--no-visited-state">Apprentices</a>
+                               class="govuk-link govuk-link--no-visited-state">Learners</a>
                         </h3>
-                        <p class="govuk-body govuk-!-font-size-16">Add apprentices, update details of existing
-                            apprentices, change training providers and authorise payments to training providers.</p>
+                        <p class="govuk-body govuk-!-font-size-16">Add learners, update details of existing
+                            learners, change training providers and authorise payments to training providers.
+                        </p>
                     </div>
                     <div class="das-card">
                         <h3 class="govuk-heading-m das-card__heading">
                             <a href="@UrlHelpers.EmployerRecruitAction()"
-                               class="govuk-link govuk-link--no-visited-state">Your apprenticeship adverts</a>
+                               class="govuk-link govuk-link--no-visited-state">Recruitment board</a>
                         </h3>
                         <p class="govuk-body govuk-!-font-size-16">Create adverts to post on find an apprenticeship,
                             view applications, your previous adverts and adverts created by training providers.</p>
@@ -116,10 +117,10 @@ else
                     <div class="das-card">
                         <h3 class="govuk-heading-m das-card__heading">
                             <a href="@UrlHelpers.EmployerRequestApprenticeshipTrainingAction("Dashboard")"
-                               class="govuk-link govuk-link--no-visited-state">Find apprenticeship training and manage
+                               class="govuk-link govuk-link--no-visited-state">Find training and manage
                                 requests</a>
                         </h3>
-                        <p class="govuk-body govuk-!-font-size-16">Search for apprenticeships, view details of approved
+                        <p class="govuk-body govuk-!-font-size-16">Search for training, view details of approved
                             training providers, manage your training requests and view responses.</p>
                     </div>
                     <div class="das-card">
@@ -228,7 +229,7 @@ else
                             }
                             else
                             {
-                                <p class="govuk-body govuk-!-font-size-16">View your apprentices funded by a transfer. Find a large business to fund your apprenticeship training with a transfer. </p>
+                                <p class="govuk-body govuk-!-font-size-16">View your learners funded by a transfer. Find a large business to fund your training with a transfer. </p>
                             }
                         </div>
                     }
@@ -332,7 +333,7 @@ else
                                 <li>
                                     <span>
                                         <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")"
-                                           class="govuk-link govuk-link govuk-link--no-visited-state">Start adding apprentices now</a>
+                                           class="govuk-link govuk-link govuk-link--no-visited-state">Start adding learners now</a>
                                     </span>
                                     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                                 </li>
@@ -352,7 +353,7 @@ else
                                     {
                                         <li>
                                             <span>
-                                                @Model.Data.TaskSummary.NumberOfApprenticesToReview apprentice change@(Model.Data.TaskSummary.NumberOfApprenticesToReview > 1 ? "s" : "") to review
+                                                @Model.Data.TaskSummary.NumberOfApprenticesToReview learners change@(Model.Data.TaskSummary.NumberOfApprenticesToReview > 1 ? "s" : "") to review
                                                 <br/>
                                                 <a href="@UrlHelpers.EmployerCommitmentsV2Action("apprentices")"
                                                    class="govuk-link govuk-link govuk-link--no-visited-state">View
@@ -366,10 +367,10 @@ else
                                     {
                                         <li>
                                             <span>
-                                                @Model.Data.TaskSummary.NumberOfCohortsReadyToReview apprentice request@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "") ready for review
+                                                @Model.Data.TaskSummary.NumberOfCohortsReadyToReview learner request@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "") ready for review
                                                 <br/>
                                                 <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/review")"class="govuk-link govuk-link govuk-link--no-visited-state">
-                                                    View apprentice request@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "")
+                                                    View learners request@(Model.Data.TaskSummary.NumberOfCohortsReadyToReview > 1 ? "s" : "")
                                                 </a>
                                             </span>
                                             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
@@ -443,7 +444,7 @@ else
                                 {
                                     <li>
                                         <span>
-                                            1 transfer available to add an apprentice
+                                            1 transfer available to add a learner
                                             <br/><a
                                                      href="@UrlHelpers.LevyTransfersMatchingAction($"applications/{Model.Data.TaskSummary.SingleAcceptedTransferPledgeApplicationHashedIdWithNoApprentices}")"
                                                      class="govuk-link govuk-link govuk-link--no-visited-state">View details</a>
@@ -456,7 +457,7 @@ else
                                 {
                                     <li>
                                         <span>
-                                            @Model.Data.TaskSummary.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices transfers available to add an apprentice
+                                            @Model.Data.TaskSummary.NumberOfAcceptedTransferPledgeApplicationsWithNoApprentices transfers available to add a learner
                                             <br/><a
                                                      href="@UrlHelpers.LevyTransfersMatchingAction("applications")"
                                                      class="govuk-link govuk-link govuk-link--no-visited-state">View details</a>
