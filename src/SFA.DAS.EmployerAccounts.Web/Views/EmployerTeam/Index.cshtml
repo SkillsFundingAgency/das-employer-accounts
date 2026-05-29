@@ -42,6 +42,31 @@
     </div>
 }
 
+@if (DateTime.UtcNow >= new DateTime(2026, 06, 01) && DateTime.UtcNow < new DateTime(2026, 09, 01))
+{
+        <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">Important</h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <h1 class="govuk-notification-banner__heading">Changes to how you add a learner</h1>
+                <p class="govuk-body">
+                    From <b>1st August 2026</b> you will no longer be able to add or edit learner details yourself in the Apprenticeship Service.
+                </p>
+                <p class="govuk-body">
+                    You will need to either:
+                    <ul>
+                        <li>
+                            <a href="@UrlHelpers.ProviderRelationshipsAction("providers")" class="govuk-link" target="_blank" rel="noreferrer">give you training provider permissions (open in new tab)</a> to add them for you
+                        </li>
+                        <li>
+                            <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")" class="govuk-link" target="_blank" rel="noreferrer">send a request to your training provider (open in new tab)</a> to add learners
+                        </li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+}
 <h1 class="govuk-heading-xl govuk-!-margin-0">@Model.Data.Account.Name</h1>
 
 <div class="govuk-inset-text">
