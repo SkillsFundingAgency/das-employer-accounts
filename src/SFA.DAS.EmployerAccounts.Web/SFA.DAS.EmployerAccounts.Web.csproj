@@ -15,7 +15,7 @@
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.8.0" />
 
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
         <PackageReference Include="NETStandard.Library" Version="2.0.3" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="NServiceBus.MSDependencyInjection" Version="0.1.4" />
