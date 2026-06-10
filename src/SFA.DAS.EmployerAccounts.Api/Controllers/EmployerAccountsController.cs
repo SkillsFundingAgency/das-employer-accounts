@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -206,6 +207,41 @@ public class EmployerAccountsController(AccountsOrchestrator orchestrator, IEnco
         
         var result = await mediator.Send(new Queries.SearchEmployerAccountsByName.SearchEmployerAccountsByNameQuery { EmployerName = employerName });
         return Ok(result);
+    }
+
+    [Route("queries")]
+    [Authorize(Policy = ApiRoles.ReadAllAccountUsers)]
+    [HttpPost]
+    public async Task<IActionResult> QueryAccounts([FromBody] AccountsQueryRequest request, CancellationToken cancellationToken)
+    {
+        if (request?.Filter?.AccountIds is null || request.Filter.AccountIds.Count == 0)
+        {
+            return BadRequest();
+        }
+
+        try
+        {
+            var result = await mediator.Send(new Queries.QueryAccounts.QueryAccountsRequest
+            {
+                AccountIds = request.Filter.AccountIds,
+                Select = request.Select ?? [],
+                Include = request.Include ?? []
+            }, cancellationToken);
+
+            return Ok(new AccountsQueryResponse
+            {
+                Accounts = result.Accounts.Select(account => new AccountQueryResult
+                {
+                    AccountId = account.AccountId,
+                    ApprenticeshipEmployerType = account.ApprenticeshipEmployerType,
+                    LegalEntities = account.LegalEntities.Select(le => new AccountQueryLegalEntityResult { Id = le.Id }).ToList()
+                }).ToList()
+            });
+        }
+        catch (InvalidRequestException)
+        {
+            return BadRequest();
+        }
     }
 
     private void CreateGetLegalEntityLink(long accountId, Resource legalEntity)
