@@ -122,6 +122,35 @@ public class EmployerAccountRepository : IEmployerAccountRepository
         return accountDetail;
     }
 
+    public async Task<IReadOnlyList<AccountQuerySummary>> GetAccountQuerySummaries(
+        IReadOnlyList<long> accountIds,
+        bool includeLegalEntities,
+        CancellationToken cancellationToken)
+    {
+        if (accountIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await _db.Value.Accounts
+            .AsNoTracking()
+            .Where(a => accountIds.Contains(a.Id))
+            .Select(a => new AccountQuerySummary
+            {
+                AccountId = a.Id,
+                ApprenticeshipEmployerType = (ApprenticeshipEmployerType)a.ApprenticeshipEmployerType,
+                LegalEntityIds = includeLegalEntities
+                    ? a.AccountLegalEntities
+                        .Where(ale => ale.Deleted == null && ale.Agreements.Any(ea =>
+                            ea.StatusId == EmployerAgreementStatus.Pending ||
+                            ea.StatusId == EmployerAgreementStatus.Signed))
+                        .Select(ale => ale.LegalEntityId)
+                        .ToList()
+                    : new List<long>()
+            })
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<AccountStats> GetAccountStats(long accountId)
     {
         var parameters = new DynamicParameters();
