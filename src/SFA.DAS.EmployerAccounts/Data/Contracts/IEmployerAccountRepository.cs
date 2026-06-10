@@ -10,6 +10,7 @@ public interface IEmployerAccountRepository
     Task<Accounts<AccountNameSummary>> GetAccounts(DateTime? since, int pageNumber, int pageSize);
 
     Task<AccountDetail> GetAccountDetailById(long accountId);
+    Task<IReadOnlyList<AccountQuerySummary>> GetAccountQuerySummaries(IReadOnlyList<long> accountIds, bool includeLegalEntities, CancellationToken cancellationToken);
     Task<AccountStats> GetAccountStats(long accountId);
     Task RenameAccount(long accountId, string name);
     Task SetAccountLevyStatus(long accountId, ApprenticeshipEmployerType apprenticeshipEmployerType);
