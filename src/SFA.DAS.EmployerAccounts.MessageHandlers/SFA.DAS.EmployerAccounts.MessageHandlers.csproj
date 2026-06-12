@@ -2,14 +2,14 @@
 	<PropertyGroup>
 		<IsWebJobProject>true</IsWebJobProject>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<WebJobName>EmployerAccounts-MessageHandlers</WebJobName>
 		<WebJobType>Continuous</WebJobType>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.41" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="SFA.DAS.EmployerFinance.Messages" Version="1.6.3195" />
 		<PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.21" />
