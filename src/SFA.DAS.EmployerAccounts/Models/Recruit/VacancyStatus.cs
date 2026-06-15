@@ -9,5 +9,6 @@ public enum VacancyStatus
     Referred, // Rejected by QA
     Live,
     Closed,
-    Approved
+    Approved,
+    Archived
 }
