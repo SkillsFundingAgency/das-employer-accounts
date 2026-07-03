@@ -43,8 +43,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmployerAccounts.Ho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmployerAccounts.Jobs", "SFA.DAS.EmployerAccounts.Jobs\SFA.DAS.EmployerAccounts.Jobs.csproj", "{78EDB78C-D1F9-4A1D-A963-4FDE675F6E89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmployerFinance.Messages", "..\..\das-employer-finance\src\SFA.DAS.EmployerFinance.Messages\SFA.DAS.EmployerFinance.Messages.csproj", "{791D0F2E-5557-4D0D-8176-61695D15C652}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -281,18 +279,6 @@ Global
 		{78EDB78C-D1F9-4A1D-A963-4FDE675F6E89}.Release|x64.Build.0 = Release|Any CPU
 		{78EDB78C-D1F9-4A1D-A963-4FDE675F6E89}.Release|x86.ActiveCfg = Release|Any CPU
 		{78EDB78C-D1F9-4A1D-A963-4FDE675F6E89}.Release|x86.Build.0 = Release|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Debug|x64.Build.0 = Debug|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Debug|x86.Build.0 = Debug|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Release|Any CPU.Build.0 = Release|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Release|x64.ActiveCfg = Release|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Release|x64.Build.0 = Release|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Release|x86.ActiveCfg = Release|Any CPU
-		{791D0F2E-5557-4D0D-8176-61695D15C652}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
