@@ -1,0 +1,279 @@
+using System;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq;
+using NUnit.Framework;
+using SFA.DAS.Common.Domain.Types;
+using SFA.DAS.EmployerAccounts.Commands.LevyDormancy;
+using SFA.DAS.EmployerAccounts.Configuration;
+using SFA.DAS.EmployerAccounts.Data;
+using SFA.DAS.EmployerAccounts.Models.Account;
+using SFA.DAS.EmployerAccounts.Models.LevyDormancy;
+using SFA.DAS.EmployerAccounts.Models.PAYE;
+using SFA.DAS.EmployerAccounts.Time;
+
+namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.LevyDormancy;
+
+[TestFixture]
+public class WhenAssessingLevyDormancy
+{
+    private const string PayeRef = "123/A1";
+
+    [Test]
+    public async Task Dormant_levy_account_creates_a_dormancy_request()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-22);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.AccountsAssessed.Should().Be(1);
+        result.DormantCandidatesFound.Should().Be(1);
+        result.DormancyRequestsCreated.Should().Be(1);
+
+        var request = dbContext.LevyDormancyRequests.Single();
+        request.AccountId.Should().Be(1);
+        request.LastLevyDeclarationDate.Should().Be(lastDeclaration);
+        request.Status.Should().Be(LevyDormancyRequestStatus.Pending);
+    }
+
+    [Test]
+    public async Task Assessment_does_nothing_when_feature_toggle_is_off()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, assessedOn.AddMonths(-30));
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = false }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.AccountsAssessed.Should().Be(0);
+        result.DormancyRequestsCreated.Should().Be(0);
+        dbContext.LevyDormancyRequests.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Non_levy_accounts_are_not_candidates()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var dbContext = CreateDbContext();
+        await SeedAccount(dbContext, assessedOn, ApprenticeshipEmployerType.NonLevy);
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(0);
+        result.DormancyRequestsCreated.Should().Be(0);
+    }
+
+    [Test]
+    public async Task Recent_declaration_is_not_a_candidate()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-6);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(0);
+        result.DormancyRequestsCreated.Should().Be(0);
+    }
+
+    [Test]
+    public async Task Levy_account_without_projection_rows_is_skipped()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var dbContext = CreateDbContext();
+        await SeedAccount(dbContext, assessedOn, ApprenticeshipEmployerType.Levy);
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(0);
+        result.DormancyRequestsCreated.Should().Be(0);
+    }
+
+    [Test]
+    public async Task Account_with_pending_request_is_not_retriggered()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-30);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        await SeedDormancyRequest(dbContext, LevyDormancyRequestStatus.Pending, assessedOn.AddDays(-1));
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(0);
+        result.DormancyRequestsCreated.Should().Be(0);
+        dbContext.LevyDormancyRequests.Count().Should().Be(1);
+    }
+
+    [Test]
+    public async Task Account_with_in_progress_request_is_not_retriggered()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-30);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        await SeedDormancyRequest(dbContext, LevyDormancyRequestStatus.InProgress, assessedOn.AddDays(-1));
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(0);
+        result.DormancyRequestsCreated.Should().Be(0);
+    }
+
+    [Test]
+    public async Task Removed_paye_with_dormant_declaration_is_assessed()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-22);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration, removedDate: assessedOn.AddMonths(-1));
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(1);
+        result.DormancyRequestsCreated.Should().Be(1);
+    }
+
+    [Test]
+    public async Task Aorn_paye_with_dormant_declaration_is_assessed()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-22);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration, aorn: "1234567890ABC");
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(1);
+        result.DormancyRequestsCreated.Should().Be(1);
+    }
+
+    private static EmployerAccountsDbContext CreateDbContext()
+    {
+        var options = new DbContextOptionsBuilder<EmployerAccountsDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new EmployerAccountsDbContext(options);
+    }
+
+    private static AssessLevyDormancyCommandHandler CreateHandler(
+        EmployerAccountsDbContext dbContext,
+        LevyDormancyConfiguration configuration,
+        DateTime assessedOn)
+    {
+        return new AssessLevyDormancyCommandHandler(
+            new Lazy<EmployerAccountsDbContext>(() => dbContext),
+            Options.Create(configuration),
+            new CurrentDateTime(assessedOn),
+            Mock.Of<ILogger<AssessLevyDormancyCommandHandler>>());
+    }
+
+    private static async Task SeedLevyAccount(
+        EmployerAccountsDbContext dbContext,
+        DateTime assessedOn,
+        DateTime? lastDeclaration,
+        DateTime? removedDate = null,
+        string aorn = null)
+    {
+        await SeedAccount(dbContext, assessedOn, ApprenticeshipEmployerType.Levy, removedDate, aorn);
+
+        if (lastDeclaration.HasValue)
+        {
+            dbContext.EmployerAccountLevyStatuses.Add(new EmployerAccountLevyStatus
+            {
+                AccountId = 1,
+                LastLevyDeclarationDate = lastDeclaration,
+                LastRefreshedAt = lastDeclaration.Value
+            });
+
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    private static async Task SeedAccount(
+        EmployerAccountsDbContext dbContext,
+        DateTime assessedOn,
+        ApprenticeshipEmployerType employerType,
+        DateTime? removedDate = null,
+        string aorn = null)
+    {
+        dbContext.Accounts.Add(new Account
+        {
+            Id = 1,
+            Name = "Test",
+            CreatedDate = assessedOn,
+            ApprenticeshipEmployerType = (byte)employerType
+        });
+        dbContext.Payees.Add(new Paye { EmpRef = PayeRef, Aorn = aorn });
+        dbContext.AccountHistory.Add(new AccountHistory
+        {
+            AccountId = 1,
+            PayeRef = PayeRef,
+            AddedDate = assessedOn.AddYears(-3),
+            RemovedDate = removedDate
+        });
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static async Task SeedDormancyRequest(
+        EmployerAccountsDbContext dbContext,
+        LevyDormancyRequestStatus status,
+        DateTime createdOn)
+    {
+        dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
+        {
+            AccountId = 1,
+            NoLevyDeclaredMonths = 21,
+            LastLevyDeclarationDate = createdOn.AddMonths(-21),
+            Status = status,
+            CreatedOn = createdOn,
+            UpdatedOn = createdOn
+        });
+
+        await dbContext.SaveChangesAsync();
+    }
+}

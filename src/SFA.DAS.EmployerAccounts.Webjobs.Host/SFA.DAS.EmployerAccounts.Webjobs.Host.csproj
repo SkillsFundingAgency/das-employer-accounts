@@ -5,7 +5,7 @@
     <MSDeployPackagePublishDependsOn>CopyWebJobs</MSDeployPackagePublishDependsOn>
     <WebJobProjects>
       $(MSBuildProjectDirectory)\..\SFA.DAS.EmployerAccounts.Jobs\SFA.DAS.EmployerAccounts.Jobs.csproj;
-      $(MSBuildProjectDirectory)\..\SFA.DAS.EmployerAccounts.MessageHandlers\SFA.DAS.CommitmentsV2.Jobs.csproj;
+      $(MSBuildProjectDirectory)\..\SFA.DAS.EmployerAccounts.MessageHandlers\SFA.DAS.EmployerAccounts.MessageHandlers.csproj;
     </WebJobProjects>
   </PropertyGroup>
   <ItemGroup>

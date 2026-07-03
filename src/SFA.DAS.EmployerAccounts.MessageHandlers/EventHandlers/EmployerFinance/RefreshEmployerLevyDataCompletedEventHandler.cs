@@ -8,7 +8,6 @@ public class RefreshEmployerLevyDataCompletedEventHandler(IMediator mediator) : 
 {  
     public async Task Handle(RefreshEmployerLevyDataCompletedEvent message, IMessageHandlerContext context)
     {
-
         await mediator.Send(new AccountLevyStatusCommand
         {
             AccountId = message.AccountId,

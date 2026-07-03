@@ -11,7 +11,6 @@
 		<PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.41" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="SFA.DAS.EmployerFinance.Messages" Version="1.6.3195" />
 		<PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.21" />
 		<PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
