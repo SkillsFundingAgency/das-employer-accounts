@@ -4,10 +4,12 @@ public class LevyDormancyConfiguration
 {
     public bool AssessmentEnabled { get; set; }
 
-    // Minimum months since last positive net levy declaration before an account is treated as dormant.
-    public int DormancyDetectionMonths { get; set; } = 21;
+    public bool OrchestrationEnabled { get; set; }
 
-    // Used by the LevyDormancyRequest orchestration process (not the assessment job).
+    // When to create a LevyDormancyRequest (monthly assessment). Default 20 absorbs assessment lag before the 21-month warning.
+    public int DormancyDetectionMonths { get; set; } = 20;
+
+    // When orchestration may send the initial warning email (monthly job).
     public int InitialWarningMonths { get; set; } = 21;
 
     public int SwitchMonths { get; set; } = 24;

@@ -150,7 +150,7 @@ public class WhenUpsertingEmployerAccountLevyStatus
     {
         return new UpsertEmployerAccountLevyStatusCommandHandler(
             new Lazy<EmployerAccountsDbContext>(() => dbContext),
-            Options.Create(new LevyDormancyConfiguration { DormancyDetectionMonths = 21 }),
+            Options.Create(new LevyDormancyConfiguration { DormancyDetectionMonths = 20 }),
             new CurrentDateTime(now ?? new DateTime(2026, 6, 1)),
             Mock.Of<ILogger<UpsertEmployerAccountLevyStatusCommandHandler>>());
     }
