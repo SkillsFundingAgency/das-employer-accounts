@@ -41,26 +41,31 @@
         </div>
     </div>
 }
-
-@if (DateTime.UtcNow >= new DateTime(2026, 06, 01) && DateTime.UtcNow < new DateTime(2026, 09, 01))
+@if (DateTime.UtcNow >= new DateTime(2026, 07, 01))
 {
         <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
             <div class="govuk-notification-banner__header">
                 <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">Important</h2>
             </div>
             <div class="govuk-notification-banner__content">
-                <h1 class="govuk-notification-banner__heading">Changes to how you add a learner</h1>
+                <h1 class="govuk-notification-banner__heading">You can continue adding learners yourself until Autumn 2026</h1>
                 <p class="govuk-body">
-                    From <b>1st August 2026</b> you will no longer be able to add or edit learner details yourself in the Apprenticeship Service.
+                    The option to add learners yourself will not change until Autumn 2026.
                 </p>
                 <p class="govuk-body">
-                    You will need to either:
+                    We previously announced this option would be removed in August 2026.
+                </p>
+                <p class="govuk-body">
+                    From <b>Autumn 2026, you will not be able to add learners yourself.</b>
+                </p>
+                <p class="govuk-body">
+                    After this date, you will need to either:
                     <ul>
                         <li>
-                            <a href="@UrlHelpers.ProviderRelationshipsAction("providers")" class="govuk-link" target="_blank" rel="noreferrer">give you training provider permissions (open in new tab)</a> to add them for you
+                            <a href="@UrlHelpers.ProviderRelationshipsAction("providers")" class="govuk-link" target="_blank" rel="noreferrer">give your training provider permission (open in new tab)</a> to add learners for you
                         </li>
                         <li>
-                            <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")" class="govuk-link" target="_blank" rel="noreferrer">send a request to your training provider (open in new tab)</a> to add learners
+                            <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")" class="govuk-link" target="_blank" rel="noreferrer">request that your training provider (open in new tab)</a> adds learners
                         </li>
                     </ul>
                 </p>
