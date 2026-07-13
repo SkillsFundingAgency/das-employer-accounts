@@ -5,7 +5,7 @@ namespace SFA.DAS.EmployerAccounts.Jobs.ScheduledJobs;
 
 public class LevyStatusAssessmentJob(IMediator mediator)
 {
-    public async Task Run([TimerTrigger("0 0 6 1 * *")] TimerInfo timer, ILogger logger)
+    public async Task Run([TimerTrigger("%SFA.DAS.EmployerAccounts:LevyDormancy:LevyStatusAssessmentJobSchedule%", RunOnStartup = false)] TimerInfo timer, ILogger logger)
     {
         logger.LogInformation("Starting {JobName}", nameof(LevyStatusAssessmentJob));
 

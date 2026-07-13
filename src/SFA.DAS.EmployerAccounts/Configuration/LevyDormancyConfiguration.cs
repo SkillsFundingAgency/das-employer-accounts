@@ -15,4 +15,8 @@ public class LevyDormancyConfiguration
     public int SwitchMonths { get; set; } = 24;
 
     public int MonthsBetweenInitialWarningAndSwitch { get; set; } = 3;
+
+    public string LevyStatusAssessmentJobSchedule { get; set; } = "0 0 6 1 * *";
+
+    public string LevyDormancyOrchestrationJobSchedule { get; set; } = "0 0 7 1 * *";
 }
