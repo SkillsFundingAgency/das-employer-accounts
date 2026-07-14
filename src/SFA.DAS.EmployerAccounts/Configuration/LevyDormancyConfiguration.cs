@@ -6,10 +6,8 @@ public class LevyDormancyConfiguration
 
     public bool OrchestrationEnabled { get; set; }
 
-    // When to create a LevyDormancyRequest (monthly assessment). Default 20 absorbs assessment lag before the 21-month warning.
     public int DormancyDetectionMonths { get; set; } = 20;
 
-    // When orchestration may send the initial warning email (monthly job).
     public int InitialWarningMonths { get; set; } = 21;
 
     public int SwitchMonths { get; set; } = 24;
@@ -19,4 +17,26 @@ public class LevyDormancyConfiguration
     public string LevyStatusAssessmentJobSchedule { get; set; } = "0 0 6 1 * *";
 
     public string LevyDormancyOrchestrationJobSchedule { get; set; } = "0 0 7 1 * *";
+
+    public string IgnoredAccountIds { get; set; } = string.Empty;
+
+    public IReadOnlySet<long> GetIgnoredAccountIds()
+    {
+        if (string.IsNullOrWhiteSpace(IgnoredAccountIds))
+        {
+            return new HashSet<long>();
+        }
+
+        var ignored = new HashSet<long>();
+
+        foreach (var token in IgnoredAccountIds.Split(','))
+        {
+            if (long.TryParse(token.Trim(), out var accountId))
+            {
+                ignored.Add(accountId);
+            }
+        }
+
+        return ignored;
+    }
 }
