@@ -44,6 +44,7 @@ public class AssessLevyDormancyCommandHandler(
             .Select(r => r.AccountId)
             .ToListAsync(cancellationToken);
 
+        var ignoredAccountIds = configuration.GetIgnoredAccountIds();
         var dormantCandidates = await db.Value.EmployerAccountLevyStatuses
             .Where(status => db.Value.Accounts.Any(account =>
                 account.Id == status.AccountId &&
@@ -57,6 +58,17 @@ public class AssessLevyDormancyCommandHandler(
         foreach (var candidate in dormantCandidates)
         {
             result.DormantCandidatesFound++;
+
+            if (ignoredAccountIds.Contains(candidate.AccountId))
+            {
+                result.DormancyRequestsSkippedIgnored++;
+
+                logger.LogInformation(
+                    "Skipping LevyDormancyRequest for ignored account {AccountId}",
+                    candidate.AccountId);
+
+                continue;
+            }
 
             db.Value.LevyDormancyRequests.Add(new LevyDormancyRequest
             {
@@ -83,10 +95,11 @@ public class AssessLevyDormancyCommandHandler(
         }
 
         logger.LogInformation(
-            "Levy dormancy assessment completed. Assessed {AccountsAssessed}, dormant candidates {DormantCandidatesFound}, dormancy requests created {DormancyRequestsCreated}",
+            "Levy dormancy assessment completed. Assessed {AccountsAssessed}, dormant candidates {DormantCandidatesFound}, dormancy requests created {DormancyRequestsCreated}, skipped ignored {DormancyRequestsSkippedIgnored}",
             result.AccountsAssessed,
             result.DormantCandidatesFound,
-            result.DormancyRequestsCreated);
+            result.DormancyRequestsCreated,
+            result.DormancyRequestsSkippedIgnored);
 
         return result;
     }

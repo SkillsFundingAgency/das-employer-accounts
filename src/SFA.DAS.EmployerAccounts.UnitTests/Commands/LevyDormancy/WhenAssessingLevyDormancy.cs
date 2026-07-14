@@ -190,6 +190,112 @@ public class WhenAssessingLevyDormancy
         result.DormancyRequestsCreated.Should().Be(1);
     }
 
+    [Test]
+    public async Task Ignored_account_does_not_create_a_dormancy_request()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-22);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                AssessmentEnabled = true,
+                IgnoredAccountIds = "1"
+            },
+            assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(1);
+        result.DormancyRequestsCreated.Should().Be(0);
+        result.DormancyRequestsSkippedIgnored.Should().Be(1);
+        dbContext.LevyDormancyRequests.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Non_ignored_account_still_creates_a_dormancy_request_when_ignore_list_has_other_ids()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-22);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                AssessmentEnabled = true,
+                IgnoredAccountIds = "999,1000"
+            },
+            assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormancyRequestsCreated.Should().Be(1);
+        result.DormancyRequestsSkippedIgnored.Should().Be(0);
+        dbContext.LevyDormancyRequests.Should().HaveCount(1);
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public async Task Empty_or_whitespace_ignore_list_behaves_as_today(string ignoredAccountIds)
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-22);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                AssessmentEnabled = true,
+                IgnoredAccountIds = ignoredAccountIds
+            },
+            assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormancyRequestsCreated.Should().Be(1);
+        result.DormancyRequestsSkippedIgnored.Should().Be(0);
+    }
+
+    [Test]
+    public async Task Malformed_ignore_list_tokens_are_skipped_and_valid_ids_still_apply()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-22);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                AssessmentEnabled = true,
+                IgnoredAccountIds = "abc,1, "
+            },
+            assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormancyRequestsCreated.Should().Be(0);
+        result.DormancyRequestsSkippedIgnored.Should().Be(1);
+        dbContext.LevyDormancyRequests.Should().BeEmpty();
+    }
+
     private static EmployerAccountsDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<EmployerAccountsDbContext>()

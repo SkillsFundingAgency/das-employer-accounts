@@ -9,4 +9,6 @@ public class AssessLevyDormancyResult
     public int DormantCandidatesFound { get; set; }
 
     public int DormancyRequestsCreated { get; set; }
+
+    public int DormancyRequestsSkippedIgnored { get; set; }
 }
