@@ -6,6 +6,7 @@ using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
+using SFA.DAS.EmployerAccounts.Models.LevyDormancy;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 
 namespace SFA.DAS.EmployerAccounts.Data;
@@ -30,6 +31,8 @@ public class EmployerAccountsDbContext : DbContext, IEmployerAccountsDbContext
     public virtual DbSet<UserAccountSetting> UserAccountSettings { get; set; }
     public virtual DbSet<RunOnceJob> RunOnceJobs { get; set; }
     public virtual DbSet<Paye> Payees { get; set; }
+    public virtual DbSet<EmployerAccountLevyStatus> EmployerAccountLevyStatuses { get; set; }
+    public virtual DbSet<LevyDormancyRequest> LevyDormancyRequests { get; set; }
     
     // For tests
     public EmployerAccountsDbContext() { }

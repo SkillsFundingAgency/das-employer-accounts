@@ -53,4 +53,5 @@ public class EmployerAccountsConfiguration
     public string DataProtectionKeysDatabase { get; set; }
     public List<RedirectUriConfiguration> ValidRedirectUris { get; set; }
     public virtual bool ShowLevyTransparency { get; set; }
+    public LevyDormancyConfiguration LevyDormancy { get; set; } = new();
 }
