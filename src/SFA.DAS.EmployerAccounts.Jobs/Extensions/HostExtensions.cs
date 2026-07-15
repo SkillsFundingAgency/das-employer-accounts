@@ -3,9 +3,13 @@ using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
+using SFA.DAS.EmployerAccounts.Commands.SendNotification;
 using SFA.DAS.EmployerAccounts.Configuration;
+using SFA.DAS.EmployerAccounts.Data;
+using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.Jobs.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
+using SFA.DAS.EmployerAccounts.Validation;
 
 namespace SFA.DAS.EmployerAccounts.Jobs.Extensions;
 
@@ -73,6 +77,8 @@ public static class HostExtensions
                 .Get<EmployerAccountsConfiguration>();
 
             services.AddDatabaseRegistration();
+            services.AddScoped<IEmployerAccountTeamRepository, EmployerAccountTeamRepository>();
+            services.AddTransient<IValidator<SendNotificationCommand>, SendNotificationCommandValidator>();
             services.AddNServiceBus(employerAccountsConfiguration, context.Configuration);
             services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(
                 typeof(AccountLevyStatusCommandHandler).Assembly));

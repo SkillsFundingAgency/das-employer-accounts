@@ -99,6 +99,24 @@ public class WhenAssessingLevyDormancy
     }
 
     [Test]
+    public async Task Declaration_within_detection_window_is_not_a_candidate()
+    {
+        // Arrange
+        var assessedOn = new DateTime(2026, 6, 1);
+        var lastDeclaration = assessedOn.AddMonths(-19);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, assessedOn, lastDeclaration);
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        // Act
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        // Assert
+        result.DormantCandidatesFound.Should().Be(0);
+        result.DormancyRequestsCreated.Should().Be(0);
+    }
+
+    [Test]
     public async Task Levy_account_without_projection_rows_is_skipped()
     {
         // Arrange
@@ -373,7 +391,7 @@ public class WhenAssessingLevyDormancy
         dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
         {
             AccountId = 1,
-            NoLevyDeclaredMonths = 21,
+            NoLevyDeclaredMonths = 20,
             LastLevyDeclarationDate = createdOn.AddMonths(-21),
             Status = status,
             CreatedOn = createdOn,
