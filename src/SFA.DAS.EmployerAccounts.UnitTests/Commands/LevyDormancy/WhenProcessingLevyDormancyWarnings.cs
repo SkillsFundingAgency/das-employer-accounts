@@ -69,7 +69,7 @@ public class WhenProcessingLevyDormancyWarnings
         sentCommands[0].TemplateId.Should().Be("LevyDormancyInitialWarning");
         sentCommands[0].RecipientsAddress.Should().Be("owner@test.com");
         sentCommands[0].Tokens.Should().ContainKey("switch_date");
-        sentCommands[0].Tokens["switch_date"].Should().Be(lastDeclaration.AddMonths(24).ToString("dd MMM yyyy"));
+        sentCommands[0].Tokens["switch_date"].Should().Be(now.AddMonths(1).ToString("dd MMM yyyy"));
         sentCommands[0].Tokens["unsubscribe_url"].Should().Be($"{BaseUrl}/settings/notifications");
 
         var request = await dbContext.LevyDormancyRequests.SingleAsync();

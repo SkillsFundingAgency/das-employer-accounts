@@ -97,7 +97,7 @@ public class ProcessLevyDormancyWarningsCommandHandler(
                 continue;
             }
 
-            var switchDate = GetSwitchDate(request, configuration);
+            var switchDate = now.AddMonths(1);
             var tokens = BuildTokens(account.Name, switchDate, employerAccountsOptions.Value.EmployerAccountsBaseUrl);
             var emailsSentForRequest = 0;
 
@@ -158,16 +158,6 @@ public class ProcessLevyDormancyWarningsCommandHandler(
 
         var monthsAfterRequestCreation = configuration.InitialWarningMonths - configuration.DormancyDetectionMonths;
         return now >= request.CreatedOn.AddMonths(monthsAfterRequestCreation);
-    }
-
-    private static DateTime GetSwitchDate(LevyDormancyRequest request, LevyDormancyConfiguration configuration)
-    {
-        if (request.LastLevyDeclarationDate.HasValue)
-        {
-            return request.LastLevyDeclarationDate.Value.AddMonths(configuration.SwitchMonths);
-        }
-
-        return request.CreatedOn.AddMonths(configuration.MonthsBetweenInitialWarningAndSwitch);
     }
 
     private static Dictionary<string, string> BuildTokens(string employerName, DateTime switchDate, string employerAccountsBaseUrl)
