@@ -97,7 +97,7 @@ public class ProcessLevyDormancyWarningsCommandHandler(
                 continue;
             }
 
-            var switchDate = now.AddMonths(1);
+            var switchDate = now.AddMonths(configuration.MonthsBetweenInitialWarningAndSwitch);
             var tokens = BuildTokens(account.Name, switchDate, employerAccountsOptions.Value.EmployerAccountsBaseUrl);
             var emailsSentForRequest = 0;
 

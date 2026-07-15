@@ -53,9 +53,14 @@ public class WhenProcessingLevyDormancyWarnings
         await SeedLevyAccount(dbContext, now);
         await SeedPendingRequest(dbContext, now, lastDeclaration);
         var sentCommands = new List<SendNotificationCommand>();
+        var configuration = new LevyDormancyConfiguration
+        {
+            OrchestrationEnabled = true,
+            MonthsBetweenInitialWarningAndSwitch = 3
+        };
         var handler = CreateHandler(
             dbContext,
-            new LevyDormancyConfiguration { OrchestrationEnabled = true },
+            configuration,
             now,
             sentCommands);
 
@@ -69,7 +74,8 @@ public class WhenProcessingLevyDormancyWarnings
         sentCommands[0].TemplateId.Should().Be("LevyDormancyInitialWarning");
         sentCommands[0].RecipientsAddress.Should().Be("owner@test.com");
         sentCommands[0].Tokens.Should().ContainKey("switch_date");
-        sentCommands[0].Tokens["switch_date"].Should().Be(now.AddMonths(1).ToString("dd MMM yyyy"));
+        sentCommands[0].Tokens["switch_date"].Should().Be(
+            now.AddMonths(configuration.MonthsBetweenInitialWarningAndSwitch).ToString("dd MMM yyyy"));
         sentCommands[0].Tokens["unsubscribe_url"].Should().Be($"{BaseUrl}/settings/notifications");
 
         var request = await dbContext.LevyDormancyRequests.SingleAsync();
