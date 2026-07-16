@@ -2,15 +2,16 @@
 
 public sealed class CurrentDateTime : ICurrentDateTime
 {
-    public DateTime Now { get; }
+    private readonly DateTime? _fixed;
+
+    public DateTime Now => _fixed ?? DateTime.Now;
 
     public CurrentDateTime()
     {
-        Now = DateTime.UtcNow;
     }
 
     public CurrentDateTime(DateTime time)
     {
-        Now = time;
+        _fixed = time;
     }
 }

@@ -10,12 +10,15 @@ public static class DateTimeServiceRegistrations
     {
         var cloudCurrentTime = configuration.GetValue<string>("CurrentTime");
 
-        if (!DateTime.TryParse(cloudCurrentTime, out var currentTime))
+        if (!string.IsNullOrWhiteSpace(cloudCurrentTime) &&
+            DateTime.TryParse(cloudCurrentTime, out var currentTime))
         {
-            currentTime = DateTime.Now;
+            services.AddSingleton<ICurrentDateTime>(_ => new CurrentDateTime(currentTime));
         }
-
-        services.AddSingleton<ICurrentDateTime>(_ => new CurrentDateTime(currentTime));
+        else
+        {
+            services.AddSingleton<ICurrentDateTime>(_ => new CurrentDateTime());
+        }
 
         return services;
     }
