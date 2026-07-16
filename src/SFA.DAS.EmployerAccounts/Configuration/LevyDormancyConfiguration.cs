@@ -8,11 +8,11 @@ public class LevyDormancyConfiguration
 
     public int DormancyDetectionMonths { get; set; } = 20;
 
-    public int InitialWarningMonths { get; set; } = 21;
+    public int InitialWarningMonths { get; set; } = 23;
 
     public int SwitchMonths { get; set; } = 24;
 
-    public int MonthsBetweenInitialWarningAndSwitch { get; set; } = 3;
+    public int MonthsBetweenInitialWarningAndSwitch { get; set; } = 1;
 
     public string LevyStatusAssessmentJobSchedule { get; set; } = "0 0 6 1 * *";
 

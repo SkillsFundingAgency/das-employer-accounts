@@ -32,7 +32,7 @@ public class WhenProcessingLevyDormancySwitches
         var now = new DateTime(2026, 9, 1);
         var dbContext = CreateDbContext();
         await SeedLevyAccount(dbContext, now);
-        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-3));
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-1));
         var accountRepository = new Mock<IEmployerAccountRepository>();
         var eventPublisher = new Mock<IEventPublisher>();
         var sentCommands = new List<SendNotificationCommand>();
@@ -64,7 +64,7 @@ public class WhenProcessingLevyDormancySwitches
         var now = new DateTime(2026, 9, 1);
         var dbContext = CreateDbContext();
         await SeedLevyAccount(dbContext, now);
-        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-2));
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now);
         var accountRepository = new Mock<IEmployerAccountRepository>();
         var eventPublisher = new Mock<IEventPublisher>();
         var sentCommands = new List<SendNotificationCommand>();
@@ -73,7 +73,7 @@ public class WhenProcessingLevyDormancySwitches
             new LevyDormancyConfiguration
             {
                 OrchestrationEnabled = true,
-                MonthsBetweenInitialWarningAndSwitch = 3
+                MonthsBetweenInitialWarningAndSwitch = 1
             },
             now,
             accountRepository.Object,
@@ -100,7 +100,7 @@ public class WhenProcessingLevyDormancySwitches
         var now = new DateTime(2026, 9, 1);
         var dbContext = CreateDbContext();
         await SeedLevyAccount(dbContext, now);
-        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-3));
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-1));
         var accountRepository = new Mock<IEmployerAccountRepository>();
         var eventPublisher = new Mock<IEventPublisher>();
         ApprenticeshipEmployerTypeChangeEvent publishedEvent = null;
@@ -114,7 +114,7 @@ public class WhenProcessingLevyDormancySwitches
             new LevyDormancyConfiguration
             {
                 OrchestrationEnabled = true,
-                MonthsBetweenInitialWarningAndSwitch = 3
+                MonthsBetweenInitialWarningAndSwitch = 1
             },
             now,
             accountRepository.Object,
@@ -197,7 +197,7 @@ public class WhenProcessingLevyDormancySwitches
         var now = new DateTime(2026, 9, 1);
         var dbContext = CreateDbContext();
         await SeedAccount(dbContext, now, ApprenticeshipEmployerType.NonLevy);
-        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-3));
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-1));
         var accountRepository = new Mock<IEmployerAccountRepository>();
         var eventPublisher = new Mock<IEventPublisher>();
         var sentCommands = new List<SendNotificationCommand>();
@@ -206,7 +206,7 @@ public class WhenProcessingLevyDormancySwitches
             new LevyDormancyConfiguration
             {
                 OrchestrationEnabled = true,
-                MonthsBetweenInitialWarningAndSwitch = 3
+                MonthsBetweenInitialWarningAndSwitch = 1
             },
             now,
             accountRepository.Object,
@@ -233,7 +233,7 @@ public class WhenProcessingLevyDormancySwitches
         var now = new DateTime(2026, 9, 1);
         var dbContext = CreateDbContext();
         await SeedLevyAccount(dbContext, now);
-        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-3));
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-1));
         var accountRepository = new Mock<IEmployerAccountRepository>();
         var eventPublisher = new Mock<IEventPublisher>();
         var sentCommands = new List<SendNotificationCommand>();
@@ -242,7 +242,7 @@ public class WhenProcessingLevyDormancySwitches
             new LevyDormancyConfiguration
             {
                 OrchestrationEnabled = true,
-                MonthsBetweenInitialWarningAndSwitch = 3
+                MonthsBetweenInitialWarningAndSwitch = 1
             },
             now,
             accountRepository.Object,
