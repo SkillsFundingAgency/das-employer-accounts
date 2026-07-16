@@ -48,7 +48,7 @@ public class WhenProcessingLevyDormancyWarnings
     {
         // Arrange
         var now = new DateTime(2026, 6, 1);
-        var lastDeclaration = now.AddMonths(-22);
+        var lastDeclaration = now.AddMonths(-24);
         var dbContext = CreateDbContext();
         await SeedLevyAccount(dbContext, now);
         await SeedPendingRequest(dbContext, now, lastDeclaration);
@@ -56,7 +56,7 @@ public class WhenProcessingLevyDormancyWarnings
         var configuration = new LevyDormancyConfiguration
         {
             OrchestrationEnabled = true,
-            MonthsBetweenInitialWarningAndSwitch = 3
+            MonthsBetweenInitialWarningAndSwitch = 1
         };
         var handler = CreateHandler(
             dbContext,
@@ -314,7 +314,7 @@ public class WhenProcessingLevyDormancyWarnings
         {
             AccountId = 1,
             NoLevyDeclaredMonths = 20,
-            LastLevyDeclarationDate = lastDeclaration ?? createdOn.AddMonths(-22),
+            LastLevyDeclarationDate = lastDeclaration ?? createdOn.AddMonths(-24),
             Status = LevyDormancyRequestStatus.Pending,
             CreatedOn = createdOn.AddDays(-7),
             UpdatedOn = createdOn.AddDays(-7)

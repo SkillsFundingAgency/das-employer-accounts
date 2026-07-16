@@ -78,6 +78,7 @@ public static class HostExtensions
 
             services.AddDatabaseRegistration();
             services.AddScoped<IEmployerAccountTeamRepository, EmployerAccountTeamRepository>();
+            services.AddScoped<IEmployerAccountRepository, EmployerAccountRepository>();
             services.AddTransient<IValidator<SendNotificationCommand>, SendNotificationCommandValidator>();
             services.AddNServiceBus(employerAccountsConfiguration, context.Configuration);
             services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(

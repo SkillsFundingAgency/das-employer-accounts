@@ -9,15 +9,27 @@ public class LevyDormancyOrchestrationJob(IMediator mediator)
     {
         logger.LogInformation("Starting {JobName}", nameof(LevyDormancyOrchestrationJob));
 
-        var result = await mediator.Send(new ProcessLevyDormancyWarningsCommand());
+        var warningResult = await mediator.Send(new ProcessLevyDormancyWarningsCommand());
 
         logger.LogInformation(
-            "{JobName} completed. Processed {RequestsProcessed}, emails sent {EmailsSent}, cancelled {RequestsCancelled}, skipped no recipients {SkippedNoRecipients}, skipped not yet eligible {SkippedNotYetEligible}",
+            "{JobName} warnings completed. Processed {RequestsProcessed}, emails sent {EmailsSent}, cancelled {RequestsCancelled}, skipped no recipients {SkippedNoRecipients}, skipped not yet eligible {SkippedNotYetEligible}",
             nameof(LevyDormancyOrchestrationJob),
-            result.RequestsProcessed,
-            result.EmailsSent,
-            result.RequestsCancelled,
-            result.SkippedNoRecipients,
-            result.SkippedNotYetEligible);
+            warningResult.RequestsProcessed,
+            warningResult.EmailsSent,
+            warningResult.RequestsCancelled,
+            warningResult.SkippedNoRecipients,
+            warningResult.SkippedNotYetEligible);
+
+        var switchResult = await mediator.Send(new ProcessLevyDormancySwitchesCommand());
+
+        logger.LogInformation(
+            "{JobName} switches completed. Processed {RequestsProcessed}, accounts switched {AccountsSwitched}, emails sent {EmailsSent}, cancelled {RequestsCancelled}, skipped not yet eligible {SkippedNotYetEligible}, skipped no recipients {SkippedNoRecipients}",
+            nameof(LevyDormancyOrchestrationJob),
+            switchResult.RequestsProcessed,
+            switchResult.AccountsSwitched,
+            switchResult.EmailsSent,
+            switchResult.RequestsCancelled,
+            switchResult.SkippedNotYetEligible,
+            switchResult.SkippedNoRecipients);
     }
 }
