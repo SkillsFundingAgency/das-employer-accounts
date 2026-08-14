@@ -45,7 +45,6 @@ public class ProcessLevyDormancySwitchesCommandHandler(
             .Where(r => r.ActionEmailSentAt == null &&
                         ((r.Status == LevyDormancyRequestStatus.InProgress &&
                           r.WarningEmailSentAt != null) ||
-                         r.Status == LevyDormancyRequestStatus.Completed ||
                          (skipInitialWarning && r.Status == LevyDormancyRequestStatus.Pending)))
             .ToListAsync(cancellationToken);
 
@@ -53,56 +52,51 @@ public class ProcessLevyDormancySwitchesCommandHandler(
         {
             result.RequestsProcessed++;
 
-            var isEmailRetry = request.Status == LevyDormancyRequestStatus.Completed;
-
-            if (!isEmailRetry)
+            if (!IsEligibleForSwitch(request, configuration, now))
             {
-                if (!IsEligibleForSwitch(request, configuration, now))
-                {
-                    result.SkippedNotYetEligible++;
-
-                    logger.LogInformation(
-                        "Levy dormancy switch not yet due for account {AccountId}, request {RequestId}",
-                        request.AccountId,
-                        request.Id);
-
-                    continue;
-                }
-
-                var account = await db.Value.Accounts
-                    .AsNoTracking()
-                    .SingleOrDefaultAsync(a => a.Id == request.AccountId, cancellationToken);
-
-                if (account == null || account.ApprenticeshipEmployerType != levyEmployerType)
-                {
-                    request.Status = LevyDormancyRequestStatus.Cancelled;
-                    request.UpdatedOn = now;
-                    result.RequestsCancelled++;
-
-                    logger.LogInformation(
-                        "Cancelled LevyDormancyRequest {RequestId} for account {AccountId} because the account is no longer levy.",
-                        request.Id,
-                        request.AccountId);
-
-                    continue;
-                }
-
-                await accountRepository.SetAccountLevyStatus(request.AccountId, ApprenticeshipEmployerType.NonLevy);
-
-                await eventPublisher.Publish(new ApprenticeshipEmployerTypeChangeEvent
-                {
-                    AccountId = request.AccountId,
-                    ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy,
-                    Created = now
-                });
-
-                result.AccountsSwitched++;
+                result.SkippedNotYetEligible++;
 
                 logger.LogInformation(
-                    "Switched account {AccountId} from Levy to NonLevy for request {RequestId}",
+                    "Levy dormancy switch not yet due for account {AccountId}, request {RequestId}",
                     request.AccountId,
                     request.Id);
+
+                continue;
             }
+
+            var account = await db.Value.Accounts
+                .AsNoTracking()
+                .SingleOrDefaultAsync(a => a.Id == request.AccountId, cancellationToken);
+
+            if (account == null || account.ApprenticeshipEmployerType != levyEmployerType)
+            {
+                request.Status = LevyDormancyRequestStatus.Cancelled;
+                request.UpdatedOn = now;
+                result.RequestsCancelled++;
+
+                logger.LogInformation(
+                    "Cancelled LevyDormancyRequest {RequestId} for account {AccountId} because the account is no longer levy.",
+                    request.Id,
+                    request.AccountId);
+
+                continue;
+            }
+
+            await accountRepository.SetAccountLevyStatus(request.AccountId, ApprenticeshipEmployerType.NonLevy);
+
+            await eventPublisher.Publish(new ApprenticeshipEmployerTypeChangeEvent
+            {
+                AccountId = request.AccountId,
+                ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy,
+                Created = now
+            });
+
+            result.AccountsSwitched++;
+
+            logger.LogInformation(
+                "Switched account {AccountId} from Levy to NonLevy for request {RequestId}",
+                request.AccountId,
+                request.Id);
 
             var teamMembers = await accountTeamRepository.GetAccountTeamMembers(request.AccountId);
 

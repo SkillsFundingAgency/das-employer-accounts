@@ -269,9 +269,8 @@ public class WhenProcessingLevyDormancySwitches
     }
 
     [Test]
-    public async Task Retries_confirmation_email_when_switch_already_completed_without_email()
+    public async Task Does_not_retry_confirmation_email_when_switch_already_completed_without_email()
     {
-        // Arrange
         var now = new DateTime(2026, 9, 1);
         var dbContext = CreateDbContext();
         await SeedAccount(dbContext, now, ApprenticeshipEmployerType.NonLevy);
@@ -298,22 +297,17 @@ public class WhenProcessingLevyDormancySwitches
             eventPublisher.Object,
             sentCommands);
 
-        // Act
         var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
 
-        // Assert
+        result.RequestsProcessed.Should().Be(0);
         result.AccountsSwitched.Should().Be(0);
-        result.EmailsSent.Should().Be(1);
+        result.EmailsSent.Should().Be(0);
         accountRepository.Verify(
             r => r.SetAccountLevyStatus(It.IsAny<long>(), It.IsAny<ApprenticeshipEmployerType>()),
             Times.Never);
         eventPublisher.Verify(p => p.Publish(It.IsAny<ApprenticeshipEmployerTypeChangeEvent>()), Times.Never);
-        sentCommands.Should().HaveCount(1);
-        sentCommands[0].TemplateId.Should().Be("LevyDormancyTransitionComplete");
-
-        var request = await dbContext.LevyDormancyRequests.SingleAsync();
-        request.ActionEmailSentAt.Should().Be(now);
-        request.Status.Should().Be(LevyDormancyRequestStatus.Completed);
+        sentCommands.Should().BeEmpty();
+        (await dbContext.LevyDormancyRequests.SingleAsync()).ActionEmailSentAt.Should().BeNull();
     }
 
     [Test]
