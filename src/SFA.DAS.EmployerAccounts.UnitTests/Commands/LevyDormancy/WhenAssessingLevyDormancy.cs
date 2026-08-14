@@ -81,6 +81,40 @@ public class WhenAssessingLevyDormancy
     }
 
     [Test]
+    public async Task Switched_non_levy_account_with_completed_skip_path_request_is_not_retriggered()
+    {
+        var assessedOn = new DateTime(2026, 10, 1);
+        var lastDeclaration = assessedOn.AddMonths(-26);
+        var dbContext = CreateDbContext();
+        await SeedAccount(dbContext, assessedOn, ApprenticeshipEmployerType.NonLevy);
+        dbContext.EmployerAccountLevyStatuses.Add(new EmployerAccountLevyStatus
+        {
+            AccountId = 1,
+            LastLevyDeclarationDate = lastDeclaration,
+            LastRefreshedAt = assessedOn.AddMonths(-1)
+        });
+        dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
+        {
+            AccountId = 1,
+            NoLevyDeclaredMonths = 20,
+            LastLevyDeclarationDate = lastDeclaration,
+            Status = LevyDormancyRequestStatus.Completed,
+            CreatedOn = assessedOn.AddMonths(-1),
+            UpdatedOn = assessedOn.AddMonths(-1),
+            WarningEmailSentAt = null,
+            ActionEmailSentAt = assessedOn.AddMonths(-1)
+        });
+        await dbContext.SaveChangesAsync();
+        var handler = CreateHandler(dbContext, new LevyDormancyConfiguration { AssessmentEnabled = true }, assessedOn);
+
+        var result = await handler.Handle(new AssessLevyDormancyCommand(), CancellationToken.None);
+
+        result.DormancyRequestsCreated.Should().Be(0);
+        dbContext.LevyDormancyRequests.Should().HaveCount(1);
+        dbContext.LevyDormancyRequests.Single().Status.Should().Be(LevyDormancyRequestStatus.Completed);
+    }
+
+    [Test]
     public async Task Recent_declaration_is_not_a_candidate()
     {
         // Arrange

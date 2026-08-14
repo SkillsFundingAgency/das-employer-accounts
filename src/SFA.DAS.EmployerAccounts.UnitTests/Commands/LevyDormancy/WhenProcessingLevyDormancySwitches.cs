@@ -316,6 +316,217 @@ public class WhenProcessingLevyDormancySwitches
         request.Status.Should().Be(LevyDormancyRequestStatus.Completed);
     }
 
+    [Test]
+    public async Task Switches_pending_request_immediately_when_skip_flag_is_on_and_switch_months_reached()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        await SeedPendingRequest(dbContext, now, lastDeclaration: now.AddMonths(-24));
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            CreateSkipInitialWarningConfiguration(),
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        result.AccountsSwitched.Should().Be(1);
+        result.EmailsSent.Should().Be(1);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(1, ApprenticeshipEmployerType.NonLevy),
+            Times.Once);
+        eventPublisher.Verify(p => p.Publish(It.IsAny<ApprenticeshipEmployerTypeChangeEvent>()), Times.Once);
+        sentCommands.Should().HaveCount(1);
+        sentCommands[0].TemplateId.Should().Be("LevyDormancyTransitionComplete");
+
+        var request = await dbContext.LevyDormancyRequests.SingleAsync();
+        request.Status.Should().Be(LevyDormancyRequestStatus.Completed);
+        request.WarningEmailSentAt.Should().BeNull();
+        request.ActionEmailSentAt.Should().Be(now);
+    }
+
+    [Test]
+    public async Task Does_not_switch_pending_request_when_skip_flag_is_on_and_switch_months_not_reached()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        await SeedPendingRequest(dbContext, now, lastDeclaration: now.AddMonths(-23));
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            CreateSkipInitialWarningConfiguration(),
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        result.SkippedNotYetEligible.Should().Be(1);
+        result.AccountsSwitched.Should().Be(0);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(It.IsAny<long>(), It.IsAny<ApprenticeshipEmployerType>()),
+            Times.Never);
+        sentCommands.Should().BeEmpty();
+        (await dbContext.LevyDormancyRequests.SingleAsync()).Status.Should().Be(LevyDormancyRequestStatus.Pending);
+    }
+
+    [Test]
+    public async Task Does_not_reprocess_completed_skip_path_request_when_action_email_already_sent()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
+        {
+            AccountId = 1,
+            NoLevyDeclaredMonths = 20,
+            LastLevyDeclarationDate = now.AddMonths(-24),
+            Status = LevyDormancyRequestStatus.Completed,
+            CreatedOn = now.AddMonths(-4),
+            UpdatedOn = now,
+            WarningEmailSentAt = null,
+            ActionEmailSentAt = now
+        });
+        await dbContext.SaveChangesAsync();
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            CreateSkipInitialWarningConfiguration(),
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        result.RequestsProcessed.Should().Be(0);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(It.IsAny<long>(), It.IsAny<ApprenticeshipEmployerType>()),
+            Times.Never);
+        sentCommands.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Does_not_reprocess_completed_skip_path_request_when_flag_is_later_turned_off()
+    {
+        var now = new DateTime(2026, 10, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
+        {
+            AccountId = 1,
+            NoLevyDeclaredMonths = 20,
+            LastLevyDeclarationDate = now.AddMonths(-25),
+            Status = LevyDormancyRequestStatus.Completed,
+            CreatedOn = now.AddMonths(-1),
+            UpdatedOn = now.AddMonths(-1),
+            WarningEmailSentAt = null,
+            ActionEmailSentAt = now.AddMonths(-1)
+        });
+        await dbContext.SaveChangesAsync();
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                SkipInitialWarning = false,
+                SwitchMonths = 24,
+                MonthsBetweenInitialWarningAndSwitch = 1
+            },
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        result.RequestsProcessed.Should().Be(0);
+        result.AccountsSwitched.Should().Be(0);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(It.IsAny<long>(), It.IsAny<ApprenticeshipEmployerType>()),
+            Times.Never);
+        eventPublisher.Verify(p => p.Publish(It.IsAny<ApprenticeshipEmployerTypeChangeEvent>()), Times.Never);
+        sentCommands.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Does_not_switch_pending_request_when_skip_flag_is_off()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        await SeedPendingRequest(dbContext, now, lastDeclaration: now.AddMonths(-24));
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                SkipInitialWarning = false,
+                SwitchMonths = 24
+            },
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        result.RequestsProcessed.Should().Be(0);
+        result.AccountsSwitched.Should().Be(0);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(It.IsAny<long>(), It.IsAny<ApprenticeshipEmployerType>()),
+            Times.Never);
+        sentCommands.Should().BeEmpty();
+        (await dbContext.LevyDormancyRequests.SingleAsync()).Status.Should().Be(LevyDormancyRequestStatus.Pending);
+    }
+
+    [Test]
+    public async Task Still_waits_after_warning_when_skip_flag_is_on()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now);
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            CreateSkipInitialWarningConfiguration(),
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        result.SkippedNotYetEligible.Should().Be(1);
+        result.AccountsSwitched.Should().Be(0);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(It.IsAny<long>(), It.IsAny<ApprenticeshipEmployerType>()),
+            Times.Never);
+        sentCommands.Should().BeEmpty();
+        (await dbContext.LevyDormancyRequests.SingleAsync()).Status.Should().Be(LevyDormancyRequestStatus.InProgress);
+    }
+
     private static EmployerAccountsDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<EmployerAccountsDbContext>()
@@ -323,6 +534,19 @@ public class WhenProcessingLevyDormancySwitches
             .Options;
 
         return new EmployerAccountsDbContext(options);
+    }
+
+    private static LevyDormancyConfiguration CreateSkipInitialWarningConfiguration()
+    {
+        return new LevyDormancyConfiguration
+        {
+            OrchestrationEnabled = true,
+            SkipInitialWarning = true,
+            DormancyDetectionMonths = 20,
+            InitialWarningMonths = 23,
+            SwitchMonths = 24,
+            MonthsBetweenInitialWarningAndSwitch = 1
+        };
     }
 
     private static ProcessLevyDormancySwitchesCommandHandler CreateHandler(
@@ -404,6 +628,24 @@ public class WhenProcessingLevyDormancySwitches
             CreatedOn = warningSentAt.AddDays(-7),
             UpdatedOn = warningSentAt,
             WarningEmailSentAt = warningSentAt
+        });
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static async Task SeedPendingRequest(
+        EmployerAccountsDbContext dbContext,
+        DateTime now,
+        DateTime lastDeclaration)
+    {
+        dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
+        {
+            AccountId = 1,
+            NoLevyDeclaredMonths = 20,
+            LastLevyDeclarationDate = lastDeclaration,
+            Status = LevyDormancyRequestStatus.Pending,
+            CreatedOn = now.AddDays(-7),
+            UpdatedOn = now.AddDays(-7)
         });
 
         await dbContext.SaveChangesAsync();

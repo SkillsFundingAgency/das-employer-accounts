@@ -169,6 +169,127 @@ public class WhenProcessingLevyDormancyWarnings
     }
 
     [Test]
+    public async Task Skips_warning_when_skip_flag_is_on_and_switch_months_reached()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var lastDeclaration = now.AddMonths(-24);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        await SeedPendingRequest(dbContext, now, lastDeclaration);
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            CreateSkipInitialWarningConfiguration(),
+            now,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancyWarningsCommand(), CancellationToken.None);
+
+        result.EmailsSent.Should().Be(0);
+        sentCommands.Should().BeEmpty();
+
+        var request = await dbContext.LevyDormancyRequests.SingleAsync();
+        request.WarningEmailSentAt.Should().BeNull();
+        request.Status.Should().Be(LevyDormancyRequestStatus.Pending);
+    }
+
+    [Test]
+    public async Task Sends_warning_when_skip_flag_is_on_and_inactivity_is_between_warning_and_switch_months()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var lastDeclaration = now.AddMonths(-23);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        await SeedPendingRequest(dbContext, now, lastDeclaration);
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            CreateSkipInitialWarningConfiguration(),
+            now,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancyWarningsCommand(), CancellationToken.None);
+
+        result.EmailsSent.Should().Be(1);
+        sentCommands.Should().HaveCount(1);
+        sentCommands[0].TemplateId.Should().Be("LevyDormancyInitialWarning");
+
+        var request = await dbContext.LevyDormancyRequests.SingleAsync();
+        request.WarningEmailSentAt.Should().Be(now);
+        request.Status.Should().Be(LevyDormancyRequestStatus.InProgress);
+    }
+
+    [Test]
+    public async Task Sends_warning_when_skip_flag_is_off_and_initial_warning_months_reached()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var lastDeclaration = now.AddMonths(-23);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        await SeedPendingRequest(dbContext, now, lastDeclaration);
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                SkipInitialWarning = false,
+                InitialWarningMonths = 23,
+                SwitchMonths = 24
+            },
+            now,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancyWarningsCommand(), CancellationToken.None);
+
+        result.EmailsSent.Should().Be(1);
+        sentCommands.Should().HaveCount(1);
+
+        var request = await dbContext.LevyDormancyRequests.SingleAsync();
+        request.WarningEmailSentAt.Should().Be(now);
+        request.Status.Should().Be(LevyDormancyRequestStatus.InProgress);
+    }
+
+    [Test]
+    public async Task Does_not_send_warning_for_completed_skip_path_request_when_flag_is_off()
+    {
+        var now = new DateTime(2026, 10, 1);
+        var dbContext = CreateDbContext();
+        await SeedLevyAccount(dbContext, now);
+        dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
+        {
+            AccountId = 1,
+            NoLevyDeclaredMonths = 20,
+            LastLevyDeclarationDate = now.AddMonths(-25),
+            Status = LevyDormancyRequestStatus.Completed,
+            CreatedOn = now.AddMonths(-1),
+            UpdatedOn = now.AddMonths(-1),
+            WarningEmailSentAt = null,
+            ActionEmailSentAt = now.AddMonths(-1)
+        });
+        await dbContext.SaveChangesAsync();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                SkipInitialWarning = false,
+                InitialWarningMonths = 23,
+                SwitchMonths = 24
+            },
+            now,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancyWarningsCommand(), CancellationToken.None);
+
+        result.RequestsProcessed.Should().Be(0);
+        result.EmailsSent.Should().Be(0);
+        sentCommands.Should().BeEmpty();
+        (await dbContext.LevyDormancyRequests.SingleAsync()).WarningEmailSentAt.Should().BeNull();
+    }
+
+    [Test]
     public async Task Sends_warning_email_to_owner_even_when_notifications_opted_out()
     {
         // Arrange
@@ -239,6 +360,19 @@ public class WhenProcessingLevyDormancyWarnings
             .Options;
 
         return new EmployerAccountsDbContext(options);
+    }
+
+    private static LevyDormancyConfiguration CreateSkipInitialWarningConfiguration()
+    {
+        return new LevyDormancyConfiguration
+        {
+            OrchestrationEnabled = true,
+            SkipInitialWarning = true,
+            DormancyDetectionMonths = 20,
+            InitialWarningMonths = 23,
+            SwitchMonths = 24,
+            MonthsBetweenInitialWarningAndSwitch = 1
+        };
     }
 
     private static ProcessLevyDormancyWarningsCommandHandler CreateHandler(

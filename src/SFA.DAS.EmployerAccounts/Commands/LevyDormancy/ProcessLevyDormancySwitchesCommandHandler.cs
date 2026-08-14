@@ -40,11 +40,13 @@ public class ProcessLevyDormancySwitchesCommandHandler(
 
         var now = currentDateTime.Now;
         var levyEmployerType = (byte)ApprenticeshipEmployerType.Levy;
+        var skipInitialWarning = configuration.SkipInitialWarning;
         var candidates = await db.Value.LevyDormancyRequests
             .Where(r => r.ActionEmailSentAt == null &&
                         ((r.Status == LevyDormancyRequestStatus.InProgress &&
                           r.WarningEmailSentAt != null) ||
-                         r.Status == LevyDormancyRequestStatus.Completed))
+                         r.Status == LevyDormancyRequestStatus.Completed ||
+                         (skipInitialWarning && r.Status == LevyDormancyRequestStatus.Pending)))
             .ToListAsync(cancellationToken);
 
         foreach (var request in candidates)
@@ -178,7 +180,13 @@ public class ProcessLevyDormancySwitchesCommandHandler(
         LevyDormancyConfiguration configuration,
         DateTime now)
     {
-        return request.WarningEmailSentAt.HasValue &&
-               now >= request.WarningEmailSentAt.Value.AddMonths(configuration.MonthsBetweenInitialWarningAndSwitch);
+        if (request.WarningEmailSentAt.HasValue)
+        {
+            return now >= request.WarningEmailSentAt.Value.AddMonths(configuration.MonthsBetweenInitialWarningAndSwitch);
+        }
+
+        return configuration.SkipInitialWarning &&
+               request.Status == LevyDormancyRequestStatus.Pending &&
+               LevyDormancyInactivity.HasBeenInactiveForAtLeast(request, configuration.SwitchMonths, configuration, now);
     }
 }
