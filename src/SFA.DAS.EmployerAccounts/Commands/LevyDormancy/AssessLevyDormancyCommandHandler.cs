@@ -13,6 +13,8 @@ public class AssessLevyDormancyCommandHandler(
     ICurrentDateTime currentDateTime,
     ILogger<AssessLevyDormancyCommandHandler> logger) : IRequestHandler<AssessLevyDormancyCommand, AssessLevyDormancyResult>
 {
+    private const int InsertBatchSize = 500;
+
     public async Task<AssessLevyDormancyResult> Handle(AssessLevyDormancyCommand command, CancellationToken cancellationToken)
     {
         var configuration = levyDormancyOptions.Value;
@@ -38,37 +40,38 @@ public class AssessLevyDormancyCommandHandler(
             return result;
         }
 
-        var accountIdsWithActiveRequests = await db.Value.LevyDormancyRequests
+        var activeRequestAccountIds = db.Value.LevyDormancyRequests
             .Where(r => r.Status == LevyDormancyRequestStatus.Pending ||
                         r.Status == LevyDormancyRequestStatus.InProgress)
-            .Select(r => r.AccountId)
-            .ToListAsync(cancellationToken);
+            .Select(r => r.AccountId);
 
         var ignoredAccountIds = configuration.GetIgnoredAccountIds();
-        var dormantCandidates = await db.Value.EmployerAccountLevyStatuses
-            .Where(status => db.Value.Accounts.Any(account =>
-                account.Id == status.AccountId &&
-                account.ApprenticeshipEmployerType == levyEmployerType))
-            .Where(status =>
-                status.LastLevyDeclarationDate == null ||
-                status.LastLevyDeclarationDate < thresholdDate)
-            .Where(status => !accountIdsWithActiveRequests.Contains(status.AccountId))
-            .ToListAsync(cancellationToken);
+
+        var query = db.Value.EmployerAccountLevyStatuses
+            .AsNoTracking()
+            .Join(
+                db.Value.Accounts.AsNoTracking(),
+                status => status.AccountId,
+                account => account.Id,
+                (status, account) => new { status, account })
+            .Where(x => x.account.ApprenticeshipEmployerType == levyEmployerType
+                        && (x.status.LastLevyDeclarationDate == null
+                            || x.status.LastLevyDeclarationDate < thresholdDate)
+                        && !activeRequestAccountIds.Contains(x.status.AccountId))
+            .Select(x => new { x.status.AccountId, x.status.LastLevyDeclarationDate });
+
+        if (ignoredAccountIds.Count > 0)
+        {
+            var ignoredIds = ignoredAccountIds.ToList();
+            query = query.Where(x => !ignoredIds.Contains(x.AccountId));
+        }
+
+        var dormantCandidates = await query.ToListAsync(cancellationToken);
+        var pendingInserts = 0;
 
         foreach (var candidate in dormantCandidates)
         {
             result.DormantCandidatesFound++;
-
-            if (ignoredAccountIds.Contains(candidate.AccountId))
-            {
-                result.DormancyRequestsSkippedIgnored++;
-
-                logger.LogInformation(
-                    "Skipping LevyDormancyRequest for ignored account {AccountId}",
-                    candidate.AccountId);
-
-                continue;
-            }
 
             db.Value.LevyDormancyRequests.Add(new LevyDormancyRequest
             {
@@ -81,15 +84,24 @@ public class AssessLevyDormancyCommandHandler(
             });
 
             result.DormancyRequestsCreated++;
+            pendingInserts++;
 
             logger.LogInformation(
                 "Created LevyDormancyRequest for account {AccountId}. LastLevyDeclarationDate {LastLevyDeclarationDate}, detection threshold {DormancyDetectionMonths} months.",
                 candidate.AccountId,
                 candidate.LastLevyDeclarationDate,
                 dormancyDetectionMonths);
+
+            if (pendingInserts < InsertBatchSize)
+            {
+                continue;
+            }
+
+            await db.Value.SaveChangesAsync(cancellationToken);
+            pendingInserts = 0;
         }
 
-        if (result.DormancyRequestsCreated > 0)
+        if (pendingInserts > 0)
         {
             await db.Value.SaveChangesAsync(cancellationToken);
         }
