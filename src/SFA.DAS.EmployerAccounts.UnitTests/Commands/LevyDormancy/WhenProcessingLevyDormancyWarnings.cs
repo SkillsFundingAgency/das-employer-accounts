@@ -353,6 +353,35 @@ public class WhenProcessingLevyDormancyWarnings
         request.Status.Should().Be(LevyDormancyRequestStatus.Pending);
     }
 
+    [Test]
+    public async Task Sends_warnings_for_multiple_requests()
+    {
+        var now = new DateTime(2026, 6, 1);
+        var lastDeclaration = now.AddMonths(-24);
+        var dbContext = CreateDbContext();
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 1);
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 2);
+        await SeedPendingRequest(dbContext, now, lastDeclaration, accountId: 1);
+        await SeedPendingRequest(dbContext, now, lastDeclaration, accountId: 2);
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                MonthsBetweenInitialWarningAndSwitch = 1
+            },
+            now,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancyWarningsCommand(), CancellationToken.None);
+
+        result.RequestsProcessed.Should().Be(2);
+        result.EmailsSent.Should().Be(2);
+        sentCommands.Should().HaveCount(2);
+        dbContext.LevyDormancyRequests.Should().OnlyContain(r => r.Status == LevyDormancyRequestStatus.InProgress);
+    }
+
     private static EmployerAccountsDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<EmployerAccountsDbContext>()
@@ -426,11 +455,12 @@ public class WhenProcessingLevyDormancyWarnings
     private static async Task SeedAccount(
         EmployerAccountsDbContext dbContext,
         DateTime assessedOn,
-        ApprenticeshipEmployerType employerType)
+        ApprenticeshipEmployerType employerType,
+        long accountId = 1)
     {
         dbContext.Accounts.Add(new Account
         {
-            Id = 1,
+            Id = accountId,
             Name = "Test Employer",
             CreatedDate = assessedOn,
             ApprenticeshipEmployerType = (byte)employerType
@@ -442,11 +472,12 @@ public class WhenProcessingLevyDormancyWarnings
     private static async Task SeedPendingRequest(
         EmployerAccountsDbContext dbContext,
         DateTime createdOn,
-        DateTime? lastDeclaration = null)
+        DateTime? lastDeclaration = null,
+        long accountId = 1)
     {
         dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
         {
-            AccountId = 1,
+            AccountId = accountId,
             NoLevyDeclaredMonths = 20,
             LastLevyDeclarationDate = lastDeclaration ?? createdOn.AddMonths(-24),
             Status = LevyDormancyRequestStatus.Pending,

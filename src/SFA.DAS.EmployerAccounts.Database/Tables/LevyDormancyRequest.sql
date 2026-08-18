@@ -20,3 +20,8 @@ GO
 CREATE INDEX [IX_LevyDormancyRequest_AccountId_Status]
 ON [employer_account].[LevyDormancyRequest] ([AccountId], [Status])
 GO
+
+CREATE INDEX [IX_LevyDormancyRequest_Status]
+ON [employer_account].[LevyDormancyRequest] ([Status])
+INCLUDE ([AccountId])
+GO
