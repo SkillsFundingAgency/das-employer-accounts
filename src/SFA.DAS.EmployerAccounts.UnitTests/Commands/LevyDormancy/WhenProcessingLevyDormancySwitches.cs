@@ -316,6 +316,42 @@ public class WhenProcessingLevyDormancySwitches
         request.Status.Should().Be(LevyDormancyRequestStatus.Completed);
     }
 
+    [Test]
+    public async Task Switches_multiple_eligible_requests()
+    {
+        var now = new DateTime(2026, 9, 1);
+        var dbContext = CreateDbContext();
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 1);
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 2);
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-1), accountId: 1);
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-1), accountId: 2);
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                MonthsBetweenInitialWarningAndSwitch = 1
+            },
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        result.RequestsProcessed.Should().Be(2);
+        result.AccountsSwitched.Should().Be(2);
+        result.EmailsSent.Should().Be(2);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(It.IsAny<long>(), ApprenticeshipEmployerType.NonLevy),
+            Times.Exactly(2));
+        eventPublisher.Verify(p => p.Publish(It.IsAny<ApprenticeshipEmployerTypeChangeEvent>()), Times.Exactly(2));
+        dbContext.LevyDormancyRequests.Should().OnlyContain(r => r.Status == LevyDormancyRequestStatus.Completed);
+    }
+
     private static EmployerAccountsDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<EmployerAccountsDbContext>()
@@ -377,11 +413,12 @@ public class WhenProcessingLevyDormancySwitches
     private static async Task SeedAccount(
         EmployerAccountsDbContext dbContext,
         DateTime assessedOn,
-        ApprenticeshipEmployerType employerType)
+        ApprenticeshipEmployerType employerType,
+        long accountId = 1)
     {
         dbContext.Accounts.Add(new Account
         {
-            Id = 1,
+            Id = accountId,
             Name = "Test Employer",
             CreatedDate = assessedOn,
             ApprenticeshipEmployerType = (byte)employerType
@@ -393,11 +430,12 @@ public class WhenProcessingLevyDormancySwitches
     private static async Task SeedInProgressRequest(
         EmployerAccountsDbContext dbContext,
         DateTime now,
-        DateTime warningSentAt)
+        DateTime warningSentAt,
+        long accountId = 1)
     {
         dbContext.LevyDormancyRequests.Add(new LevyDormancyRequest
         {
-            AccountId = 1,
+            AccountId = accountId,
             NoLevyDeclaredMonths = 20,
             LastLevyDeclarationDate = now.AddMonths(-24),
             Status = LevyDormancyRequestStatus.InProgress,

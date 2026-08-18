@@ -10,3 +10,8 @@ GO
 CREATE UNIQUE INDEX [IX_EmployerAccountLevyStatus_AccountId]
 ON [employer_account].[EmployerAccountLevyStatus] ([AccountId])
 GO
+
+CREATE INDEX [IX_EmployerAccountLevyStatus_LastLevyDeclarationDate]
+ON [employer_account].[EmployerAccountLevyStatus] ([LastLevyDeclarationDate])
+INCLUDE ([AccountId])
+GO

@@ -17,3 +17,6 @@ GO
 
 CREATE UNIQUE INDEX [IX_Account_PublicHashedAccountId] ON [employer_account].[Account] ([PublicHashedId]) WHERE PublicHashedId IS NOT NULL
 GO
+
+CREATE INDEX [IX_Account_ApprenticeshipEmployerType] ON [employer_account].[Account] ([ApprenticeshipEmployerType])
+GO
