@@ -6,6 +6,8 @@ public class LevyDormancyConfiguration
 
     public bool OrchestrationEnabled { get; set; }
 
+    public bool SkipInitialWarning { get; set; }
+
     public int DormancyDetectionMonths { get; set; } = 20;
 
     public int InitialWarningMonths { get; set; } = 23;

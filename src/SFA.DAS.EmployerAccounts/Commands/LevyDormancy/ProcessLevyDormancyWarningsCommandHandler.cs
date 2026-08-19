@@ -64,7 +64,7 @@ public class ProcessLevyDormancyWarningsCommandHandler(
                 continue;
             }
 
-            if (!IsEligibleForInitialWarning(request, configuration, now))
+            if (!LevyDormancyInactivity.HasBeenInactiveForAtLeast(request, configuration.InitialWarningMonths, configuration, now))
             {
                 result.SkippedNotYetEligible++;
 
@@ -72,6 +72,18 @@ public class ProcessLevyDormancyWarningsCommandHandler(
                     "Levy dormancy initial warning not yet due for account {AccountId}, request {RequestId}",
                     request.AccountId,
                     request.Id);
+
+                continue;
+            }
+
+            if (configuration.SkipInitialWarning &&
+                LevyDormancyInactivity.HasBeenInactiveForAtLeast(request, configuration.SwitchMonths, configuration, now))
+            {
+                logger.LogInformation(
+                    "Skipping levy dormancy initial warning for account {AccountId}, request {RequestId} because SkipInitialWarning is enabled and inactivity has reached {SwitchMonths} months",
+                    request.AccountId,
+                    request.Id,
+                    configuration.SwitchMonths);
 
                 continue;
             }
@@ -144,20 +156,6 @@ public class ProcessLevyDormancyWarningsCommandHandler(
             result.SkippedNotYetEligible);
 
         return result;
-    }
-
-    private static bool IsEligibleForInitialWarning(
-        LevyDormancyRequest request,
-        LevyDormancyConfiguration configuration,
-        DateTime now)
-    {
-        if (request.LastLevyDeclarationDate.HasValue)
-        {
-            return now >= request.LastLevyDeclarationDate.Value.AddMonths(configuration.InitialWarningMonths);
-        }
-
-        var monthsAfterRequestCreation = configuration.InitialWarningMonths - configuration.DormancyDetectionMonths;
-        return now >= request.CreatedOn.AddMonths(monthsAfterRequestCreation);
     }
 
     private static Dictionary<string, string> BuildTokens(string employerName, DateTime switchDate, string employerAccountsBaseUrl)
