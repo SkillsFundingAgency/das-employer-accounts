@@ -142,11 +142,60 @@ public class WhenProcessingLevyDormancySwitches
         sentCommands[0].TemplateId.Should().Be("LevyDormancyTransitionComplete");
         sentCommands[0].RecipientsAddress.Should().Be("owner@test.com");
         sentCommands[0].Tokens["user_first_name"].Should().Be("Alex");
+        sentCommands[0].Tokens["employer_name"].Should().Be("Test Employer");
         sentCommands[0].Tokens["switch_date"].Should().Be(now.ToString("dd MMMM yyyy"));
 
         var request = await dbContext.LevyDormancyRequests.SingleAsync();
         request.Status.Should().Be(LevyDormancyRequestStatus.Completed);
         request.ActionEmailSentAt.Should().Be(now);
+    }
+
+    [Test]
+    public async Task Confirmation_email_uses_switched_account_name_not_another_account()
+    {
+        // Arrange
+        var now = new DateTime(2026, 9, 1);
+        var dbContext = CreateDbContext();
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 1, name: "Switched Employer");
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 2, name: "Other Employer");
+        await SeedInProgressRequest(dbContext, now, warningSentAt: now.AddMonths(-1), accountId: 1);
+
+        var accountRepository = new Mock<IEmployerAccountRepository>();
+        var eventPublisher = new Mock<IEventPublisher>();
+        eventPublisher
+            .Setup(p => p.Publish(It.IsAny<ApprenticeshipEmployerTypeChangeEvent>()))
+            .Returns(Task.CompletedTask);
+
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                MonthsBetweenInitialWarningAndSwitch = 1
+            },
+            now,
+            accountRepository.Object,
+            eventPublisher.Object,
+            sentCommands);
+
+        // Act
+        var result = await handler.Handle(new ProcessLevyDormancySwitchesCommand(), CancellationToken.None);
+
+        // Assert
+        result.AccountsSwitched.Should().Be(1);
+        result.EmailsSent.Should().Be(1);
+
+        sentCommands.Should().HaveCount(1);
+        sentCommands[0].Tokens["employer_name"].Should().Be("Switched Employer");
+        sentCommands[0].Tokens["employer_name"].Should().NotBe("Other Employer");
+
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(1, ApprenticeshipEmployerType.NonLevy),
+            Times.Once);
+        accountRepository.Verify(
+            r => r.SetAccountLevyStatus(2, It.IsAny<ApprenticeshipEmployerType>()),
+            Times.Never);
     }
 
     [Test]
@@ -632,12 +681,13 @@ public class WhenProcessingLevyDormancySwitches
         EmployerAccountsDbContext dbContext,
         DateTime assessedOn,
         ApprenticeshipEmployerType employerType,
-        long accountId = 1)
+        long accountId = 1,
+        string name = "Test Employer")
     {
         dbContext.Accounts.Add(new Account
         {
             Id = accountId,
-            Name = "Test Employer",
+            Name = name,
             CreatedDate = assessedOn,
             ApprenticeshipEmployerType = (byte)employerType
         });
