@@ -31,4 +31,5 @@ public class AccountDashboardViewModel
     public string SingleAccountLegalEntityId { get; set; }
     public string HashedAccountId { get; set; }
     public bool ShowLevyTransparency { get; set; }
+    public bool ShowLevyToNonLevyTransitionBanner { get; set; }
 }
