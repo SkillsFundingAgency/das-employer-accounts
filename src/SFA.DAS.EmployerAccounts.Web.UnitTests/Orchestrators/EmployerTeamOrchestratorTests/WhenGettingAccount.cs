@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentAssertions;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmployerAccounts.Dtos;
@@ -11,6 +12,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUserAccountRole;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
+using SFA.DAS.EmployerAccounts.Queries.HasCompletedLevyDormancyRequest;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Orchestrators.EmployerTeamOrchestratorTests;
@@ -118,6 +120,9 @@ public class WhenGettingAccount
 
          _mediator.Setup(x => x.Send(It.IsAny<GetTaskSummaryQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetTaskSummaryResponse {TaskSummary = _taskSummary});
+
+        _mediator.Setup(x => x.Send(It.IsAny<HasCompletedLevyDormancyRequestQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HasCompletedLevyDormancyRequestResponse { HasCompletedRequest = false });
 
         _currentDateTime = new Mock<ICurrentDateTime>();
 
@@ -262,5 +267,74 @@ public class WhenGettingAccount
     {
         var model = await _orchestrator.GetAccountSummary(HashedAccountId, UserId);
         Assert.That(model.Data, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task ThenShouldShowLevyToNonLevyTransitionBanner_WhenNonLevyAndCompletedDormancyRequest()
+    {
+        _accountApiClient
+            .Setup(c => c.GetAccount(HashedAccountId))
+            .ReturnsAsync(new AccountDetailViewModel { ApprenticeshipEmployerType = "NonLevy" });
+
+        _mediator
+            .Setup(m => m.Send(
+                It.Is<HasCompletedLevyDormancyRequestQuery>(q => q.AccountId == AccountId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HasCompletedLevyDormancyRequestResponse { HasCompletedRequest = true });
+
+        var model = await _orchestrator.GetAccount(HashedAccountId, UserId);
+
+        model.Data.ShowLevyToNonLevyTransitionBanner.Should().BeTrue();
+        _mediator.Verify(
+            m => m.Send(
+                It.Is<HasCompletedLevyDormancyRequestQuery>(q => q.AccountId == AccountId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task ThenShouldNotShowLevyToNonLevyTransitionBanner_WhenNonLevyWithoutCompletedDormancyRequest()
+    {
+        _accountApiClient
+            .Setup(c => c.GetAccount(HashedAccountId))
+            .ReturnsAsync(new AccountDetailViewModel { ApprenticeshipEmployerType = "NonLevy" });
+
+        _mediator
+            .Setup(m => m.Send(
+                It.Is<HasCompletedLevyDormancyRequestQuery>(q => q.AccountId == AccountId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HasCompletedLevyDormancyRequestResponse { HasCompletedRequest = false });
+
+        var model = await _orchestrator.GetAccount(HashedAccountId, UserId);
+
+        model.Data.ShowLevyToNonLevyTransitionBanner.Should().BeFalse();
+        _mediator.Verify(
+            m => m.Send(
+                It.IsAny<HasCompletedLevyDormancyRequestQuery>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task ThenShouldNotShowLevyToNonLevyTransitionBanner_WhenLevy_AndShouldNotQueryDormancy()
+    {
+        _accountApiClient
+            .Setup(c => c.GetAccount(HashedAccountId))
+            .ReturnsAsync(new AccountDetailViewModel { ApprenticeshipEmployerType = "Levy" });
+
+        _mediator
+            .Setup(m => m.Send(
+                It.IsAny<HasCompletedLevyDormancyRequestQuery>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HasCompletedLevyDormancyRequestResponse { HasCompletedRequest = true });
+
+        var model = await _orchestrator.GetAccount(HashedAccountId, UserId);
+
+        model.Data.ShowLevyToNonLevyTransitionBanner.Should().BeFalse();
+        _mediator.Verify(
+            m => m.Send(
+                It.IsAny<HasCompletedLevyDormancyRequestQuery>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }
