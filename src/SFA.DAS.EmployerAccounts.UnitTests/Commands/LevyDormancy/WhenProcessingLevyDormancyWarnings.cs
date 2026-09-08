@@ -73,6 +73,8 @@ public class WhenProcessingLevyDormancyWarnings
         sentCommands.Should().HaveCount(1);
         sentCommands[0].TemplateId.Should().Be("LevyDormancyInitialWarning");
         sentCommands[0].RecipientsAddress.Should().Be("owner@test.com");
+        sentCommands[0].Tokens["user_first_name"].Should().Be("Alex");
+        sentCommands[0].Tokens["employer_name"].Should().Be("Test Employer");
         sentCommands[0].Tokens.Should().ContainKey("switch_date");
         sentCommands[0].Tokens["switch_date"].Should().Be(
             now.AddMonths(configuration.MonthsBetweenInitialWarningAndSwitch).ToString("dd MMM yyyy"));
@@ -81,6 +83,39 @@ public class WhenProcessingLevyDormancyWarnings
         var request = await dbContext.LevyDormancyRequests.SingleAsync();
         request.WarningEmailSentAt.Should().Be(now);
         request.Status.Should().Be(LevyDormancyRequestStatus.InProgress);
+    }
+
+    [Test]
+    public async Task Warning_email_uses_warned_account_name_not_another_account()
+    {
+        // Arrange
+        var now = new DateTime(2026, 6, 1);
+        var lastDeclaration = now.AddMonths(-24);
+        var dbContext = CreateDbContext();
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 1, name: "Warned Employer");
+        await SeedAccount(dbContext, now, ApprenticeshipEmployerType.Levy, accountId: 2, name: "Other Employer");
+        await SeedPendingRequest(dbContext, now, lastDeclaration, accountId: 1);
+        var sentCommands = new List<SendNotificationCommand>();
+        var handler = CreateHandler(
+            dbContext,
+            new LevyDormancyConfiguration
+            {
+                OrchestrationEnabled = true,
+                MonthsBetweenInitialWarningAndSwitch = 1
+            },
+            now,
+            sentCommands);
+
+        // Act
+        var result = await handler.Handle(new ProcessLevyDormancyWarningsCommand(), CancellationToken.None);
+
+        // Assert
+        result.RequestsProcessed.Should().Be(1);
+        result.EmailsSent.Should().Be(1);
+        sentCommands.Should().HaveCount(1);
+        sentCommands[0].TemplateId.Should().Be("LevyDormancyInitialWarning");
+        sentCommands[0].Tokens["employer_name"].Should().Be("Warned Employer");
+        sentCommands[0].Tokens["employer_name"].Should().NotBe("Other Employer");
     }
 
     [Test]
@@ -456,12 +491,13 @@ public class WhenProcessingLevyDormancyWarnings
         EmployerAccountsDbContext dbContext,
         DateTime assessedOn,
         ApprenticeshipEmployerType employerType,
-        long accountId = 1)
+        long accountId = 1,
+        string name = "Test Employer")
     {
         dbContext.Accounts.Add(new Account
         {
             Id = accountId,
-            Name = "Test Employer",
+            Name = name,
             CreatedDate = assessedOn,
             ApprenticeshipEmployerType = (byte)employerType
         });
