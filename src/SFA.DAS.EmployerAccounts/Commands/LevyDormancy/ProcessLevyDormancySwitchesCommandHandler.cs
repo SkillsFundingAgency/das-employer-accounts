@@ -133,6 +133,7 @@ public class ProcessLevyDormancySwitchesCommandHandler(
                     Tokens = new Dictionary<string, string>
                     {
                         ["user_first_name"] = recipient.FirstName,
+                        ["employer_name"] = account.Name,
                         ["switch_date"] = switchDateToken
                     }
                 }, cancellationToken);
