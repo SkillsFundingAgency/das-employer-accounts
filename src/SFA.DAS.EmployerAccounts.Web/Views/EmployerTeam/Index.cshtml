@@ -72,6 +72,28 @@
             </div>
         </div>
 }
+@if (Model.Data.ShowLevyToNonLevyTransitionBanner)
+{
+    <div class="govuk-notification-banner" role="region" aria-labelledby="levy-to-nonlevy-banner-title"
+         data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+            <h2 class="govuk-notification-banner__title" id="levy-to-nonlevy-banner-title">Important</h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+            <p class="govuk-notification-banner__heading">
+                Your account has changed from a levy funded account to a non-levy funded account
+            </p>
+            <p class="govuk-body">
+                To learn more about what that means for you,
+                <a class="govuk-notification-banner__link"
+                   href="https://help.apprenticeships.education.gov.uk/hc/en-gb/articles/38443409950482-Automatic-change-from-levy-funded-account-to-non-levy-funded-account"
+                   target="_blank"
+                   rel="noreferrer"
+                   aria-label="View our help article on automatic levy to non levy switching">view our help article.</a>
+            </p>
+        </div>
+    </div>
+}
 <h1 class="govuk-heading-xl govuk-!-margin-0">@Model.Data.Account.Name</h1>
 
 <div class="govuk-inset-text">
