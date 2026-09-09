@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.EmployerAccounts.Configuration;
@@ -27,7 +28,12 @@ public static class NServiceBusServiceRegistrations
     {
         var endPointName = $"SFA.DAS.EmployerAccounts.{endpointType}";
         var employerAccountsConfiguration = services.GetService<EmployerAccountsConfiguration>();
-       
+        var loggerFactory = services.GetService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger("NSB Logger");
+
+        logger.LogInformation("IsDevOrLocal {0}", isDevOrLocal);
+        logger.LogInformation("Endpoint name {0}", endPointName);
+
         var databaseConnectionString = employerAccountsConfiguration.DatabaseConnectionString;
 
         if (string.IsNullOrEmpty(databaseConnectionString))
