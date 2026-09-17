@@ -8,6 +8,7 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
         <form method="POST">
+            @Html.AntiForgeryToken()
             <input asp-for="ReturnUrl" type="hidden" />
             <div class="govuk-form-group">
                 <label class="govuk-label" asp-for="Id">

@@ -15,7 +15,7 @@ public class SignedInStubViewModel
     public SignedInStubViewModel(HttpContext httpContext, string returnUrl)
     {
         _claimsPrinciple = httpContext.User;
-        ReturnUrl = returnUrl;
+        ReturnUrl = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
     }
 
     public string StubEmail => _claimsPrinciple.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;

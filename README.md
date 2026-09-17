@@ -172,8 +172,7 @@ NServiceBus uses **LearningTransport** when `EnvironmentName=LOCAL` (already wir
 ### Prerequisites
 
 1. Docker Desktop (Compose v2)
-2. Access to SkillsFundingAgency **private NuGet** feeds for `SFA.DAS.*` packages (Azure Artifacts PAT), **or** a machine that can already `dotnet restore` this solution
-3. Optional: .NET 10 SDK on the host if using the host-run script
+2. .NET SDK on the host if using the host-run script (`tools/isolation/scripts/run-web-host.sh`) — `dotnet restore` uses **public** NuGet feeds for this service (no private Azure Artifacts PAT required)
 
 ### Clean README verification (optional)
 
@@ -185,11 +184,13 @@ To prove a fresh clone works without touching your day-to-day working copy, clon
 cd /path/to/das-employer-accounts
 git checkout APPMAN-1150
 
-# If restore needs the private feed (do not commit secrets):
-cp tools/isolation/.env.example .env
-# edit .env – set NUGET_FEED_URL / NUGET_FEED_USER / NUGET_FEED_PASS
+# Preferred: dependencies in Docker, UI on the host
+docker compose up -d sqlserver redis wiremock
+docker compose up sql-init
+./tools/isolation/scripts/run-web-host.sh
 
-docker compose up --build
+# Optional: full stack in Compose (UI container)
+# docker compose up --build
 ```
 
 Open **http://localhost:5024/**  
@@ -227,7 +228,7 @@ docker compose up sqlserver sql-init redis wiremock
 
 | Blocker | What you must supply |
 |---------|----------------------|
-| Private NuGet (`SFA.DAS.Employer.Shared.UI`, `SFA.DAS.GovUK.Auth`, `SFA.DAS.NServiceBus.*`, etc.) | Azure Artifacts PAT via `.env` build args, or restore on a networked host |
+| NuGet restore | Public feeds are enough for this service; private Azure Artifacts is **not** required for isolation |
 | Full DACPAC | `tools/isolation/sql/01-init-schema.sql` is a **bootstrap** of core tables only. For journeys that hit missing procs/views, publish `src/SFA.DAS.EmployerAccounts.Database` to `EmployerAccounts` and re-run `02-seed.sql` |
 | Windows-only Sonar `Dockerfile` | Ignored for isolation; use `tools/isolation/Dockerfile.web` |
 | das-employer-config / Azurite config table | Skipped when `IsolationMode=true` (`appsettings.Isolation.json`) |

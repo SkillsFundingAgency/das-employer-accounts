@@ -107,7 +107,9 @@ public class Startup
         services.Configure<RouteOptions>(options => { }).AddMvc(options =>
         {
             options.Filters.Add(new AnalyticsFilterAttribute());
-            if (!_configuration.IsDev())
+            // Isolation uses EnvironmentName=LOCAL (IsDev is false). Skip auto-antiforgery for
+            // LOCAL/DEV so stub login works; the stub form still emits a token when validation is on.
+            if (!_configuration.IsDevOrLocal())
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             }
@@ -160,12 +162,24 @@ public class Startup
         app.UseMiddleware<RobotsTextMiddleware>();
 
         app.UseAuthentication();
+
+        var isolationMode = string.Equals(_configuration["IsolationMode"], "true", StringComparison.OrdinalIgnoreCase);
         app.UseCookiePolicy(new CookiePolicyOptions
         {
-            Secure = CookieSecurePolicy.Always,
-            MinimumSameSitePolicy = SameSiteMode.None,
+            // Isolation is HTTP (localhost/ngrok); Secure=Always would drop the auth cookie.
+            Secure = isolationMode || _configuration.IsDevOrLocal()
+                ? CookieSecurePolicy.SameAsRequest
+                : CookieSecurePolicy.Always,
+            MinimumSameSitePolicy = isolationMode || _configuration.IsDevOrLocal()
+                ? SameSiteMode.Lax
+                : SameSiteMode.None,
             HttpOnly = HttpOnlyPolicy.Always
         });
+
+        if (isolationMode)
+        {
+            app.UseMiddleware<IsolationExternalLinkRewriteMiddleware>();
+        }
         
         app.UseRouting();
         app.UseAuthorization();
