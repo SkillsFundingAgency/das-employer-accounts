@@ -163,7 +163,7 @@ Run the Employer Accounts **Web UI** locally without Azure App Configuration, Ke
 | Component | Role |
 |-----------|------|
 | `web` | `SFA.DAS.EmployerAccounts.Web` (Debug) with `StubAuth` |
-| `sqlserver` + `sql-init` | SQL Server 2022 + bootstrap schema/seed (`GP67XW` account) |
+| `sqlserver` + `sql-init` | SQL Server 2022. Prefer `./tools/isolation/scripts/publish-database.sh` for full Database DACPAC + `GP67XW` seed; `sql-init` seeds (and bootstraps only if DACPAC not published) |
 | `redis` | Cache / Gov login session string target |
 | `wiremock` | Outer API, Content API, and Account API stubs |
 
@@ -187,6 +187,9 @@ git checkout APPMAN-1150
 # Preferred: dependencies in Docker, UI on the host
 docker compose up -d sqlserver redis wiremock
 docker compose up sql-init
+
+# Preferred: full Database DACPAC onto Docker SQL (schema parity with deploy), then isolation seed
+./tools/isolation/scripts/publish-database.sh
 ./tools/isolation/scripts/run-web-host.sh
 
 # Optional: full stack in Compose (UI container)
@@ -229,7 +232,7 @@ docker compose up sqlserver sql-init redis wiremock
 | Blocker | What you must supply |
 |---------|----------------------|
 | NuGet restore | Public feeds are enough for this service; private Azure Artifacts is **not** required for isolation |
-| Full DACPAC | `tools/isolation/sql` bootstraps core tables plus dashboard stubs and PAYE procs (`04-paye-procs.sql`). For journeys that still hit missing procs/views, publish `src/SFA.DAS.EmployerAccounts.Database` to `EmployerAccounts` and re-run seed scripts |
+| Database schema | **Preferred:** `./tools/isolation/scripts/publish-database.sh` builds/publishes the full `SFA.DAS.EmployerAccounts.Database` DACPAC (SDK mirror) then seeds `GP67XW`. Fallback: compose `sql-init` bootstrap (`01`/`04`) if DACPAC not published yet |
 | Windows-only Sonar `Dockerfile` | Ignored for isolation; use `tools/isolation/Dockerfile.web` |
 | das-employer-config / Azurite config table | Skipped when `IsolationMode=true` (`appsettings.Isolation.json`) |
 | Real HMRC / Pension Regulator / Token Service | Pension Regulator stays on WireMock catch-all. **HMRC Gov Gateway add-PAYE** uses the **TEST** `das-hmrc-mock-api` (not localhost WireMock): see [HMRC Gov Gateway (isolation)](#hmrc-gov-gateway-isolation). `TokenServiceApi` uses empty client secrets so Azure CLI / MI-style AAD applies after `az login`. |

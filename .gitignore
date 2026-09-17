@@ -292,3 +292,7 @@ __azurite*
 
 # NServiceBus LearningTransport runtime (local isolation)
 src/SFA.DAS.EmployerAccounts.Web/AS/
+
+# Isolation DACPAC build outputs
+tools/isolation/dacpac/bin/
+tools/isolation/dacpac/obj/
