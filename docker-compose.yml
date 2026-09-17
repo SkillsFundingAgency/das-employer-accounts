@@ -71,15 +71,15 @@ services:
       StubEmail: isolation.employer@example.com
       StubId: "11111111-1111-1111-1111-111111111111"
       # Nested config overrides for container DNS names
-      SFA__DAS__EmployerAccounts__DatabaseConnectionString: "Server=sqlserver,1433;Database=EmployerAccounts;User Id=sa;Password=Isolation_P@ssw0rd!;TrustServerCertificate=True;Encrypt=False"
-      SFA__DAS__EmployerAccounts__DataProtectionKeysDatabase: "Server=sqlserver,1433;Database=EmployerAccounts;User Id=sa;Password=Isolation_P@ssw0rd!;TrustServerCertificate=True;Encrypt=False"
-      SFA__DAS__EmployerAccounts__RedisConnectionString: "redis:6379"
-      SFA__DAS__EmployerAccounts__EmployerAccountsOuterApiConfiguration__BaseUrl: "http://wiremock:8080/"
-      SFA__DAS__EmployerAccounts__EmployerAccountsOuterApiConfiguration__Key: "isolation-fake-subscription-key"
-      SFA__DAS__EmployerAccounts__ContentApi__ApiBaseUrl: "http://wiremock:8080/"
-      SFA__DAS__EmployerAccounts__ContentApi__IdentifierUri: ""
-      SFA__DAS__EmployerAccounts__AccountApi__ApiBaseUrl: "http://wiremock:8080/account-api/"
-      SFA__DAS__EmployerAccounts__AccountApi__IdentifierUri: ""
+      SFA.DAS.EmployerAccounts__DatabaseConnectionString: "Server=sqlserver,1433;Database=EmployerAccounts;User Id=sa;Password=Isolation_P@ssw0rd!;TrustServerCertificate=True;Encrypt=False"
+      SFA.DAS.EmployerAccounts__DataProtectionKeysDatabase: "Server=sqlserver,1433;Database=EmployerAccounts;User Id=sa;Password=Isolation_P@ssw0rd!;TrustServerCertificate=True;Encrypt=False"
+      SFA.DAS.EmployerAccounts__RedisConnectionString: "redis:6379"
+      SFA.DAS.EmployerAccounts__EmployerAccountsOuterApiConfiguration__BaseUrl: "http://wiremock:8080/"
+      SFA.DAS.EmployerAccounts__EmployerAccountsOuterApiConfiguration__Key: "isolation-fake-subscription-key"
+      SFA.DAS.EmployerAccounts__ContentApi__ApiBaseUrl: "http://wiremock:8080/"
+      SFA.DAS.EmployerAccounts__ContentApi__IdentifierUri: ""
+      SFA.DAS.EmployerAccounts__AccountApi__ApiBaseUrl: "http://wiremock:8080/account-api/"
+      SFA.DAS.EmployerAccounts__AccountApi__IdentifierUri: ""
     ports:
       - "5024:5024"
 

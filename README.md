@@ -175,6 +175,10 @@ NServiceBus uses **LearningTransport** when `EnvironmentName=LOCAL` (already wir
 2. Access to SkillsFundingAgency **private NuGet** feeds for `SFA.DAS.*` packages (Azure Artifacts PAT), **or** a machine that can already `dotnet restore` this solution
 3. Optional: .NET 10 SDK on the host if using the host-run script
 
+### Clean README verification (optional)
+
+To prove a fresh clone works without touching your day-to-day working copy, clone into a **separate** directory (for example `/tmp/das-employer-accounts-isolation-verify`), check out `APPMAN-1150`, and follow the steps below there. Do **not** delete your existing local clone.
+
 ### Copy-paste: full compose (UI in container)
 
 ```bash
@@ -189,6 +193,8 @@ docker compose up --build
 ```
 
 Open **http://localhost:5024/**  
+(macOS: AirPlay often owns port 5000 — isolation binds **5024** on purpose.)
+
 Stub login: **http://localhost:5024/service/SignIn-Stub**  
 (pre-filled with `isolation.employer@example.com` / stub id `11111111-1111-1111-1111-111111111111`)
 

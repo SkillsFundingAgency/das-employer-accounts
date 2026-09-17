@@ -289,3 +289,6 @@ __azurite*
 .env
 **/nuget.config
 !tools/isolation/nuget.config.example
+
+# NServiceBus LearningTransport runtime (local isolation)
+src/SFA.DAS.EmployerAccounts.Web/AS/
