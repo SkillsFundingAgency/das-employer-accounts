@@ -1,0 +1,27 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/tpr/api/pensionsregulator/organisations/.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": [
+      {
+        "Name": "Isolation TPR Organisation",
+        "Status": "Active",
+        "UniqueIdentity": 900001,
+        "Type": "PensionsRegulator",
+        "Address": {
+          "Line1": "1 Isolation Street",
+          "Line2": "",
+          "Line3": "London",
+          "Line4": "",
+          "Line5": "",
+          "Postcode": "E1 1AA"
+        }
+      }
+    ]
+  }
+}
