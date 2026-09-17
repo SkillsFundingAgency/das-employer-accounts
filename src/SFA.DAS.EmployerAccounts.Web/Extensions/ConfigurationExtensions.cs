@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.Json;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Configuration;
 
@@ -48,6 +49,85 @@ public static class ConfigurationExtensions
             );
         }
 
+        // LOCAL table-storage rows often point DatabaseConnectionString at cloud TEST SQL.
+        // Re-assert Isolation infrastructure so Docker SQL / WireMock still win, while HMRC
+        // ClientId/Secret/BaseUrl/Scope remain from table storage.
+        if (isolationMode)
+        {
+            configurationBuilder.AddInMemoryCollection(LoadIsolationInfrastructureOverrides());
+        }
+
         return configurationBuilder.Build();
+    }
+
+    private static IEnumerable<KeyValuePair<string, string>> LoadIsolationInfrastructureOverrides()
+    {
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Isolation.json");
+        if (!File.Exists(path))
+        {
+            yield break;
+        }
+
+        using var doc = JsonDocument.Parse(File.ReadAllText(path));
+        if (!doc.RootElement.TryGetProperty("SFA.DAS.EmployerAccounts", out var eas))
+        {
+            yield break;
+        }
+
+        foreach (var name in new[]
+                 {
+                     "DatabaseConnectionString",
+                     "DataProtectionKeysDatabase",
+                     "RedisConnectionString",
+                     "ServiceBusConnectionString",
+                     "NServiceBusLicense"
+                 })
+        {
+            if (eas.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+            {
+                yield return new KeyValuePair<string, string>($"SFA.DAS.EmployerAccounts:{name}", value.GetString());
+            }
+        }
+
+        foreach (var section in new[]
+                 {
+                     "EmployerAccountsOuterApiConfiguration",
+                     "AccountApi",
+                     "ContentApi",
+                     "CommitmentsApi",
+                     "PensionRegulatorApi",
+                     "ProviderRegistrationsApi",
+                     "RecruitApi"
+                 })
+        {
+            if (!eas.TryGetProperty(section, out var obj) || obj.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            foreach (var prop in obj.EnumerateObject())
+            {
+                if (prop.Value.ValueKind == JsonValueKind.String)
+                {
+                    yield return new KeyValuePair<string, string>(
+                        $"SFA.DAS.EmployerAccounts:{section}:{prop.Name}",
+                        prop.Value.GetString());
+                }
+            }
+        }
+
+        // Prefer empty Token Service client secrets so Azure CLI / MI-style auth is used locally.
+        if (eas.TryGetProperty("TokenServiceApi", out var token) && token.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var name in new[] { "ClientId", "ClientSecret" })
+            {
+                if (token.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+                {
+                    yield return new KeyValuePair<string, string>(
+                        $"SFA.DAS.EmployerAccounts:TokenServiceApi:{name}",
+                        value.GetString());
+                }
+            }
+        }
     }
 }
