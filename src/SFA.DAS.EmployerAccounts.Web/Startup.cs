@@ -65,7 +65,7 @@ public class Startup
         services.AddAutoConfiguration();
         services.AddDatabaseRegistration();
         services.AddDataRepositories();
-        services.AddApplicationServices();
+        services.AddApplicationServices(_configuration);
         services.AddHmrcServices();
 
         services.AddMaMenuConfiguration(RouteNames.SignOut, _configuration["ResourceEnvironmentName"]);
@@ -190,6 +190,11 @@ public class Startup
                 : SameSiteMode.None,
             HttpOnly = HttpOnlyPolicy.Always
         });
+
+        if (isolationMode)
+        {
+            app.UseMiddleware<IsolationExternalLinkRewriteMiddleware>();
+        }
 
         app.UseRouting();
         app.UseAuthorization();
