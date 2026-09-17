@@ -21,7 +21,10 @@ public static class ConfigurationExtensions
         }
 #endif
 
-        // Isolation: load local FAKE config and skip Azure Table Storage / das-employer-config.
+        // Isolation: load local FAKE stub URLs. Still load Azure Table Storage afterwards
+        // (when a connection string is set) so HMRC ClientId/Secret/BaseUrl/Scope and related
+        // values from das-employer-config (local Azurite / UseDevelopmentStorage) override
+        // Isolation defaults — do not paste secrets into appsettings.Isolation.json.
         var isolationMode = string.Equals(configuration["IsolationMode"], "true", StringComparison.OrdinalIgnoreCase);
         if (isolationMode)
         {
@@ -30,12 +33,14 @@ public static class ConfigurationExtensions
 
         configurationBuilder.AddEnvironmentVariables();
 
-        if (!isolationMode)
+        var storageConnectionString = configuration["ConfigurationStorageConnectionString"];
+        var configNames = configuration["ConfigNames"];
+        if (!string.IsNullOrWhiteSpace(storageConnectionString) && !string.IsNullOrWhiteSpace(configNames))
         {
             configurationBuilder.AddAzureTableStorage(options =>
                 {
-                    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-                    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                    options.ConfigurationKeys = configNames.Split(",");
+                    options.StorageConnectionString = storageConnectionString;
                     options.EnvironmentName = configuration["EnvironmentName"];
                     options.PreFixConfigurationKeys = true;
                     options.ConfigurationKeysRawJsonResult = [ConfigurationKeys.EncodingConfig];
