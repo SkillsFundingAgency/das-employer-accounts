@@ -45,43 +45,5 @@ services:
       - ./tools/isolation/wiremock:/home/wiremock
     command: ["--global-response-templating", "--verbose"]
 
-  web:
-    build:
-      context: .
-      dockerfile: tools/isolation/Dockerfile.web
-      args:
-        # Pass at build time if restore fails against nuget.org alone:
-        # NUGET_FEED_URL / NUGET_FEED_USER / NUGET_FEED_PASS
-        NUGET_FEED_URL: ${NUGET_FEED_URL:-}
-        NUGET_FEED_USER: ${NUGET_FEED_USER:-}
-        NUGET_FEED_PASS: ${NUGET_FEED_PASS:-}
-    depends_on:
-      sql-init:
-        condition: service_completed_successfully
-      redis:
-        condition: service_started
-      wiremock:
-        condition: service_started
-    environment:
-      IsolationMode: "true"
-      ASPNETCORE_ENVIRONMENT: Development
-      EnvironmentName: LOCAL
-      ResourceEnvironmentName: LOCAL
-      StubAuth: "true"
-      StubEmail: isolation.employer@example.com
-      StubId: "11111111-1111-1111-1111-111111111111"
-      # Nested config overrides for container DNS names
-      SFA.DAS.EmployerAccounts__DatabaseConnectionString: "Server=sqlserver,1433;Database=EmployerAccounts;User Id=sa;Password=Isolation_P@ssw0rd!;TrustServerCertificate=True;Encrypt=False"
-      SFA.DAS.EmployerAccounts__DataProtectionKeysDatabase: "Server=sqlserver,1433;Database=EmployerAccounts;User Id=sa;Password=Isolation_P@ssw0rd!;TrustServerCertificate=True;Encrypt=False"
-      SFA.DAS.EmployerAccounts__RedisConnectionString: "redis:6379"
-      SFA.DAS.EmployerAccounts__EmployerAccountsOuterApiConfiguration__BaseUrl: "http://wiremock:8080/"
-      SFA.DAS.EmployerAccounts__EmployerAccountsOuterApiConfiguration__Key: "isolation-fake-subscription-key"
-      SFA.DAS.EmployerAccounts__ContentApi__ApiBaseUrl: "http://wiremock:8080/"
-      SFA.DAS.EmployerAccounts__ContentApi__IdentifierUri: ""
-      SFA.DAS.EmployerAccounts__AccountApi__ApiBaseUrl: "http://wiremock:8080/account-api/"
-      SFA.DAS.EmployerAccounts__AccountApi__IdentifierUri: ""
-    ports:
-      - "5024:5024"
-
 volumes:
   isolation-sql:

@@ -10,8 +10,5 @@ public class GetAccountEmployerAgreementsResponse
     
     public bool HasAcknowledgedAgreements => EmployerAgreements != null && EmployerAgreements.Any(ag => ag.Acknowledged);
 
-    public int MinimumSignedAgreementVersion =>
-        EmployerAgreements is { Count: > 0 }
-            ? EmployerAgreements.Min(ea => ea.Signed?.VersionNumber ?? 0)
-            : 0;
+    public int MinimumSignedAgreementVersion => EmployerAgreements?.Min(ea => ea.Signed?.VersionNumber ?? 0) ?? 0;
 }

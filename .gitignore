@@ -288,11 +288,8 @@ __azurite*
 # Isolation local secrets
 .env
 **/nuget.config
-!tools/isolation/nuget.config.example
 
 # NServiceBus LearningTransport runtime (local isolation)
 src/SFA.DAS.EmployerAccounts.Web/AS/
 
 # Isolation DACPAC build outputs
-tools/isolation/dacpac/bin/
-tools/isolation/dacpac/obj/
