@@ -4,6 +4,17 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 cd "$ROOT"
+
+# Prefer a working host+AspNetCore 10 root. ~/.dotnet can end up SIGKILL'd after partial installs.
+if [[ -x "$HOME/dotnet-isolation/dotnet" ]]; then
+  export DOTNET_ROOT="$HOME/dotnet-isolation"
+elif [[ -x /usr/local/share/dotnet/dotnet ]]; then
+  export DOTNET_ROOT=/usr/local/share/dotnet
+else
+  export DOTNET_ROOT="${DOTNET_ROOT:-$HOME/.dotnet}"
+fi
+export PATH="$DOTNET_ROOT:$PATH"
+
 export IsolationMode=true
 export ASPNETCORE_ENVIRONMENT=Development
 export EnvironmentName=LOCAL
