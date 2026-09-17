@@ -1,4 +1,7 @@
-/* Isolation schema bootstrap – FAKE local data only. Prefer publishing the DACPAC when available. */
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+/* Isolation schema bootstrap - FAKE local data only. Prefer publishing the DACPAC when available. */
 IF DB_ID(N'EmployerAccounts') IS NULL CREATE DATABASE [EmployerAccounts];
 GO
 USE [EmployerAccounts];
@@ -6,7 +9,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'employer_account') EXEC('CREATE SCHEMA [employer_account]');
 GO
 -- ===== Account.sql =====
-﻿CREATE TABLE [employer_account].[Account]
+CREATE TABLE [employer_account].[Account]
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
 	[HashedId] NVARCHAR(100) NULL,
@@ -29,7 +32,7 @@ GO
 CREATE INDEX [IX_Account_ApprenticeshipEmployerType] ON [employer_account].[Account] ([ApprenticeshipEmployerType])
 GO
 -- ===== User.sql =====
-﻿CREATE TABLE [employer_account].[User]
+CREATE TABLE [employer_account].[User]
 (
     [Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
     [UserRef] UNIQUEIDENTIFIER NOT NULL, 
@@ -49,7 +52,7 @@ CREATE NONCLUSTERED INDEX [IX_User_Email] ON [employer_account].[User] ([Email])
 GO
 
 -- ===== Membership.sql =====
-﻿CREATE TABLE [employer_account].[Membership]
+CREATE TABLE [employer_account].[Membership]
 (
     [AccountId] BIGINT NOT NULL, 
     [UserId] BIGINT NOT NULL, 
@@ -70,7 +73,7 @@ CREATE NONCLUSTERED INDEX [IX_Membership_UserId] ON [employer_account].[Membersh
 
 GO
 -- ===== LegalEntity.sql =====
-﻿CREATE TABLE [employer_account].[LegalEntity]
+CREATE TABLE [employer_account].[LegalEntity]
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
     [Code] NVARCHAR(50) NULL, 
@@ -84,7 +87,7 @@ GO
 CREATE INDEX [IX_LegalEntity_Code_Source] ON [employer_account].[LegalEntity]([Code], [Source]) INCLUDE ([Id])
 GO
 -- ===== AccountLegalEntity.sql =====
-﻿CREATE TABLE [employer_account].[AccountLegalEntity]
+CREATE TABLE [employer_account].[AccountLegalEntity]
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
     [Name] NVARCHAR(100) NOT NULL, 
@@ -119,7 +122,7 @@ GO
 
 
 -- ===== EmployerAgreementTemplate.sql =====
-﻿CREATE TABLE [employer_account].[EmployerAgreementTemplate]
+CREATE TABLE [employer_account].[EmployerAgreementTemplate]
 (
     [Id] INT NOT NULL PRIMARY KEY IDENTITY, 
     [PartialViewName] NVARCHAR(50) NOT NULL,
@@ -135,7 +138,7 @@ ON [employer_account].[EmployerAgreementTemplate] (AgreementType, [VersionNumber
 GO
 
 -- ===== EmployerAgreement.sql =====
-﻿CREATE TABLE [employer_account].[EmployerAgreement]
+CREATE TABLE [employer_account].[EmployerAgreement]
 (
     [Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
     [TemplateId] INT NOT NULL, 
@@ -159,7 +162,7 @@ CREATE INDEX [IX_EmployerAgreement_LegalEntityStatus]
 ON [employer_account].[EmployerAgreement] (AccountLegalEntityId, StatusId)
 GO
 -- ===== Paye.sql =====
-﻿CREATE TABLE [employer_account].[Paye]
+CREATE TABLE [employer_account].[Paye]
 (
 	[Ref] NVARCHAR(16) NOT NULL PRIMARY KEY, 
 	[AccessToken] VARCHAR(50) NULL,
@@ -170,7 +173,7 @@ GO
 
 GO
 -- ===== AccountHistory.sql =====
-﻿CREATE TABLE [employer_account].[AccountHistory]
+CREATE TABLE [employer_account].[AccountHistory]
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
 	[AccountId] BIGINT NOT NULL,
@@ -190,7 +193,7 @@ GO
 CREATE NONCLUSTERED INDEX [IX_AccountHistory_RemovedDate] ON [employer_account].[AccountHistory] ([RemovedDate]) INCLUDE ([AccountId], [AddedDate], [PayeRef])
 GO
 -- ===== Invitation.sql =====
-﻿CREATE TABLE [employer_account].[Invitation](
+CREATE TABLE [employer_account].[Invitation](
 	[Id] BIGINT IDENTITY(1,1) NOT NULL,
 	[AccountId] BIGINT NOT NULL,
 	[Name] [nvarchar](100) NOT NULL,
@@ -212,7 +215,7 @@ GO
 CREATE INDEX [IX_Invitation_AccountId_Status] ON [employer_account].[Invitation]([AccountId], [Status]) INCLUDE ([Email], [ExpiryDate],	[Name],	[Role])
 GO
 -- ===== UserAccountSettings.sql =====
-﻿CREATE TABLE [employer_account].[UserAccountSettings]
+CREATE TABLE [employer_account].[UserAccountSettings]
 (
 	[Id] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	[UserId] BIGINT NOT NULL,
@@ -226,7 +229,7 @@ GO
 CREATE UNIQUE INDEX [IX_UserAccountSettings] ON [employer_account].[UserAccountSettings] ([UserId], [AccountId]) INCLUDE ([ReceiveNotifications])
 GO
 -- ===== UserAornFailedAttempts.sql =====
-﻿CREATE TABLE [employer_account].[UserAornFailedAttempts](
+CREATE TABLE [employer_account].[UserAornFailedAttempts](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[UserId] [bigint] NOT NULL,
 	[AttemptTimeStamp] [datetime] NOT NULL,
@@ -294,7 +297,7 @@ INCLUDE ([AccountId])
 GO
 
 -- ===== HealthChecks.sql =====
-﻿CREATE TABLE [dbo].[HealthChecks]
+CREATE TABLE [dbo].[HealthChecks]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
 	[UserRef] UNIQUEIDENTIFIER NOT NULL,
@@ -324,7 +327,7 @@ CREATE CLUSTERED INDEX [IX_AuditMessage_AffectedEntity] ON [employer_account].[A
 GO
 
 -- ===== ChangedProperties.sql =====
-﻿CREATE TABLE [employer_account].[ChangedProperties](
+CREATE TABLE [employer_account].[ChangedProperties](
 	[PropertyName] [varchar](50) NOT NULL,
 	[NewValue] [varchar](max) NULL,
 	[MessageId] [uniqueidentifier] NOT NULL,
@@ -332,7 +335,7 @@ GO
 )
 GO
 -- ===== RelatedEntities.sql =====
-﻿CREATE TABLE [employer_account].[RelatedEntities]
+CREATE TABLE [employer_account].[RelatedEntities]
 (
     [EntityType] [varchar](255)     NOT NULL,
     [EntityId]   [varchar](255)     NOT NULL,
@@ -344,14 +347,14 @@ GO
 CREATE CLUSTERED INDEX [IX_RelatedEntities_Entity] ON [employer_account].[RelatedEntities] (EntityType, EntityId)
 GO
 -- ===== RunOnceJob.sql =====
-﻿CREATE TABLE [dbo].[RunOnceJob]
+CREATE TABLE [dbo].[RunOnceJob]
 (
 	[Name] NVARCHAR(50) NOT NULL PRIMARY KEY, 
 	[Completed] DATETIME2 NOT NULL
 )
 GO
 -- ===== OutboxData.sql =====
-﻿CREATE TABLE [dbo].[OutboxData]
+CREATE TABLE [dbo].[OutboxData]
 (
 	[MessageId] NVARCHAR(200) NOT NULL PRIMARY KEY NONCLUSTERED,
 	[Dispatched] BIT NOT NULL DEFAULT(0),
@@ -364,7 +367,7 @@ GO
 CREATE INDEX [IX_DispatchedAt] ON [dbo].[OutboxData] ([DispatchedAt] ASC) WHERE [Dispatched] = 1
 GO
 -- ===== ClientOutboxData.sql =====
-﻿CREATE TABLE [dbo].[ClientOutboxData]
+CREATE TABLE [dbo].[ClientOutboxData]
 (
 	[MessageId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY NONCLUSTERED,
 	[EndpointName] NVARCHAR(150) NOT NULL,
