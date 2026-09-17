@@ -49,9 +49,10 @@ public static class ConfigurationExtensions
             );
         }
 
-        // LOCAL table-storage rows often point DatabaseConnectionString at cloud TEST SQL.
-        // Re-assert Isolation infrastructure so Docker SQL / WireMock still win, while HMRC
-        // ClientId/Secret/BaseUrl/Scope remain from table storage.
+        // LOCAL table-storage rows often point DatabaseConnectionString at cloud TEST SQL
+        // and Encoding at TEST salts. Re-assert Isolation infrastructure (SQL / WireMock /
+        // Encoding salts for seeded GP67XW) while HMRC ClientId/Secret/BaseUrl/Scope remain
+        // from table storage.
         if (isolationMode)
         {
             configurationBuilder.AddInMemoryCollection(LoadIsolationInfrastructureOverrides());
@@ -127,6 +128,28 @@ public static class ConfigurationExtensions
                         $"SFA.DAS.EmployerAccounts:TokenServiceApi:{name}",
                         value.GetString());
                 }
+            }
+        }
+
+        // LOCAL Encoding from Azurite uses TEST salts; Isolation seed hashes (GP67XW) use
+        // Isolation salts. Re-assert Isolation Encoding so Decode(hashedAccountId) works.
+        if (doc.RootElement.TryGetProperty("SFA.DAS.Encoding", out var encoding))
+        {
+            var encodingJson = encoding.ValueKind == JsonValueKind.String
+                ? encoding.GetString()
+                : encoding.GetRawText();
+            if (!string.IsNullOrWhiteSpace(encodingJson))
+            {
+                yield return new KeyValuePair<string, string>("SFA.DAS.Encoding", encodingJson);
+            }
+        }
+
+        // Older Hashstring settings on EmployerAccounts also affect some paths — keep Isolation.
+        foreach (var name in new[] { "Hashstring", "AllowedHashstringCharacters" })
+        {
+            if (eas.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+            {
+                yield return new KeyValuePair<string, string>($"SFA.DAS.EmployerAccounts:{name}", value.GetString());
             }
         }
     }

@@ -269,7 +269,7 @@ Same setup as earlier in this README (Azure Storage Emulator / Azurite + Configu
 
 1. Keep Azurite / Storage Emulator running (do not wipe an existing working local store).
 2. Ensure the employer-accounts config row is present for partition **`LOCAL`** (or your `EnvironmentName`), typically via das-employer-config updater.
-3. `ConfigurationStorageConnectionString` defaults to `UseDevelopmentStorage=true`. Isolation mode **still loads** this table so HMRC values overlay FAKE Isolation JSON. After table storage loads, Isolation re-asserts local `DatabaseConnectionString` / Redis / WireMock API bases so a LOCAL config row that points at cloud TEST SQL does not take over the Docker database.
+3. `ConfigurationStorageConnectionString` defaults to `UseDevelopmentStorage=true`. Isolation mode **still loads** this table so HMRC values overlay FAKE Isolation JSON. After table storage loads, Isolation re-asserts local `DatabaseConnectionString` / Redis / WireMock API bases **and** Isolation `SFA.DAS.Encoding` salts (seeded account hash `GP67XW`) so a LOCAL config row that points at cloud TEST SQL / TEST Encoding does not break Docker SQL or hashed-id decode.
 
 If add-PAYE shows `Unknown client id`, confirm the LOCAL row contains TEST HMRC `ClientId`/`Secret` and Azurite is running — not that you need to edit Isolation JSON.
 
