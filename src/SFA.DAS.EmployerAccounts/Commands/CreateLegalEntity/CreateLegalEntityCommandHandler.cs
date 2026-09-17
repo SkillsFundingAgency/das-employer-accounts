@@ -23,6 +23,8 @@ public class CreateLegalEntityCommandHandler(
 {
     public async Task<CreateLegalEntityCommandResponse> Handle(CreateLegalEntityCommand message, CancellationToken cancellationToken)
     {
+        message.Name = message.Name?.Trim();
+
         var validationResult = await validator.ValidateAsync(message);
 
         if (!validationResult.IsValid())
