@@ -513,4 +513,29 @@ public class WhenICallCreateAccount
 
         _mediator.Verify(c => c.Send(It.IsAny<AccountLevyStatusCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [Test]
+    public async Task ThenOrganisationNameAndEmployerRefNameAreTrimmedBeforeCreate()
+    {
+        var cmd = new CreateAccountCommand
+        {
+            ExternalUserId = _user.Ref.ToString(),
+            OrganisationReferenceNumber = "QWERTY",
+            OrganisationName = "  ALDRIDGE EDUCATION ",
+            OrganisationAddress = "Innovation Centre, Coventry, CV1 2TT",
+            OrganisationDateOfInception = DateTime.Today.AddDays(-1000),
+            Sector = "Sector",
+            PayeReference = "120/QWERTY",
+            AccessToken = Guid.NewGuid().ToString(),
+            RefreshToken = Guid.NewGuid().ToString(),
+            OrganisationStatus = "active",
+            EmployerRefName = "  Paye Scheme 1 "
+        };
+
+        await _handler.Handle(cmd, CancellationToken.None);
+
+        _accountRepository.Verify(x => x.CreateAccount(It.Is<CreateAccountParams>(y =>
+            y.EmployerName == "ALDRIDGE EDUCATION" &&
+            y.EmployerRefName == "Paye Scheme 1")));
+    }
 }

@@ -18,6 +18,8 @@ public class RenameEmployerAccountCommandHandler(
 {
     public async Task Handle(RenameEmployerAccountCommand message, CancellationToken cancellationToken)
     {
+        message.NewName = message.NewName?.Trim();
+
         var validationResult = await validator.ValidateAsync(message);
 
         if (!validationResult.IsValid())
@@ -35,6 +37,11 @@ public class RenameEmployerAccountCommandHandler(
         var account = await accountRepository.GetAccountById(accountId);
 
         var accountPreviousName = account.Name;
+
+        if (string.Equals(accountPreviousName, message.NewName, StringComparison.Ordinal))
+        {
+            return;
+        }
 
         await accountRepository.RenameAccount(accountId, message.NewName);
 

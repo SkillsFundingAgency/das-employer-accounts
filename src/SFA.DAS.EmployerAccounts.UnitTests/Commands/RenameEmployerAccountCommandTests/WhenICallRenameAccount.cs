@@ -139,4 +139,27 @@ public class WhenICallRenameAccount
         //Assert
         _eventPublisher.Events.Should().BeEmpty();
     }
+
+    [Test]
+    public async Task ThenLeadingAndTrailingWhitespaceIsTrimmedFromTheNewName()
+    {
+        _command.NewName = "  ALDRIDGE EDUCATION ";
+
+        await _commandHandler.Handle(_command, CancellationToken.None);
+
+        _repository.Verify(x => x.RenameAccount(AccountId, "ALDRIDGE EDUCATION"), Times.Once);
+        _eventPublisher.Events.OfType<ChangedAccountNameEvent>().Should().ContainSingle()
+            .Which.CurrentName.Should().Be("ALDRIDGE EDUCATION");
+    }
+
+    [Test]
+    public async Task ThenTheAccountIsNotRenamedWhenTheTrimmedNameMatchesTheCurrentName()
+    {
+        _command.NewName = $"  {AccountName}  ";
+
+        await _commandHandler.Handle(_command, CancellationToken.None);
+
+        _repository.Verify(x => x.RenameAccount(It.IsAny<long>(), It.IsAny<string>()), Times.Never);
+        _eventPublisher.Events.Should().BeEmpty();
+    }
 }
