@@ -229,7 +229,7 @@ docker compose up sqlserver sql-init redis wiremock
 | Blocker | What you must supply |
 |---------|----------------------|
 | NuGet restore | Public feeds are enough for this service; private Azure Artifacts is **not** required for isolation |
-| Full DACPAC | `tools/isolation/sql/01-init-schema.sql` is a **bootstrap** of core tables only. For journeys that hit missing procs/views, publish `src/SFA.DAS.EmployerAccounts.Database` to `EmployerAccounts` and re-run `02-seed.sql` |
+| Full DACPAC | `tools/isolation/sql` bootstraps core tables plus dashboard stubs and PAYE procs (`04-paye-procs.sql`). For journeys that still hit missing procs/views, publish `src/SFA.DAS.EmployerAccounts.Database` to `EmployerAccounts` and re-run seed scripts |
 | Windows-only Sonar `Dockerfile` | Ignored for isolation; use `tools/isolation/Dockerfile.web` |
 | das-employer-config / Azurite config table | Skipped when `IsolationMode=true` (`appsettings.Isolation.json`) |
 | Real HMRC / Pension Regulator / Token Service | Pension Regulator stays on WireMock catch-all. **HMRC Gov Gateway add-PAYE** uses the **TEST** `das-hmrc-mock-api` (not localhost WireMock): see [HMRC Gov Gateway (isolation)](#hmrc-gov-gateway-isolation). `TokenServiceApi` uses empty client secrets so Azure CLI / MI-style AAD applies after `az login`. |
