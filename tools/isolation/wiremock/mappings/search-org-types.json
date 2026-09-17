@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/SearchOrganisation/IdentifiableOrganisationTypes"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": ["CompaniesHouse", "Charities", "PublicBodies"]
+  }
+}

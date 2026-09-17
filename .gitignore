@@ -284,3 +284,8 @@ src/SFA.DAS.EmployerAccounts.Api/appsettings.Development.json
 
 # ignore azurite files
 __azurite*
+
+# Isolation local secrets
+.env
+**/nuget.config
+!tools/isolation/nuget.config.example

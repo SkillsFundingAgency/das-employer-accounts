@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/SearchOrganisation/organisations/search/results"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "organisations": [
+        {
+          "name": "Isolation Training Ltd",
+          "type": "CompaniesHouse",
+          "code": "12345678",
+          "address": {
+            "line1": "1 Isolation Street",
+            "line2": "",
+            "town": "London",
+            "postcode": "E1 1AA"
+          }
+        }
+      ]
+    }
+  }
+}

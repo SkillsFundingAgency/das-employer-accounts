@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/accountusers/.*/accounts"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "employerUserId": "11111111-1111-1111-1111-111111111111",
+      "firstName": "Isolation",
+      "lastName": "Employer",
+      "email": "isolation.employer@example.com",
+      "isSuspended": false,
+      "userAccounts": [
+        {
+          "encodedAccountId": "ISOACC",
+          "dasAccountName": "Isolation Demo Account",
+          "role": "Owner",
+          "apprenticeshipEmployerType": 1
+        }
+      ]
+    }
+  }
+}

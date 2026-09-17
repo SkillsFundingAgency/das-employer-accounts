@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+    <add key="sfa-private" value="https://pkgs.dev.azure.com/sfa-gov-uk/_packaging/DigitalApprenticeshipService/nuget/v3/index.json" />
+  </packageSources>
+  <packageSourceCredentials>
+    <sfa-private>
+      <add key="Username" value="az" />
+      <add key="ClearTextPassword" value="REPLACE_WITH_PAT" />
+    </sfa-private>
+  </packageSourceCredentials>
+</configuration>

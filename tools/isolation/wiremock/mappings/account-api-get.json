@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/account-api/api/accounts/.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "accountId": 1,
+      "hashedAccountId": "ISOACC",
+      "publicHashedAccountId": "PUBISO",
+      "dasAccountName": "Isolation Demo Account",
+      "dateRegistered": "2024-01-01T00:00:00Z",
+      "ownerEmail": "isolation.employer@example.com",
+      "apprenticeshipEmployerType": "NonLevy"
+    }
+  }
+}

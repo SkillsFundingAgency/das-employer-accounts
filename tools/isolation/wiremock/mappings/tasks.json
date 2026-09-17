@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/accounts/.*/teams"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "showLevyDeclarationTask": false,
+      "numberOfApprenticesToReview": 0,
+      "numberOfCohortsReadyToReview": 1,
+      "numberOfPendingTransferConnections": 0,
+      "numberOfTransferRequestToReview": 0,
+      "numberTransferPledgeApplicationsToReview": 0,
+      "numberOfAcceptedTransferPledgeApplicationsWithNoApprentices": 0,
+      "numberOfTransferPledgeApplicationsApproved": 0
+    }
+  }
+}

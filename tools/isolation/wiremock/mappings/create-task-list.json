@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/accounts/.*/create-task-list"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "hashedAccountId": "ISOACC",
+      "hasPayeScheme": true,
+      "nameConfirmed": true,
+      "pendingAgreementId": null,
+      "agreementAcknowledged": true,
+      "addTrainingProviderAcknowledged": true,
+      "hasSignedAgreement": true,
+      "hasProviders": true,
+      "hasProviderPermissions": true,
+      "userFirstName": "Isolation",
+      "userLastName": "Employer"
+    }
+  }
+}

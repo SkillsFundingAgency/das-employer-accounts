@@ -51,6 +51,10 @@
         <Content Update="appsettings.Development.json">
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </Content>
+        <Content Update="appsettings.Isolation.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
     </ItemGroup>
     <ItemGroup>
       <None Update="robots.txt">

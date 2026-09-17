@@ -153,3 +153,84 @@ Execute the analyse.ps1 PowerShell script
 * [Integration Tests](docs/IntegrationTesting.md "Integration Testing")
 * [Authorization Pipeline](docs/AuthorizationPipeline.md "Authorization Pipeline")
 * [Running Jobs](docs/Jobs/RunningJobs.md "Running Jobs")
+
+## Running in complete isolation
+
+Run the Employer Accounts **Web UI** locally without Azure App Configuration, Key Vault, das-employer-config, real DfE Sign-in, Azure Service Bus, or live Outer APIs.
+
+### What this stack provides
+
+| Component | Role |
+|-----------|------|
+| `web` | `SFA.DAS.EmployerAccounts.Web` (Debug) with `StubAuth` |
+| `sqlserver` + `sql-init` | SQL Server 2022 + bootstrap schema/seed (`ISOACC` account) |
+| `redis` | Cache / Gov login session string target |
+| `wiremock` | Outer API, Content API, and Account API stubs |
+
+NServiceBus uses **LearningTransport** when `EnvironmentName=LOCAL` (already wired in code). All config values under isolation are **FAKE**.
+
+### Prerequisites
+
+1. Docker Desktop (Compose v2)
+2. Access to SkillsFundingAgency **private NuGet** feeds for `SFA.DAS.*` packages (Azure Artifacts PAT), **or** a machine that can already `dotnet restore` this solution
+3. Optional: .NET 10 SDK on the host if using the host-run script
+
+### Copy-paste: full compose (UI in container)
+
+```bash
+cd /path/to/das-employer-accounts
+git checkout APPMAN-1150
+
+# If restore needs the private feed (do not commit secrets):
+cp tools/isolation/.env.example .env
+# edit .env – set NUGET_FEED_URL / NUGET_FEED_USER / NUGET_FEED_PASS
+
+docker compose up --build
+```
+
+Open **http://localhost:5024/**  
+Stub login: **http://localhost:5024/service/SignIn-Stub**  
+(pre-filled with `isolation.employer@example.com` / stub id `11111111-1111-1111-1111-111111111111`)
+
+WireMock admin: http://localhost:8080/__admin/
+
+Reset DB volume if schema init was partial:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+### Copy-paste: dependencies in Docker, Web on host
+
+Use this when the web image cannot restore private packages inside Docker but your host already restores:
+
+```bash
+cd /path/to/das-employer-accounts
+git checkout APPMAN-1150
+docker compose up sqlserver sql-init redis wiremock
+./tools/isolation/scripts/run-web-host.sh
+```
+
+### Auth (stub)
+
+- `StubAuth=true` and DfE Sign-in stub routes are compiled in **Debug** (isolation Dockerfile builds Debug).
+- Do **not** use real GovUk OIDC client secrets; `IdentifierUri` for Content/Account APIs is empty so no Azure AD token is requested.
+
+### Developer-supplied stubs / known blockers
+
+| Blocker | What you must supply |
+|---------|----------------------|
+| Private NuGet (`SFA.DAS.Employer.Shared.UI`, `SFA.DAS.GovUK.Auth`, `SFA.DAS.NServiceBus.*`, etc.) | Azure Artifacts PAT via `.env` build args, or restore on a networked host |
+| Full DACPAC | `tools/isolation/sql/01-init-schema.sql` is a **bootstrap** of core tables only. For journeys that hit missing procs/views, publish `src/SFA.DAS.EmployerAccounts.Database` to `EmployerAccounts` and re-run `02-seed.sql` |
+| Windows-only Sonar `Dockerfile` | Ignored for isolation; use `tools/isolation/Dockerfile.web` |
+| das-employer-config / Azurite config table | Skipped when `IsolationMode=true` (`appsettings.Isolation.json`) |
+| Real HMRC / Pension Regulator / Token Service | Pointed at WireMock catch-all; deep levy/AORN journeys need extra mappings under `tools/isolation/wiremock/mappings/` |
+
+### Key files
+
+- `docker-compose.yml` – single entry point
+- `src/SFA.DAS.EmployerAccounts.Web/appsettings.Isolation.json` – FAKE config
+- `src/SFA.DAS.EmployerAccounts.Web/Extensions/ConfigurationExtensions.cs` – `IsolationMode` bypasses Azure Table Storage
+- `tools/isolation/wiremock/` – stub HTTP APIs
+- `tools/isolation/sql/` – schema bootstrap + seed

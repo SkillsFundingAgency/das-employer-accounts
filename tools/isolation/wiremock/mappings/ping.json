@@ -1,0 +1,4 @@
+{
+  "request": { "method": "GET", "urlPath": "/ping" },
+  "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "jsonBody": { "status": "ok" } }
+}
