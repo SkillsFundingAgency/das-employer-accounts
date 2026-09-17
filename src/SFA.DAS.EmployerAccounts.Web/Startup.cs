@@ -145,6 +145,22 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        var isolationMode = string.Equals(_configuration["IsolationMode"], "true", StringComparison.OrdinalIgnoreCase);
+
+        // ngrok / reverse proxies: honour X-Forwarded-Proto so rewritten menu links stay https
+        if (isolationMode)
+        {
+            var fwd = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+                    | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+                    | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedHost
+            };
+            fwd.KnownNetworks.Clear();
+            fwd.KnownProxies.Clear();
+            app.UseForwardedHeaders(fwd);
+        }
+
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -163,7 +179,6 @@ public class Startup
 
         app.UseAuthentication();
 
-        var isolationMode = string.Equals(_configuration["IsolationMode"], "true", StringComparison.OrdinalIgnoreCase);
         app.UseCookiePolicy(new CookiePolicyOptions
         {
             // Isolation is HTTP (localhost/ngrok); Secure=Always would drop the auth cookie.

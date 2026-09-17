@@ -384,3 +384,35 @@ GO
 
 CREATE INDEX [IX_DispatchedAt] ON [dbo].[ClientOutboxData] ([DispatchedAt] ASC) WHERE [Dispatched] = 1
 GO
+
+GO
+CREATE OR ALTER PROCEDURE [employer_account].[GetAccounts_ByUserRef]
+	@userRef UNIQUEIDENTIFIER
+AS
+SELECT
+    a.Id
+    ,a.[Name]
+    ,m.[Role]
+    ,a.HashedId
+    ,a.PublicHashedId
+    ,a.NameConfirmed
+    ,a.AddTrainingProviderAcknowledged
+    ,a.ApprenticeshipEmployerType
+FROM [employer_account].[User] u
+INNER JOIN [employer_account].[Membership] m ON m.UserId = u.Id
+INNER JOIN [employer_account].[Account] a ON m.AccountId = a.Id
+WHERE u.UserRef = @userRef;
+GO
+
+USE EmployerAccounts;
+GO
+﻿Create Procedure [employer_account].[GetNumberOfInvitations_ByUserRef]
+	@ref uniqueidentifier
+AS
+SELECT count(1)
+  FROM [employer_account].[Invitation] i
+  inner join [employer_account].[User] u on u.Email = i.Email
+  Where ExpiryDate > GETDATE()
+  And i.Status = 1
+  and u.UserRef = @ref
+GO
