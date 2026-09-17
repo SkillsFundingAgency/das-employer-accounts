@@ -9,13 +9,15 @@ using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.Encoding;
 using SFA.DAS.GovUK.Auth.Services;
 using SFA.DAS.NServiceBus.Services;
+using SFA.DAS.EmployerAccounts.Web.Infrastructure.Isolation;
 
 namespace SFA.DAS.EmployerAccounts.Web.StartupExtensions;
 
 public static class ApplicationServiceRegistrations
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var isolationMode = string.Equals(configuration["IsolationMode"], "true", StringComparison.OrdinalIgnoreCase);
         services.AddSingleton<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
         services.AddSingleton<IPdfService, PdfService>();
@@ -37,7 +39,15 @@ public static class ApplicationServiceRegistrations
         services.AddTransient<IRecruitService, RecruitService>();
         services.Decorate<IRecruitService, RecruitServiceWithTimeout>();
 
-        services.AddScoped<IAccountApiClient, AccountApiClient>();
+        services.AddHttpClient(nameof(IsolationAccountApiClient));
+        if (isolationMode)
+        {
+            services.AddScoped<IAccountApiClient, IsolationAccountApiClient>();
+        }
+        else
+        {
+            services.AddScoped<IAccountApiClient, AccountApiClient>();
+        }
 
         services.AddTransient<IPensionRegulatorService, PensionRegulatorService>();
 

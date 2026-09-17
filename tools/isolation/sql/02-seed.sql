@@ -1,7 +1,7 @@
 USE [EmployerAccounts];
 GO
 
-/* Seed user/account aligned with StubId / StubEmail / WireMock ISOACC */
+/* Seed user/account aligned with StubId / StubEmail / WireMock GP67XW */
 SET IDENTITY_INSERT [employer_account].[User] ON;
 IF NOT EXISTS (SELECT 1 FROM [employer_account].[User] WHERE Id = 1)
 BEGIN
@@ -25,11 +25,11 @@ BEGIN
     INSERT INTO [employer_account].[Account] (Id, HashedId, Name, CreatedDate, ModifiedDate, PublicHashedId, ApprenticeshipEmployerType, NameConfirmed, AddTrainingProviderAcknowledged)
     VALUES (
         1,
-        'ISOACC',
+        'GP67XW',
         'Isolation Demo Account',
         GETUTCDATE(),
         GETUTCDATE(),
-        'PUBISO',
+        'JYB49M',
         1, -- NonLevy
         1,
         1

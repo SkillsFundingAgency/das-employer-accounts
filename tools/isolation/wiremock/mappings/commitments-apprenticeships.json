@@ -1,0 +1,12 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/commitments-api/api/apprenticeships/.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "totalCount": 0, "pageNumber": 1, "pageItemCount": 0, "apprenticeships": [] }
+  }
+}

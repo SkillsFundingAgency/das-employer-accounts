@@ -23,4 +23,6 @@ echo "Applying schema..."
 $SQLCMD -I -S sqlserver -U sa -P "$MSSQL_SA_PASSWORD" ${CFLAG:-} -i /sql/01-init-schema.sql
 echo "Applying seed..."
 $SQLCMD -I -S sqlserver -U sa -P "$MSSQL_SA_PASSWORD" ${CFLAG:-} -i /sql/02-seed.sql
+echo "Applying dashboard stubs..."
+$SQLCMD -I -S sqlserver -U sa -P "$MSSQL_SA_PASSWORD" ${CFLAG:-} -i /sql/03-dashboard-stubs.sql
 echo "SQL init complete"

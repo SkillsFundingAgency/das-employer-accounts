@@ -1,7 +1,8 @@
 {
+  "priority": 1,
   "request": {
     "method": "GET",
-    "urlPathPattern": "/account-api/api/accounts/.*"
+    "urlPathPattern": "/api/accounts/.*"
   },
   "response": {
     "status": 200,

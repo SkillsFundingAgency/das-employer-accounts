@@ -163,7 +163,7 @@ Run the Employer Accounts **Web UI** locally without Azure App Configuration, Ke
 | Component | Role |
 |-----------|------|
 | `web` | `SFA.DAS.EmployerAccounts.Web` (Debug) with `StubAuth` |
-| `sqlserver` + `sql-init` | SQL Server 2022 + bootstrap schema/seed (`ISOACC` account) |
+| `sqlserver` + `sql-init` | SQL Server 2022 + bootstrap schema/seed (`GP67XW` account) |
 | `redis` | Cache / Gov login session string target |
 | `wiremock` | Outer API, Content API, and Account API stubs |
 

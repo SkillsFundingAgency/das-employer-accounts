@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 using System.Security.Policy;
 using AutoMapper;
 using SFA.DAS.Common.Domain.Types;
@@ -55,6 +56,13 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
         if (TryGetAccountContext(hashedAccountId, out var accountContext) && accountContext.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
         {
             var levyResponse = await accountResponseTask;
+            if (levyResponse.Status != HttpStatusCode.OK || levyResponse.Data == null)
+            {
+                _logger.LogError(levyResponse.Exception,
+                    "GetAccount (levy) failed for {HashedAccountId} with status {Status}",
+                    hashedAccountId, levyResponse.Status);
+                return levyResponse;
+            }
             levyResponse.Data.ShowLevyTransparency = _configuration.ShowLevyTransparency;
             SaveContext(levyResponse);
             return levyResponse;
@@ -77,6 +85,14 @@ public class EmployerTeamOrchestratorWithCallToAction : EmployerTeamOrchestrator
         }
 
         
+        if (accountResponse.Status != HttpStatusCode.OK || accountResponse.Data == null)
+        {
+            _logger.LogError(accountResponse.Exception,
+                "GetAccount failed for {HashedAccountId} with status {Status}",
+                hashedAccountId, accountResponse.Status);
+            return accountResponse;
+        }
+
         accountResponse.Data.ShowLevyTransparency = _configuration.ShowLevyTransparency;
         SaveContext(accountResponse);
         return accountResponse;
