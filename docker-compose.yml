@@ -1,6 +1,6 @@
-# Employer Accounts Web UI – complete isolation stack (APPMAN-1150)
-# Usage: docker compose up --build
-# Prerequisites: private NuGet feed credentials for SFA.DAS.* (see README).
+# Employer Accounts Web UI – isolation dependencies (APPMAN-1150)
+# Usage: docker compose up -d sqlserver redis wiremock
+# Web runs on the host — see README "Running in complete isolation".
 
 services:
   sqlserver:
