@@ -216,7 +216,7 @@ Add-PAYE via Gateway uses the TEST `das-hmrc-mock-api` (not WireMock).
 
 ### Notes
 
-- Database: `SFA.DAS.EmployerAccounts.Database.Sdk.sqlproj` builds a DACPAC with `dotnet build` on any OS. The classic `.sqlproj` remains for Visual Studio / existing CI.
+- Database: `SFA.DAS.EmployerAccounts.Database.Sdk.sqlproj` builds a DACPAC with `dotnet build` on any OS and auto-includes new table/proc/view SQL under the project folders. New post-deploy scripts still need a `:r` entry in `Scripts/PostDeployment/PostDeployment.sql`. The classic `.sqlproj` remains for Visual Studio / existing CI (manual Build includes).
 - No private NuGet feed is required for this path.
 - CDN stays on AT so GOV.UK styles load.
 
