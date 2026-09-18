@@ -156,75 +156,67 @@ Execute the analyse.ps1 PowerShell script
 
 ## Running in complete isolation
 
-Run the Employer Accounts **Web UI** alone (Docker SQL + Redis + WireMock). No other microservices.
+Run the Employer Accounts **Web UI** with local Docker dependencies only (SQL Server, Redis, WireMock). No other microservices are required.
 
 ### Prerequisites
 
 - Docker Desktop
-- A **.NET 10 runtime** to host the site (`dotnet --list-runtimes` should show `Microsoft.AspNetCore.App 10.x`).  
-  If `~/.dotnet/dotnet` SIGKILLs on macOS, use `/usr/local/share/dotnet` or a copy under `~/dotnet-isolation`.
-- A built **Database DACPAC** (classic SSDT project — build in Visual Studio / CI; it does not build on macOS).  
-  Optional: `dotnet tool install -g microsoft.sqlpackage`
+- .NET 10 SDK (`dotnet --version`)
+- `sqlpackage` (`dotnet tool install -g microsoft.sqlpackage`)
 
-### 1. Start dependencies
+### Setup
 
 ```bash
+# 1. Dependencies
 docker compose up -d sqlserver redis wiremock
-```
 
-### 2. Publish schema, then seed
+# 2. Build and publish the database schema (works on macOS, Linux, and Windows)
+./tools/isolation/scripts/publish-dacpac.sh
 
-```bash
-# Once per machine / after schema changes — point at your built .dacpac
-./tools/isolation/scripts/publish-dacpac.sh /path/to/SFA.DAS.EmployerAccounts.Database.dacpac
-
-# Seed stub user + account GP67XW (safe to re-run)
+# 3. Seed the isolation account (GP67XW) — safe to re-run
 docker compose up sql-init
-```
 
-Connection used by publish/seed: `localhost,1433` / database `EmployerAccounts` / `sa` / `Isolation_P@ssw0rd!`.
-
-### 3. Build and run the web UI
-
-```bash
-# Builds with the official SDK container (fixes Mac host SDK issues), then runs the DLL
+# 4. Build and run the web app
 ./tools/isolation/scripts/rebuild-web-docker.sh
 ./tools/isolation/scripts/run-web-host.sh
 ```
 
-Open **http://localhost:5024** (not 5000 — AirPlay on macOS).
+Open [http://localhost:5024](http://localhost:5024).
 
-Stub sign-in: **http://localhost:5024/service/SignIn-Stub**  
-- Id: `11111111-1111-1111-1111-111111111111`  
-- Email: `isolation.employer@example.com`
+**Stub sign-in:** [http://localhost:5024/service/SignIn-Stub](http://localhost:5024/service/SignIn-Stub)
 
-Then open **http://localhost:5024/accounts/GP67XW/teams**.
+| Field | Value |
+|-------|-------|
+| Id | `11111111-1111-1111-1111-111111111111` |
+| Email | `isolation.employer@example.com` |
 
-`IsolationMode=true` is set by the run script. Config: `src/SFA.DAS.EmployerAccounts.Web/appsettings.Isolation.json`.
+Then open [http://localhost:5024/accounts/GP67XW/teams](http://localhost:5024/accounts/GP67XW/teams).
 
-### What works in this mode
+SQL connection used by publish/seed: `localhost,1433` / `EmployerAccounts` / `sa` / `Isolation_P@ssw0rd!`.
 
-| Journey | How |
-|---------|-----|
-| Home / team / orgs & agreements | Seed + WireMock Account API |
-| Sign employer agreement | In-app |
-| Add organisation | WireMock org search |
-| Add PAYE via Pensions Regulator (AORN) | WireMock `/tpr/...` |
-| Add PAYE via HMRC Gov Gateway | TEST HMRC mock (below) |
+Config: `src/SFA.DAS.EmployerAccounts.Web/appsettings.Isolation.json` (`IsolationMode=true` is set by the run script).
 
-### HMRC Gov Gateway (optional)
+### Journeys covered
 
-Add-PAYE via Gateway uses the **TEST** `das-hmrc-mock-api` (not WireMock).
+| Journey | Backing |
+|---------|---------|
+| Home, team, organisations and agreements | Seed data + WireMock |
+| Sign employer agreement | App + SQL |
+| Add organisation | WireMock organisation search |
+| Add PAYE via Pensions Regulator (AORN) | WireMock |
+| Add PAYE via HMRC Government Gateway | TEST HMRC mock (optional) |
 
-1. `az login` (Token Service empty-client-secret auth).
-2. Put HMRC **ClientId/Secret** in LOCAL Azure Table Storage (Azurite / das-employer-config). They are **not** in Isolation JSON on purpose.
-3. Isolation JSON is loaded again after table storage so Docker SQL / Encoding / WireMock URLs stay local.
-4. Mock login used in verification: user `LE_12_1000` / password `password`.
-5. Optional ngrok: tunnel `http://127.0.0.1:5024`; allow the public origin on the TEST HMRC OAuth client if the callback fails.
+### HMRC Government Gateway (optional)
+
+Add-PAYE via Gateway uses the TEST `das-hmrc-mock-api` (not WireMock).
+
+1. Run `az login`.
+2. Provide HMRC **ClientId** and **ClientSecret** via LOCAL Azure Table Storage (Azurite / das-employer-config). These are not stored in Isolation JSON.
+3. Sign in to the TEST HMRC mock when prompted (e.g. user `LE_12_1000`, password `password`).
 
 ### Notes
 
+- Database: `SFA.DAS.EmployerAccounts.Database.Sdk.sqlproj` builds a DACPAC with `dotnet build` on any OS. The classic `.sqlproj` remains for Visual Studio / existing CI.
 - No private NuGet feed is required for this path.
-- CDN stays on AT (`das-at-frnt-end`) so GOV.UK CSS loads.
-- Shared UI menu links target `*.local-eas`; isolation rewrites them to the current host (localhost / ngrok).
+- CDN stays on AT so GOV.UK styles load.
 

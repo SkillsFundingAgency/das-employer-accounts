@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
-# Run Employer Accounts Web against local Docker deps (SQL / Redis / WireMock).
+# Run Employer Accounts Web against local Docker dependencies.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 cd "$ROOT"
 
 DLL="$ROOT/src/SFA.DAS.EmployerAccounts.Web/bin/net10.0/SFA.DAS.EmployerAccounts.Web.dll"
 if [[ ! -f "$DLL" ]]; then
-  echo "Web DLL missing — building with Docker SDK..."
+  echo "Web DLL missing — building..."
   "$ROOT/tools/isolation/scripts/rebuild-web-docker.sh"
 fi
 
-# Prefer a runtime that is not SIGKILL'd (see README). SDK is not required to run.
 if [[ -x "$HOME/dotnet-isolation/dotnet" ]]; then
   export DOTNET_ROOT="$HOME/dotnet-isolation"
 elif [[ -x /usr/local/share/dotnet/dotnet ]]; then
