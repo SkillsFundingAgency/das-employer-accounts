@@ -18,6 +18,8 @@ public class CreateUserAccountCommandHandler(
 {
     public async Task<CreateUserAccountCommandResponse> Handle(CreateUserAccountCommand message, CancellationToken cancellationToken)
     {
+        message.OrganisationName = message.OrganisationName?.Trim();
+
         ValidateMessage(message);
 
         var userResponse = await mediator.Send(new GetUserByRefQuery { UserRef = message.ExternalUserId }, cancellationToken);
