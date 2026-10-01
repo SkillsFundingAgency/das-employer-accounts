@@ -153,8 +153,35 @@ public class WhenICallRenameAccount
     }
 
     [Test]
-    public async Task ThenTheAccountIsNotRenamedWhenTheTrimmedNameMatchesTheCurrentName()
+    public async Task ThenTheAccountNameIsConfirmedWhenTheTrimmedNameMatchesAndNameIsNotConfirmed()
     {
+        _repository.Setup(x => x.GetAccountById(It.IsAny<long>()))
+            .ReturnsAsync(new Account
+            {
+                Id = AccountId,
+                HashedId = HashedAccountId,
+                Name = AccountName,
+                NameConfirmed = false
+            });
+        _command.NewName = $"  {AccountName}  ";
+
+        await _commandHandler.Handle(_command, CancellationToken.None);
+
+        _repository.Verify(x => x.RenameAccount(AccountId, AccountName), Times.Once);
+        _eventPublisher.Events.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task ThenTheAccountIsNotRenamedWhenTheTrimmedNameMatchesAndNameIsAlreadyConfirmed()
+    {
+        _repository.Setup(x => x.GetAccountById(It.IsAny<long>()))
+            .ReturnsAsync(new Account
+            {
+                Id = AccountId,
+                HashedId = HashedAccountId,
+                Name = AccountName,
+                NameConfirmed = true
+            });
         _command.NewName = $"  {AccountName}  ";
 
         await _commandHandler.Handle(_command, CancellationToken.None);

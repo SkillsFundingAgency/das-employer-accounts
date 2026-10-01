@@ -37,13 +37,19 @@ public class RenameEmployerAccountCommandHandler(
         var account = await accountRepository.GetAccountById(accountId);
 
         var accountPreviousName = account.Name;
+        var nameUnchanged = string.Equals(accountPreviousName, message.NewName, StringComparison.Ordinal);
 
-        if (string.Equals(accountPreviousName, message.NewName, StringComparison.Ordinal))
+        if (nameUnchanged && account.NameConfirmed)
         {
             return;
         }
 
         await accountRepository.RenameAccount(accountId, message.NewName);
+
+        if (nameUnchanged)
+        {
+            return;
+        }
 
         var owner = await membershipRepository.GetCaller(message.HashedAccountId, message.ExternalUserId);
 
