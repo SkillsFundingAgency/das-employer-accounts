@@ -57,6 +57,8 @@ public class WhenIRenameAnAccount : ControllerTestBase
 
     [TestCase("", AccountNameBlankErrorMessage)]
     [TestCase(" ", AccountNameBlankErrorMessage)]
+    [TestCase("   ", AccountNameBlankErrorMessage)]
+    [TestCase("Test Account ", "New account name must not be the same as current name")]
     [TestCase("My New Name ~", AccountNameInvalidErrorMessage)]
     [TestCase("My New Name {", AccountNameInvalidErrorMessage)]
     [TestCase("My New Name }", AccountNameInvalidErrorMessage)]
@@ -86,6 +88,7 @@ public class WhenIRenameAnAccount : ControllerTestBase
     }
 
     [TestCase("My New Name")]
+    [TestCase("  My New Name  ")]
     [TestCase("My New Name $@#()\"'!,+-=_:;.&€£*%/[]")]
     public async Task Then_I_Will_Not_Get_An_Error_When_NewName_IsValid(string newName)
     {

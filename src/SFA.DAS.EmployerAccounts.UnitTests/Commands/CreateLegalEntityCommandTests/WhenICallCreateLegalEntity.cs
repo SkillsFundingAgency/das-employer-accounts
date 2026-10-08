@@ -154,5 +154,16 @@ namespace SFA.DAS.EmployerAccounts.UnitTests.Commands.CreateLegalEntityCommandTe
                    e.OrganisationAddress.Equals(_agreementView.LegalEntityAddress) &&
                    e.OrganisationType.ToString().Equals(_agreementView.LegalEntitySource.ToString());
         }
+
+        [Test]
+        public async Task ThenLeadingAndTrailingWhitespaceIsTrimmedFromTheLegalEntityName()
+        {
+            Command.Name = "  Org Ltd  ";
+
+            await CommandHandler.Handle(Command, CancellationToken.None);
+
+            AccountRepository.Verify(r => r.CreateLegalEntityWithAgreement(
+                It.Is<CreateLegalEntityWithAgreementParams>(cp => cp.Name == "Org Ltd")), Times.Once);
+        }
     }
 }
