@@ -10,24 +10,14 @@ namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 
 [SetNavigationSection(NavigationSection.AccountsTeamsView)]
 [Route("accounts/{HashedAccountId}/teams")]
-public class EmployerTeamController : BaseController
+public class EmployerTeamController(
+    ICookieStorageService<FlashMessageViewModel> flashMessage,
+    EmployerTeamOrchestratorWithCallToAction employerTeamOrchestrator,
+    IUrlActionHelper urlActionHelper,
+    IFeature feature,
+    ILogger<EmployerTeamController> logger)
+    : BaseController(flashMessage)
 {
-    private readonly IUrlActionHelper _urlActionHelper;
-    private readonly ILogger<EmployerTeamController> _logger;
-    private readonly EmployerTeamOrchestratorWithCallToAction _employerTeamOrchestrator;
-
-    public EmployerTeamController(
-        ICookieStorageService<FlashMessageViewModel> flashMessage,
-        EmployerTeamOrchestratorWithCallToAction employerTeamOrchestrator,
-        IUrlActionHelper urlActionHelper,
-        ILogger<EmployerTeamController> logger)
-        : base(flashMessage)
-    {
-        _employerTeamOrchestrator = employerTeamOrchestrator;
-        _urlActionHelper = urlActionHelper;
-        _logger = logger;
-    }
-
     [HttpGet]
     [SetNavigationSection(NavigationSection.AccountsHome)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
@@ -49,6 +39,11 @@ public class EmployerTeamController : BaseController
                 return RedirectToRoute(RouteNames.ContinueNewEmployerAccountTaskList, new { hashedAccountId });
             }
 
+            if (feature.IsFeatureEnabled(FeatureNames.LevyProjectionTransparency))
+            {
+                response.Data.LevyProjectionTransparencyEnabled = true;
+            }
+
             return View(response);
         }
         catch (Exception e)
@@ -63,7 +58,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> ViewTeam(string hashedAccountId)
     {
-        var response = await _employerTeamOrchestrator.GetTeamMembers(hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var response = await employerTeamOrchestrator.GetTeamMembers(hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         var flashMessage = GetFlashMessageViewModelFromCookie();
         if (flashMessage != null)
@@ -94,7 +89,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Invite(string hashedAccountId)
     {
-        var response = await _employerTeamOrchestrator.GetNewInvitation(hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var response = await employerTeamOrchestrator.GetNewInvitation(hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         return View(response);
     }
@@ -104,7 +99,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Invite(InviteTeamMemberViewModel model)
     {
-        var response = await _employerTeamOrchestrator.InviteTeamMember(model, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var response = await employerTeamOrchestrator.InviteTeamMember(model, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         if (response.Status == HttpStatusCode.OK)
         {
@@ -176,7 +171,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Cancel(string hashedInvitationId)
     {
-        var invitation = await _employerTeamOrchestrator.GetInvitation(hashedInvitationId);
+        var invitation = await employerTeamOrchestrator.GetInvitation(hashedInvitationId);
 
         return View(invitation);
     }
@@ -191,7 +186,7 @@ public class EmployerTeamController : BaseController
             return RedirectToAction(ControllerConstants.ViewTeamViewName, new { HashedAccountId = hashedAccountId });
         }
 
-        var response = await _employerTeamOrchestrator.Cancel(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
+        var response = await employerTeamOrchestrator.Cancel(email, hashedAccountId, HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName));
 
         return View(ControllerConstants.ViewTeamViewName, response);
     }
@@ -201,7 +196,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Resend(string hashedAccountId, string hashedInvitationId, string name, string email)
     {
-        var response = await _employerTeamOrchestrator.Resend(
+        var response = await employerTeamOrchestrator.Resend(
             hashedInvitationId,
             hashedAccountId,
             HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
@@ -216,7 +211,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Remove(string hashedAccountId, string hashedUserId)
     {
-        var response = await _employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
+        var response = await employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
 
         return View(response);
     }
@@ -236,7 +231,7 @@ public class EmployerTeamController : BaseController
                 return RedirectToAction(ControllerConstants.ViewTeamViewName, new { HashedAccountId = hashedAccountId });
             }
 
-            var response = await _employerTeamOrchestrator.Remove(
+            var response = await employerTeamOrchestrator.Remove(
                 hashedAccountId,
                 HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName),
                 hashedUserId);
@@ -254,7 +249,7 @@ public class EmployerTeamController : BaseController
             exception = e;
         }
 
-        var errorResponse = await _employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
+        var errorResponse = await employerTeamOrchestrator.Review(hashedAccountId, hashedUserId);
         errorResponse.Status = httpStatusCode;
         errorResponse.Exception = exception;
 
@@ -266,7 +261,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId)
     {
-        var teamMember = await _employerTeamOrchestrator.GetTeamMember(
+        var teamMember = await employerTeamOrchestrator.GetTeamMember(
             hashedAccountId,
             hashedUserId,
             isUser: true,
@@ -282,7 +277,7 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> ChangeRole(string hashedAccountId, string hashedUserId, string email, Role role)
     {
-        var response = await _employerTeamOrchestrator.ChangeRole(
+        var response = await employerTeamOrchestrator.ChangeRole(
             hashedAccountId,
             hashedUserId,
             role,
@@ -294,7 +289,7 @@ public class EmployerTeamController : BaseController
             return View(ControllerConstants.ViewTeamViewName, response);
         }
 
-        var teamMemberResponse = await _employerTeamOrchestrator.GetTeamMember(
+        var teamMemberResponse = await employerTeamOrchestrator.GetTeamMember(
             hashedAccountId,
             hashedUserId,
             isUser: true,
@@ -313,14 +308,14 @@ public class EmployerTeamController : BaseController
     [Authorize(Policy = nameof(PolicyNames.HasEmployerViewerTransactorOwnerAccount))]
     public async Task<IActionResult> Review(string hashedAccountId, string hashedUserId, bool isUser)
     {
-        var invitation = await _employerTeamOrchestrator.GetTeamMember(
+        var invitation = await employerTeamOrchestrator.GetTeamMember(
             hashedAccountId,
             hashedUserId,
             isUser,
             HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName)
         );
 
-        _logger.LogInformation("EmployerTeamController.Review invitation: {Invitation}.", JsonSerializer.Serialize(invitation));
+        logger.LogInformation("EmployerTeamController.Review invitation: {Invitation}.", JsonSerializer.Serialize(invitation));
 
         return View(invitation);
     }
@@ -346,10 +341,10 @@ public class EmployerTeamController : BaseController
 
         if (requiresAdvert.Value)
         {
-            return Redirect(_urlActionHelper.EmployerRecruitAction());
+            return Redirect(urlActionHelper.EmployerRecruitAction());
         }
 
-        return Redirect(_urlActionHelper.EmployerCommitmentsV2Action("unapproved/Inform"));
+        return Redirect(urlActionHelper.EmployerCommitmentsV2Action("unapproved/Inform"));
     }
 
     [HttpGet]
@@ -540,7 +535,7 @@ public class EmployerTeamController : BaseController
     private async Task<OrchestratorResponse<AccountDashboardViewModel>> GetAccountInformation(string hashedAccountId)
     {
         var externalUserId = HttpContext.User.FindFirstValue(ControllerConstants.UserRefClaimKeyName);
-        var response = await _employerTeamOrchestrator.GetAccount(hashedAccountId, externalUserId);
+        var response = await employerTeamOrchestrator.GetAccount(hashedAccountId, externalUserId);
 
         var flashMessage = GetFlashMessageViewModelFromCookie();
 

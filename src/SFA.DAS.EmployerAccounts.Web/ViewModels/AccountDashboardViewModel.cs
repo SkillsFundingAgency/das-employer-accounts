@@ -32,4 +32,5 @@ public class AccountDashboardViewModel
     public string HashedAccountId { get; set; }
     public bool ShowLevyTransparency { get; set; }
     public bool ShowLevyToNonLevyTransitionBanner { get; set; }
+    public bool LevyProjectionTransparencyEnabled { get; set; } = false;
 }
