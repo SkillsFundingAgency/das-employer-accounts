@@ -54,4 +54,5 @@ public class EmployerAccountsConfiguration
     public List<RedirectUriConfiguration> ValidRedirectUris { get; set; }
     public virtual bool ShowLevyTransparency { get; set; }
     public LevyDormancyConfiguration LevyDormancy { get; set; } = new();
+    public Features Features { get; set; } = new();
 }

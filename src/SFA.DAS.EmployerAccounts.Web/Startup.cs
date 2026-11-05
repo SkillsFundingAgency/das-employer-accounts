@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.FeatureManagement;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.AutoConfiguration.DependencyResolution;
 using SFA.DAS.Employer.Shared.UI;
@@ -27,6 +29,7 @@ using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using System.Configuration;
 
 namespace SFA.DAS.EmployerAccounts.Web;
 
@@ -43,7 +46,7 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton(_configuration);
+        services.Replace(ServiceDescriptor.Singleton<IConfiguration>(_configuration));
 
         services.AddOptions();
 
@@ -86,7 +89,7 @@ public class Startup
         services.AddPollyPolicy(employerAccountsConfiguration);
         services.AddContentApiClient(employerAccountsConfiguration);
         services.AddApprenticeshipLevyApi(employerAccountsConfiguration);
-
+       
         services.AddAuthenticationServices();
 
         services.AddMediatorValidators();

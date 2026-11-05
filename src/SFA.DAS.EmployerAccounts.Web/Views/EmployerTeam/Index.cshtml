@@ -243,16 +243,22 @@ else
                         <div class="das-card">
                             <h3 class="govuk-heading-m das-card__heading">
                                 <a href="@UrlHelpers.EmployerFinanceAction("finance")"
-                                   class="govuk-link govuk-link--no-visited-state">Funding and payments</a>
+                                   class="govuk-link govuk-link--no-visited-state">
+                                    <span>
+                                        @(Model.Data.LevyProjectionTransparencyEnabled && Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy
+                                            ? "Your current and estimated levy funds"
+                                            : "Funding and payments")
+                                    </span>
+                               </a>
                             </h3>
-                            @if (Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
-                            {
-                                <p class="govuk-body govuk-!-font-size-16">View and download any levy transactions.</p>    
+                            @{
+                                var message = Model.Data.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy
+                                    ? Model.Data.LevyProjectionTransparencyEnabled
+                                        ? "View and download current and estimated levy activity or past transactions."
+                                        : "View and download any levy transactions."
+                                    : "View and download transactions.";
                             }
-                            else
-                            {
-                                <p class="govuk-body govuk-!-font-size-16">View and download transactions.</p>
-                            }
+                            <p class="govuk-body govuk-!-font-size-16">@message</p>
                         </div>
                     }
                     else

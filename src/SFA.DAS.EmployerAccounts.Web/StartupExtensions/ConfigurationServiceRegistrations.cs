@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Newtonsoft.Json;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.Interfaces.Hmrc;
+using SFA.DAS.EmployerAccounts.ServiceRegistration;
 using SFA.DAS.Encoding;
 using SFA.DAS.TokenService.Api.Client;
 
@@ -29,6 +31,13 @@ public static class ConfigurationServiceRegistrations
         services.AddSingleton<EmployerAccountsOuterApiConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().EmployerAccountsOuterApiConfiguration);
         services.AddSingleton<ITokenServiceApiClientConfiguration>(cfg => cfg.GetService<EmployerAccountsConfiguration>().TokenServiceApi);
 
+        services.AddFeatureToggle(configuration);
+        services.AddFeatureManagement(
+            configuration
+                .GetSection(ConfigurationKeys.EmployerAccounts)
+                .GetSection(nameof(EmployerAccountsConfiguration.Features))
+        );
+        
         return services;
     }
 }
