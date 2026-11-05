@@ -1,10 +1,10 @@
-﻿using System.Security.Claims;
-using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
 using SFA.DAS.EmployerAccounts.Web.Authentication;
 using SFA.DAS.EmployerAccounts.Web.RouteValues;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace SFA.DAS.EmployerAccounts.Web.Controllers;
 

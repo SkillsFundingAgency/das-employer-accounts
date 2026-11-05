@@ -1,12 +1,19 @@
 ﻿using Microsoft.Extensions.Configuration;
+using SFA.DAS.EmployerAccounts.Configuration;
 
 namespace SFA.DAS.EmployerAccounts.Services;
 
 public class Feature(IConfiguration configuration) : IFeature
 {
-    public bool IsFeatureEnabled(string feature)
+    private readonly Features _features = configuration.Get<Features>() ?? new Features();
+
+    public bool IsFeatureEnabled(string featureName)
     {
-        string featureValue = configuration[$"Features:{feature}"];
-        return !string.IsNullOrWhiteSpace(featureValue) && bool.Parse(featureValue);
+        return featureName switch
+        {
+            FeatureNames.LevyProjectionTransparency => _features.LevyProjectionTransparency,
+            // add other features here
+            _ => false
+        };
     }
 }

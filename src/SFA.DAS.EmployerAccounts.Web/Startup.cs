@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.FeatureManagement;
@@ -45,7 +46,7 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton(_configuration);
+        services.Replace(ServiceDescriptor.Singleton<IConfiguration>(_configuration));
 
         services.AddOptions();
 
@@ -89,9 +90,6 @@ public class Startup
         services.AddContentApiClient(employerAccountsConfiguration);
         services.AddApprenticeshipLevyApi(employerAccountsConfiguration);
        
-        services.AddFeatureToggle();
-        services.AddFeatureManagement(_configuration.GetSection("Features"));
-
         services.AddAuthenticationServices();
 
         services.AddMediatorValidators();

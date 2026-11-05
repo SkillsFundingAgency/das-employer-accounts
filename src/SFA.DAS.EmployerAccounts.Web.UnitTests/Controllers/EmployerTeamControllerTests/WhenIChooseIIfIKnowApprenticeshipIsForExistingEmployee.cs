@@ -40,7 +40,7 @@ public class WhenIChooseIIfIKnowApprenticeshipIsForExistingEmployee
         var model = new AccountDashboardViewModel
         {
             PayeSchemeCount = 1,
-            PendingAgreements = new List<PendingAgreementsViewModel> { new PendingAgreementsViewModel() }
+            PendingAgreements = [new PendingAgreementsViewModel()]
         };
 
         //Act
