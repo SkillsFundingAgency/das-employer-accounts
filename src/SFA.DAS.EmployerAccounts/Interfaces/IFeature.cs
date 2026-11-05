@@ -2,5 +2,5 @@
 
 public interface IFeature
 {
-    bool IsFeatureEnabled(string feature);
+    bool IsFeatureEnabled(string featureName);
 }
