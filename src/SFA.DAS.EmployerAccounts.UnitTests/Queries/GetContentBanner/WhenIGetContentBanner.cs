@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture.NUnit3;
+﻿using AutoFixture.NUnit3;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -11,7 +8,6 @@ using NUnit.Framework;
 using SFA.DAS.Common.Domain.Types;
 using SFA.DAS.EmployerAccounts.Configuration;
 using SFA.DAS.EmployerAccounts.Interfaces;
-using SFA.DAS.EmployerAccounts.Models.UserAccounts;
 using SFA.DAS.EmployerAccounts.Queries.GetContent;
 using SFA.DAS.EmployerAccounts.Services;
 using SFA.DAS.Testing.AutoFixture;
@@ -128,8 +124,8 @@ public class WhenIGetContentBanner : QueryBaseTest<GetContentRequestHandler, Get
     
         string nullCacheString = null;
         var cacheKey = key + "_banner";
-        cacheStorageService1.Setup(c => c.TryGet(cacheKey, out nullCacheString))
-            .Returns(false);
+        cacheStorageService1.Setup(c => c.TryGetAsync(cacheKey))
+            .ReturnsAsync((false, nullCacheString));
     
         MockContentService.Setup(c => c.Get(query1.ContentType, key))
             .ReturnsAsync(contentBanner1);

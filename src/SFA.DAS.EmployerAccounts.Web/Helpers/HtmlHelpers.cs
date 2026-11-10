@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
-using SFA.DAS.EmployerAccounts.Helpers;
 using SFA.DAS.EmployerAccounts.Queries.GetContent;
 
 namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 
 public interface IHtmlHelpers
 {
-    HtmlString GetContentByType(string type);
+    Task<HtmlString> GetContentByTypeAsync(string type);
     bool ViewExists(IHtmlHelper html, string viewName);
     string ReturnToHomePageButtonHref(string hashedAccountId);
     string ReturnToHomePageButtonText(string hashedAccountId);
@@ -40,12 +39,12 @@ public class HtmlHelpers(
         return input.Replace("'", @"\'");
     }
 
-    public HtmlString GetContentByType(string type)
+    public async Task<HtmlString> GetContentByTypeAsync(string type)
     {
-        var userResponse = AsyncHelper.RunSync(() => mediator.Send(new GetContentRequest
+        var userResponse = await mediator.Send(new GetContentRequest
         {
             ContentType = type
-        }));
+        });
 
         return new HtmlString(userResponse.Content);
     }
