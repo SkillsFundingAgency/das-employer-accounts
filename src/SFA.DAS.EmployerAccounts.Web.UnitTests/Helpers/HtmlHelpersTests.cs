@@ -27,38 +27,6 @@ class HtmlHelpersTests
     }
 
     [Test]
-    public void GetContentByType_ReturnsContentFromMediator()
-    {
-        // Arrange
-        const string contentType = "SomeType";
-        _mockMediator
-            .Setup(m => m.Send(It.Is<GetContentRequest>(r => r.ContentType == contentType), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetContentResponse { Content = "<p>content</p>" });
-
-        // Act
-        var actual = _htmlHelpers.GetContentByType(contentType);
-
-        // Assert
-        actual.Should().BeOfType<HtmlString>();
-        actual.Value.Should().Be("<p>content</p>");
-    }
-
-    [Test]
-    public void GetContentByType_WhenContentIsNull_ReturnsHtmlStringWithNullValue()
-    {
-        // Arrange
-        _mockMediator
-            .Setup(m => m.Send(It.IsAny<GetContentRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetContentResponse { Content = null });
-
-        // Act
-        var actual = _htmlHelpers.GetContentByType("SomeType");
-
-        // Assert
-        actual.Value.Should().BeNull();
-    }
-
-    [Test]
     public async Task GetContentByTypeAsync_ReturnsContentFromMediator()
     {
         // Arrange

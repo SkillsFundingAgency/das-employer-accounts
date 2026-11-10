@@ -8,7 +8,6 @@ namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 
 public interface IHtmlHelpers
 {
-    HtmlString GetContentByType(string type);
     Task<HtmlString> GetContentByTypeAsync(string type);
     bool ViewExists(IHtmlHelper html, string viewName);
     string ReturnToHomePageButtonHref(string hashedAccountId);
@@ -39,16 +38,6 @@ public class HtmlHelpers(
     private static string EscapeApostrophes(string input)
     {
         return input.Replace("'", @"\'");
-    }
-
-    public HtmlString GetContentByType(string type)
-    {
-        var userResponse = AsyncHelper.RunSync(() => mediator.Send(new GetContentRequest
-        {
-            ContentType = type
-        }));
-
-        return new HtmlString(userResponse.Content);
     }
 
     public async Task<HtmlString> GetContentByTypeAsync(string type)
