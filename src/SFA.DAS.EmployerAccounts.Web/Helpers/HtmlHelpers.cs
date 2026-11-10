@@ -61,7 +61,6 @@ public class HtmlHelpers(
         return new HtmlString(userResponse.Content);
     }
 
-
     public bool ViewExists(IHtmlHelper html, string viewName)
     {
         var result = compositeViewEngine.FindView(html.ViewContext, viewName, false);

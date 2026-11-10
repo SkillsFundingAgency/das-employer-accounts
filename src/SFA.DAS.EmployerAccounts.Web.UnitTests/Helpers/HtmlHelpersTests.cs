@@ -1,44 +1,163 @@
-﻿using System.Security.Claims;
+﻿using System.IO;
 using Microsoft.AspNetCore.Http;
-using Claim = System.Security.Claims.Claim;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging.Abstractions;
+using SFA.DAS.EmployerAccounts.Queries.GetContent;
 
 namespace SFA.DAS.EmployerAccounts.Web.UnitTests.Helpers;
 
 class HtmlHelpersTests
 {
-    private Mock<HttpContext> _mockHttpContext;
-    private Mock<IHttpContextAccessor> _mockHttpContextAccessor;
-    private Mock<ClaimsPrincipal> _mockPrincipal;
-    private Mock<ClaimsIdentity> _mockClaimsIdentity;
-    private readonly bool _isAuthenticated = true;
-    private List<Claim> _claims;
-    private string _userId;
     private Mock<IMediator> _mockMediator;
-    private EmployerAccountsConfiguration _employerConfiguration;
+    private Mock<ICompositeViewEngine> _mockCompositeViewEngine;
+    private HtmlHelpers _htmlHelpers;
 
     [SetUp]
     public void SetUp()
     {
-        _mockHttpContext = new Mock<HttpContext>();
-        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
-        _mockPrincipal = new Mock<ClaimsPrincipal>();
-        _mockClaimsIdentity = new Mock<ClaimsIdentity>();
-        _employerConfiguration = new EmployerAccountsConfiguration();
-        _userId = "TestUser";
-
-        _claims = [new(ControllerConstants.UserRefClaimKeyName, _userId)];
-
-        _mockPrincipal.Setup(m => m.Identity).Returns(_mockClaimsIdentity.Object);
-        _mockClaimsIdentity.Setup(m => m.IsAuthenticated).Returns(_isAuthenticated);
-        _mockClaimsIdentity.Setup(m => m.Claims).Returns(_claims);
-        _mockHttpContext.Setup(m => m.User).Returns(_mockPrincipal.Object);
-        _mockHttpContextAccessor.Setup(x=> x.HttpContext).Returns(_mockHttpContext.Object);
-
         _mockMediator = new Mock<IMediator>();
+        _mockCompositeViewEngine = new Mock<ICompositeViewEngine>();
+        _htmlHelpers = new HtmlHelpers(_mockMediator.Object, NullLogger<HtmlHelpers>.Instance, _mockCompositeViewEngine.Object);
+    }
 
-        var serviceProviderMock = new Mock<IServiceProvider>();
-        serviceProviderMock.Setup(provider => provider.GetService(typeof(EmployerAccountsConfiguration)))
-            .Returns(_employerConfiguration);
+    [Test]
+    public void GetContentByType_ReturnsContentFromMediator()
+    {
+        // Arrange
+        const string contentType = "SomeType";
+        _mockMediator
+            .Setup(m => m.Send(It.Is<GetContentRequest>(r => r.ContentType == contentType), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetContentResponse { Content = "<p>content</p>" });
+
+        // Act
+        var actual = _htmlHelpers.GetContentByType(contentType);
+
+        // Assert
+        actual.Should().BeOfType<HtmlString>();
+        actual.Value.Should().Be("<p>content</p>");
+    }
+
+    [Test]
+    public void GetContentByType_WhenContentIsNull_ReturnsHtmlStringWithNullValue()
+    {
+        // Arrange
+        _mockMediator
+            .Setup(m => m.Send(It.IsAny<GetContentRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetContentResponse { Content = null });
+
+        // Act
+        var actual = _htmlHelpers.GetContentByType("SomeType");
+
+        // Assert
+        actual.Value.Should().BeNull();
+    }
+
+    [Test]
+    public async Task GetContentByTypeAsync_ReturnsContentFromMediator()
+    {
+        // Arrange
+        const string contentType = "SomeType";
+        _mockMediator
+            .Setup(m => m.Send(It.Is<GetContentRequest>(r => r.ContentType == contentType), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetContentResponse { Content = "<p>async content</p>" });
+
+        // Act
+        var actual = await _htmlHelpers.GetContentByTypeAsync(contentType);
+
+        // Assert
+        actual.Should().BeOfType<HtmlString>();
+        actual.Value.Should().Be("<p>async content</p>");
+    }
+
+    [Test]
+    public void ViewExists_WhenViewFound_ReturnsTrue()
+    {
+        // Arrange
+        var html = CreateHtmlHelper();
+        var viewEngineResult = ViewEngineResult.Found("ViewName", new Mock<IView>().Object);
+        _mockCompositeViewEngine
+            .Setup(v => v.FindView(html.ViewContext, "ViewName", false))
+            .Returns(viewEngineResult);
+
+        // Act
+        var actual = _htmlHelpers.ViewExists(html, "ViewName");
+
+        // Assert
+        actual.Should().BeTrue();
+    }
+
+    [Test]
+    public void ViewExists_WhenViewNotFound_ReturnsFalse()
+    {
+        // Arrange
+        var html = CreateHtmlHelper();
+        var viewEngineResult = ViewEngineResult.NotFound("ViewName", Array.Empty<string>());
+        _mockCompositeViewEngine
+            .Setup(v => v.FindView(html.ViewContext, "ViewName", false))
+            .Returns(viewEngineResult);
+
+        // Act
+        var actual = _htmlHelpers.ViewExists(html, "ViewName");
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [TestCase("ABC123", "/accounts/ABC123/teams")]
+    [TestCase(null, "/")]
+    [TestCase("", "/")]
+    public void ReturnToHomePageButtonHref_ReturnsExpectedHref(string hashedAccountId, string expected)
+    {
+        // Act
+        var actual = _htmlHelpers.ReturnToHomePageButtonHref(hashedAccountId);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [TestCase("ABC123", "Go back to the account home page")]
+    [TestCase(null, "Go back to the service home page")]
+    [TestCase("", "Go back to the service home page")]
+    public void ReturnToHomePageButtonText_ReturnsExpectedText(string hashedAccountId, string expected)
+    {
+        // Act
+        var actual = _htmlHelpers.ReturnToHomePageButtonText(hashedAccountId);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [TestCase("ABC123", "Back to the homepage")]
+    [TestCase(null, "Back")]
+    [TestCase("", "Back")]
+    public void ReturnToHomePageLinkText_ReturnsExpectedText(string hashedAccountId, string expected)
+    {
+        // Act
+        var actual = _htmlHelpers.ReturnToHomePageLinkText(hashedAccountId);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    private static IHtmlHelper CreateHtmlHelper()
+    {
+        var viewContext = new ViewContext(
+            new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor()),
+            new Mock<IView>().Object,
+            new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()),
+            new TempDataDictionary(new DefaultHttpContext(), new Mock<ITempDataProvider>().Object),
+            TextWriter.Null,
+            new HtmlHelperOptions());
+
+        var mockHtmlHelper = new Mock<IHtmlHelper>();
+        mockHtmlHelper.SetupGet(h => h.ViewContext).Returns(viewContext);
+        return mockHtmlHelper.Object;
     }
 
     [TestCaseSource(nameof(LabelCases))]
