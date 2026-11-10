@@ -133,7 +133,7 @@
         <main class="govuk-main-wrapper" id="main-content" role="main">
             @if (User.Identity.IsAuthenticated)
             {
-                @HtmlHelpers.GetContentByType("banner")
+                @await HtmlHelpers.GetContentByTypeAsync("banner")
             }
             @await Html.PartialAsync(@"_SuccessMessage_CDN", Model as OrchestratorResponse)
             @RenderBody()

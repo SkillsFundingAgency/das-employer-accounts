@@ -9,6 +9,7 @@ namespace SFA.DAS.EmployerAccounts.Web.Helpers;
 public interface IHtmlHelpers
 {
     HtmlString GetContentByType(string type);
+    Task<HtmlString> GetContentByTypeAsync(string type);
     bool ViewExists(IHtmlHelper html, string viewName);
     string ReturnToHomePageButtonHref(string hashedAccountId);
     string ReturnToHomePageButtonText(string hashedAccountId);
@@ -49,6 +50,17 @@ public class HtmlHelpers(
 
         return new HtmlString(userResponse.Content);
     }
+
+    public async Task<HtmlString> GetContentByTypeAsync(string type)
+    {
+        var userResponse = await mediator.Send(new GetContentRequest
+        {
+            ContentType = type
+        });
+
+        return new HtmlString(userResponse.Content);
+    }
+
 
     public bool ViewExists(IHtmlHelper html, string viewName)
     {
