@@ -22,10 +22,10 @@ public class CacheStorageService : ICacheStorageService
         await _distributedCache.SetCustomValueAsync(key, json, TimeSpan.FromMinutes(_config.DefaultCacheExpirationInMinutes));
     }
 
-    public bool TryGet(string key, out string value)
+    public async Task<(bool, string)> TryGetAsync(string key)
     {
-        value = AsyncHelper.RunSync(() => Get<string>(key));
-        return value != null;
+        var value = await Get<string>(key);
+        return (value != null, value);
     }
 
     private async Task<T> Get<T>(string key)

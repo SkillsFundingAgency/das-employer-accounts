@@ -20,7 +20,8 @@ public class ContentApiClientWithCaching : IContentApiClient
 
         try
         {
-            if (_cacheStorageService.TryGet(cacheKey, out string cachedContentBanner))
+            var (found, cachedContentBanner) = await _cacheStorageService.TryGetAsync(cacheKey);
+            if (found)
             {
                 return cachedContentBanner;
             }
