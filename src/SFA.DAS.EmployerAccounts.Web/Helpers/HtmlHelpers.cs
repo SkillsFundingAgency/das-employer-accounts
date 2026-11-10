@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
-using SFA.DAS.EmployerAccounts.Helpers;
 using SFA.DAS.EmployerAccounts.Queries.GetContent;
 
 namespace SFA.DAS.EmployerAccounts.Web.Helpers;
