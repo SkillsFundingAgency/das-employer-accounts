@@ -30,6 +30,7 @@ public static class HostBuilderExtensions
                 .Get<EmployerAccountsConfiguration>();
 
             services.AddConfigurationSections(context.Configuration);
+            services.AddDateTimeServices(context.Configuration);
 
             services
                 .AddUnitOfWork()

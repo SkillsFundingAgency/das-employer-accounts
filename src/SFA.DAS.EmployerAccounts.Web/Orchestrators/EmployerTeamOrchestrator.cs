@@ -21,6 +21,7 @@ using SFA.DAS.EmployerAccounts.Queries.GetMemberById;
 using SFA.DAS.EmployerAccounts.Queries.GetTaskSummary;
 using SFA.DAS.EmployerAccounts.Queries.GetTeamUser;
 using SFA.DAS.EmployerAccounts.Queries.GetUser;
+using SFA.DAS.EmployerAccounts.Queries.HasCompletedLevyDormancyRequest;
 using SFA.DAS.EmployerAccounts.Web.ViewComponents;
 using SFA.DAS.Encoding;
 
@@ -212,7 +213,8 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
                 ApprenticeshipEmployerType = apprenticeshipEmployerType,
                 AgreementInfo = _mapper.Map<AccountDetailViewModel, AgreementInfoViewModel>(accountDetailViewModel),
                 TermAndConditionsAcceptedOn = userQueryResponse.User.TermAndConditionsAcceptedOn,
-                LastTermsAndConditionsUpdate = _configuration.LastTermsAndConditionsUpdate
+                LastTermsAndConditionsUpdate = _configuration.LastTermsAndConditionsUpdate,
+                ShowLevyToNonLevyTransitionBanner = await ShouldShowLevyToNonLevyTransitionBanner(accountId, apprenticeshipEmployerType)
             };
 
             //note: ApprenticeshipEmployerType is already returned by GetEmployerAccountHashedQuery, but we need to transition to calling the api instead.
@@ -249,6 +251,23 @@ public class EmployerTeamOrchestrator : UserVerificationOrchestratorBase
                 Exception = ex
             };
         }
+    }
+
+    private async Task<bool> ShouldShowLevyToNonLevyTransitionBanner(
+        long accountId,
+        ApprenticeshipEmployerType apprenticeshipEmployerType)
+    {
+        if (apprenticeshipEmployerType != ApprenticeshipEmployerType.NonLevy)
+        {
+            return false;
+        }
+
+        var response = await _mediator.Send(new HasCompletedLevyDormancyRequestQuery
+        {
+            AccountId = accountId
+        });
+
+        return response.HasCompletedRequest;
     }
 
     public async Task<OrchestratorResponse<InvitationView>> GetInvitation(string invitationId)

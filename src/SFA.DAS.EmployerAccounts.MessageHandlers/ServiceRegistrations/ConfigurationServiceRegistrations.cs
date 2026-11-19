@@ -13,6 +13,7 @@ public static class ConfigurationServiceRegistrations
 
         services.Configure<EmployerAccountsConfiguration>(configuration.GetSection(ConfigurationKeys.EmployerAccounts));
         services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountsConfiguration>>().Value);
+        services.Configure<LevyDormancyConfiguration>(configuration.GetSection($"{ConfigurationKeys.EmployerAccounts}:LevyDormancy"));
 
         var encodingConfigJson = configuration.GetSection(ConfigurationKeys.EncodingConfig).Value;
         var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);

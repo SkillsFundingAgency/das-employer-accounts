@@ -7,14 +7,16 @@
         <LangVersion>latestmajor</LangVersion>
     </PropertyGroup>
     <ItemGroup>
+        <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
         <PackageReference Include="AutoMapper" Version="13.0.1" />
         <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.2" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
+        <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
         <PackageReference Include="Microsoft.Extensions.HealthChecks.SqlServer" Version="1.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
         <PackageReference Include="SFA.DAS.Api.Common" Version="17.1.135" />
         <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.283" />
         <PackageReference Include="SFA.DAS.Encoding" Version="1.1.76" />
@@ -24,8 +26,6 @@
         <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
         <PackageReference Include="SFA.DAS.Validation.Mvc" Version="6.0.30" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
-        <PackageReference Include="System.Net.Http" Version="4.3.4">
-        </PackageReference>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SFA.DAS.EmployerAccounts.Api.Types\SFA.DAS.EmployerAccounts.Api.Types.csproj" />

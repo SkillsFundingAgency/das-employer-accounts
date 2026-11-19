@@ -284,3 +284,6 @@ src/SFA.DAS.EmployerAccounts.Api/appsettings.Development.json
 
 # ignore azurite files
 __azurite*
+
+# Local ASP.NET Core Data Protection keys (created when running Web in Development)
+src/SFA.DAS.EmployerAccounts.Web/AS/

@@ -24,6 +24,9 @@ public class CreateAccountCommandHandler(
 {
     public async Task<CreateAccountCommandResponse> Handle(CreateAccountCommand message, CancellationToken cancellationToken)
     {
+        message.OrganisationName = message.OrganisationName?.Trim();
+        message.EmployerRefName = message.EmployerRefName?.Trim();
+
         await ValidateMessage(message);
 
         var externalUserId = Guid.Parse(message.ExternalUserId);

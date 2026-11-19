@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.EmployerAccounts.Models;
 using SFA.DAS.EmployerAccounts.Models.Account;
+using SFA.DAS.EmployerAccounts.Models.LevyDormancy;
 using SFA.DAS.EmployerAccounts.Models.PAYE;
 
 namespace SFA.DAS.EmployerAccounts.Data.Contracts;
@@ -19,4 +20,6 @@ public interface IEmployerAccountsDbContext
     DbSet<UserAccountSetting> UserAccountSettings { get; set; }
     DbSet<RunOnceJob> RunOnceJobs { get; set; }
     DbSet<Paye> Payees { get; set; }
+    DbSet<EmployerAccountLevyStatus> EmployerAccountLevyStatuses { get; set; }
+    DbSet<LevyDormancyRequest> LevyDormancyRequests { get; set; }
 }

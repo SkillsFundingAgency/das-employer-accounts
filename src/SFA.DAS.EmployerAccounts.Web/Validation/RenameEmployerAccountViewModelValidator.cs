@@ -20,12 +20,10 @@ public sealed class RenameEmployerAccountViewModelValidator : AbstractValidator<
         
         RuleFor(r => r.NewName)
             .Cascade(CascadeMode.Stop)
-            .NotEqual(r => r.CurrentName)
+            .Must(n => !string.IsNullOrWhiteSpace(n))
+            .WithMessage("Enter a name")
+            .Must((model, n) => n!.Trim() != (model.CurrentName?.Trim() ?? string.Empty))
             .WithMessage(sameNameErrorMessage)
-            .NotEmpty()
-            .WithMessage("Enter a name");
-
-        RuleFor(x => x.NewName)
             .ValidFreeTextCharacters()
             .WithMessage("Account name must only include letters a to z, numbers 0 to 9, and special characters such as hyphens, spaces and apostrophes");
     }

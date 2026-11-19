@@ -1,0 +1,27 @@
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using SFA.DAS.EmployerAccounts.Configuration;
+using SFA.DAS.Encoding;
+
+namespace SFA.DAS.EmployerAccounts.Jobs.ServiceRegistrations;
+
+public static class ConfigurationServiceRegistrations
+{
+    public static IServiceCollection AddConfigurationSections(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions();
+
+        services.Configure<EmployerAccountsConfiguration>(configuration.GetSection(ConfigurationKeys.EmployerAccounts));
+        services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountsConfiguration>>().Value);
+        services.Configure<LevyDormancyConfiguration>(configuration.GetSection($"{ConfigurationKeys.EmployerAccounts}:LevyDormancy"));
+
+        var encodingConfigJson = configuration.GetSection(ConfigurationKeys.EncodingConfig).Value;
+        if (!string.IsNullOrWhiteSpace(encodingConfigJson))
+        {
+            var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
+            services.AddSingleton(encodingConfig);
+        }
+
+        return services;
+    }
+}
