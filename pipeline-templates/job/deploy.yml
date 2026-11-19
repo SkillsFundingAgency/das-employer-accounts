@@ -69,7 +69,6 @@ jobs:
             ConfigurationSecrets:
               CompaniesHouseKey: $(CompaniesHouseKey)
               DefaultSessionRedisConnectionString: $(DefaultSessionRedisConnectionString)
-              EASMessageServiceBusString: $(EASMessageServiceBusString)
               EmployerAccountsApimSubscriptionKey: $(EmployerAccountsApimSubscriptionKey)
               EmployerSharedServiceBusString: $(EmployerSharedServiceBusString)
               Hashstring: $(Hashstring)
