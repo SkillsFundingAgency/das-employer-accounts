@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging.ApplicationInsights;
+﻿using System.Linq;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerAccounts.Commands.AccountLevyStatus;
@@ -42,6 +44,7 @@ public static class HostBuilderExtensions
             services.AddNServiceBusUnitOfWork();
             services.AddMemoryCache();
             services.AddCachesRegistrations();
+            AlignDistributedCacheWithApi(services, context, employerAccountsConfiguration);
             services.AddDatabaseRegistration();
             services.AddAuditServices();
             services.AddHttpContextAccessor();
@@ -93,5 +96,26 @@ public static class HostBuilderExtensions
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
         });
+    }
+
+    private static void AlignDistributedCacheWithApi(
+        IServiceCollection services,
+        HostBuilderContext context,
+        EmployerAccountsConfiguration employerAccountsConfiguration)
+    {
+        var existingCache = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IDistributedCache));
+        if (existingCache != null)
+        {
+            services.Remove(existingCache);
+        }
+
+        if (context.HostingEnvironment.IsDevelopment())
+        {
+            services.AddDistributedMemoryCache();
+            return;
+        }
+
+        services.AddStackExchangeRedisCache(options =>
+            options.Configuration = employerAccountsConfiguration.RedisConnectionString);
     }
 }

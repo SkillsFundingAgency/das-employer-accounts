@@ -1,5 +1,5 @@
 ﻿using NServiceBus;
-using SFA.DAS.EmployerAccounts.Commands.RunHealthCheckCommand;
+using SFA.DAS.EmployerAccounts.Messages.Commands;
 using SFA.DAS.EmployerFinance.Messages.Commands;
 using SFA.DAS.Notifications.Messages.Commands;
 
@@ -22,8 +22,7 @@ public static class RoutingExtensions
         );
 
         routing.RouteToEndpoint(
-            typeof(RunHealthCheckCommand).Assembly,
-            typeof(RunHealthCheckCommand).Namespace,
+            typeof(RunHealthCheckCommand),
             "SFA.DAS.EmployerAccounts.MessageHandlers"
         );
     }
