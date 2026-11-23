@@ -41,37 +41,23 @@
         </div>
     </div>
 }
-@if (DateTime.UtcNow >= new DateTime(2026, 07, 01))
-{
-        <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-            <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">Important</h2>
-            </div>
-            <div class="govuk-notification-banner__content">
-                <h1 class="govuk-notification-banner__heading">You can continue adding learners yourself until Autumn 2026</h1>
-                <p class="govuk-body">
-                    The option to add learners yourself will not change until Autumn 2026.
-                </p>
-                <p class="govuk-body">
-                    We previously announced this option would be removed in August 2026.
-                </p>
-                <p class="govuk-body">
-                    From <b>Autumn 2026, you will not be able to add learners yourself.</b>
-                </p>
-                <p class="govuk-body">
-                    After this date, you will need to either:
-                    <ul>
-                        <li>
-                            <a href="@UrlHelpers.ProviderRelationshipsAction("providers")" class="govuk-link" target="_blank" rel="noreferrer">give your training provider permission (opens in new tab)</a> to add learners for you
-                        </li>
-                        <li>
-                            <a href="@UrlHelpers.EmployerCommitmentsV2Action("unapproved/Inform")" class="govuk-link" target="_blank" rel="noreferrer">request that your training provider (opens in new tab)</a> adds learners
-                        </li>
-                    </ul>
-                </p>
-            </div>
-        </div>
-}
+<div class="govuk-notification-banner" role="region" aria-labelledby="employer-ilr-banner-title" data-module="govuk-notification-banner">
+    <div class="govuk-notification-banner__header">
+        <h2 class="govuk-notification-banner__title" id="employer-ilr-banner-title">Important</h2>
+    </div>
+    <div class="govuk-notification-banner__content">
+        <h1 class="govuk-notification-banner__heading">Training providers can now add multiple learners from the Individualised Learner Record (ILR).</h1>
+        <p class="govuk-body">
+            They'll need your permission to add learner records.
+        </p>
+        <p class="govuk-body">
+            <a href="@UrlHelpers.ProviderRelationshipsAction("providers")" class="govuk-link">Check your provider permissions.</a>
+        </p>
+        <p class="govuk-body">
+            You can still add learners yourself.
+        </p>
+    </div>
+</div>
 @if (Model.Data.ShowLevyToNonLevyTransitionBanner)
 {
     <div class="govuk-notification-banner" role="region" aria-labelledby="levy-to-nonlevy-banner-title"
