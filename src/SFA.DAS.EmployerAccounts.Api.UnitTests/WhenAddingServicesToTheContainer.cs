@@ -10,6 +10,7 @@ using Microsoft.Extensions.Time.Testing;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmployerAccounts.Api.Orchestrators;
 using SFA.DAS.EmployerAccounts.Api.ServiceRegistrations;
 using SFA.DAS.EmployerAccounts.Commands.SupportChangeTeamMemberRole;
@@ -50,6 +51,7 @@ public class WhenAddingServicesToTheContainer
     [TestCase(typeof(AccountsOrchestrator))]
     [TestCase(typeof(AgreementOrchestrator))]
     [TestCase(typeof(UsersOrchestrator))]
+    [TestCase(typeof(IAccountApiClient))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_Orchestrators(Type toResolve)
     {
        RunTestForType(toResolve);

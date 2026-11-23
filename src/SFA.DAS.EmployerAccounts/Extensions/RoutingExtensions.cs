@@ -1,4 +1,5 @@
 ﻿using NServiceBus;
+using SFA.DAS.EmployerAccounts.Commands.RunHealthCheckCommand;
 using SFA.DAS.EmployerFinance.Messages.Commands;
 using SFA.DAS.Notifications.Messages.Commands;
 
@@ -18,6 +19,12 @@ public static class RoutingExtensions
             typeof(ImportLevyDeclarationsCommand).Assembly,
             typeof(ImportLevyDeclarationsCommand).Namespace,
             "SFA.DAS.EmployerFinance.MessageHandlers"
-            );
+        );
+
+        routing.RouteToEndpoint(
+            typeof(RunHealthCheckCommand).Assembly,
+            typeof(RunHealthCheckCommand).Namespace,
+            "SFA.DAS.EmployerAccounts.MessageHandlers"
+        );
     }
 }
