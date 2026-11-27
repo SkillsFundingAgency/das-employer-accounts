@@ -18,6 +18,7 @@ using SFA.DAS.EmployerAccounts.Data.Contracts;
 using SFA.DAS.EmployerAccounts.MessageHandlers.EventHandlers;
 using SFA.DAS.EmployerAccounts.MessageHandlers.Extensions;
 using SFA.DAS.EmployerAccounts.MessageHandlers.ServiceRegistrations;
+using SFA.DAS.EmployerAccounts.Messages.Commands;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Queries.GetUserByRef;
 using SFA.DAS.EmployerAccounts.ServiceRegistration;
@@ -31,6 +32,7 @@ public class WhenAddingServicesToTheContainer
 {
     [TestCase(typeof(IHandleMessages<CreatedAccountTaskListCompleteEvent>))]
     [TestCase(typeof(IHandleMessages<HealthCheckEvent>))]
+    [TestCase(typeof(IHandleMessages<RunHealthCheckCommand>))]
     public void Then_The_Dependencies_Are_Correctly_Resolved_For_EventHandlers(Type toResolve)
     {
         var services = new ServiceCollection();
@@ -75,6 +77,7 @@ public class WhenAddingServicesToTheContainer
         services.AddScoped<IAuditRepository, AuditRepository>();
         services.AddMemoryCache();
         services.AddCachesRegistrations();
+        services.AddDistributedMemoryCache();
         services.AddDatabaseRegistration();
         services.AddAuditServices();
         services.AddHttpContextAccessor();

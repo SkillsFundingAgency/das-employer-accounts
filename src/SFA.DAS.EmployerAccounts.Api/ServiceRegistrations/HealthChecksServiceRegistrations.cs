@@ -18,7 +18,6 @@ namespace SFA.DAS.EmployerAccounts.Api.ServiceRegistrations
         {
             services.AddHealthChecks()
                 .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
-                .AddCheck<ReservationsApiHealthCheck>("Employer Accounts API Health Check")
                 .AddSqlServer(configuration.DatabaseConnectionString, name: "Employer Accounts DB Health Check", configure: BeforeOpen);
 
             return services;
